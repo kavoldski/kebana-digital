@@ -1,0 +1,366 @@
+/**
+ * KEBANA Management System - Sidebar Navigation Styles
+ * File: src/css/sidebar.css
+ * 
+ * Styles for the collapsible left sidebar menu
+ */
+
+:root {
+    --primary-color: #0d6efd;
+    --primary-dark: #0b5ed7;
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 0px;
+    --transition-speed: 0.3s;
+}
+
+/* Sidebar Container */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: linear-gradient(180deg, #0d6efd 0%, #0b5ed7 100%);
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+    z-index: 1030;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform var(--transition-speed) ease;
+    padding-top: 0;
+}
+
+.sidebar.active {
+    transform: translateX(0);
+}
+
+/* Sidebar header */
+.sidebar-header {
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar-header h2 {
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sidebar-header h2::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: #00d4ff;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.sidebar-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.3s ease;
+}
+
+.sidebar-close:hover {
+    opacity: 0.7;
+}
+
+/* Sidebar Menu */
+.sidebar-menu {
+    list-style: none;
+    padding: 1rem 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin: 0;
+}
+
+.sidebar-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    font-size: 0.95rem;
+}
+
+.sidebar-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding-left: 2rem;
+}
+
+.sidebar-menu-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-left: 3px solid #00d4ff;
+}
+
+.sidebar-menu-item svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* Submenu */
+.sidebar-submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--transition-speed) ease;
+}
+
+.sidebar-menu-item.has-submenu::after {
+    content: "";
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid rgba(255, 255, 255, 0.6);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+    transition: transform var(--transition-speed) ease;
+}
+
+.sidebar-menu-item.has-submenu.expanded::after {
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+.sidebar-menu-item.has-submenu.expanded + .sidebar-submenu {
+    max-height: 500px;
+}
+
+.sidebar-submenu-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem 0.75rem 3rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-weight: 400;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar-submenu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.95);
+    padding-left: 3.5rem;
+}
+
+.sidebar-submenu-item.active {
+    color: #00d4ff;
+    font-weight: 600;
+}
+
+/* Hamburger Menu Toggle Button */
+.sidebar-toggle {
+    position: fixed;
+    left: 1rem;
+    top: 1rem;
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    border: none;
+    border-radius: 0.5rem;
+    color: white;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1031;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+}
+
+.sidebar-toggle:hover {
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.5);
+    transform: translateY(-2px);
+}
+
+.sidebar-toggle svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Main content offset when sidebar is active */
+.main-content {
+    transition: margin-left var(--transition-speed) ease;
+    margin-left: 0;
+}
+
+.main-content.sidebar-open {
+    margin-left: 0;
+}
+
+/* Overlay when sidebar is open */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+    z-index: 1025;
+    transition: background var(--transition-speed) ease;
+    pointer-events: none;
+}
+
+.sidebar-overlay.active {
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar-user:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 700;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.sidebar-user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebar-user-name {
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+.sidebar-user-role {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+/* Scrollbar styling */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 260px;
+    }
+
+    .sidebar {
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .sidebar-menu-item {
+        padding: 0.9rem 1.2rem;
+        font-size: 0.9rem;
+    }
+
+    .sidebar-submenu-item {
+        padding: 0.65rem 1.2rem 0.65rem 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+
+    .sidebar-header h2 {
+        font-size: 1rem;
+    }
+
+    .sidebar-menu-item {
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+        gap: 0.75rem;
+    }
+
+    .sidebar-menu-item svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .sidebar-toggle {
+        width: 40px;
+        height: 40px;
+    }
+
+    .sidebar-toggle svg {
+        width: 20px;
+        height: 20px;
+    }
+}
