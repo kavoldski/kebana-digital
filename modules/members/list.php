@@ -34,10 +34,11 @@ if (isset($_GET['delete']) && isset($_GET['confirm']) && $_GET['confirm'] === 'y
     $member_id = (int)$_GET['delete'];
     $result = deleteMember($conn, $member_id);
 
-    if ($result['status']) {
+if ($result['status']) {
         $delete_message = $result['message'];
         $delete_message_type = 'success';
-        header("Refresh:2; url=list.php");
+        // Use JavaScript redirect since HTML has already been output via header.php
+        echo '<script>setTimeout(function(){ window.location.href = "list.php"; }, 2000);</script>';
     } else {
         $delete_message = $result['message'];
         $delete_message_type = 'error';

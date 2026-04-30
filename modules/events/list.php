@@ -18,10 +18,11 @@ if (isset($_GET['delete']) && isset($_GET['confirm']) && $_GET['confirm'] === 'y
     $event_id = (int)$_GET['delete'];
     $result = deleteEvent($conn, $event_id);
 
-    if ($result['status']) {
+if ($result['status']) {
         $message = $result['message'];
         $message_type = 'success';
-        header("Refresh:1; url=list.php");
+        // Use JavaScript redirect since HTML has already been output via header.php
+        echo '<script>setTimeout(function(){ window.location.href = "list.php"; }, 1000);</script>';
     } else {
         $message = $result['message'];
         $message_type = 'error';
