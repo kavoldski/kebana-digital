@@ -362,3 +362,157 @@ function getAllMembersWithAttendance($conn, $event_id) {
     return $members;
 }
 
+/**
+ * Handle event document (proposal) upload
+ *
+ * @param mysqli $conn Database connection
+ * @param int $event_id Event ID
+ * @param array $file_data File data from $_FILES
+ * @return array Result with status and message
+ */
+function handleEventDocumentUpload($conn, $event_id, $file_data) {
+    // Allowed file extensions
+    $allowed_extensions = ['pdf', 'doc', 'docx'];
+    
+    // Get file extension
+    $file_name = $file_data['name'];
+    $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+    
+    // Validate file extension
+    if (!in_array($file_ext, $allowed_extensions)) {
+        return ['status' => false, 'message' => 'Invalid file type. Allowed: PDF, DOC, DOCX'];
+    }
+    
+    // Validate file size (max 10MB)
+    $max_size = 10 * 1024 * 1024; // 10MB
+    if ($file_data['size'] > $max_size) {
+        return ['status' => false, 'message' => 'File size exceeds 10MB limit'];
+    }
+    
+    // Create uploads directory if it doesn't exist
+    $upload_dir = __DIR__ . '/../uploads/events';
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0755, true);
+    }
+    
+    // Generate unique filename
+    $new_filename = 'event_' . $event_id . '_proposal_' . time() . '.' . $file_ext;
+    $target_path = $upload_dir . '/' . $new_filename;
+    
+    // Move uploaded file
+    if (!move_uploaded_file($file_data['tmp_name'], $target_path)) {
+        return ['status' => false, 'message' => 'Failed to save uploaded file'];
+    }
+    
+    // Save document record to database
+    $doc_name = 'Event Proposal - ' . basename($file_name);
+    $file_path = 'uploads/events/' . $new_filename;
+    
+    $stmt = $conn->prepare("
+        INSERT INTO tbl_document (event_id, doc_name, file_path)
+        VALUES (?, ?, ?)
+    ");
+    
+    if (!$stmt) {
+        return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+    }
+    
+    $stmt->bind_param("iss", $event_id, $doc_name, $file_path);
+    
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        // Remove uploaded file if database insert fails
+        @unlink($target_path);
+        return ['status' => false, 'message' => 'Database error: ' . $error];
+    }
+    
+    $stmt->close();
+    return ['status' => true, 'message' => 'Document uploaded successfully'];
+}
+
+/**
+ * Get documents for an event
+ *
+ * @param mysqli $conn Database connection
+ * @param int $event_id Event ID
+ * @return array Array of document records
+ */
+function getEventDocuments($conn, $event_id) {
+    $stmt = $conn->prepare("
+        SELECT doc_id, doc_name, file_path, uploaded_at
+        FROM tbl_document
+        WHERE event_id = ?
+        ORDER BY uploaded_at DESC
+    ");
+    
+    if (!$stmt) return [];
+    
+    $stmt->bind_param("i", $event_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $documents = [];
+    while ($row = $result->fetch_assoc()) {
+        $documents[] = $row;
+    }
+    $stmt->close();
+    return $documents;
+}
+
+/**
+ * Delete event document
+ *
+ * @param mysqli $conn Database connection
+ * @param int $doc_id Document ID
+ * @return array Result with status and message
+ */
+function deleteEventDocument($conn, $doc_id) {
+    if (empty($doc_id)) {
+        return ['status' => false, 'message' => 'Invalid document ID'];
+    }
+    
+    // Get file path before deleting
+    $stmt = $conn->prepare("SELECT file_path FROM tbl_document WHERE doc_id = ?");
+    if (!$stmt) {
+        return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+    }
+    
+    $stmt->bind_param("i", $doc_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        return ['status' => false, 'message' => 'Document not found'];
+    }
+    
+    $doc = $result->fetch_assoc();
+    $file_path = $doc['file_path'];
+    $stmt->close();
+    
+    // Delete from database
+    $stmt = $conn->prepare("DELETE FROM tbl_document WHERE doc_id = ?");
+    if (!$stmt) {
+        return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+    }
+    
+    $stmt->bind_param("i", $doc_id);
+    
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        return ['status' => false, 'message' => 'Database error: ' . $error];
+    }
+    
+    $stmt->close();
+    
+    // Delete physical file
+    $full_path = __DIR__ . '/../' . $file_path;
+    if (file_exists($full_path)) {
+        @unlink($full_path);
+    }
+    
+    return ['status' => true, 'message' => 'Document deleted successfully'];
+}
+

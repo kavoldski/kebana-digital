@@ -19,7 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result['status']) {
         $message = $result['message'];
         $message_type = 'success';
-        header("Refresh:1; url=list.php");
+        // Handle file upload if provided
+        if (isset($_FILES['proposal_file']) && $_FILES['proposal_file']['error'] === UPLOAD_ERR_OK) {
+            $event_id = $result['event_id'];
+            $upload_result = handleEventDocumentUpload($conn, $event_id, $_FILES['proposal_file']);
+            if (!$upload_result['status']) {
+                $message .= ' (Warning: File upload failed - ' . $upload_result['message'] . ')';
+            }
+        }
+        // Use JavaScript redirect since HTML has already been output via header.php
+        echo '<script>setTimeout(function(){ window.location.href = "list.php"; }, 1000);</script>';
     } else {
         $message = $result['message'];
         $message_type = 'error';
@@ -55,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h3 class="card-title">Event Details</h3>
                 </div>
                 <div class="card-body-custom">
-                    <form method="POST" action="" class="form-container">
+<form method="POST" action="" class="form-container" enctype="multipart/form-data">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="event_title" class="form-label">Event Title <span class="text-danger">*</span></label>
@@ -75,11 +84,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                        placeholder="e.g., Community Hall" value="<?php echo isset($_POST['venue']) ? htmlspecialchars($_POST['venue']) : ''; ?>">
                             </div>
 
-                        <div class="form-row">
+<div class="form-row">
                             <div class="form-group">
                                 <label for="budget_est" class="form-label">Estimated Budget (RM)</label>
                                 <input type="number" step="0.01" min="0" class="form-input" id="budget_est" name="budget_est"
                                        placeholder="0.00" value="<?php echo isset($_POST['budget_est']) ? htmlspecialchars($_POST['budget_est']) : ''; ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="proposal_file" class="form-label">Paperwork Proposal (PDF, DOC, DOCX)</label>
+                                <input type="file" class="form-input" id="proposal_file" name="proposal_file" accept=".pdf,.doc,.docx">
+                                <small class="text-muted">Optional - Upload the event proposal document</small>
                             </div>
 
                         <div class="form-actions">
