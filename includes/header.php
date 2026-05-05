@@ -25,7 +25,11 @@ require_once __DIR__ . '/dbconnect.php';
     <link rel="stylesheet" href="../../src/css/sidebar.css">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?php echo isset($css_path) ? htmlspecialchars($css_path) : '../../src/css/dashboard.css'; ?>">
+<link rel="stylesheet" href="<?php echo isset($css_path) ? htmlspecialchars($css_path) : '../../src/css/dashboard.css'; ?>">
+    <?php if (isset($extra_css)): ?>
+        <link rel="stylesheet" href="<?php echo htmlspecialchars($extra_css); ?>">
+    <?php endif; ?>
+
     
     <style>
         :root {

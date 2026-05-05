@@ -1,7 +1,7 @@
 # Finance Module Implementation
 Status: IN PROGRESS
 
-1. [x] Create includes/finance_helper.php (basic)
+1. [x] includes/finance_helper.php (basic/stub)
 2. [ ] Create modules/finance/dashboard.php
 3. [ ] Create modules/finance/transactions/list.php
 4. [ ] Create modules/finance/transactions/create.php
