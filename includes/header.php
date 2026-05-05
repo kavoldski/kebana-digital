@@ -131,8 +131,8 @@ require_once __DIR__ . '/dbconnect.php';
                         <span>Finance</span>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li><a href="#" class="sidebar-submenu-item">Dashboard</a></li>
-                        <li><a href="#" class="sidebar-submenu-item">Transactions</a></li>
+<li><a href="../../modules/finance/dashboard.php" class="sidebar-submenu-item">Dashboard</a></li>
+
                         <li><a href="#" class="sidebar-submenu-item">Budget</a></li>
                         <li><a href="#" class="sidebar-submenu-item">Reports</a></li>
                     </ul>

@@ -1,12 +1,13 @@
-# Event & Attendance Module Implementation - TODO
+# Finance Module Implementation
+Status: IN PROGRESS
 
-- [x] Plan approved by user
-- [ ] Create `includes/events_helper.php`
-- [ ] Create `modules/events/list.php`
-- [ ] Create `modules/events/create.php`
-- [ ] Create `modules/events/attendance.php`
-- [ ] Update `includes/header.php` sidebar links
-- [ ] Update `database.sql` with `tbl_attendance`
-- [ ] Provide SQL command for existing DB
+1. [x] Create includes/finance_helper.php (basic)
+2. [ ] Create modules/finance/dashboard.php
+3. [ ] Create modules/finance/transactions/list.php
+4. [ ] Create modules/finance/transactions/create.php
+5. [ ] Create modules/finance/transactions/edit.php
+6. [ ] Create modules/finance/transactions/delete.php
+7. [ ] Update includes/header.php nav links
 
-
+Treasurer/Super Admin: CRUD
+Secretary: View only
