@@ -90,8 +90,9 @@ if (isset($conn)) {
                             }
                             $recent_stmt->close();
                         } else {
-                            echo '<tr><td colspan="5" class="text-center text-muted">Error loading transactions (check if tbl_transaction exists)</td></tr>';
+                            echo '<tr><td colspan="5" class="text-center text-muted">No transactions found.</td></tr>';
                         }
+
                         ?>
                         </tbody>
                     </table>

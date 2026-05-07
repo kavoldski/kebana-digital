@@ -301,3 +301,82 @@
   animation: floatUp 6s ease-in-out infinite;
 }
 
+/* ============================================
+   Transaction Create Form (scoped)
+   Fix alignment/spacing issues without touching
+   sidebar/global Bootstrap styles.
+   ============================================ */
+
+.transaction-create-form .transaction-type-block {
+  margin-bottom: 1.25rem;
+}
+
+/* Elegant, simple transaction-type controls */
+.transaction-create-form .d-flex.gap-3 {
+  gap: 1rem !important;
+}
+
+.transaction-create-form .form-check {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.transaction-create-form .form-check:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(13, 110, 253, 0.08);
+  border-color: rgba(13, 110, 253, 0.35);
+}
+
+.transaction-create-form .form-check-input {
+  margin-right: 0.65rem;
+}
+
+/* removed old .transaction-type-options/.transaction-type-option card styles */
+
+
+.transaction-create-form .transaction-field {
+  margin-top: 0.25rem;
+}
+
+.transaction-create-form label.form-label {
+  font-weight: 700;
+}
+
+.transaction-create-form .form-control,
+.transaction-create-form .form-select {
+  box-shadow: none;
+}
+
+.transaction-create-form .input-group {
+  align-items: stretch;
+}
+
+.transaction-create-form .input-group-text {
+  white-space: nowrap;
+}
+
+.transaction-create-form .transaction-footer-actions {
+  margin-top: 2rem;
+}
+
+/* Make sure icons/emoji in the transaction-type cards don't overlap form fields */
+.transaction-create-form .finance-kpi-card {
+  position: relative;
+  z-index: 0;
+}
+
+.transaction-create-form .transaction-footer-actions {
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .transaction-create-form .transaction-type-options {
+    gap: 0.75rem;
+  }
+}
+
+
