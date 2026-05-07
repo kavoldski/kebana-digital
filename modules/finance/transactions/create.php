@@ -32,26 +32,42 @@ if (isset($_POST['submit'])) {
     } elseif (empty($trans_date)) {
         $message = 'Transaction date is required';
     } else {
-        $stmt = $conn->prepare("INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, recorded_by, event_id, payment_mode, month_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        if (!$stmt) {
-            $message = 'Error preparing transaction insert: ' . $conn->error;
+        if ($event_id === null) {
+            $stmt = $conn->prepare("INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, recorded_by, event_id, payment_mode, month_label) VALUES (?, ?, ?, ?, ?, NULL, ?, ?)");
+            if (!$stmt) {
+                $message = 'Error preparing transaction insert: ' . $conn->error;
+            } else {
+                $stmt->bind_param(
+                    "sdssiss",
+                    $type,
+                    $amount,
+                    $category,
+                    $trans_date,
+                    $user_id,
+                    $payment_mode,
+                    $month_label
+                );
+            }
         } else {
-            $stmt->bind_param(
-                "sdssiiss",
-                $type,
-                $amount,
-                $category,
-                $trans_date,
-                $user_id,
-                $event_id,
-                $payment_mode,
-                $month_label
-            );
+            $stmt = $conn->prepare("INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, recorded_by, event_id, payment_mode, month_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            if (!$stmt) {
+                $message = 'Error preparing transaction insert: ' . $conn->error;
+            } else {
+                $stmt->bind_param(
+                    "sdssiiss",
+                    $type,
+                    $amount,
+                    $category,
+                    $trans_date,
+                    $user_id,
+                    $event_id,
+                    $payment_mode,
+                    $month_label
+                );
+            }
+        }
 
-
-
-
-        
+        if (isset($stmt) && $stmt) {
             if ($stmt->execute()) {
                 $message = 'Transaction created successfully!';
                 // Reset form
