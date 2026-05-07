@@ -67,8 +67,8 @@ function addEvent($conn, $event_data, $user_id) {
     }
 
     $stmt = $conn->prepare("
-        INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status)
+        VALUES (?, ?, ?, ?, ?, ?)
     ");
 
     if (!$stmt) {
@@ -79,8 +79,9 @@ function addEvent($conn, $event_data, $user_id) {
     $date = $event_data['event_date'];
     $venue = $event_data['venue'];
     $budget = !empty($event_data['budget_est']) ? (float)$event_data['budget_est'] : null;
+    $status = 'Draft';
 
-    $stmt->bind_param("sssdi", $title, $date, $venue, $budget, $user_id);
+    $stmt->bind_param("sssdis", $title, $date, $venue, $budget, $user_id, $status);
 
     if (!$stmt->execute()) {
         $error = $stmt->error;
@@ -96,6 +97,102 @@ function addEvent($conn, $event_data, $user_id) {
         'message' => 'Event created successfully',
         'event_id' => $event_id
     ];
+}
+
+/**
+ * Submit event proposal for review
+ *
+ * Allowed transition: Draft -> Submitted
+ */
+function submitEventProposal($conn, $event_id) {
+    $current = getEventById($conn, $event_id);
+    if (!$current) {
+        return ['status' => false, 'message' => 'Event not found'];
+    }
+
+    $current_status = $current['status'] ?? 'Draft';
+    if ($current_status !== 'Draft') {
+        return ['status' => false, 'message' => 'Only Draft proposals can be submitted'];
+    }
+
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Submitted' WHERE event_id = ?");
+    if (!$stmt) {
+        return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+    }
+
+    $stmt->bind_param("i", $event_id);
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        return ['status' => false, 'message' => 'Database error: ' . $error];
+    }
+
+    $stmt->close();
+    return ['status' => true, 'message' => 'Proposal submitted for approval'];
+}
+
+/**
+ * Approve submitted event proposal
+ *
+ * Allowed transition: Submitted -> Approved
+ */
+function approveEventProposal($conn, $event_id) {
+    $current = getEventById($conn, $event_id);
+    if (!$current) {
+        return ['status' => false, 'message' => 'Event not found'];
+    }
+
+    $current_status = $current['status'] ?? 'Draft';
+    if ($current_status !== 'Submitted') {
+        return ['status' => false, 'message' => 'Only Submitted proposals can be approved'];
+    }
+
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Approved' WHERE event_id = ?");
+    if (!$stmt) {
+        return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+    }
+
+    $stmt->bind_param("i", $event_id);
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        return ['status' => false, 'message' => 'Database error: ' . $error];
+    }
+
+    $stmt->close();
+    return ['status' => true, 'message' => 'Proposal approved successfully'];
+}
+
+/**
+ * Reject submitted event proposal
+ *
+ * Allowed transition: Submitted -> Rejected
+ */
+function rejectEventProposal($conn, $event_id) {
+    $current = getEventById($conn, $event_id);
+    if (!$current) {
+        return ['status' => false, 'message' => 'Event not found'];
+    }
+
+    $current_status = $current['status'] ?? 'Draft';
+    if ($current_status !== 'Submitted') {
+        return ['status' => false, 'message' => 'Only Submitted proposals can be rejected'];
+    }
+
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Rejected' WHERE event_id = ?");
+    if (!$stmt) {
+        return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+    }
+
+    $stmt->bind_param("i", $event_id);
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        return ['status' => false, 'message' => 'Database error: ' . $error];
+    }
+
+    $stmt->close();
+    return ['status' => true, 'message' => 'Proposal rejected'];
 }
 
 /**

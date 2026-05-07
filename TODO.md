@@ -30,11 +30,19 @@
   - [x] Ensure nullable `event_id` is handled safely for insert.
   - [x] Run `php -l` syntax check.
 
-- [ ] FR_03: Auto logout after inactivity:
-  - [ ] Add inactivity timeout enforcement in `includes/auth.php` (15 minutes).
-  - [ ] Destroy session and redirect to login with timeout message when idle limit exceeded.
-  - [ ] Refresh last activity timestamp on valid requests.
-  - [ ] Run `php -l` syntax check for `includes/auth.php`.
+- [x] FR_03: Auto logout after inactivity:
+  - [x] Add inactivity timeout enforcement in `includes/auth.php` (15 minutes).
+  - [x] Destroy session and redirect to login with timeout message when idle limit exceeded.
+  - [x] Refresh last activity timestamp on valid requests.
+  - [x] Run `php -l` syntax check for `includes/auth.php`.
+
+- [ ] FR_13: Event proposal workflow enforcement:
+  - [ ] Use `tbl_event.status` as workflow state.
+  - [ ] Set default status to `Draft` on event creation.
+  - [ ] Add workflow transition helpers in `includes/events_helper.php`.
+  - [ ] Add submit/approve/reject actions with role restrictions in `modules/events/list.php`.
+  - [ ] Display status badge in events list based on workflow state.
+  - [ ] Run `php -l` syntax checks for modified files.
 
 - [ ] Run PHP lint checks (`php -l`) for modified files.
 
