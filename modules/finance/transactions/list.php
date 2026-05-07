@@ -35,38 +35,41 @@ $offset = ($page_num - 1) * $per_page;
 
 // Build WHERE clause
 $where = '1=1';
-$params = [];
-$types = '';
+$filter_params = [];
+$filter_types = '';
 if ($from_date) {
     $where .= ' AND trans_date >= ?';
-    $params[] = $from_date;
-    $types .= 's';
+    $filter_params[] = $from_date;
+    $filter_types .= 's';
 }
 if ($to_date) {
     $where .= ' AND trans_date <= ?';
-    $params[] = $to_date;
-    $types .= 's';
+    $filter_params[] = $to_date;
+    $filter_types .= 's';
 }
 if ($type_filter) {
     $where .= ' AND trans_type = ?';
-    $params[] = $type_filter;
-    $types .= 's';
+    $filter_params[] = $type_filter;
+    $filter_types .= 's';
 }
 if ($category_filter) {
     $where .= ' AND category LIKE ?';
-    $params[] = "%$category_filter%";
-    $types .= 's';
+    $filter_params[] = "%$category_filter%";
+    $filter_types .= 's';
 }
 
 // Get filtered transactions
-$stmt = $conn->prepare("SELECT * FROM tbl_transaction WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
+$stmt = $conn->prepare("SELECT * FROM tbl_transaction WHERE $where ORDER BY trans_date DESC, trans_id DESC LIMIT ? OFFSET ?");
 if (!$stmt) {
     die('DB error (prepare transactions list)');
 }
 
-$params[] = $per_page;
-$params[] = $offset;
-$stmt->bind_param($types, ...$params);
+$list_params = $filter_params;
+$list_params[] = $per_page;
+$list_params[] = $offset;
+$list_types = $filter_types . 'ii';
+
+$stmt->bind_param($list_types, ...$list_params);
 $stmt->execute();
 $result = $stmt->get_result();
 $stmt->close();
@@ -78,9 +81,9 @@ $totals_sql = "SELECT
     SUM(CASE WHEN trans_type = 'Expense' THEN amount ELSE 0 END) as total_expense
     FROM tbl_transaction WHERE $where";
 
-// Bind the same filter params used by $stmt (but not the pagination params)
-$types_totals = $types; // currently contains only filters (s/s) and we have not appended pagination yet
-$params_totals = $params;
+// Bind filter params only (no pagination params)
+$types_totals = $filter_types;
+$params_totals = $filter_params;
 
 // If there are no filters, $types will be '' and params will be empty; mysqli allows this.
 $totals_stmt = $conn->prepare($totals_sql);
@@ -118,7 +121,7 @@ $total_pages = max(1, (int)ceil($total_count / $per_page));
 ?>
 
 
-<div class="container-xl py-5">
+<div class="container-xl py-5 transactions-list-page">
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -133,18 +136,18 @@ $total_pages = max(1, (int)ceil($total_count / $per_page));
     </div>
 
     <!-- Filter Form -->
-    <div class="card mb-4">
+    <div class="card mb-4 transactions-filter-card">
         <div class="card-body">
-            <form method="GET" class="row g-3">
-                <div class="col-md-2">
+            <form method="GET" class="transactions-filter-form">
+                <div class="filter-field">
                     <label class="form-label">From Date</label>
                     <input type="date" name="from" value="<?php echo htmlspecialchars($from_date); ?>" class="form-control">
                 </div>
-                <div class="col-md-2">
+                <div class="filter-field">
                     <label class="form-label">To Date</label>
                     <input type="date" name="to" value="<?php echo htmlspecialchars($to_date); ?>" class="form-control">
                 </div>
-                <div class="col-md-2">
+                <div class="filter-field">
                     <label class="form-label">Type</label>
                     <select name="type" class="form-select">
                         <option value="">All</option>
@@ -152,12 +155,12 @@ $total_pages = max(1, (int)ceil($total_count / $per_page));
                         <option value="Expense" <?php echo $type_filter == 'Expense' ? 'selected' : ''; ?>>Expense</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="filter-field filter-field-wide">
                     <label class="form-label">Category</label>
                     <input type="text" name="category" value="<?php echo htmlspecialchars($category_filter); ?>" placeholder="e.g. Membership, Donation" class="form-control">
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-outline-primary w-100">
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary w-100">
                         <i class="fas fa-search me-2"></i>Filter
                     </button>
                 </div>
@@ -166,7 +169,7 @@ $total_pages = max(1, (int)ceil($total_count / $per_page));
     </div>
 
     <!-- Summary Cards -->
-    <div class="row mb-4">
+    <div class="row mb-4 transactions-summary-row">
         <div class="col-md-4">
             <div class="finance-kpi-card balance-card">
                 <div class="kpi-icon-finance">💰</div>
