@@ -371,22 +371,22 @@ function getAllMembersWithAttendance($conn, $event_id) {
  * @return array Result with status and message
  */
 function handleEventDocumentUpload($conn, $event_id, $file_data) {
-    // Allowed file extensions
-    $allowed_extensions = ['pdf', 'doc', 'docx'];
+    // Allowed file extensions (RBAC proposal flow)
+    $allowed_extensions = ['pdf', 'jpg', 'jpeg', 'png'];
     
     // Get file extension
     $file_name = $file_data['name'];
     $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
     
     // Validate file extension
-    if (!in_array($file_ext, $allowed_extensions)) {
-        return ['status' => false, 'message' => 'Invalid file type. Allowed: PDF, DOC, DOCX'];
+    if (!in_array($file_ext, $allowed_extensions, true)) {
+        return ['status' => false, 'message' => 'Invalid file type. Allowed: PDF, JPG, JPEG, PNG'];
     }
     
-    // Validate file size (max 10MB)
-    $max_size = 10 * 1024 * 1024; // 10MB
+    // Validate file size (max 5MB)
+    $max_size = 5 * 1024 * 1024; // 5MB
     if ($file_data['size'] > $max_size) {
-        return ['status' => false, 'message' => 'File size exceeds 10MB limit'];
+        return ['status' => false, 'message' => 'File size exceeds 5MB limit'];
     }
     
     // Create uploads directory if it doesn't exist

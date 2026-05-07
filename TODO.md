@@ -19,5 +19,11 @@
   - [ ] Improve filter arrangement/layout for cleaner appearance.
   - [ ] Arrange balance cards horizontally with elegant styling.
 
+- [ ] Fix Proposal Logic (RBAC step-by-step):
+  - [ ] Restrict event proposal creation to `Secretary` and `Super Admin`.
+  - [ ] Fix `modules/events/create.php` form structure and step flow messaging.
+  - [ ] Enforce upload policy: `pdf/jpg/jpeg/png`, max 5MB.
+  - [ ] Improve validation error messages for proposal upload.
+
 - [ ] Run PHP lint checks (`php -l`) for modified files.
 
