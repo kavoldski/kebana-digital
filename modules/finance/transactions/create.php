@@ -30,8 +30,10 @@ if (isset($_POST['submit'])) {
     } elseif (empty($trans_date)) {
         $message = 'Transaction date is required';
     } else {
-        $stmt = $conn->prepare("INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, month_label, recorded_by, event_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sdsssii", $type, $amount, $category, $trans_date, $month_label, $user_id, $event_id);
+$stmt = $conn->prepare("INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, recorded_by) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sdssi", $type, $amount, $category, $trans_date, $user_id);
+
+
         
         if ($stmt->execute()) {
             $message = 'Transaction created successfully!';

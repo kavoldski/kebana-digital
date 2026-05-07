@@ -60,28 +60,63 @@ if ($category_filter) {
 
 // Get filtered transactions
 $stmt = $conn->prepare("SELECT * FROM tbl_transaction WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
+if (!$stmt) {
+    die('DB error (prepare transactions list)');
+}
+
 $params[] = $per_page;
 $params[] = $offset;
-$types .= 'ii';
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 $stmt->close();
 
-// Get totals for period
-$total_sql = "SELECT 
+
+// Get totals + count for current filters (prepared to match placeholders)
+$totals_sql = "SELECT 
     SUM(CASE WHEN trans_type = 'Income' THEN amount ELSE 0 END) as total_income,
     SUM(CASE WHEN trans_type = 'Expense' THEN amount ELSE 0 END) as total_expense
     FROM tbl_transaction WHERE $where";
-$total_result = $conn->query($total_sql);
-$total_row = $total_result->fetch_assoc();
-$total_income = (float)($total_row['total_income'] ?? 0);
-$total_expense = (float)($total_row['total_expense'] ?? 0);
+
+// Bind the same filter params used by $stmt (but not the pagination params)
+$types_totals = $types; // currently contains only filters (s/s) and we have not appended pagination yet
+$params_totals = $params;
+
+// If there are no filters, $types will be '' and params will be empty; mysqli allows this.
+$totals_stmt = $conn->prepare($totals_sql);
+if (!$totals_stmt) {
+    die('DB error (prepare totals)');
+}
+if (!empty($params_totals)) {
+    $totals_stmt->bind_param($types_totals, ...$params_totals);
+}
+$totals_stmt->execute();
+$totals_result = $totals_stmt->get_result();
+$totals_row = $totals_result ? $totals_result->fetch_assoc() : null;
+$totals_stmt->close();
+
+$total_income = (float)($totals_row['total_income'] ?? 0);
+$total_expense = (float)($totals_row['total_expense'] ?? 0);
 $balance = $total_income - $total_expense;
 
-$total_count = $conn->query("SELECT COUNT(*) as count FROM tbl_transaction WHERE $where")->fetch_assoc()['count'];
-$total_pages = ceil($total_count / $per_page);
+// Total count for pagination (also prepared)
+$count_sql = "SELECT COUNT(*) as count FROM tbl_transaction WHERE $where";
+$count_stmt = $conn->prepare($count_sql);
+if (!$count_stmt) {
+    die('DB error (prepare count)');
+}
+if (!empty($params_totals)) {
+    $count_stmt->bind_param($types_totals, ...$params_totals);
+}
+$count_stmt->execute();
+$count_result = $count_stmt->get_result();
+$count_row = $count_result ? $count_result->fetch_assoc() : null;
+$count_stmt->close();
+
+$total_count = (int)($count_row['count'] ?? 0);
+$total_pages = max(1, (int)ceil($total_count / $per_page));
 ?>
+
 
 <div class="container-xl py-5">
     <div class="row">

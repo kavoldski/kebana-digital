@@ -22,8 +22,11 @@ if (isset($conn)) {
 <div class="finance-dashboard">
     <div class="container-xl">
         <div class="row mb-5">
-            <div class="col-12">
-                <h1 class="mb-5" style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Finance Dashboard</h1>
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h1 class="mb-0" style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Finance Dashboard</h1>
+                <a href="transactions/create.php" class="btn btn-primary btn-lg shadow-sm" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); border: none; padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 600;">
+                    <i class="fas fa-plus me-2"></i>New Transaction
+                </a>
             </div>
         </div>
 

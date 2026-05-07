@@ -27,8 +27,10 @@ require_once __DIR__ . '/dbconnect.php';
     <!-- Custom CSS -->
 <link rel="stylesheet" href="<?php echo isset($css_path) ? htmlspecialchars($css_path) : '../../src/css/dashboard.css'; ?>">
     <?php if (isset($extra_css)): ?>
+        <!-- extra_css is page-scoped; keep loading after core/sidebar CSS -->
         <link rel="stylesheet" href="<?php echo htmlspecialchars($extra_css); ?>">
     <?php endif; ?>
+
 
     
     <style>
