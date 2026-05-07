@@ -16,12 +16,17 @@ $amount = $_POST['amount'] ?? '';
 $category = $_POST['category'] ?? '';
 $trans_date = $_POST['trans_date'] ?? date('Y-m-d');
 $event_id_post = $_POST['event_id'] ?? '';
+$payment_mode = $_POST['payment_mode'] ?? 'Cash';
 
 if (isset($_POST['submit'])) {
     $amount = floatval($amount);
     $trans_date = $_POST['trans_date'];
     $month_label = strtoupper(date('M', strtotime($trans_date)));
     $event_id = !empty($_POST['event_id']) ? (int)$_POST['event_id'] : null;
+
+    // Ensure NULL for empty event_id
+    $event_id = $event_id === '' ? null : $event_id;
+
     
     if ($amount <= 0) {
         $message = 'Amount must be greater than 0';
@@ -30,8 +35,22 @@ if (isset($_POST['submit'])) {
     } elseif (empty($trans_date)) {
         $message = 'Transaction date is required';
     } else {
-$stmt = $conn->prepare("INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, recorded_by) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sdssi", $type, $amount, $category, $trans_date, $user_id);
+$stmt = $conn->prepare("INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, recorded_by, event_id, payment_mode, month_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+
+$stmt->bind_param(
+            "sdsssi ss",
+            $type,
+            $amount,
+            $category,
+            $trans_date,
+            $user_id,
+            $event_id,
+            $payment_mode,
+            $month_label
+        );
+
+
 
 
         
@@ -141,15 +160,24 @@ if ($event_result) {
                         <div class="mt-4">
                             <label for="event_id" class="form-label fw-bold mb-2">Link to Project / Event (Optional)</label>
                             <select class="form-select form-select-lg shadow-sm" id="event_id" name="event_id">
-                                <option value="">-- General Association Transaction --</option>
+                                <option value="">-- General Association Fund --</option>
                                 <?php foreach ($events as $event): ?>
                                     <option value="<?php echo htmlspecialchars($event['event_id']); ?>" <?php echo $event_id_post == $event['event_id'] ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($event['event_title']); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <div class="form-text mt-2"><i class="fas fa-info-circle me-1"></i>Leave blank if this is a general expense/income not tied to a specific project.</div>
+                            <div class="form-text mt-2"><i class="fas fa-info-circle me-1"></i>Leave blank for general transactions not tied to a specific project/event.</div>
                         </div>
+
+                        <div class="mt-4">
+                            <label for="payment_mode" class="form-label fw-bold mb-2">Payment Mode</label>
+                            <select class="form-select form-select-lg shadow-sm" id="payment_mode" name="payment_mode" required>
+                                <option value="Cash" <?php echo $payment_mode === 'Cash' ? 'selected' : ''; ?>>Cash</option>
+                                <option value="Bank" <?php echo $payment_mode === 'Bank' ? 'selected' : ''; ?>>Bank</option>
+                            </select>
+                        </div>
+
 
                         <div class="transaction-footer-actions mt-5 text-center d-flex flex-column flex-sm-row justify-content-center gap-3" style="position: relative;">
 

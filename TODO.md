@@ -1,8 +1,29 @@
-# TODO
+- [ ] Update `modules/finance/transactions/create.php`:
+  - [x] Add payment_mode field (Cash/Bank)
+  - [ ] Ensure event_id dropdown allows empty/null
+  - [ ] Compute month_label from trans_date
+  - [ ] Insert columns using new prepared statement including event_id, payment_mode, month_label
 
-## Finance: Transactions List - crash + view styling
-- [x] Identify crash cause in `modules/finance/transactions/list.php` (prepare/bind_param on false)
-- [ ] Fix SQL totals + count queries to use prepared statements with bound parameters
-- [ ] Verify empty-state + badge/table styling matches `src/css/finance.css`
-- [ ] Sanity test by applying filters on the transactions list page
+
+- [ ] Update `modules/finance/dashboard.php`:
+  - [ ] Switch to PDO for queries
+  - [ ] Recent Transactions LEFT JOIN tbl_event and show event_title/fallback
+  - [ ] Show payment_mode column in table
+
+- [x] Fix `modules/finance/transactions/list.php` DB error (prepare transactions list):
+  - [x] Correct `bind_param` type string for pagination (`LIMIT`/`OFFSET`).
+  - [x] Separate filter params/types from pagination params/types for totals/count queries.
+  - [x] Replace invalid sort column `created_at` with `trans_date DESC, trans_id DESC`.
+
+- [ ] Refine Transactions List UI:
+  - [ ] Improve filter arrangement/layout for cleaner appearance.
+  - [ ] Arrange balance cards horizontally with elegant styling.
+
+- [ ] Fix Proposal Logic (RBAC step-by-step):
+  - [ ] Restrict event proposal creation to `Secretary` and `Super Admin`.
+  - [ ] Fix `modules/events/create.php` form structure and step flow messaging.
+  - [ ] Enforce upload policy: `pdf/jpg/jpeg/png`, max 5MB.
+  - [ ] Improve validation error messages for proposal upload.
+
+- [ ] Run PHP lint checks (`php -l`) for modified files.
 
