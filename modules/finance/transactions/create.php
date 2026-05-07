@@ -79,25 +79,25 @@ if ($event_result) {
                         </div>
                     <?php endif; ?>
 
-                    <form method="POST">
-                        <div class="mb-4">
-                            <label class="form-label fw-bold mb-3">Transaction Type</label>
+                    <form method="POST" class="transaction-create-form">
+                        <div class="mb-4 transaction-type-block">
+                            <label class="form-label fw-bold mb-2">Transaction Type</label>
                             <div class="d-flex gap-3">
-                                <div class="form-check form-check-inline m-0 flex-fill p-0">
-                                    <input class="form-check-input d-none" type="radio" name="trans_type" id="income" value="Income" <?php echo $type == 'Income' ? 'checked' : ''; ?>>
-                                    <label class="finance-kpi-card income-card p-3 w-100 text-center rounded-3 cursor-pointer mb-0 transition-all <?php echo $type == 'Income' ? 'border border-2 border-success shadow-sm' : ''; ?>" for="income">
-                                        <div class="kpi-icon-finance mb-2">📈</div>
-                                        <div class="fw-bold">Income</div>
+                                <div class="form-check flex-fill mb-0">
+                                    <input class="form-check-input" type="radio" name="trans_type" id="income" value="Income" <?php echo $type == 'Income' ? 'checked' : ''; ?> >
+                                    <label class="form-check-label fw-bold" for="income">
+                                        <i class="fas fa-arrow-up me-2 text-success"></i>Income
                                     </label>
                                 </div>
-                                <div class="form-check form-check-inline m-0 flex-fill p-0">
-                                    <input class="form-check-input d-none" type="radio" name="trans_type" id="expense" value="Expense" <?php echo $type == 'Expense' ? 'checked' : ''; ?>>
-                                    <label class="finance-kpi-card expense-card p-3 w-100 text-center rounded-3 cursor-pointer mb-0 transition-all <?php echo $type == 'Expense' ? 'border border-2 border-danger shadow-sm' : ''; ?>" for="expense">
-                                        <div class="kpi-icon-finance mb-2">📉</div>
-                                        <div class="fw-bold">Expense</div>
+                                <div class="form-check flex-fill mb-0">
+                                    <input class="form-check-input" type="radio" name="trans_type" id="expense" value="Expense" <?php echo $type == 'Expense' ? 'checked' : ''; ?> >
+                                    <label class="form-check-label fw-bold" for="expense">
+                                        <i class="fas fa-arrow-down me-2 text-danger"></i>Expense
                                     </label>
                                 </div>
                             </div>
+
+
                             <script>
                                 document.querySelectorAll('.form-check-input').forEach(input => {
                                     input.addEventListener('change', function() {
@@ -151,7 +151,9 @@ if ($event_result) {
                             <div class="form-text mt-2"><i class="fas fa-info-circle me-1"></i>Leave blank if this is a general expense/income not tied to a specific project.</div>
                         </div>
 
-                        <div class="mt-5 text-center d-flex flex-column flex-sm-row justify-content-center gap-3">
+                        <div class="transaction-footer-actions mt-5 text-center d-flex flex-column flex-sm-row justify-content-center gap-3" style="position: relative;">
+
+
                             <button type="submit" name="submit" class="btn btn-lg px-5 py-3 text-white" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); border: none; border-radius: 50px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(13,110,253,0.3);">
                                 <i class="fas fa-save me-2"></i>Save Transaction
                             </button>
@@ -159,21 +161,7 @@ if ($event_result) {
                                 Cancel
                             </a>
                         </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<style>
-.cursor-pointer { cursor: pointer; }
-.transition-all { transition: all 0.2s ease-in-out; }
-</style>
-
-<?php require_once '../../../includes/footer.php'; ?>
-                            </a>
-                        </div>
                     </form>
                 </div>
             </div>
