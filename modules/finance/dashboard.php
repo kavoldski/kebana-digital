@@ -25,9 +25,6 @@ if (isset($conn)) {
         <div class="row mb-5">
             <div class="col-12 d-flex justify-content-between align-items-center">
                 <h1 class="mb-0" style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Finance Dashboard</h1>
-                <a href="transactions/create.php" class="btn btn-primary btn-lg shadow-sm" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); border: none; padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 600;">
-                    <i class="fas fa-plus me-2"></i>New Transaction
-                </a>
             </div>
         </div>
 
@@ -54,7 +51,12 @@ if (isset($conn)) {
         <div class="recent-transactions-card">
             <div class="recent-header">
                 <h2 class="recent-title">Recent Transactions</h2>
-                <a href="transactions/list.php" class="btn-view-all">View All Transactions</a>
+                <div class="recent-header-actions">
+                    <a href="transactions/create.php" class="btn-add-transaction-inline">
+                        <i class="fas fa-plus me-2"></i>Add New Transaction
+                    </a>
+                    <a href="transactions/list.php" class="btn-view-all">View All Transactions</a>
+                </div>
             </div>
             <div class="trans-table-container">
                 <div class="table-responsive">

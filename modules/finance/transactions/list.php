@@ -128,8 +128,8 @@ $total_pages = max(1, (int)ceil($total_count / $per_page));
                 <h1 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
                     Transactions
                 </h1>
-                <a href="create.php" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); border: none; padding: 1rem 2rem; border-radius: 50px; font-weight: 600; font-size: 1rem;">
-                    + New Transaction
+                <a href="create.php" class="btn btn-lg transactions-list-add-btn">
+                    <i class="fas fa-plus me-2"></i>New Transaction
                 </a>
             </div>
         </div>
