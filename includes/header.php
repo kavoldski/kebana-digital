@@ -9,6 +9,23 @@
 
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/dbconnect.php';
+
+// Calculate CSS base path relative to the calling page
+if (!isset($css_base_path)) {
+    // Use relative path calculation from the includes directory to src/css
+    // Count directory depth by examining the requested file
+    $script = $_SERVER['SCRIPT_FILENAME'];
+    $includes_dir = __DIR__;
+    $src_css_dir = dirname(__DIR__) . '/src/css/';
+    
+    // Calculate relative path from the script's directory to src/css
+    $script_dir = dirname($script);
+    $up_count = substr_count(str_replace(dirname($includes_dir), '', $script_dir), DIRECTORY_SEPARATOR);
+    
+    // The path should be enough '../' to get from script location to kebana-digital root,
+    // then into src/css/
+    $css_base_path = str_repeat('../', max(1, $up_count)) . 'src/css/';
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -21,15 +38,20 @@ require_once __DIR__ . '/dbconnect.php';
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GtvK6y1nZGn9L9k1iKMdDoV6nupN9zL+ZSLR0sZOsY/hyx3D+0DGz1h/6URyhu2M" crossorigin="anonymous">
     
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVJkEZSMUkrQ6usKICqvgiA1jz9tBXsdNGWWXFsX8Z5K8G9N1e6zqLyX9Di+G/CNm+rRnSpoC4A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    
     <!-- Sidebar CSS -->
-    <link rel="stylesheet" href="../../src/css/sidebar.css">
+    <link rel="stylesheet" href="<?php echo $css_base_path; ?>sidebar.css">
     
     <!-- Custom CSS -->
-<link rel="stylesheet" href="<?php echo isset($css_path) ? htmlspecialchars($css_path) : '../../src/css/dashboard.css'; ?>">
-    <?php if (isset($extra_css)): ?>
-        <!-- extra_css is page-scoped; keep loading after core/sidebar CSS -->
-        <link rel="stylesheet" href="<?php echo htmlspecialchars($extra_css); ?>">
+<link rel="stylesheet" href="<?php echo isset($css_path) ? htmlspecialchars($css_path) : $css_base_path . 'dashboard.css'; ?>">
+        <?php if (isset($extra_css)): ?>
+        <!-- extra_css (page-scoped) loaded after sidebar.
+             Use a cache-busting querystring to avoid stale/broken CSS during dev. -->
+        <link rel="stylesheet" href="<?php echo htmlspecialchars($extra_css); ?>?v=<?php echo urlencode(date('YmdHis')); ?>">
     <?php endif; ?>
+
 
 
     
@@ -196,9 +218,11 @@ require_once __DIR__ . '/dbconnect.php';
     </aside>
 
     <!-- Main Content Wrapper -->
-    <div class="main-content" id="mainContent" style="min-height: calc(100vh - 60px); background: #f0f2f5;">
+    <div class="main-content" id="mainContent">
 
+    <div id="mainContentInner">
     <script>
+
         // Sidebar toggle functionality
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarToggle');
@@ -258,6 +282,9 @@ require_once __DIR__ . '/dbconnect.php';
             });
         });
 
+        // Update sidebar state on page load
+        updateSidebarState();
+
         // Update sidebar state
         function updateSidebarState() {
             if (sidebarLocked) {
@@ -279,3 +306,5 @@ require_once __DIR__ . '/dbconnect.php';
             });
         });
     </script>
+
+

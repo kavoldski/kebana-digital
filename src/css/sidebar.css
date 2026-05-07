@@ -198,15 +198,23 @@
     transform: translateY(-2px);
 }
 
+.sidebar-toggle:active {
+    transform: translateY(0);
+}
+
 .sidebar-toggle svg {
     width: 24px;
     height: 24px;
+    pointer-events: none;
 }
 
 /* Main content offset when sidebar is active */
 .main-content {
     transition: margin-left var(--transition-speed) ease;
     margin-left: 0;
+    padding-top: 80px;
+    min-height: 100vh;
+    background: #f0f2f5;
 }
 
 .main-content.sidebar-open {
@@ -332,6 +340,12 @@
     .sidebar-submenu-item {
         padding: 0.65rem 1.2rem 0.65rem 2.5rem;
     }
+    
+    .main-content {
+        padding-top: 70px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -362,5 +376,11 @@
     .sidebar-toggle svg {
         width: 20px;
         height: 20px;
+    }
+    
+    .main-content {
+        padding-top: 65px;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
     }
 }

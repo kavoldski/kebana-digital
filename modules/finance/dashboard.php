@@ -19,7 +19,8 @@ if (isset($conn)) {
     }
 }
 ?>
-<div class="finance-dashboard">
+<div class="finance-dashboard finance-page">
+
     <div class="container-xl">
         <div class="row mb-5">
             <div class="col-12 d-flex justify-content-between align-items-center">

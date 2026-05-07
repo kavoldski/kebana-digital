@@ -172,3 +172,18 @@ if ($event_result) {
 </style>
 
 <?php require_once '../../../includes/footer.php'; ?>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cursor-pointer { cursor: pointer; }
+.transition-all { transition: all 0.2s ease-in-out; }
+</style>
+
+<?php require_once '../../../includes/footer.php'; ?>
