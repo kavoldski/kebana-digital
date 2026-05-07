@@ -44,5 +44,11 @@
   - [ ] Display status badge in events list based on workflow state.
   - [ ] Run `php -l` syntax checks for modified files.
 
+- [ ] Documents Phase 1:
+  - [x] Add documents helper (`getAllDocuments`) in `includes/events_helper.php`
+  - [x] Create `modules/documents/proposals.php` (list/search/view/delete)
+  - [x] Wire sidebar Proposals link in `includes/header.php`
+  - [ ] Run PHP lint checks (`php -l`) for modified files.
+
 - [ ] Run PHP lint checks (`php -l`) for modified files.
 

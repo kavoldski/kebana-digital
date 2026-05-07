@@ -64,33 +64,53 @@ if (isset($conn)) {
                                 <th>Date</th>
                                 <th>Type</th>
                                 <th>Category</th>
+                                <th>Linked Event</th>
+                                <th>Payment Mode</th>
                                 <th>Amount</th>
                                 <th>Recorded By</th>
                             </tr>
                         </thead>
                         <tbody>
                         <?php
-                        $recent_stmt = $conn->prepare("SELECT trans_date, trans_type, category, amount, recorded_by FROM tbl_transaction ORDER BY created_at DESC LIMIT 10");
+                        $recent_stmt = $conn->prepare("
+                            SELECT
+                                t.trans_date,
+                                t.trans_type,
+                                t.category,
+                                t.payment_mode,
+                                t.amount,
+                                t.recorded_by,
+                                t.event_id,
+                                e.event_title
+                            FROM tbl_transaction t
+                            LEFT JOIN tbl_event e ON t.event_id = e.event_id
+                            ORDER BY t.trans_date DESC, t.trans_id DESC
+                            LIMIT 10
+                        ");
                         if ($recent_stmt) {
                             $recent_stmt->execute();
                             $recent_result = $recent_stmt->get_result();
                             if ($recent_result->num_rows > 0) {
                                 while ($row = $recent_result->fetch_assoc()) {
                                     $type_class = $row['trans_type'] == 'Income' ? 'text-success' : 'text-danger';
+                                    $linked_event = !empty($row['event_title']) ? $row['event_title'] : 'General Fund';
+                                    $payment_mode = !empty($row['payment_mode']) ? $row['payment_mode'] : '-';
                                     echo "<tr>
                                         <td>" . date('M j', strtotime($row['trans_date'])) . "</td>
                                         <td><span class='badge {$type_class}'>" . $row['trans_type'] . "</span></td>
                                         <td>" . htmlspecialchars($row['category']) . "</td>
+                                        <td>" . htmlspecialchars($linked_event) . "</td>
+                                        <td>" . htmlspecialchars($payment_mode) . "</td>
                                         <td><strong>RM " . number_format($row['amount'], 2) . "</strong></td>
                                         <td>ID " . htmlspecialchars($row['recorded_by']) . "</td>
                                     </tr>";
                                 }
                             } else {
-                                echo '<tr><td colspan="5" class="text-center text-muted">No transactions yet. <a href="transactions/create.php">Add first transaction</a></td></tr>';
+                                echo '<tr><td colspan="7" class="text-center text-muted">No transactions yet. <a href="transactions/create.php">Add first transaction</a></td></tr>';
                             }
                             $recent_stmt->close();
                         } else {
-                            echo '<tr><td colspan="5" class="text-center text-muted">No transactions found.</td></tr>';
+                            echo '<tr><td colspan="7" class="text-center text-muted">No transactions found.</td></tr>';
                         }
 
                         ?>
