@@ -120,7 +120,7 @@ if (!isset($css_base_path)) {
                     <ul class="sidebar-submenu">
                         <li><a href="<?php echo $base_path; ?>modules/members/list.php" class="sidebar-submenu-item">Member List</a></li>
                         <li><a href="<?php echo $base_path; ?>modules/members/add.php" class="sidebar-submenu-item">Add Member</a></li>
-                        <li><a href="#" class="sidebar-submenu-item">Reports</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/members/report.php" class="sidebar-submenu-item">Reports</a></li>
                     </ul>
                 </li>
 
