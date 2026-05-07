@@ -25,5 +25,16 @@
   - [ ] Enforce upload policy: `pdf/jpg/jpeg/png`, max 5MB.
   - [ ] Improve validation error messages for proposal upload.
 
+- [x] FR_11: Fix transaction creation reliability in `modules/finance/transactions/create.php`:
+  - [x] Correct malformed `bind_param` type string.
+  - [x] Ensure nullable `event_id` is handled safely for insert.
+  - [x] Run `php -l` syntax check.
+
+- [ ] FR_03: Auto logout after inactivity:
+  - [ ] Add inactivity timeout enforcement in `includes/auth.php` (15 minutes).
+  - [ ] Destroy session and redirect to login with timeout message when idle limit exceeded.
+  - [ ] Refresh last activity timestamp on valid requests.
+  - [ ] Run `php -l` syntax check for `includes/auth.php`.
+
 - [ ] Run PHP lint checks (`php -l`) for modified files.
 

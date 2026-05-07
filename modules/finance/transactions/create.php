@@ -22,10 +22,7 @@ if (isset($_POST['submit'])) {
     $amount = floatval($amount);
     $trans_date = $_POST['trans_date'];
     $month_label = strtoupper(date('M', strtotime($trans_date)));
-    $event_id = !empty($_POST['event_id']) ? (int)$_POST['event_id'] : null;
-
-    // Ensure NULL for empty event_id
-    $event_id = $event_id === '' ? null : $event_id;
+    $event_id = isset($_POST['event_id']) && $_POST['event_id'] !== '' ? (int)$_POST['event_id'] : null;
 
     
     if ($amount <= 0) {
@@ -35,36 +32,38 @@ if (isset($_POST['submit'])) {
     } elseif (empty($trans_date)) {
         $message = 'Transaction date is required';
     } else {
-$stmt = $conn->prepare("INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, recorded_by, event_id, payment_mode, month_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-
-
-$stmt->bind_param(
-            "sdsssi ss",
-            $type,
-            $amount,
-            $category,
-            $trans_date,
-            $user_id,
-            $event_id,
-            $payment_mode,
-            $month_label
-        );
+        $stmt = $conn->prepare("INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, recorded_by, event_id, payment_mode, month_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        if (!$stmt) {
+            $message = 'Error preparing transaction insert: ' . $conn->error;
+        } else {
+            $stmt->bind_param(
+                "sdssiiss",
+                $type,
+                $amount,
+                $category,
+                $trans_date,
+                $user_id,
+                $event_id,
+                $payment_mode,
+                $month_label
+            );
 
 
 
 
         
-        if ($stmt->execute()) {
-            $message = 'Transaction created successfully!';
-            // Reset form
-            $amount = '';
-            $category = '';
-            $trans_date = date('Y-m-d');
-            $event_id_post = '';
-        } else {
-            $message = 'Error creating transaction: ' . $conn->error;
+            if ($stmt->execute()) {
+                $message = 'Transaction created successfully!';
+                // Reset form
+                $amount = '';
+                $category = '';
+                $trans_date = date('Y-m-d');
+                $event_id_post = '';
+            } else {
+                $message = 'Error creating transaction: ' . $conn->error;
+            }
+            $stmt->close();
         }
-        $stmt->close();
     }
 }
 
