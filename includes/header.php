@@ -168,7 +168,7 @@ if (!isset($css_base_path)) {
                     <ul class="sidebar-submenu">
 <li><a href="<?php echo $base_path; ?>modules/finance/dashboard.php" class="sidebar-submenu-item">Dashboard</a></li>
 
-                        <li><a href="#" class="sidebar-submenu-item">Budget</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/finance/budget.php" class="sidebar-submenu-item">Budget</a></li>
                         <li><a href="#" class="sidebar-submenu-item">Reports</a></li>
                     </ul>
                 </li>
