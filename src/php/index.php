@@ -11,15 +11,101 @@ $css_path = '../css/dashboard.css';
 
 require_once '../../includes/header.php';
 require_once '../../includes/members_helper.php';
-
-// Get dashboard statistics
-$total_members = getMemberCount($conn);
-
 require_once '../../includes/dashboard_helper.php';
-$upcoming_events = getUpcomingEventsCount($conn);
-$pending_documents = getPendingDocumentsCount($conn);
-$fund_balance = getFundBalance($conn);
+require_once '../../includes/finance_helper.php';
 
+// Get dashboard statistics (real data only)
+$total_members = getMemberCount($conn);
+$active_members = count(getMembersByStatus($conn, 'Active'));
+
+$upcoming_events = getUpcomingEventsCount($conn);
+$past_events = 0;
+$past_events_result = $conn->query("SELECT COUNT(*) AS total FROM tbl_event WHERE event_date < CURDATE()");
+if ($past_events_result) {
+    $past_events = (int)($past_events_result->fetch_assoc()['total'] ?? 0);
+}
+$total_events = $upcoming_events + $past_events;
+
+$pending_documents = getPendingDocumentsCount($conn);
+
+// Total documents (real)
+$total_documents = 0;
+$doc_count_result = $conn->query("SELECT COUNT(*) AS total FROM tbl_document");
+if ($doc_count_result) {
+    $total_documents = (int)($doc_count_result->fetch_assoc()['total'] ?? 0);
+}
+
+// Pending approvals from submitted events awaiting super admin action
+$pending_approvals = getPendingApprovalsCount($conn);
+
+$fund_balance = getFundBalance($conn);
+$finance_totals = getFinanceTotals($conn);
+
+// Members participation ratio based on Active status (real)
+$participation_rate = $total_members > 0 ? round(($active_members / $total_members) * 100) : 0;
+
+// Build recent activity from real records
+$recent_activity = [];
+
+// Latest member registrations
+$member_activity_result = $conn->query("
+    SELECT full_name, created_at
+    FROM tbl_member
+    ORDER BY created_at DESC
+    LIMIT 2
+");
+if ($member_activity_result) {
+    while ($row = $member_activity_result->fetch_assoc()) {
+        $recent_activity[] = [
+            'text' => 'New member registered: ' . $row['full_name'],
+            'time' => $row['created_at'] ?? null
+        ];
+    }
+}
+
+// Latest uploaded documents
+$doc_activity_result = $conn->query("
+    SELECT doc_name, uploaded_at
+    FROM tbl_document
+    ORDER BY uploaded_at DESC
+    LIMIT 2
+");
+if ($doc_activity_result) {
+    while ($row = $doc_activity_result->fetch_assoc()) {
+        $recent_activity[] = [
+            'text' => 'Document uploaded: ' . $row['doc_name'],
+            'time' => $row['uploaded_at'] ?? null
+        ];
+    }
+}
+
+// Latest transactions
+$transactions = getRecentTransactions($conn, 2);
+foreach ($transactions as $txn) {
+    $recent_activity[] = [
+        'text' => $txn['trans_type'] . ' transaction recorded (' . $txn['category'] . ')',
+        'time' => $txn['created_at'] ?? null
+    ];
+}
+
+// Sort activities by datetime desc and keep latest 6
+usort($recent_activity, function ($a, $b) {
+    $ta = strtotime($a['time'] ?? '1970-01-01 00:00:00');
+    $tb = strtotime($b['time'] ?? '1970-01-01 00:00:00');
+    return $tb <=> $ta;
+});
+$recent_activity = array_slice($recent_activity, 0, 6);
+
+function formatRelativeTime($datetime) {
+    if (!$datetime) return 'Unknown time';
+    $ts = strtotime($datetime);
+    if (!$ts) return 'Unknown time';
+    $diff = time() - $ts;
+    if ($diff < 60) return 'Just now';
+    if ($diff < 3600) return floor($diff / 60) . ' minute(s) ago';
+    if ($diff < 86400) return floor($diff / 3600) . ' hour(s) ago';
+    return floor($diff / 86400) . ' day(s) ago';
+}
 
 ?>
 
@@ -134,27 +220,27 @@ $fund_balance = getFundBalance($conn);
                             <div class="metrics-grid">
                                 <div class="metric-item">
                                     <span class="metric-icon">👥</span>
-                                    <p class="metric-label">Community Visits</p>
-                                    <h4 class="metric-value">48</h4>
-                                    <span class="metric-trend positive">+12% from last month</span>
+                                    <p class="metric-label">Active Members</p>
+                                    <h4 class="metric-value"><?php echo number_format($active_members); ?></h4>
+                                    <span class="metric-trend neutral">Out of <?php echo number_format($total_members); ?> total members</span>
                                 </div>
                                 <div class="metric-item">
                                     <span class="metric-icon">📊</span>
-                                    <p class="metric-label">Active Projects</p>
-                                    <h4 class="metric-value">7</h4>
-                                    <span class="metric-trend neutral">Stable progress</span>
+                                    <p class="metric-label">Total Events</p>
+                                    <h4 class="metric-value"><?php echo number_format($total_events); ?></h4>
+                                    <span class="metric-trend neutral"><?php echo number_format($upcoming_events); ?> upcoming, <?php echo number_format($past_events); ?> past</span>
                                 </div>
                                 <div class="metric-item">
                                     <span class="metric-icon">📄</span>
                                     <p class="metric-label">Total Documents</p>
-                                    <h4 class="metric-value">62</h4>
-                                    <span class="metric-trend warning">5 pending approval</span>
+                                    <h4 class="metric-value"><?php echo number_format($total_documents); ?></h4>
+                                    <span class="metric-trend warning"><?php echo number_format($pending_documents); ?> pending review</span>
                                 </div>
                                 <div class="metric-item">
                                     <span class="metric-icon">⏳</span>
                                     <p class="metric-label">Pending Approvals</p>
-                                    <h4 class="metric-value">5</h4>
-                                    <span class="metric-trend alert">Requires immediate action</span>
+                                    <h4 class="metric-value"><?php echo number_format($pending_approvals); ?></h4>
+                                    <span class="metric-trend alert">Current pending items</span>
                                 </div>
                             </div>
                         </div>
@@ -172,11 +258,11 @@ $fund_balance = getFundBalance($conn);
                             <div class="card-body-custom">
                                 <div class="progress-section">
                                     <div class="progress-header">
-                                        <span class="progress-label">Active Participation Rate</span>
-                                        <span class="progress-value">84%</span>
+                                        <span class="progress-label">Active Member Ratio</span>
+                                        <span class="progress-value"><?php echo $participation_rate; ?>%</span>
                                     </div>
-                                    <div class="progress-bar-custom" role="progressbar" style="width: 84%;" aria-valuenow="84" aria-valuemin="0" aria-valuemax="100"></div>
-                                    <p class="progress-note">Strong engagement this quarter across all programs</p>
+                                    <div class="progress-bar-custom" role="progressbar" style="width: <?php echo $participation_rate; ?>%;" aria-valuenow="<?php echo $participation_rate; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <p class="progress-note"><?php echo number_format($active_members); ?> active members from <?php echo number_format($total_members); ?> registered members</p>
                                 </div>
                             </div>
                         </div>
@@ -196,10 +282,10 @@ $fund_balance = getFundBalance($conn);
                                     </div>
                                     <div class="finance-item">
                                         <span class="finance-label">Status</span>
-                                        <p class="finance-badge">Healthy</p>
+                                        <p class="finance-badge"><?php echo $fund_balance >= 0 ? 'Positive' : 'Deficit'; ?></p>
                                     </div>
                                 </div>
-                                <p class="finance-note">Monitor planned disbursements and approvals</p>
+                                <p class="finance-note">Income: RM <?php echo number_format((float)$finance_totals['total_income'], 2); ?> | Expense: RM <?php echo number_format((float)$finance_totals['total_expense'], 2); ?></p>
                             </div>
                         </div>
                     </div>
@@ -214,26 +300,21 @@ $fund_balance = getFundBalance($conn);
                         </div>
                         <div class="card-body-custom">
                             <div class="activity-timeline">
-                                <div class="activity-item">
-                                    <span class="activity-dot"></span>
-                                    <p class="activity-text">New member registration approved</p>
-                                    <span class="activity-time">2 hours ago</span>
-                                </div>
-                                <div class="activity-item">
-                                    <span class="activity-dot"></span>
-                                    <p class="activity-text">March event minutes uploaded</p>
-                                    <span class="activity-time">5 hours ago</span>
-                                </div>
-                                <div class="activity-item">
-                                    <span class="activity-dot"></span>
-                                    <p class="activity-text">Proposal draft shared with committee</p>
-                                    <span class="activity-time">1 day ago</span>
-                                </div>
-                                <div class="activity-item">
-                                    <span class="activity-dot"></span>
-                                    <p class="activity-text">Finance request submitted for review</p>
-                                    <span class="activity-time">2 days ago</span>
-                                </div>
+                                <?php if (!empty($recent_activity)): ?>
+                                    <?php foreach ($recent_activity as $activity): ?>
+                                        <div class="activity-item">
+                                            <span class="activity-dot"></span>
+                                            <p class="activity-text"><?php echo htmlspecialchars($activity['text']); ?></p>
+                                            <span class="activity-time"><?php echo htmlspecialchars(formatRelativeTime($activity['time'])); ?></span>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="activity-item">
+                                        <span class="activity-dot"></span>
+                                        <p class="activity-text">No recent activity found</p>
+                                        <span class="activity-time">—</span>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

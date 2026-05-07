@@ -47,6 +47,26 @@ function getPendingDocumentsCount($conn) {
 }
 
 /**
+ * Get count of pending event approvals (submitted events waiting super admin action)
+ *
+ * @param mysqli $conn Database connection
+ * @return int Number of submitted events pending approval
+ */
+function getPendingApprovalsCount($conn) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM tbl_event WHERE status = 'Submitted'");
+    if (!$stmt) {
+        return 0;
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $count = $result->fetch_assoc()['total'] ?? 0;
+    $stmt->close();
+
+    return (int) $count;
+}
+
+/**
  * Get current fund balance (Total Income - Total Expenses)
  *
  * @param mysqli $conn Database connection
