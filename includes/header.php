@@ -13,18 +13,24 @@ require_once __DIR__ . '/dbconnect.php';
 // Calculate CSS base path relative to the calling page
 if (!isset($css_base_path)) {
     // Use relative path calculation from the includes directory to src/css
-    // Count directory depth by examining the requested file
     $script = $_SERVER['SCRIPT_FILENAME'];
     $includes_dir = __DIR__;
-    $src_css_dir = dirname(__DIR__) . '/src/css/';
     
-    // Calculate relative path from the script's directory to src/css
-    $script_dir = dirname($script);
-    $up_count = substr_count(str_replace(dirname($includes_dir), '', $script_dir), DIRECTORY_SEPARATOR);
+    // Normalize slashes for Windows compatibility
+    $script_dir_normalized = str_replace('\\', '/', dirname($script));
+    $base_dir_normalized = str_replace('\\', '/', dirname($includes_dir));
+    
+    // Calculate relative path from the script's directory to kebana-digital root
+    // Use case-insensitive replace for Windows drive letters
+    $rel_path = str_ireplace($base_dir_normalized, '', $script_dir_normalized);
+    $up_count = substr_count($rel_path, '/');
+    
+    // Base path for general links
+    $base_path = $up_count > 0 ? str_repeat('../', $up_count) : './';
     
     // The path should be enough '../' to get from script location to kebana-digital root,
     // then into src/css/
-    $css_base_path = str_repeat('../', max(1, $up_count)) . 'src/css/';
+    $css_base_path = $base_path . 'src/css/';
 }
 ?>
 <!doctype html>
@@ -90,7 +96,7 @@ if (!isset($css_base_path)) {
         <nav>
             <ul class="sidebar-menu">
                 <li>
-                    <a href="../../src/php/index.php" class="sidebar-menu-item active">
+                    <a href="<?php echo $base_path; ?>src/php/index.php" class="sidebar-menu-item active">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
                             <line x1="12" y1="12" x2="20" y2="7.5"></line>
@@ -112,8 +118,8 @@ if (!isset($css_base_path)) {
                         <span>Members</span>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li><a href="../../modules/members/list.php" class="sidebar-submenu-item">Member List</a></li>
-                        <li><a href="../../modules/members/add.php" class="sidebar-submenu-item">Add Member</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/members/list.php" class="sidebar-submenu-item">Member List</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/members/add.php" class="sidebar-submenu-item">Add Member</a></li>
                         <li><a href="#" class="sidebar-submenu-item">Reports</a></li>
                     </ul>
                 </li>
@@ -129,9 +135,9 @@ if (!isset($css_base_path)) {
                         <span>Events</span>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li><a href="../../modules/events/list.php" class="sidebar-submenu-item">Event List</a></li>
-                        <li><a href="../../modules/events/create.php" class="sidebar-submenu-item">Create Event</a></li>
-                        <li><a href="../../modules/events/attendance.php" class="sidebar-submenu-item">Attendance</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/events/list.php" class="sidebar-submenu-item">Event List</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/events/create.php" class="sidebar-submenu-item">Create Event</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/events/attendance.php" class="sidebar-submenu-item">Attendance</a></li>
                     </ul>
                 </li>
 
@@ -159,7 +165,7 @@ if (!isset($css_base_path)) {
                         <span>Finance</span>
                     </a>
                     <ul class="sidebar-submenu">
-<li><a href="../../modules/finance/dashboard.php" class="sidebar-submenu-item">Dashboard</a></li>
+<li><a href="<?php echo $base_path; ?>modules/finance/dashboard.php" class="sidebar-submenu-item">Dashboard</a></li>
 
                         <li><a href="#" class="sidebar-submenu-item">Budget</a></li>
                         <li><a href="#" class="sidebar-submenu-item">Reports</a></li>
@@ -211,7 +217,7 @@ if (!isset($css_base_path)) {
                     <p class="sidebar-user-role"><?php echo ucfirst($role); ?></p>
                 </div>
             </div>
-            <a href="../../modules/auth/logout.php" style="display: block; padding: 0.75rem; color: rgba(255, 255, 255, 0.85); text-decoration: none; text-align: center; font-size: 0.9rem; margin-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;" onmouseover="this.style.color='white'; this.style.background='rgba(255, 255, 255, 0.1)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.85)'; this.style.background='transparent';">
+            <a href="<?php echo $base_path; ?>modules/auth/logout.php" style="display: block; padding: 0.75rem; color: rgba(255, 255, 255, 0.85); text-decoration: none; text-align: center; font-size: 0.9rem; margin-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;" onmouseover="this.style.color='white'; this.style.background='rgba(255, 255, 255, 0.1)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.85)'; this.style.background='transparent';">
                 Logout
             </a>
         </div>
@@ -220,7 +226,6 @@ if (!isset($css_base_path)) {
     <!-- Main Content Wrapper -->
     <div class="main-content" id="mainContent">
 
-    <div id="mainContentInner">
     <script>
 
         // Sidebar toggle functionality

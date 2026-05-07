@@ -318,6 +318,25 @@
     background: rgba(255, 255, 255, 0.5);
 }
 
+/* Desktop Design (Fixed Sidebar) */
+@media (min-width: 769px) {
+    .sidebar {
+        transform: translateX(0) !important;
+    }
+    .main-content {
+        margin-left: var(--sidebar-width);
+    }
+    .sidebar-toggle {
+        display: none !important;
+    }
+    .sidebar-overlay {
+        display: none !important;
+    }
+    .sidebar-close {
+        display: none !important;
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     :root {
