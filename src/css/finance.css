@@ -1,9 +1,39 @@
-/* KEBANA Finance Dashboard - Enhanced Styling */
+/* Finance styles
+   IMPORTANT: This file is included by finance pages (dashboard/list/create).
+   Avoid any global Bootstrap/sidebar affecting selectors.
+*/
 .finance-dashboard {
   background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
   min-height: 100vh;
   padding: 2rem 0;
+  width: 100%;
 }
+
+.container-xl {
+  padding: 0 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+
+
+/* Dashboard primary CTA (New Transaction) */
+/* Finance dashboard CTA tweaks only (avoid affecting sidebar/menu buttons) */
+/* Keep these very specific to the dashboard header container */
+.finance-dashboard .d-flex.justify-content-between.align-items-center > a.btn.btn-primary {
+  /* Only adjust visual typography/spacing; avoid touching border to prevent side effects */
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+
+.finance-dashboard .d-flex.justify-content-between.align-items-center > a.btn.btn-primary i {
+  transform: translateY(0.5px);
+}
+
+
+
+
 
 .finance-kpi-grid {
   display: grid;

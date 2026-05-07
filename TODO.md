@@ -1,13 +1,8 @@
-# Finance Module Implementation
-Status: IN PROGRESS
+# TODO
 
-1. [x] includes/finance_helper.php (basic/stub)
-2. [ ] Create modules/finance/dashboard.php
-3. [ ] Create modules/finance/transactions/list.php
-4. [ ] Create modules/finance/transactions/create.php
-5. [ ] Create modules/finance/transactions/edit.php
-6. [ ] Create modules/finance/transactions/delete.php
-7. [ ] Update includes/header.php nav links
+## Finance: Transactions List - crash + view styling
+- [x] Identify crash cause in `modules/finance/transactions/list.php` (prepare/bind_param on false)
+- [ ] Fix SQL totals + count queries to use prepared statements with bound parameters
+- [ ] Verify empty-state + badge/table styling matches `src/css/finance.css`
+- [ ] Sanity test by applying filters on the transactions list page
 
-Treasurer/Super Admin: CRUD
-Secretary: View only

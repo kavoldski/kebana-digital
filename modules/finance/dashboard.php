@@ -19,11 +19,15 @@ if (isset($conn)) {
     }
 }
 ?>
-<div class="finance-dashboard">
+<div class="finance-dashboard finance-page">
+
     <div class="container-xl">
         <div class="row mb-5">
-            <div class="col-12">
-                <h1 class="mb-5" style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Finance Dashboard</h1>
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h1 class="mb-0" style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Finance Dashboard</h1>
+                <a href="transactions/create.php" class="btn btn-primary btn-lg shadow-sm" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); border: none; padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 600;">
+                    <i class="fas fa-plus me-2"></i>New Transaction
+                </a>
             </div>
         </div>
 
@@ -65,76 +69,33 @@ if (isset($conn)) {
                             </tr>
                         </thead>
                         <tbody>
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5>Fund Balance</h5>
-                    <h2>RM <?php echo number_format($fund_balance, 2); ?></h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5>Total Income</h5>
-                    <h2>RM <?php echo number_format($total_income, 2); ?></h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-warning text-dark">
-                <div class="card-body">
-                    <h5>Total Expenses</h5>
-                    <h2>RM <?php echo number_format($total_expense, 2); ?></h2>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header">
-            <h5>Recent Transactions</h5>
-            <a href="transactions/list.php" class="btn btn-primary float-end">View All →</a>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Category</th>
-                            <th>Amount</th>
-                            <th>Recorded By</th>
-                        </tr>
-                    </thead>
-                    <tbody>
                         <?php
-$recent_stmt = $conn->prepare("SELECT trans_date, trans_type, category, amount, recorded_by FROM tbl_transaction ORDER BY created_at DESC LIMIT 10");
-if ($recent_stmt) {
-    $recent_stmt->execute();
-    $recent_result = $recent_stmt->get_result();
-    if ($recent_result->num_rows > 0) {
-        while ($row = $recent_result->fetch_assoc()) {
-            $type_class = $row['trans_type'] == 'Income' ? 'text-success' : 'text-danger';
-            echo "<tr>
-                <td>" . date('M j', strtotime($row['trans_date'])) . "</td>
-                <td><span class='badge {$type_class}'>" . $row['trans_type'] . "</span></td>
-                <td>" . htmlspecialchars($row['category']) . "</td>
-                <td><strong>RM " . number_format($row['amount'], 2) . "</strong></td>
-                <td>ID " . htmlspecialchars($row['recorded_by']) . "</td>
-            </tr>";
-        }
-    } else {
-        echo '<tr><td colspan="5" class="text-center text-muted">No transactions yet. <a href="transactions/create.php">Add first transaction</a></td></tr>';
-    }
-    $recent_stmt->close();
-} else {
-    echo '<tr><td colspan="5" class="text-center text-muted">Error loading transactions (check if tbl_transaction exists)</td></tr>';
-}
-?>
-                    </tbody>
-                </table>
+                        $recent_stmt = $conn->prepare("SELECT trans_date, trans_type, category, amount, recorded_by FROM tbl_transaction ORDER BY created_at DESC LIMIT 10");
+                        if ($recent_stmt) {
+                            $recent_stmt->execute();
+                            $recent_result = $recent_stmt->get_result();
+                            if ($recent_result->num_rows > 0) {
+                                while ($row = $recent_result->fetch_assoc()) {
+                                    $type_class = $row['trans_type'] == 'Income' ? 'text-success' : 'text-danger';
+                                    echo "<tr>
+                                        <td>" . date('M j', strtotime($row['trans_date'])) . "</td>
+                                        <td><span class='badge {$type_class}'>" . $row['trans_type'] . "</span></td>
+                                        <td>" . htmlspecialchars($row['category']) . "</td>
+                                        <td><strong>RM " . number_format($row['amount'], 2) . "</strong></td>
+                                        <td>ID " . htmlspecialchars($row['recorded_by']) . "</td>
+                                    </tr>";
+                                }
+                            } else {
+                                echo '<tr><td colspan="5" class="text-center text-muted">No transactions yet. <a href="transactions/create.php">Add first transaction</a></td></tr>';
+                            }
+                            $recent_stmt->close();
+                        } else {
+                            echo '<tr><td colspan="5" class="text-center text-muted">Error loading transactions (check if tbl_transaction exists)</td></tr>';
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
