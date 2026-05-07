@@ -67,8 +67,8 @@ function addEvent($conn, $event_data, $user_id) {
     }
 
     $stmt = $conn->prepare("
-        INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status)
+        VALUES (?, ?, ?, ?, ?, ?)
     ");
 
     if (!$stmt) {
@@ -79,8 +79,9 @@ function addEvent($conn, $event_data, $user_id) {
     $date = $event_data['event_date'];
     $venue = $event_data['venue'];
     $budget = !empty($event_data['budget_est']) ? (float)$event_data['budget_est'] : null;
+    $status = 'Draft';
 
-    $stmt->bind_param("sssdi", $title, $date, $venue, $budget, $user_id);
+    $stmt->bind_param("sssdis", $title, $date, $venue, $budget, $user_id, $status);
 
     if (!$stmt->execute()) {
         $error = $stmt->error;
@@ -96,6 +97,102 @@ function addEvent($conn, $event_data, $user_id) {
         'message' => 'Event created successfully',
         'event_id' => $event_id
     ];
+}
+
+/**
+ * Submit event proposal for review
+ *
+ * Allowed transition: Draft -> Submitted
+ */
+function submitEventProposal($conn, $event_id) {
+    $current = getEventById($conn, $event_id);
+    if (!$current) {
+        return ['status' => false, 'message' => 'Event not found'];
+    }
+
+    $current_status = $current['status'] ?? 'Draft';
+    if ($current_status !== 'Draft') {
+        return ['status' => false, 'message' => 'Only Draft proposals can be submitted'];
+    }
+
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Submitted' WHERE event_id = ?");
+    if (!$stmt) {
+        return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+    }
+
+    $stmt->bind_param("i", $event_id);
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        return ['status' => false, 'message' => 'Database error: ' . $error];
+    }
+
+    $stmt->close();
+    return ['status' => true, 'message' => 'Proposal submitted for approval'];
+}
+
+/**
+ * Approve submitted event proposal
+ *
+ * Allowed transition: Submitted -> Approved
+ */
+function approveEventProposal($conn, $event_id) {
+    $current = getEventById($conn, $event_id);
+    if (!$current) {
+        return ['status' => false, 'message' => 'Event not found'];
+    }
+
+    $current_status = $current['status'] ?? 'Draft';
+    if ($current_status !== 'Submitted') {
+        return ['status' => false, 'message' => 'Only Submitted proposals can be approved'];
+    }
+
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Approved' WHERE event_id = ?");
+    if (!$stmt) {
+        return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+    }
+
+    $stmt->bind_param("i", $event_id);
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        return ['status' => false, 'message' => 'Database error: ' . $error];
+    }
+
+    $stmt->close();
+    return ['status' => true, 'message' => 'Proposal approved successfully'];
+}
+
+/**
+ * Reject submitted event proposal
+ *
+ * Allowed transition: Submitted -> Rejected
+ */
+function rejectEventProposal($conn, $event_id) {
+    $current = getEventById($conn, $event_id);
+    if (!$current) {
+        return ['status' => false, 'message' => 'Event not found'];
+    }
+
+    $current_status = $current['status'] ?? 'Draft';
+    if ($current_status !== 'Submitted') {
+        return ['status' => false, 'message' => 'Only Submitted proposals can be rejected'];
+    }
+
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Rejected' WHERE event_id = ?");
+    if (!$stmt) {
+        return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+    }
+
+    $stmt->bind_param("i", $event_id);
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        return ['status' => false, 'message' => 'Database error: ' . $error];
+    }
+
+    $stmt->close();
+    return ['status' => true, 'message' => 'Proposal rejected'];
 }
 
 /**
@@ -514,5 +611,192 @@ function deleteEventDocument($conn, $doc_id) {
     }
     
     return ['status' => true, 'message' => 'Document deleted successfully'];
+}
+
+/**
+ * Get all event documents with optional search filter
+ *
+ * @param mysqli $conn Database connection
+ * @param string $search Optional search text
+ * @return array Document rows with event info
+ */
+function getAllDocuments($conn, $search = '') {
+    $search = trim((string)$search);
+
+    $sql = "
+        SELECT d.doc_id, d.event_id, d.doc_name, d.file_path, d.uploaded_at, e.event_title, e.status AS event_status
+        FROM tbl_document d
+        LEFT JOIN tbl_event e ON d.event_id = e.event_id
+    ";
+
+    if ($search !== '') {
+        $sql .= " WHERE d.doc_name LIKE ? OR e.event_title LIKE ? ";
+    }
+
+    $sql .= " ORDER BY d.uploaded_at DESC ";
+
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        return [];
+    }
+
+    if ($search !== '') {
+        $q = '%' . $search . '%';
+        $stmt->bind_param("ss", $q, $q);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $documents = [];
+    while ($row = $result->fetch_assoc()) {
+        $documents[] = $row;
+    }
+
+    $stmt->close();
+    return $documents;
+}
+
+/**
+ * Get documents by type keyword in doc_name with optional search
+ *
+ * @param mysqli $conn Database connection
+ * @param string $doc_type_keyword Type keyword (e.g. 'minutes', 'report', 'proposal')
+ * @param string $search Optional search text
+ * @return array Document rows with event info
+ */
+function getDocumentsByType($conn, $doc_type_keyword, $search = '') {
+    $search = trim((string)$search);
+    $doc_type_keyword = trim((string)$doc_type_keyword);
+
+    $sql = "
+        SELECT d.doc_id, d.event_id, d.doc_name, d.file_path, d.uploaded_at, e.event_title, e.status AS event_status
+        FROM tbl_document d
+        LEFT JOIN tbl_event e ON d.event_id = e.event_id
+        WHERE LOWER(d.doc_name) LIKE ?
+    ";
+
+    $type_like = '%' . strtolower($doc_type_keyword) . '%';
+
+    if ($search !== '') {
+        $sql .= " AND (d.doc_name LIKE ? OR e.event_title LIKE ?) ";
+    }
+
+    $sql .= " ORDER BY d.uploaded_at DESC ";
+
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        return [];
+    }
+
+    if ($search !== '') {
+        $q = '%' . $search . '%';
+        $stmt->bind_param("sss", $type_like, $q, $q);
+    } else {
+        $stmt->bind_param("s", $type_like);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $documents = [];
+    while ($row = $result->fetch_assoc()) {
+        $documents[] = $row;
+    }
+
+    $stmt->close();
+    return $documents;
+}
+
+/**
+ * Upload general document (Proposal/Minutes/Report) with optional event linkage
+ *
+ * @param mysqli $conn Database connection
+ * @param int|null $event_id Nullable event ID
+ * @param string $doc_type Proposal|Minutes|Report
+ * @param array $file_data File data from $_FILES
+ * @return array Result with status and message
+ */
+function uploadGeneralDocument($conn, $event_id, $doc_type, $file_data) {
+    $allowed_types = ['Proposal', 'Minutes', 'Report'];
+    if (!in_array($doc_type, $allowed_types, true)) {
+        return ['status' => false, 'message' => 'Invalid document type selected'];
+    }
+
+    if (empty($file_data) || !isset($file_data['name'], $file_data['tmp_name'])) {
+        return ['status' => false, 'message' => 'No file uploaded'];
+    }
+
+    if (!empty($file_data['error']) && (int)$file_data['error'] !== UPLOAD_ERR_OK) {
+        return ['status' => false, 'message' => 'File upload error'];
+    }
+
+    $allowed_extensions = ['pdf', 'jpg', 'jpeg', 'png'];
+    $max_size = 5 * 1024 * 1024; // 5MB
+
+    $original_name = (string)$file_data['name'];
+    $file_ext = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
+
+    if (!in_array($file_ext, $allowed_extensions, true)) {
+        return ['status' => false, 'message' => 'Invalid file type. Allowed: PDF, JPG, JPEG, PNG'];
+    }
+
+    if ((int)$file_data['size'] > $max_size) {
+        return ['status' => false, 'message' => 'File size exceeds 5MB limit'];
+    }
+
+    $upload_dir = __DIR__ . '/../uploads/events';
+    if (!is_dir($upload_dir)) {
+        if (!mkdir($upload_dir, 0755, true) && !is_dir($upload_dir)) {
+            return ['status' => false, 'message' => 'Failed to create upload directory'];
+        }
+    }
+
+    $safe_type = strtolower($doc_type);
+    $unique_name = 'doc_' . $safe_type . '_' . time() . '_' . mt_rand(1000, 9999) . '.' . $file_ext;
+    $target_path = $upload_dir . '/' . $unique_name;
+
+    if (!move_uploaded_file($file_data['tmp_name'], $target_path)) {
+        return ['status' => false, 'message' => 'Failed to save uploaded file'];
+    }
+
+    $doc_name = $doc_type . ' - ' . basename($original_name);
+    $file_path = 'uploads/events/' . $unique_name;
+
+    $event_id_val = (!empty($event_id) && (int)$event_id > 0) ? (int)$event_id : null;
+
+    if ($event_id_val === null) {
+        $stmt = $conn->prepare("
+            INSERT INTO tbl_document (event_id, doc_name, file_path)
+            VALUES (NULL, ?, ?)
+        ");
+        if (!$stmt) {
+            @unlink($target_path);
+            return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+        }
+
+        $stmt->bind_param("ss", $doc_name, $file_path);
+    } else {
+        $stmt = $conn->prepare("
+            INSERT INTO tbl_document (event_id, doc_name, file_path)
+            VALUES (?, ?, ?)
+        ");
+        if (!$stmt) {
+            @unlink($target_path);
+            return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+        }
+
+        $stmt->bind_param("iss", $event_id_val, $doc_name, $file_path);
+    }
+
+    if (!$stmt->execute()) {
+        $error = $stmt->error;
+        $stmt->close();
+        @unlink($target_path);
+        return ['status' => false, 'message' => 'Database error: ' . $error];
+    }
+
+    $stmt->close();
+    return ['status' => true, 'message' => $doc_type . ' uploaded successfully'];
 }
 

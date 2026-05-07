@@ -10,15 +10,32 @@ $css_path = '../../src/css/members.css';
 require_once '../../includes/header.php';
 require_once '../../includes/events_helper.php';
 
-// Delete event if requested
+// Workflow/Delete actions
 $message = '';
 $message_type = '';
+
+if (isset($_GET['action']) && isset($_GET['event_id'])) {
+    $event_id = (int)$_GET['event_id'];
+    $action = $_GET['action'];
+    $result = ['status' => false, 'message' => 'Invalid action'];
+
+    if ($action === 'submit' && hasRole(['Secretary', 'Super Admin'])) {
+        $result = submitEventProposal($conn, $event_id);
+    } elseif ($action === 'approve' && hasRole('Super Admin')) {
+        $result = approveEventProposal($conn, $event_id);
+    } elseif ($action === 'reject' && hasRole('Super Admin')) {
+        $result = rejectEventProposal($conn, $event_id);
+    }
+
+    $message = $result['message'];
+    $message_type = $result['status'] ? 'success' : 'error';
+}
 
 if (isset($_GET['delete']) && isset($_GET['confirm']) && $_GET['confirm'] === 'yes') {
     $event_id = (int)$_GET['delete'];
     $result = deleteEvent($conn, $event_id);
 
-if ($result['status']) {
+    if ($result['status']) {
         $message = $result['message'];
         $message_type = 'success';
         // Use JavaScript redirect since HTML has already been output via header.php
@@ -202,12 +219,29 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                                 <td><?php echo $event['budget_est'] ? 'RM ' . number_format($event['budget_est'], 2) : '-'; ?></td>
                                 <td><?php echo htmlspecialchars($event['creator_name'] ?? 'System'); ?></td>
                                 <td>
-                                    <span class="badge badge-<?php echo $is_upcoming ? 'success' : 'secondary'; ?>">
-                                        <?php echo $is_upcoming ? 'Upcoming' : 'Past'; ?>
+                                    <?php
+                                        $workflow_status = $event['status'] ?? 'Draft';
+                                        $badge_class = 'secondary';
+                                        if ($workflow_status === 'Approved') $badge_class = 'success';
+                                        elseif ($workflow_status === 'Submitted') $badge_class = 'warning';
+                                        elseif ($workflow_status === 'Rejected') $badge_class = 'danger';
+                                    ?>
+                                    <span class="badge badge-<?php echo $badge_class; ?>">
+                                        <?php echo htmlspecialchars($workflow_status); ?>
                                     </span>
                                 </td>
                                 <td class="table-actions">
                                     <a href="attendance.php?event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Attendance">📋</a>
+
+                                    <?php if (($event['status'] ?? 'Draft') === 'Draft' && hasRole(['Secretary', 'Super Admin'])): ?>
+                                        <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Submit Proposal">📤</a>
+                                    <?php endif; ?>
+
+                                    <?php if (($event['status'] ?? 'Draft') === 'Submitted' && hasRole('Super Admin')): ?>
+                                        <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Approve">✅</a>
+                                        <a href="?action=reject&event_id=<?php echo $event['event_id']; ?>" class="action-btn action-delete" title="Reject">❌</a>
+                                    <?php endif; ?>
+
                                     <a href="?delete=<?php echo $event['event_id']; ?>" class="action-btn action-delete" title="Delete">🗑️</a>
                                 </td>
                             </tr>

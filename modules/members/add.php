@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="form-group">
                                     <label for="full_name" class="form-label">Full Name <span class="required">*</span></label>
                                     <input type="text" name="full_name" id="full_name"
-                                           class="form-control" placeholder="e.g., Ahmad bin Abdullah"
+                                           class="form-control" placeholder="e.g., Cedric Hilary"
                                            value="<?php echo isset($_POST['full_name']) ? htmlspecialchars($_POST['full_name']) : ''; ?>"
                                            required>
                                 </div>
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="form-group">
                                     <label for="ic_number" class="form-label">IC Number <span class="required">*</span></label>
                                     <input type="text" name="ic_number" id="ic_number"
-                                           class="form-control" placeholder="e.g., 900101-01-1234"
+                                           class="form-control" placeholder="e.g., 000000-00-0000"
                                            value="<?php echo isset($_POST['ic_number']) ? htmlspecialchars($_POST['ic_number']) : ''; ?>"
                                            required>
                                 </div>
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="form-group">
                                     <label for="village" class="form-label">Village <span class="required">*</span></label>
                                     <input type="text" name="village" id="village"
-                                           class="form-control" placeholder="e.g., Kampung Baru"
+                                           class="form-control" placeholder="e.g., Kampung Data Kakus"
                                            value="<?php echo isset($_POST['village']) ? htmlspecialchars($_POST['village']) : ''; ?>"
                                            required>
                                 </div>

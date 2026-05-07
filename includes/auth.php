@@ -15,12 +15,25 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit();
 }
 
+define('INACTIVITY_TIMEOUT_SECONDS', 900); // 15 minutes
+
 // Validate session variables
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['username']) || !isset($_SESSION['role'])) {
     session_destroy();
     header('Location: ../../modules/auth/login.php?error=Session expired');
     exit();
 }
+
+// Inactivity timeout enforcement
+if (isset($_SESSION['last_activity']) && (time() - (int)$_SESSION['last_activity']) > INACTIVITY_TIMEOUT_SECONDS) {
+    session_unset();
+    session_destroy();
+    header('Location: ../../modules/auth/login.php?error=Logged out due to inactivity');
+    exit();
+}
+
+// Refresh last activity timestamp for active sessions
+$_SESSION['last_activity'] = time();
 
 // Store session variables in convenient variables
 $user_id = $_SESSION['user_id'];

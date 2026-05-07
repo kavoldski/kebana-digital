@@ -120,7 +120,7 @@ if (!isset($css_base_path)) {
                     <ul class="sidebar-submenu">
                         <li><a href="<?php echo $base_path; ?>modules/members/list.php" class="sidebar-submenu-item">Member List</a></li>
                         <li><a href="<?php echo $base_path; ?>modules/members/add.php" class="sidebar-submenu-item">Add Member</a></li>
-                        <li><a href="#" class="sidebar-submenu-item">Reports</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/members/report.php" class="sidebar-submenu-item">Reports</a></li>
                     </ul>
                 </li>
 
@@ -150,9 +150,10 @@ if (!isset($css_base_path)) {
                         <span>Documents</span>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li><a href="#" class="sidebar-submenu-item">Proposals</a></li>
-                        <li><a href="#" class="sidebar-submenu-item">Minutes</a></li>
-                        <li><a href="#" class="sidebar-submenu-item">Reports</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/documents/upload.php" class="sidebar-submenu-item">Upload Document</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/documents/proposals.php" class="sidebar-submenu-item">Proposals</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/documents/minutes.php" class="sidebar-submenu-item">Minutes</a></li>
+                        <li><a href="<?php echo $base_path; ?>modules/documents/reports.php" class="sidebar-submenu-item">Reports</a></li>
                     </ul>
                 </li>
 
