@@ -17,10 +17,14 @@ function getAllEvents($conn, $viewMode = 'all', $userId = null, $cawanganId = nu
 
     if ($viewMode === 'all') {
         $result = $conn->query("
-            SELECT e.*, u.username as creator_name
+            SELECT e.*, u.username as creator_name,
+                   c.cawangan_name,
+                   COALESCE(e.event_level, 'MASTER') as event_level,
+                   e.parent_event_id
             FROM tbl_event e
             LEFT JOIN tbl_user u ON e.created_by = u.user_id
-            ORDER BY e.event_date DESC
+            LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
+            ORDER BY e.cawangan_id ASC, COALESCE(e.event_level, 'MASTER') ASC, e.event_date DESC
         ");
 
         if ($result) {
@@ -38,9 +42,13 @@ function getAllEvents($conn, $viewMode = 'all', $userId = null, $cawanganId = nu
         }
 
         $stmt = $conn->prepare("
-            SELECT e.*, u.username as creator_name
+            SELECT e.*, u.username as creator_name,
+                   c.cawangan_name,
+                   COALESCE(e.event_level, 'MASTER') as event_level,
+                   e.parent_event_id
             FROM tbl_event e
             LEFT JOIN tbl_user u ON e.created_by = u.user_id
+            LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
             WHERE e.created_by = ?
             ORDER BY e.event_date DESC
         ");
@@ -67,9 +75,13 @@ function getAllEvents($conn, $viewMode = 'all', $userId = null, $cawanganId = nu
         }
 
         $stmt = $conn->prepare("
-            SELECT e.*, u.username as creator_name
+            SELECT e.*, u.username as creator_name,
+                   c.cawangan_name,
+                   COALESCE(e.event_level, 'MASTER') as event_level,
+                   e.parent_event_id
             FROM tbl_event e
             LEFT JOIN tbl_user u ON e.created_by = u.user_id
+            LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
             WHERE e.cawangan_id = ?
             ORDER BY e.event_date DESC
         ");
