@@ -183,8 +183,8 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
     <div class="main-content-area">
         <div class="container-xl">
 
-            <?php if ($delete_confirm): ?>
-            <div class="modal-overlay" id="deleteModal" style="display: flex !important;">
+<?php if ($delete_confirm): ?>
+            <div class="modal-overlay" id="deleteModal" style="display: flex !important; z-index: 9999;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2 class="modal-title">Confirm Delete</h2>
@@ -200,7 +200,9 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
             </div>
             <?php endif; ?>
 
-            <?php if (!empty($message)): ?>
+            <?php if (!$delete_confirm): ?>
+
+<?php if (!empty($message)): ?>
             <div class="alert alert-<?php echo $message_type; ?>">
                 <span class="alert-icon"><?php echo $message_type === 'success' ? '✓' : '⚠'; ?></span>
                 <span class="alert-message"><?php echo htmlspecialchars($message); ?></span>
@@ -478,7 +480,7 @@ if ($workflow_status === 'Draft' && hasRole([4, 33, 888])) {
                 </div>
             </div>
 
-            <?php else: ?>
+<?php else: ?>
             <div class="dashboard-card">
                 <div class="card-body-custom">
                     <div class="empty-state">
@@ -489,7 +491,7 @@ if ($workflow_status === 'Draft' && hasRole([4, 33, 888])) {
                     </div>
                 </div>
             </div>
-            <?php endif; ?>
+<?php endif; ?>
 </div>
 
 <?php require_once '../../includes/footer.php'; ?>
