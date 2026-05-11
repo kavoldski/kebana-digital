@@ -12,10 +12,10 @@
  * @param mysqli $conn Database connection
  * @return array Array of events
  */
-function getAllEvents($conn, $isPusatOrFinance = false, $cawanganId = null) {
+function getAllEvents($conn, $viewMode = 'all', $userId = null, $cawanganId = null) {
     $events = [];
 
-    if ($isPusatOrFinance) {
+    if ($viewMode === 'all') {
         $result = $conn->query("
             SELECT e.*, u.username as creator_name
             FROM tbl_event e
@@ -32,31 +32,64 @@ function getAllEvents($conn, $isPusatOrFinance = false, $cawanganId = null) {
         return $events;
     }
 
-    if ($cawanganId === null) {
+    if ($viewMode === 'creator_only') {
+        if ($userId === null) {
+            return $events;
+        }
+
+        $stmt = $conn->prepare("
+            SELECT e.*, u.username as creator_name
+            FROM tbl_event e
+            LEFT JOIN tbl_user u ON e.created_by = u.user_id
+            WHERE e.created_by = ?
+            ORDER BY e.event_date DESC
+        ");
+
+        if (!$stmt) {
+            return $events;
+        }
+
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            $events[] = $row;
+        }
+
+        $stmt->close();
         return $events;
     }
 
-    $stmt = $conn->prepare("
-        SELECT e.*, u.username as creator_name
-        FROM tbl_event e
-        LEFT JOIN tbl_user u ON e.created_by = u.user_id
-        WHERE e.cawangan_id = ?
-        ORDER BY e.event_date DESC
-    ");
+    if ($viewMode === 'cawangan_only') {
+        if ($cawanganId === null) {
+            return $events;
+        }
 
-    if (!$stmt) {
+        $stmt = $conn->prepare("
+            SELECT e.*, u.username as creator_name
+            FROM tbl_event e
+            LEFT JOIN tbl_user u ON e.created_by = u.user_id
+            WHERE e.cawangan_id = ?
+            ORDER BY e.event_date DESC
+        ");
+
+        if (!$stmt) {
+            return $events;
+        }
+
+        $stmt->bind_param("i", $cawanganId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            $events[] = $row;
+        }
+
+        $stmt->close();
         return $events;
     }
 
-    $stmt->bind_param("i", $cawanganId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($row = $result->fetch_assoc()) {
-        $events[] = $row;
-    }
-
-    $stmt->close();
     return $events;
 }
 
@@ -92,6 +125,37 @@ function getEventById($conn, $event_id) {
  * @param int $user_id Creator user ID
  * @return array Result with status and message
  */
+function getAllCawangan($conn) {
+    $rows = [];
+    $result = $conn->query("SELECT cawangan_id, cawangan_name FROM tbl_cawangan ORDER BY cawangan_name ASC");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = $row;
+        }
+    }
+    return $rows;
+}
+
+function getMasterEventsByCawangan($conn, $cawanganId) {
+    $rows = [];
+    $stmt = $conn->prepare("
+        SELECT event_id, event_title, event_date
+        FROM tbl_event
+        WHERE event_level = 'MASTER' AND cawangan_id = ?
+        ORDER BY event_date DESC, event_id DESC
+    ");
+    if (!$stmt) return $rows;
+
+    $stmt->bind_param("i", $cawanganId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $rows[] = $row;
+    }
+    $stmt->close();
+    return $rows;
+}
+
 function addEvent($conn, $event_data, $user_id, $isPusatCreator = false, $cawanganId = null) {
     if (empty($event_data['event_title']) || empty($event_data['event_date']) || empty($event_data['venue'])) {
         return ['status' => false, 'message' => 'Event title, date, and venue are required'];
@@ -104,31 +168,66 @@ function addEvent($conn, $event_data, $user_id, $isPusatCreator = false, $cawang
     $status = 'Draft';
 
     if ($isPusatCreator) {
+        $assigned_cawangan_id = isset($event_data['assigned_cawangan_id']) && $event_data['assigned_cawangan_id'] !== ''
+            ? (int)$event_data['assigned_cawangan_id']
+            : null;
+
+        if ($assigned_cawangan_id === null) {
+            return ['status' => false, 'message' => 'Assigned cawangan is required for Master Event'];
+        }
+
         $stmt = $conn->prepare("
-            INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status, cawangan_id)
-            VALUES (?, ?, ?, ?, ?, ?, NULL)
+            INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status, cawangan_id, event_level, parent_event_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'MASTER', NULL)
         ");
 
         if (!$stmt) {
             return ['status' => false, 'message' => 'Database error: ' . $conn->error];
         }
 
-        $stmt->bind_param("sssdis", $title, $date, $venue, $budget, $user_id, $status);
+        $stmt->bind_param("sssdisi", $title, $date, $venue, $budget, $user_id, $status, $assigned_cawangan_id);
     } else {
         if ($cawanganId === null) {
             return ['status' => false, 'message' => 'Cawangan ID is required for branch event creation'];
         }
 
+        $parent_master_event_id = isset($event_data['parent_master_event_id']) && $event_data['parent_master_event_id'] !== ''
+            ? (int)$event_data['parent_master_event_id']
+            : null;
+
+        if ($parent_master_event_id === null) {
+            return ['status' => false, 'message' => 'Master Event selection is required for Sub Event'];
+        }
+
+        $master_check_stmt = $conn->prepare("
+            SELECT event_id
+            FROM tbl_event
+            WHERE event_id = ? AND event_level = 'MASTER' AND cawangan_id = ?
+        ");
+        if (!$master_check_stmt) {
+            return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+        }
+
+        $master_check_stmt->bind_param("ii", $parent_master_event_id, $cawanganId);
+        $master_check_stmt->execute();
+        $master_check_result = $master_check_stmt->get_result();
+        $is_valid_master = $master_check_result && $master_check_result->num_rows > 0;
+        $master_check_stmt->close();
+
+        if (!$is_valid_master) {
+            return ['status' => false, 'message' => 'Selected Master Event is invalid for your cawangan'];
+        }
+
         $stmt = $conn->prepare("
-            INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status, cawangan_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status, cawangan_id, event_level, parent_event_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'SUB', ?)
         ");
 
         if (!$stmt) {
             return ['status' => false, 'message' => 'Database error: ' . $conn->error];
         }
 
-        $stmt->bind_param("sssdisi", $title, $date, $venue, $budget, $user_id, $status, $cawanganId);
+        $stmt->bind_param("sssdisii", $title, $date, $venue, $budget, $user_id, $status, $cawanganId, $parent_master_event_id);
     }
 
     if (!$stmt->execute()) {

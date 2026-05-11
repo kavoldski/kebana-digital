@@ -49,13 +49,18 @@ if (isset($_GET['delete']) && isset($_GET['confirm']) && $_GET['confirm'] === 'y
 $search = trim($_GET['search'] ?? '');
 
 $pusat_event_creators = [888, 4]; // Super Admin, Setiausaha Pusat
-$finance_roles = [6, 7, 55, 66];
 $current_role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
-
-$is_pusat_or_finance = in_array($current_role, $pusat_event_creators, true) || in_array($current_role, $finance_roles, true);
+$current_user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
 $cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null ? (int)$_SESSION['cawangan_id'] : null;
 
-$events = getAllEvents($conn, $is_pusat_or_finance, $cawangan_id);
+$event_view_mode = 'creator_only';
+if (in_array($current_role, $pusat_event_creators, true)) {
+    $event_view_mode = 'all';
+} elseif ($current_role === 33) {
+    $event_view_mode = 'creator_only';
+}
+
+$events = getAllEvents($conn, $event_view_mode, $current_user_id, $cawangan_id);
 if ($search) {
     $events = array_filter($events, function($event) use ($search) {
         $search_lower = strtolower($search);

@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
-    $role = trim($_POST['role'] ?? 'Treasurer');
+    $role = isset($_POST['role']) ? (int)$_POST['role'] : 0;
     $terms = isset($_POST['terms']) ? true : false;
     $cawangan_id = isset($_POST['cawangan_id']) && $_POST['cawangan_id'] !== '' ? (int)$_POST['cawangan_id'] : null;
 
@@ -50,11 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'You must agree to the Terms and Conditions';
     }
 
-    if (!in_array($role, ['Super Admin', 'Secretary', 'Treasurer'])) {
+    $allowed_roles = [888, 4, 33, 6, 7, 55, 66];
+    $pusat_roles = [888, 4, 6, 7];
+
+    if (!in_array($role, $allowed_roles, true)) {
         $errors[] = 'Invalid role selected';
     }
 
-    $is_pusat_role = in_array($role, ['Super Admin', 'Secretary'], true);
+    $is_pusat_role = in_array($role, $pusat_roles, true);
     if (!$is_pusat_role && $cawangan_id === null) {
         $errors[] = 'Cawangan is required for branch users';
     }
@@ -117,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Database error: " . $conn->error);
             }
 
-            $insert_stmt->bind_param("ssss", $username, $email, $hashed_password, $role);
+            $insert_stmt->bind_param("sssi", $username, $email, $hashed_password, $role);
         } else {
             $insert_stmt = $conn->prepare("
                 INSERT INTO tbl_user (username, email, password_hash, role, cawangan_id) 
@@ -128,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Database error: " . $conn->error);
             }
 
-            $insert_stmt->bind_param("ssssi", $username, $email, $hashed_password, $role, $cawangan_id);
+            $insert_stmt->bind_param("sssii", $username, $email, $hashed_password, $role, $cawangan_id);
         }
 
         if (!$insert_stmt->execute()) {
@@ -142,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $user_id;
         $_SESSION['username'] = $username;
         $_SESSION['email'] = $email;
-        $_SESSION['role'] = $role;
+        $_SESSION['role'] = (int)$role;
         $_SESSION['cawangan_id'] = $is_pusat_role ? null : $cawangan_id;
         $_SESSION['logged_in'] = true;
         $_SESSION['new_user'] = true; // Flag for first-time setup

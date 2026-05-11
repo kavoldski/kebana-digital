@@ -10,8 +10,8 @@ $css_path = '../../src/css/members.css';
 require_once '../../includes/header.php';
 require_once '../../includes/events_helper.php';
 
-if (!hasRole(['Secretary', 'Treasurer', 'Super Admin'])) {
-    die('Access denied. Secretary/Treasurer/Super Admin only.');
+if (!hasRole([4, 33, 6, 7, 55, 66, 888])) {
+    die('Access denied. Role not permitted.');
 }
 
 $message = '';

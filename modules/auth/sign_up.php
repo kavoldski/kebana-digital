@@ -63,9 +63,13 @@ if ($cawangan_result) {
                         <label for="role" class="form-label">Account Role</label>
                         <select class="form-select" id="role" name="role" required>
                             <option value="">Select your role</option>
-                            <option value="Super Admin">Super Admin</option>
-                            <option value="Secretary">Secretary</option>
-                            <option value="Treasurer">Treasurer</option>
+                            <option value="888">Super Admin (Pusat)</option>
+                            <option value="4">Setiausaha Pusat</option>
+                            <option value="33">Setiausaha Cawangan</option>
+                            <option value="6">Bendahari Pusat</option>
+                            <option value="55">Bendahari Cawangan</option>
+                            <option value="7">Auditor Pusat</option>
+                            <option value="66">Auditor Cawangan</option>
                         </select>
                     </div>
 
@@ -79,7 +83,7 @@ if ($cawangan_result) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <small class="form-text">For Super Admin / Secretary (Pusat), this can be left empty.</small>
+                        <small class="form-text">Required for Cawangan roles (e.g., 33, 55, 66). Leave empty for Pusat roles.</small>
                     </div>
 
                     <div class="form-check">

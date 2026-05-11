@@ -10,6 +10,33 @@
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/dbconnect.php';
 
+$session_role_raw = $_SESSION['role'] ?? null;
+$current_role = is_numeric($session_role_raw) ? (int)$session_role_raw : 0;
+$current_cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null && $_SESSION['cawangan_id'] !== '' ? (int)$_SESSION['cawangan_id'] : null;
+
+$ROLE_SUPER_ADMIN = 888;
+$ROLE_SETIAUSAHA_PUSAT = 4;
+$ROLE_SETIAUSAHA_CAWANGAN = 33;
+
+$PUSAT_ROLES = [888, 1, 2, 3, 4, 5, 6, 7];
+$CAWANGAN_ROLES = [11, 22, 33, 44, 55, 66];
+$FINANCE_ROLES = [6, 7, 55, 66];
+
+$is_known_role = in_array($current_role, $PUSAT_ROLES, true) || in_array($current_role, $CAWANGAN_ROLES, true);
+
+// Safe fallback: if role is unknown/legacy but user is logged in, keep baseline modules visible
+$can_view_members = $is_known_role ? true : true;
+$can_view_events = $is_known_role ? true : true;
+$can_view_documents = $is_known_role ? true : true;
+$can_view_finance = $is_known_role
+    ? (in_array($current_role, $FINANCE_ROLES, true) || $current_role === $ROLE_SUPER_ADMIN)
+    : true;
+$can_view_projects = $is_known_role ? in_array($current_role, $PUSAT_ROLES, true) : true;
+
+$can_create_master_event = ($current_role === $ROLE_SETIAUSAHA_PUSAT && $current_cawangan_id === null);
+$can_create_sub_event = ($current_role === $ROLE_SETIAUSAHA_CAWANGAN && $current_cawangan_id !== null);
+$can_open_create_event = $can_create_master_event || $can_create_sub_event;
+
 // Calculate CSS base path relative to the calling page
 if (!isset($css_base_path)) {
     // Use relative path calculation from the includes directory to src/css
@@ -107,6 +134,7 @@ if (!isset($css_base_path)) {
                     </a>
                 </li>
 
+                <?php if ($can_view_members): ?>
                 <li>
                     <a href="#" class="sidebar-menu-item has-submenu">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -123,7 +151,9 @@ if (!isset($css_base_path)) {
                         <li><a href="<?php echo $base_path; ?>modules/members/report.php" class="sidebar-submenu-item">Reports</a></li>
                     </ul>
                 </li>
+                <?php endif; ?>
 
+                <?php if ($can_view_events): ?>
                 <li>
                     <a href="#" class="sidebar-menu-item has-submenu">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -136,11 +166,15 @@ if (!isset($css_base_path)) {
                     </a>
                     <ul class="sidebar-submenu">
                         <li><a href="<?php echo $base_path; ?>modules/events/list.php" class="sidebar-submenu-item">Event List</a></li>
+                        <?php if ($can_open_create_event): ?>
                         <li><a href="<?php echo $base_path; ?>modules/events/create.php" class="sidebar-submenu-item">Create Event</a></li>
+                        <?php endif; ?>
                         <li><a href="<?php echo $base_path; ?>modules/events/attendance.php" class="sidebar-submenu-item">Attendance</a></li>
                     </ul>
                 </li>
+                <?php endif; ?>
 
+                <?php if ($can_view_documents): ?>
                 <li>
                     <a href="#" class="sidebar-menu-item has-submenu">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -156,7 +190,9 @@ if (!isset($css_base_path)) {
                         <li><a href="<?php echo $base_path; ?>modules/documents/reports.php" class="sidebar-submenu-item">Reports</a></li>
                     </ul>
                 </li>
+                <?php endif; ?>
 
+                <?php if ($can_view_finance): ?>
                 <li>
                     <a href="#" class="sidebar-menu-item has-submenu">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -172,7 +208,9 @@ if (!isset($css_base_path)) {
                         <li><a href="#" class="sidebar-submenu-item">Reports</a></li>
                     </ul>
                 </li>
+                <?php endif; ?>
 
+                <?php if ($can_view_projects): ?>
                 <li>
                     <a href="#" class="sidebar-menu-item has-submenu">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -187,6 +225,7 @@ if (!isset($css_base_path)) {
                         <li><a href="#" class="sidebar-submenu-item">Reports</a></li>
                     </ul>
                 </li>
+                <?php endif; ?>
 
                 <?php if (isAdmin()): ?>
                 <li>
@@ -215,7 +254,7 @@ if (!isset($css_base_path)) {
                 <div class="sidebar-user-avatar"><?php echo strtoupper(substr($username, 0, 1)); ?></div>
                 <div class="sidebar-user-info">
                     <p class="sidebar-user-name"><?php echo htmlspecialchars($username); ?></p>
-                    <p class="sidebar-user-role"><?php echo ucfirst($role); ?></p>
+                    <p class="sidebar-user-role"><?php echo htmlspecialchars((string)$role); ?></p>
                 </div>
             </div>
             <a href="<?php echo $base_path; ?>modules/auth/logout.php" style="display: block; padding: 0.75rem; color: rgba(255, 255, 255, 0.85); text-decoration: none; text-align: center; font-size: 0.9rem; margin-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;" onmouseover="this.style.color='white'; this.style.background='rgba(255, 255, 255, 0.1)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.85)'; this.style.background='transparent';">
