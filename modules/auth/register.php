@@ -16,8 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
-    $role = trim($_POST['role'] ?? 'Treasurer');
+    $role = isset($_POST['role']) ? (int)$_POST['role'] : 0;
     $terms = isset($_POST['terms']) ? true : false;
+    $cawangan_id = isset($_POST['cawangan_id']) && $_POST['cawangan_id'] !== '' ? (int)$_POST['cawangan_id'] : null;
 
     // Validation errors array
     $errors = [];
@@ -49,8 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'You must agree to the Terms and Conditions';
     }
 
-    if (!in_array($role, ['Super Admin', 'Secretary', 'Treasurer'])) {
+    $allowed_roles = [888, 4, 33, 6, 7, 55, 66];
+    $pusat_roles = [888, 4, 6, 7];
+
+    if (!in_array($role, $allowed_roles, true)) {
         $errors[] = 'Invalid role selected';
+    }
+
+    $is_pusat_role = in_array($role, $pusat_roles, true);
+    if (!$is_pusat_role && $cawangan_id === null) {
+        $errors[] = 'Cawangan is required for branch users';
     }
 
     // If there are validation errors, redirect back to sign-up with error message
@@ -101,16 +110,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hashed_password = password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
 
         // Prepare SQL statement to insert new user
-        $insert_stmt = $conn->prepare("
-            INSERT INTO tbl_user (username, email, password_hash, role) 
-            VALUES (?, ?, ?, ?)
-        ");
+        if ($is_pusat_role) {
+            $insert_stmt = $conn->prepare("
+                INSERT INTO tbl_user (username, email, password_hash, role, cawangan_id) 
+                VALUES (?, ?, ?, ?, NULL)
+            ");
 
-        if (!$insert_stmt) {
-            throw new Exception("Database error: " . $conn->error);
+            if (!$insert_stmt) {
+                throw new Exception("Database error: " . $conn->error);
+            }
+
+            $insert_stmt->bind_param("sssi", $username, $email, $hashed_password, $role);
+        } else {
+            $insert_stmt = $conn->prepare("
+                INSERT INTO tbl_user (username, email, password_hash, role, cawangan_id) 
+                VALUES (?, ?, ?, ?, ?)
+            ");
+
+            if (!$insert_stmt) {
+                throw new Exception("Database error: " . $conn->error);
+            }
+
+            $insert_stmt->bind_param("sssii", $username, $email, $hashed_password, $role, $cawangan_id);
         }
-
-        $insert_stmt->bind_param("ssss", $username, $email, $hashed_password, $role);
 
         if (!$insert_stmt->execute()) {
             throw new Exception("Registration failed: " . $insert_stmt->error);
@@ -123,7 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $user_id;
         $_SESSION['username'] = $username;
         $_SESSION['email'] = $email;
-        $_SESSION['role'] = $role;
+        $_SESSION['role'] = (int)$role;
+        $_SESSION['cawangan_id'] = $is_pusat_role ? null : $cawangan_id;
         $_SESSION['logged_in'] = true;
         $_SESSION['new_user'] = true; // Flag for first-time setup
 

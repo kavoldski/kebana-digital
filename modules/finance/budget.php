@@ -6,8 +6,8 @@ $extra_css = '../../src/css/finance.css';
 require_once '../../includes/header.php';
 require_once '../../includes/auth.php';
 
-if (!hasRole(['Treasurer', 'Super Admin'])) {
-    die('Access denied. Treasurer/Super Admin only.');
+if (!hasRole([6, 7, 55, 66, 888])) {
+    die('Access denied. Finance/Super Admin only.');
 }
 
 // Filters
@@ -15,9 +15,22 @@ $year_filter = trim($_GET['year'] ?? '');
 $search_filter = trim($_GET['search'] ?? '');
 
 // Build dynamic WHERE for events
+$current_role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
+$current_cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null ? (int)$_SESSION['cawangan_id'] : null;
+$is_cawangan_finance = in_array($current_role, [55, 66], true);
+
 $where = "1=1";
 $params = [];
 $types = '';
+
+if ($is_cawangan_finance) {
+    if ($current_cawangan_id === null) {
+        die('Access denied. Cawangan finance account has no cawangan assigned.');
+    }
+    $where .= " AND e.cawangan_id = ?";
+    $params[] = $current_cawangan_id;
+    $types .= 'i';
+}
 
 if ($year_filter !== '') {
     $where .= " AND YEAR(e.event_date) = ?";

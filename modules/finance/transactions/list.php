@@ -6,8 +6,8 @@ $extra_css = '../../../src/css/finance.css';
 require_once '../../../includes/header.php';
 require_once '../../../includes/auth.php';
 
-if (!hasRole(['Treasurer', 'Super Admin'])) {
-    die('Access denied. Treasurer/Super Admin only.');
+if (!hasRole([6, 7, 55, 66, 888])) {
+    die('Access denied. Finance/Super Admin only.');
 }
 
 $total_income = 0;
@@ -34,32 +34,47 @@ $per_page = 20;
 $offset = ($page_num - 1) * $per_page;
 
 // Build WHERE clause
+$current_role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
+$current_cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null ? (int)$_SESSION['cawangan_id'] : null;
+$is_cawangan_finance = in_array($current_role, [55, 66], true);
+
+$from_clause = ' FROM tbl_transaction t ';
 $where = '1=1';
 $filter_params = [];
 $filter_types = '';
+
+if ($is_cawangan_finance) {
+    if ($current_cawangan_id === null) {
+        die('Access denied. Cawangan finance account has no cawangan assigned.');
+    }
+    $from_clause = ' FROM tbl_transaction t LEFT JOIN tbl_event e ON e.event_id = t.event_id ';
+    $where .= ' AND e.cawangan_id = ?';
+    $filter_params[] = $current_cawangan_id;
+    $filter_types .= 'i';
+}
 if ($from_date) {
-    $where .= ' AND trans_date >= ?';
+    $where .= ' AND t.trans_date >= ?';
     $filter_params[] = $from_date;
     $filter_types .= 's';
 }
 if ($to_date) {
-    $where .= ' AND trans_date <= ?';
+    $where .= ' AND t.trans_date <= ?';
     $filter_params[] = $to_date;
     $filter_types .= 's';
 }
 if ($type_filter) {
-    $where .= ' AND trans_type = ?';
+    $where .= ' AND t.trans_type = ?';
     $filter_params[] = $type_filter;
     $filter_types .= 's';
 }
 if ($category_filter) {
-    $where .= ' AND category LIKE ?';
+    $where .= ' AND t.category LIKE ?';
     $filter_params[] = "%$category_filter%";
     $filter_types .= 's';
 }
 
 // Get filtered transactions
-$stmt = $conn->prepare("SELECT * FROM tbl_transaction WHERE $where ORDER BY trans_date DESC, trans_id DESC LIMIT ? OFFSET ?");
+$stmt = $conn->prepare("SELECT t.* $from_clause WHERE $where ORDER BY t.trans_date DESC, t.trans_id DESC LIMIT ? OFFSET ?");
 if (!$stmt) {
     die('DB error (prepare transactions list)');
 }
@@ -77,9 +92,9 @@ $stmt->close();
 
 // Get totals + count for current filters (prepared to match placeholders)
 $totals_sql = "SELECT 
-    SUM(CASE WHEN trans_type = 'Income' THEN amount ELSE 0 END) as total_income,
-    SUM(CASE WHEN trans_type = 'Expense' THEN amount ELSE 0 END) as total_expense
-    FROM tbl_transaction WHERE $where";
+    SUM(CASE WHEN t.trans_type = 'Income' THEN t.amount ELSE 0 END) as total_income,
+    SUM(CASE WHEN t.trans_type = 'Expense' THEN t.amount ELSE 0 END) as total_expense
+    $from_clause WHERE $where";
 
 // Bind filter params only (no pagination params)
 $types_totals = $filter_types;
@@ -103,7 +118,7 @@ $total_expense = (float)($totals_row['total_expense'] ?? 0);
 $balance = $total_income - $total_expense;
 
 // Total count for pagination (also prepared)
-$count_sql = "SELECT COUNT(*) as count FROM tbl_transaction WHERE $where";
+$count_sql = "SELECT COUNT(*) as count $from_clause WHERE $where";
 $count_stmt = $conn->prepare($count_sql);
 if (!$count_stmt) {
     die('DB error (prepare count)');
