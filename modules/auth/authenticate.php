@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Prepare SQL statement to prevent SQL injection
-        $stmt = $conn->prepare("SELECT user_id, username, email, password_hash, role FROM tbl_user WHERE username = ?");
+        $stmt = $conn->prepare("SELECT user_id, username, email, password_hash, role, cawangan_id FROM tbl_user WHERE username = ?");
         
         if (!$stmt) {
             throw new Exception("Database error: " . $conn->error);
@@ -60,7 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
-        $_SESSION['role'] = $user['role'];
+        $_SESSION['role'] = isset($user['role']) ? (int)$user['role'] : 0;
+        $_SESSION['cawangan_id'] = isset($user['cawangan_id']) && $user['cawangan_id'] !== null ? (int)$user['cawangan_id'] : null;
         $_SESSION['logged_in'] = true;
 
         // Handle "Remember Me" functionality

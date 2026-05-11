@@ -12,20 +12,51 @@
  * @param mysqli $conn Database connection
  * @return array Array of events
  */
-function getAllEvents($conn) {
-    $result = $conn->query("
+function getAllEvents($conn, $isPusatOrFinance = false, $cawanganId = null) {
+    $events = [];
+
+    if ($isPusatOrFinance) {
+        $result = $conn->query("
+            SELECT e.*, u.username as creator_name
+            FROM tbl_event e
+            LEFT JOIN tbl_user u ON e.created_by = u.user_id
+            ORDER BY e.event_date DESC
+        ");
+
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $events[] = $row;
+            }
+        }
+
+        return $events;
+    }
+
+    if ($cawanganId === null) {
+        return $events;
+    }
+
+    $stmt = $conn->prepare("
         SELECT e.*, u.username as creator_name
         FROM tbl_event e
         LEFT JOIN tbl_user u ON e.created_by = u.user_id
+        WHERE e.cawangan_id = ?
         ORDER BY e.event_date DESC
     ");
 
-    $events = [];
-    if ($result) {
-        while ($row = $result->fetch_assoc()) {
-            $events[] = $row;
-        }
+    if (!$stmt) {
+        return $events;
     }
+
+    $stmt->bind_param("i", $cawanganId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        $events[] = $row;
+    }
+
+    $stmt->close();
     return $events;
 }
 
@@ -61,18 +92,9 @@ function getEventById($conn, $event_id) {
  * @param int $user_id Creator user ID
  * @return array Result with status and message
  */
-function addEvent($conn, $event_data, $user_id) {
+function addEvent($conn, $event_data, $user_id, $isPusatCreator = false, $cawanganId = null) {
     if (empty($event_data['event_title']) || empty($event_data['event_date']) || empty($event_data['venue'])) {
         return ['status' => false, 'message' => 'Event title, date, and venue are required'];
-    }
-
-    $stmt = $conn->prepare("
-        INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ");
-
-    if (!$stmt) {
-        return ['status' => false, 'message' => 'Database error: ' . $conn->error];
     }
 
     $title = $event_data['event_title'];
@@ -81,7 +103,33 @@ function addEvent($conn, $event_data, $user_id) {
     $budget = !empty($event_data['budget_est']) ? (float)$event_data['budget_est'] : null;
     $status = 'Draft';
 
-    $stmt->bind_param("sssdis", $title, $date, $venue, $budget, $user_id, $status);
+    if ($isPusatCreator) {
+        $stmt = $conn->prepare("
+            INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status, cawangan_id)
+            VALUES (?, ?, ?, ?, ?, ?, NULL)
+        ");
+
+        if (!$stmt) {
+            return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+        }
+
+        $stmt->bind_param("sssdis", $title, $date, $venue, $budget, $user_id, $status);
+    } else {
+        if ($cawanganId === null) {
+            return ['status' => false, 'message' => 'Cawangan ID is required for branch event creation'];
+        }
+
+        $stmt = $conn->prepare("
+            INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status, cawangan_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ");
+
+        if (!$stmt) {
+            return ['status' => false, 'message' => 'Database error: ' . $conn->error];
+        }
+
+        $stmt->bind_param("sssdisi", $title, $date, $venue, $budget, $user_id, $status, $cawanganId);
+    }
 
     if (!$stmt->execute()) {
         $error = $stmt->error;

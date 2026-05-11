@@ -19,11 +19,11 @@ if (isset($_GET['action']) && isset($_GET['event_id'])) {
     $action = $_GET['action'];
     $result = ['status' => false, 'message' => 'Invalid action'];
 
-    if ($action === 'submit' && hasRole(['Secretary', 'Super Admin'])) {
+    if ($action === 'submit' && hasRole([4, 33])) {
         $result = submitEventProposal($conn, $event_id);
-    } elseif ($action === 'approve' && hasRole('Super Admin')) {
+    } elseif ($action === 'approve' && hasRole(888)) {
         $result = approveEventProposal($conn, $event_id);
-    } elseif ($action === 'reject' && hasRole('Super Admin')) {
+    } elseif ($action === 'reject' && hasRole(888)) {
         $result = rejectEventProposal($conn, $event_id);
     }
 
@@ -47,7 +47,15 @@ if (isset($_GET['delete']) && isset($_GET['confirm']) && $_GET['confirm'] === 'y
 }
 
 $search = trim($_GET['search'] ?? '');
-$events = getAllEvents($conn);
+
+$pusat_event_creators = [888, 4]; // Super Admin, Setiausaha Pusat
+$finance_roles = [6, 7, 55, 66];
+$current_role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
+
+$is_pusat_or_finance = in_array($current_role, $pusat_event_creators, true) || in_array($current_role, $finance_roles, true);
+$cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null ? (int)$_SESSION['cawangan_id'] : null;
+
+$events = getAllEvents($conn, $is_pusat_or_finance, $cawangan_id);
 if ($search) {
     $events = array_filter($events, function($event) use ($search) {
         $search_lower = strtolower($search);
@@ -233,11 +241,11 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                                 <td class="table-actions">
                                     <a href="attendance.php?event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Attendance">📋</a>
 
-                                    <?php if (($event['status'] ?? 'Draft') === 'Draft' && hasRole(['Secretary', 'Super Admin'])): ?>
+                                    <?php if (($event['status'] ?? 'Draft') === 'Draft' && hasRole([4, 33, 888])): ?>
                                         <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Submit Proposal">📤</a>
                                     <?php endif; ?>
 
-                                    <?php if (($event['status'] ?? 'Draft') === 'Submitted' && hasRole('Super Admin')): ?>
+                                    <?php if (($event['status'] ?? 'Draft') === 'Submitted' && hasRole(888)): ?>
                                         <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Approve">✅</a>
                                         <a href="?action=reject&event_id=<?php echo $event['event_id']; ?>" class="action-btn action-delete" title="Reject">❌</a>
                                     <?php endif; ?>

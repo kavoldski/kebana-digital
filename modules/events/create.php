@@ -14,11 +14,39 @@ if (!hasRole(['Secretary', 'Super Admin'])) {
     die('Access denied. Secretary/Super Admin only.');
 }
 
+$current_role = $_SESSION['role'] ?? '';
+$current_cawangan_id = $_SESSION['cawangan_id'] ?? null;
+
+// Enforce latest branch mapping from DB to avoid stale/null session edge-cases
+$resolved_cawangan_id = null;
+$user_stmt = $conn->prepare("SELECT cawangan_id FROM tbl_user WHERE user_id = ? LIMIT 1");
+if ($user_stmt) {
+    $user_stmt->bind_param("i", $user_id);
+    $user_stmt->execute();
+    $user_result = $user_stmt->get_result();
+    if ($user_result && $user_result->num_rows > 0) {
+        $user_row = $user_result->fetch_assoc();
+        $resolved_cawangan_id = isset($user_row['cawangan_id']) && $user_row['cawangan_id'] !== null ? (int)$user_row['cawangan_id'] : null;
+        $_SESSION['cawangan_id'] = $resolved_cawangan_id;
+    }
+    $user_stmt->close();
+}
+
+// Effective cawangan id (DB value has priority if available)
+$effective_cawangan_id = $resolved_cawangan_id !== null ? $resolved_cawangan_id : (isset($current_cawangan_id) ? (is_null($current_cawangan_id) ? null : (int)$current_cawangan_id) : null);
+
+$is_pusat_creator = in_array($current_role, ['Super Admin', 'Secretary'], true) && $effective_cawangan_id === null;
+
+// Hard block for Setiausaha Cawangan
+if ($current_role === 'Secretary' && $effective_cawangan_id !== null) {
+    die('Access denied. Setiausaha Cawangan cannot create events from this page.');
+}
+
 $message = '';
 $message_type = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $result = addEvent($conn, $_POST, $user_id);
+    $result = addEvent($conn, $_POST, $user_id, $is_pusat_creator, $effective_cawangan_id);
 
     if ($result['status']) {
         $message = $result['message'];

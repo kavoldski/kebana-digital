@@ -1,3 +1,14 @@
+<?php
+require_once '../../includes/dbconnect.php';
+
+$cawangan_list = [];
+$cawangan_result = $conn->query("SELECT cawangan_id, cawangan_name FROM tbl_cawangan ORDER BY cawangan_name ASC");
+if ($cawangan_result) {
+    while ($row = $cawangan_result->fetch_assoc()) {
+        $cawangan_list[] = $row;
+    }
+}
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -56,6 +67,19 @@
                             <option value="Secretary">Secretary</option>
                             <option value="Treasurer">Treasurer</option>
                         </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cawangan_id" class="form-label">Cawangan</label>
+                        <select class="form-select" id="cawangan_id" name="cawangan_id">
+                            <option value="">Select cawangan (required for branch users)</option>
+                            <?php foreach ($cawangan_list as $cawangan): ?>
+                                <option value="<?php echo (int)$cawangan['cawangan_id']; ?>">
+                                    <?php echo htmlspecialchars($cawangan['cawangan_name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <small class="form-text">For Super Admin / Secretary (Pusat), this can be left empty.</small>
                     </div>
 
                     <div class="form-check">
