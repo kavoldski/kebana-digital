@@ -6,8 +6,8 @@ $extra_css = '../../../src/css/finance.css';
 require_once '../../../includes/header.php';
 require_once '../../../includes/auth.php';
 
-if (!hasRole(['Treasurer', 'Super Admin'])) {
-    die('Access denied. Treasurer/Super Admin only.');
+if (!hasRole([6, 7, 55, 66, 888])) {
+    die('Access denied. Finance/Super Admin only.');
 }
 
 $message = '';
@@ -18,14 +18,37 @@ $trans_date = $_POST['trans_date'] ?? date('Y-m-d');
 $event_id_post = $_POST['event_id'] ?? '';
 $payment_mode = $_POST['payment_mode'] ?? 'Cash';
 
+$current_role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
+$current_cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null ? (int)$_SESSION['cawangan_id'] : null;
+$is_cawangan_finance = in_array($current_role, [55, 66], true);
+
 if (isset($_POST['submit'])) {
     $amount = floatval($amount);
     $trans_date = $_POST['trans_date'];
     $month_label = strtoupper(date('M', strtotime($trans_date)));
     $event_id = isset($_POST['event_id']) && $_POST['event_id'] !== '' ? (int)$_POST['event_id'] : null;
 
+    if ($event_id !== null && $is_cawangan_finance) {
+        if ($current_cawangan_id === null) {
+            $message = 'Your account has no cawangan assigned.';
+        } else {
+            $event_check_stmt = $conn->prepare("SELECT event_id FROM tbl_event WHERE event_id = ? AND cawangan_id = ?");
+            if ($event_check_stmt) {
+                $event_check_stmt->bind_param("ii", $event_id, $current_cawangan_id);
+                $event_check_stmt->execute();
+                $event_check_result = $event_check_stmt->get_result();
+                if ($event_check_result->num_rows === 0) {
+                    $message = 'Invalid event selection for your cawangan.';
+                }
+                $event_check_stmt->close();
+            }
+        }
+    }
+
     
-    if ($amount <= 0) {
+    if (!empty($message)) {
+        // validation message already set
+    } elseif ($amount <= 0) {
         $message = 'Amount must be greater than 0';
     } elseif (empty($category)) {
         $message = 'Category is required';
@@ -92,9 +115,24 @@ if ($cat_result) {
 
 // Get active events for dropdown
 $events = [];
-$event_result = $conn->query("SELECT event_id, event_title FROM tbl_event ORDER BY event_date DESC");
-if ($event_result) {
-    $events = $event_result->fetch_all(MYSQLI_ASSOC);
+if ($is_cawangan_finance) {
+    if ($current_cawangan_id !== null) {
+        $event_stmt = $conn->prepare("SELECT event_id, event_title FROM tbl_event WHERE cawangan_id = ? ORDER BY event_date DESC");
+        if ($event_stmt) {
+            $event_stmt->bind_param("i", $current_cawangan_id);
+            $event_stmt->execute();
+            $event_result = $event_stmt->get_result();
+            if ($event_result) {
+                $events = $event_result->fetch_all(MYSQLI_ASSOC);
+            }
+            $event_stmt->close();
+        }
+    }
+} else {
+    $event_result = $conn->query("SELECT event_id, event_title FROM tbl_event ORDER BY event_date DESC");
+    if ($event_result) {
+        $events = $event_result->fetch_all(MYSQLI_ASSOC);
+    }
 }
 ?>
 

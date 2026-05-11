@@ -39,7 +39,11 @@ $_SESSION['last_activity'] = time();
 $user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
 $email = $_SESSION['email'] ?? 'User';
-$role = $_SESSION['role'];
+$role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
+
+$KEBANA_PUSAT_ROLES = [888, 1, 2, 3, 4, 5, 6, 7];
+$KEBANA_CAWANGAN_ROLES = [11, 22, 33, 44, 55, 66];
+$KEBANA_FINANCE_ROLES = [6, 7, 55, 66];
 
 /**
  * Function to check if user has required role
@@ -48,10 +52,13 @@ $role = $_SESSION['role'];
  */
 function hasRole($required_role) {
     global $role;
+
     if (is_array($required_role)) {
-        return in_array($role, $required_role);
+        $required_roles = array_map('intval', $required_role);
+        return in_array((int)$role, $required_roles, true);
     }
-    return $role === $required_role;
+
+    return (int)$role === (int)$required_role;
 }
 
 /**
@@ -59,7 +66,7 @@ function hasRole($required_role) {
  * @return bool
  */
 function isAdmin() {
-    return hasRole('Super Admin');
+    return hasRole(888);
 }
 
 /**

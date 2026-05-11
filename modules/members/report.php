@@ -11,8 +11,8 @@ require_once '../../includes/header.php';
 require_once '../../includes/members_helper.php';
 
 // Report access: Secretary and Super Admin
-if (!hasRole(['Secretary', 'Super Admin'])) {
-    die('Access denied. Secretary/Super Admin only.');
+if (!hasRole([4, 33, 888])) {
+    die('Access denied. Setiausaha/Super Admin only.');
 }
 
 // Detect optional columns for schema-safe reporting

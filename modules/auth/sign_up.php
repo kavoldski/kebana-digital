@@ -1,3 +1,14 @@
+<?php
+require_once '../../includes/dbconnect.php';
+
+$cawangan_list = [];
+$cawangan_result = $conn->query("SELECT cawangan_id, cawangan_name FROM tbl_cawangan ORDER BY cawangan_name ASC");
+if ($cawangan_result) {
+    while ($row = $cawangan_result->fetch_assoc()) {
+        $cawangan_list[] = $row;
+    }
+}
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -52,10 +63,27 @@
                         <label for="role" class="form-label">Account Role</label>
                         <select class="form-select" id="role" name="role" required>
                             <option value="">Select your role</option>
-                            <option value="Super Admin">Super Admin</option>
-                            <option value="Secretary">Secretary</option>
-                            <option value="Treasurer">Treasurer</option>
+                            <option value="888">Super Admin (Pusat)</option>
+                            <option value="4">Setiausaha Pusat</option>
+                            <option value="33">Setiausaha Cawangan</option>
+                            <option value="6">Bendahari Pusat</option>
+                            <option value="55">Bendahari Cawangan</option>
+                            <option value="7">Auditor Pusat</option>
+                            <option value="66">Auditor Cawangan</option>
                         </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cawangan_id" class="form-label">Cawangan</label>
+                        <select class="form-select" id="cawangan_id" name="cawangan_id">
+                            <option value="">Select cawangan (required for branch users)</option>
+                            <?php foreach ($cawangan_list as $cawangan): ?>
+                                <option value="<?php echo (int)$cawangan['cawangan_id']; ?>">
+                                    <?php echo htmlspecialchars($cawangan['cawangan_name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <small class="form-text">Required for Cawangan roles (e.g., 33, 55, 66). Leave empty for Pusat roles.</small>
                     </div>
 
                     <div class="form-check">

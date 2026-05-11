@@ -10,15 +10,55 @@ $css_path = '../../src/css/members.css';
 require_once '../../includes/header.php';
 require_once '../../includes/events_helper.php';
 
-if (!hasRole(['Secretary', 'Super Admin'])) {
-    die('Access denied. Secretary/Super Admin only.');
+if (!hasRole([4, 33, 888])) {
+    die('Access denied. Setiausaha/Super Admin only.');
+}
+
+$current_role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
+$current_cawangan_id = $_SESSION['cawangan_id'] ?? null;
+
+// Enforce latest branch mapping from DB to avoid stale/null session edge-cases
+$resolved_cawangan_id = null;
+$user_stmt = $conn->prepare("SELECT cawangan_id FROM tbl_user WHERE user_id = ? LIMIT 1");
+if ($user_stmt) {
+    $user_stmt->bind_param("i", $user_id);
+    $user_stmt->execute();
+    $user_result = $user_stmt->get_result();
+    if ($user_result && $user_result->num_rows > 0) {
+        $user_row = $user_result->fetch_assoc();
+        $resolved_cawangan_id = isset($user_row['cawangan_id']) && $user_row['cawangan_id'] !== null ? (int)$user_row['cawangan_id'] : null;
+        $_SESSION['cawangan_id'] = $resolved_cawangan_id;
+    }
+    $user_stmt->close();
+}
+
+// Effective cawangan id (DB value has priority if available)
+$effective_cawangan_id = $resolved_cawangan_id !== null ? $resolved_cawangan_id : (isset($current_cawangan_id) ? (is_null($current_cawangan_id) ? null : (int)$current_cawangan_id) : null);
+
+$is_pusat_creator = in_array((int)$current_role, [888, 4], true) && $effective_cawangan_id === null;
+
+// Hard block for non-allowed role/cawangan combinations
+if (
+    !(
+        ($current_role === 4 && $effective_cawangan_id === null) ||
+        ($current_role === 33 && $effective_cawangan_id !== null) ||
+        ($current_role === 888)
+    )
+) {
+    die('Access denied. Invalid role/cawangan combination for event creation.');
+}
+
+$cawangan_options = getAllCawangan($conn);
+$master_event_options = [];
+if (!$is_pusat_creator && $effective_cawangan_id !== null) {
+    $master_event_options = getMasterEventsByCawangan($conn, (int)$effective_cawangan_id);
 }
 
 $message = '';
 $message_type = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $result = addEvent($conn, $_POST, $user_id);
+    $result = addEvent($conn, $_POST, $user_id, $is_pusat_creator, $effective_cawangan_id);
 
     if ($result['status']) {
         $message = $result['message'];
@@ -94,6 +134,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         </div>
 
+                        <?php if ($is_pusat_creator): ?>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="assigned_cawangan_id" class="form-label">Assign to Cawangan <span class="text-danger">*</span></label>
+                                <select class="form-input" id="assigned_cawangan_id" name="assigned_cawangan_id" required>
+                                    <option value="">-- Select Cawangan --</option>
+                                    <?php foreach ($cawangan_options as $cawangan): ?>
+                                        <option value="<?php echo (int)$cawangan['cawangan_id']; ?>" <?php echo (isset($_POST['assigned_cawangan_id']) && (int)$_POST['assigned_cawangan_id'] === (int)$cawangan['cawangan_id']) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($cawangan['cawangan_name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small class="text-muted">Master Event must be assigned to one cawangan.</small>
+                            </div>
+                        </div>
+                        <?php else: ?>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="parent_master_event_id" class="form-label">Select Master Event <span class="text-danger">*</span></label>
+                                <select class="form-input" id="parent_master_event_id" name="parent_master_event_id" required>
+                                    <option value="">-- Select Master Event --</option>
+                                    <?php foreach ($master_event_options as $master_event): ?>
+                                        <option value="<?php echo (int)$master_event['event_id']; ?>" <?php echo (isset($_POST['parent_master_event_id']) && (int)$_POST['parent_master_event_id'] === (int)$master_event['event_id']) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($master_event['event_title']); ?> (<?php echo date('M d, Y', strtotime($master_event['event_date'])); ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small class="text-muted">You can only create Sub Event under Master Event assigned to your cawangan.</small>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="event_date" class="form-label">Event Date <span class="text-danger">*</span></label>
@@ -150,7 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Create Event</button>
+                            <button type="submit" class="btn btn-primary"><?php echo $is_pusat_creator ? 'Create Master Event' : 'Create Sub Event'; ?></button>
                             <a href="list.php" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
