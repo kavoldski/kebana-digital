@@ -110,6 +110,10 @@ $past = getPastEventsCount($conn);
 $delete_confirm = isset($_GET['delete']) && (!isset($_GET['confirm']) || $_GET['confirm'] !== 'yes');
 $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
 
+// Build URL parameters for filter and search to preserve in delete workflow
+$filter_param = '&filter=' . urlencode($filter);
+$search_param = $search ? '&search=' . urlencode($search) : '';
+
 ?>
 
 <div class="members-container">
@@ -188,19 +192,17 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2 class="modal-title">Confirm Delete</h2>
-                        <button class="modal-close" onclick="window.location='list.php'">×</button>
+                        <button class="modal-close" onclick="window.location='list.php?<?php echo $filter_param . $search_param; ?>'">×</button>
                     </div>
                     <div class="modal-body">
                         <p>Delete this event and all its documents/attendance records? This cannot be undone.</p>
                     </div>
                     <div class="modal-footer">
-                        <a href="list.php" class="btn btn-secondary">Cancel</a>
-                        <a href="?delete=<?php echo $delete_event_id; ?>&confirm=yes" class="btn btn-danger">Delete</a>
+                        <a href="list.php?<?php echo $filter_param . $search_param; ?>" class="btn btn-secondary">Cancel</a>
+                        <a href="?delete=<?php echo $delete_event_id; ?>&confirm=yes<?php echo $filter_param . $search_param; ?>" class="btn btn-danger">Delete</a>
                     </div>
             </div>
-            <?php endif; ?>
-
-            <?php if (!$delete_confirm): ?>
+<?php else: ?>
 
 <?php if (!empty($message)): ?>
             <div class="alert alert-<?php echo $message_type; ?>">
@@ -470,7 +472,7 @@ if ($workflow_status === 'Draft' && hasRole([4, 33, 888])) {
                                         <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" class="action-link approve">Approve</a>
                                         <a href="?action=reject&event_id=<?php echo $event['event_id']; ?>" class="action-link reject">Reject</a>
                                     <?php endif; ?>
-                                    <a href="?delete=<?php echo $event['event_id']; ?>" class="action-link delete">Delete</a>
+<a href="?delete=<?php echo $event['event_id']; echo $filter_param . $search_param; ?>" class="action-link delete">Delete</a>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -491,6 +493,7 @@ if ($workflow_status === 'Draft' && hasRole([4, 33, 888])) {
                     </div>
                 </div>
             </div>
+<?php endif; ?>
 <?php endif; ?>
 </div>
 
