@@ -315,15 +315,15 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                 echo '<td>' . htmlspecialchars($event['creator_name'] ?? 'System') . '</td>';
                 echo '<td><span class="badge badge-' . $badge_class . '">' . htmlspecialchars($workflow_status) . '</span></td>';
                 echo '<td class="table-actions">';
-                echo '<a href="attendance.php?event_id=' . $event['event_id'] . '" class="action-btn" title="Attendance">📋</a>';
-                if ($workflow_status === 'Draft' && hasRole([4, 33, 888])) {
-                    echo '<a href="?action=submit&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-btn" title="Submit Proposal">📤</a>';
+echo '<a href="attendance.php?event_id=' . $event['event_id'] . '" class="action-link attendance">Attendance</a>';
+if ($workflow_status === 'Draft' && hasRole([4, 33, 888])) {
+                    echo '<a href="?action=submit&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link submit">Submit</a>';
                 }
                 if ($workflow_status === 'Submitted' && hasRole(888)) {
-                    echo '<a href="?action=approve&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-btn" title="Approve">✅</a>';
-                    echo '<a href="?action=reject&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-btn action-delete" title="Reject">❌</a>';
+                    echo '<a href="?action=approve&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link approve">Approve</a>';
+                    echo '<a href="?action=reject&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link reject">Reject</a>';
                 }
-                echo '<a href="?delete=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-btn action-delete" title="Delete">🗑️</a>';
+                echo '<a href="?delete=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link delete">Delete</a>';
                 echo '</td>';
                 echo '</tr>';
             }
@@ -459,16 +459,16 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                                         <?php echo htmlspecialchars($workflow_status); ?>
                                     </span>
                                 </td>
-                                <td class="table-actions">
-                                    <a href="attendance.php?event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Attendance">📋</a>
+<td class="table-actions">
+                                    <a href="attendance.php?event_id=<?php echo $event['event_id']; ?>" class="action-link attendance">Attendance</a>
                                     <?php if ($workflow_status === 'Draft' && hasRole([4, 33, 888])): ?>
-                                        <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Submit Proposal">📤</a>
+                                        <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" class="action-link submit">Submit</a>
                                     <?php endif; ?>
                                     <?php if ($workflow_status === 'Submitted' && hasRole(888)): ?>
-                                        <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Approve">✅</a>
-                                        <a href="?action=reject&event_id=<?php echo $event['event_id']; ?>" class="action-btn action-delete" title="Reject">❌</a>
+                                        <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" class="action-link approve">Approve</a>
+                                        <a href="?action=reject&event_id=<?php echo $event['event_id']; ?>" class="action-link reject">Reject</a>
                                     <?php endif; ?>
-                                    <a href="?delete=<?php echo $event['event_id']; ?>" class="action-btn action-delete" title="Delete">🗑️</a>
+                                    <a href="?delete=<?php echo $event['event_id']; ?>" class="action-link delete">Delete</a>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
