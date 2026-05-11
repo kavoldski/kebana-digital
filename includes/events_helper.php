@@ -173,8 +173,9 @@ function addEvent($conn, $event_data, $user_id, $isPusatCreator = false, $cawang
         return ['status' => false, 'message' => 'Event title, date, and venue are required'];
     }
 
-    $title = $event_data['event_title'];
+$title = $event_data['event_title'];
     $date = $event_data['event_date'];
+    $end_date = !empty($event_data['event_end_date']) ? $event_data['event_end_date'] : null;
     $venue = $event_data['venue'];
     $budget = !empty($event_data['budget_est']) ? (float)$event_data['budget_est'] : null;
     $status = 'Draft';
@@ -189,15 +190,15 @@ function addEvent($conn, $event_data, $user_id, $isPusatCreator = false, $cawang
         }
 
         $stmt = $conn->prepare("
-            INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status, cawangan_id, event_level, parent_event_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'MASTER', NULL)
+            INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, budget_est, created_by, status, cawangan_id, event_level, parent_event_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'MASTER', NULL)
         ");
 
         if (!$stmt) {
             return ['status' => false, 'message' => 'Database error: ' . $conn->error];
         }
 
-        $stmt->bind_param("sssdisi", $title, $date, $venue, $budget, $user_id, $status, $assigned_cawangan_id);
+        $stmt->bind_param("sssdisii", $title, $date, $end_date, $venue, $budget, $user_id, $status, $assigned_cawangan_id);
     } else {
         if ($cawanganId === null) {
             return ['status' => false, 'message' => 'Cawangan ID is required for branch event creation'];
@@ -231,15 +232,15 @@ function addEvent($conn, $event_data, $user_id, $isPusatCreator = false, $cawang
         }
 
         $stmt = $conn->prepare("
-            INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status, cawangan_id, event_level, parent_event_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'SUB', ?)
+            INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, budget_est, created_by, status, cawangan_id, event_level, parent_event_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'SUB', ?)
         ");
 
         if (!$stmt) {
             return ['status' => false, 'message' => 'Database error: ' . $conn->error];
         }
 
-        $stmt->bind_param("sssdisii", $title, $date, $venue, $budget, $user_id, $status, $cawanganId, $parent_master_event_id);
+        $stmt->bind_param("sssdisiii", $title, $date, $end_date, $venue, $budget, $user_id, $status, $cawanganId, $parent_master_event_id);
     }
 
     if (!$stmt->execute()) {
