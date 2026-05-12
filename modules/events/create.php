@@ -166,9 +166,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <?php endif; ?>
 
-                        <div class="form-row">
+<div class="form-row">
                             <div class="form-group">
-                                <label for="event_date" class="form-label">Event Date <span class="text-danger">*</span></label>
+                                <label for="event_date" class="form-label">Start Date <span class="text-danger">*</span></label>
                                 <input
                                     type="date"
                                     class="form-input"
@@ -179,6 +179,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 >
                             </div>
 
+                            <div class="form-group">
+                                <label for="event_end_date" class="form-label">End Date</label>
+                                <input
+                                    type="date"
+                                    class="form-input"
+                                    id="event_end_date"
+                                    name="event_end_date"
+                                    value="<?php echo isset($_POST['event_end_date']) ? htmlspecialchars($_POST['event_end_date']) : ''; ?>"
+                                >
+                                <small class="text-muted">Optional - leave blank for single-day events</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
                             <div class="form-group">
                                 <label for="venue" class="form-label">Venue <span class="text-danger">*</span></label>
                                 <input

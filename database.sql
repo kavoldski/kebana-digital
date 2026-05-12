@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS tbl_event (
     event_id INT AUTO_INCREMENT PRIMARY KEY,
     event_title VARCHAR(150) NOT NULL,
     event_date DATE NOT NULL,
+    event_end_date DATE,
     venue VARCHAR(150) NOT NULL,
     budget_est DECIMAL(10, 2),
     created_by INT,
@@ -53,6 +54,7 @@ CREATE TABLE IF NOT EXISTS tbl_event (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (created_by) REFERENCES tbl_user(user_id) ON DELETE SET NULL,
     INDEX idx_event_date (event_date),
+    INDEX idx_event_end_date (event_end_date),
     INDEX idx_created_by (created_by)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

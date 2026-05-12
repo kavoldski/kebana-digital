@@ -17,10 +17,14 @@ function getAllEvents($conn, $viewMode = 'all', $userId = null, $cawanganId = nu
 
     if ($viewMode === 'all') {
         $result = $conn->query("
-            SELECT e.*, u.username as creator_name
+            SELECT e.*, u.username as creator_name,
+                   c.cawangan_name,
+                   COALESCE(e.event_level, 'MASTER') as event_level,
+                   e.parent_event_id
             FROM tbl_event e
             LEFT JOIN tbl_user u ON e.created_by = u.user_id
-            ORDER BY e.event_date DESC
+            LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
+            ORDER BY e.cawangan_id ASC, COALESCE(e.event_level, 'MASTER') ASC, e.event_date DESC
         ");
 
         if ($result) {
@@ -38,9 +42,13 @@ function getAllEvents($conn, $viewMode = 'all', $userId = null, $cawanganId = nu
         }
 
         $stmt = $conn->prepare("
-            SELECT e.*, u.username as creator_name
+            SELECT e.*, u.username as creator_name,
+                   c.cawangan_name,
+                   COALESCE(e.event_level, 'MASTER') as event_level,
+                   e.parent_event_id
             FROM tbl_event e
             LEFT JOIN tbl_user u ON e.created_by = u.user_id
+            LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
             WHERE e.created_by = ?
             ORDER BY e.event_date DESC
         ");
@@ -67,9 +75,13 @@ function getAllEvents($conn, $viewMode = 'all', $userId = null, $cawanganId = nu
         }
 
         $stmt = $conn->prepare("
-            SELECT e.*, u.username as creator_name
+            SELECT e.*, u.username as creator_name,
+                   c.cawangan_name,
+                   COALESCE(e.event_level, 'MASTER') as event_level,
+                   e.parent_event_id
             FROM tbl_event e
             LEFT JOIN tbl_user u ON e.created_by = u.user_id
+            LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
             WHERE e.cawangan_id = ?
             ORDER BY e.event_date DESC
         ");
@@ -102,7 +114,8 @@ function getAllEvents($conn, $viewMode = 'all', $userId = null, $cawanganId = nu
  */
 function getEventById($conn, $event_id) {
     $stmt = $conn->prepare("
-        SELECT e.*, u.username as creator_name
+        SELECT e.*, u.username as creator_name,
+               COALESCE(e.approval_status, 'Pending President') as approval_status
         FROM tbl_event e
         LEFT JOIN tbl_user u ON e.created_by = u.user_id
         WHERE e.event_id = ?
@@ -141,7 +154,7 @@ function getMasterEventsByCawangan($conn, $cawanganId) {
     $stmt = $conn->prepare("
         SELECT event_id, event_title, event_date
         FROM tbl_event
-        WHERE event_level = 'MASTER' AND cawangan_id = ?
+        WHERE event_level = 'MASTER' AND cawangan_id = ? AND status = 'Approved'
         ORDER BY event_date DESC, event_id DESC
     ");
     if (!$stmt) return $rows;
@@ -161,8 +174,9 @@ function addEvent($conn, $event_data, $user_id, $isPusatCreator = false, $cawang
         return ['status' => false, 'message' => 'Event title, date, and venue are required'];
     }
 
-    $title = $event_data['event_title'];
+$title = $event_data['event_title'];
     $date = $event_data['event_date'];
+    $end_date = !empty($event_data['event_end_date']) ? $event_data['event_end_date'] : null;
     $venue = $event_data['venue'];
     $budget = !empty($event_data['budget_est']) ? (float)$event_data['budget_est'] : null;
     $status = 'Draft';
@@ -177,15 +191,15 @@ function addEvent($conn, $event_data, $user_id, $isPusatCreator = false, $cawang
         }
 
         $stmt = $conn->prepare("
-            INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status, cawangan_id, event_level, parent_event_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'MASTER', NULL)
+            INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, budget_est, created_by, status, cawangan_id, event_level, parent_event_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'MASTER', NULL)
         ");
 
         if (!$stmt) {
             return ['status' => false, 'message' => 'Database error: ' . $conn->error];
         }
 
-        $stmt->bind_param("sssdisi", $title, $date, $venue, $budget, $user_id, $status, $assigned_cawangan_id);
+        $stmt->bind_param("sssdisii", $title, $date, $end_date, $venue, $budget, $user_id, $status, $assigned_cawangan_id);
     } else {
         if ($cawanganId === null) {
             return ['status' => false, 'message' => 'Cawangan ID is required for branch event creation'];
@@ -219,15 +233,15 @@ function addEvent($conn, $event_data, $user_id, $isPusatCreator = false, $cawang
         }
 
         $stmt = $conn->prepare("
-            INSERT INTO tbl_event (event_title, event_date, venue, budget_est, created_by, status, cawangan_id, event_level, parent_event_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'SUB', ?)
+            INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, budget_est, created_by, status, cawangan_id, event_level, parent_event_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'SUB', ?)
         ");
 
         if (!$stmt) {
             return ['status' => false, 'message' => 'Database error: ' . $conn->error];
         }
 
-        $stmt->bind_param("sssdisii", $title, $date, $venue, $budget, $user_id, $status, $cawanganId, $parent_master_event_id);
+        $stmt->bind_param("sssdisiii", $title, $date, $end_date, $venue, $budget, $user_id, $status, $cawanganId, $parent_master_event_id);
     }
 
     if (!$stmt->execute()) {
@@ -250,6 +264,7 @@ function addEvent($conn, $event_data, $user_id, $isPusatCreator = false, $cawang
  * Submit event proposal for review
  *
  * Allowed transition: Draft -> Submitted
+ * Also updates approval_status to 'Pending President'
  */
 function submitEventProposal($conn, $event_id) {
     $current = getEventById($conn, $event_id);
@@ -262,7 +277,7 @@ function submitEventProposal($conn, $event_id) {
         return ['status' => false, 'message' => 'Only Draft proposals can be submitted'];
     }
 
-    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Submitted' WHERE event_id = ?");
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Submitted', approval_status = 'Pending President' WHERE event_id = ?");
     if (!$stmt) {
         return ['status' => false, 'message' => 'Database error: ' . $conn->error];
     }
@@ -282,6 +297,7 @@ function submitEventProposal($conn, $event_id) {
  * Approve submitted event proposal
  *
  * Allowed transition: Submitted -> Approved
+ * Also updates approval_status to 'Approved by President'
  */
 function approveEventProposal($conn, $event_id) {
     $current = getEventById($conn, $event_id);
@@ -290,11 +306,11 @@ function approveEventProposal($conn, $event_id) {
     }
 
     $current_status = $current['status'] ?? 'Draft';
-    if ($current_status !== 'Submitted') {
-        return ['status' => false, 'message' => 'Only Submitted proposals can be approved'];
+    if (!in_array($current_status, ['Draft', 'Submitted'])) {
+        return ['status' => false, 'message' => 'Only Draft or Submitted proposals can be approved'];
     }
 
-    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Approved' WHERE event_id = ?");
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Approved', approval_status = 'Approved by President' WHERE event_id = ?");
     if (!$stmt) {
         return ['status' => false, 'message' => 'Database error: ' . $conn->error];
     }
@@ -314,6 +330,7 @@ function approveEventProposal($conn, $event_id) {
  * Reject submitted event proposal
  *
  * Allowed transition: Submitted -> Rejected
+ * Also updates approval_status to 'Rejected by President'
  */
 function rejectEventProposal($conn, $event_id) {
     $current = getEventById($conn, $event_id);
@@ -322,11 +339,11 @@ function rejectEventProposal($conn, $event_id) {
     }
 
     $current_status = $current['status'] ?? 'Draft';
-    if ($current_status !== 'Submitted') {
-        return ['status' => false, 'message' => 'Only Submitted proposals can be rejected'];
+    if (!in_array($current_status, ['Draft', 'Submitted'])) {
+        return ['status' => false, 'message' => 'Only Draft or Submitted proposals can be rejected'];
     }
 
-    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Rejected' WHERE event_id = ?");
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Rejected', approval_status = 'Rejected by President' WHERE event_id = ?");
     if (!$stmt) {
         return ['status' => false, 'message' => 'Database error: ' . $conn->error];
     }

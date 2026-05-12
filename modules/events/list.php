@@ -19,11 +19,12 @@ if (isset($_GET['action']) && isset($_GET['event_id'])) {
     $action = $_GET['action'];
     $result = ['status' => false, 'message' => 'Invalid action'];
 
-    if ($action === 'submit' && hasRole([4, 33])) {
+// Submit action: Setiausaha Pusat (4), Setiausaha Cawangan (33), Super Admin (888), Bendahari (6), Auditor (7)
+    if ($action === 'submit' && hasRole([888, 4, 33, 6, 7])) {
         $result = submitEventProposal($conn, $event_id);
-    } elseif ($action === 'approve' && hasRole(888)) {
+    } elseif ($action === 'approve' && hasRole([1, 888])) {
         $result = approveEventProposal($conn, $event_id);
-    } elseif ($action === 'reject' && hasRole(888)) {
+    } elseif ($action === 'reject' && hasRole([1, 888])) {
         $result = rejectEventProposal($conn, $event_id);
     }
 
@@ -47,8 +48,9 @@ if (isset($_GET['delete']) && isset($_GET['confirm']) && $_GET['confirm'] === 'y
 }
 
 $search = trim($_GET['search'] ?? '');
+$filter = $_GET['filter'] ?? 'all'; // all, pusat, cawangan
 
-$pusat_event_creators = [888, 4]; // Super Admin, Setiausaha Pusat
+$pusat_event_creators = [888, 4, 1]; // Super Admin, Setiausaha Pusat, President
 $current_role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
 $current_user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
 $cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null ? (int)$_SESSION['cawangan_id'] : null;
@@ -57,7 +59,7 @@ $event_view_mode = 'creator_only';
 if (in_array($current_role, $pusat_event_creators, true)) {
     $event_view_mode = 'all';
 } elseif ($current_role === 33) {
-    $event_view_mode = 'creator_only';
+    $event_view_mode = 'cawangan_only';
 }
 
 $events = getAllEvents($conn, $event_view_mode, $current_user_id, $cawangan_id);
@@ -69,12 +71,49 @@ if ($search) {
                strpos(strtolower($event['creator_name'] ?? ''), $search_lower) !== false;
     });
 }
+
+// Filter events by category (for Setiausaha Pusat view)
+$pusat_events = [];
+$cawangan_events = [];
+
+if ($event_view_mode === 'all') {
+    foreach ($events as $ev) {
+        $level = $ev['event_level'] ?? 'MASTER';
+        $caw_id = $ev['cawangan_id'] ?? null;
+        
+        if ($caw_id === null) {
+            // No cawangan assigned = Pusat/HQ event
+            $pusat_events[] = $ev;
+        } else {
+            // Assigned to cawangan = Cawangan event
+            if (!isset($cawangan_events[$caw_id])) {
+                $cawangan_events[$caw_id] = [
+                    'label' => $ev['cawangan_name'] ?? 'Unknown Branch',
+                    'masters' => [],
+                    'subs' => []
+                ];
+            }
+            
+            if ($level === 'MASTER') {
+                $cawangan_events[$caw_id]['masters'][] = $ev;
+            } else {
+                $cawangan_events[$caw_id]['subs'][] = $ev;
+            }
+        }
+    }
+}
+
+// Apply filter
 $total_events = count($events);
 $upcoming = getUpcomingEventsCount($conn);
 $past = getPastEventsCount($conn);
 
 $delete_confirm = isset($_GET['delete']) && (!isset($_GET['confirm']) || $_GET['confirm'] !== 'yes');
 $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
+
+// Build URL parameters for filter and search to preserve in delete workflow
+$filter_param = '&filter=' . urlencode($filter);
+$search_param = $search ? '&search=' . urlencode($search) : '';
 
 ?>
 
@@ -110,7 +149,7 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                             </button>
                         </div>
                     </div>
-                    <?php if ($search): ?>
+<?php if ($search): ?>
                     <div class="search-results-info">
                         <small class="text-muted">
                             Found <?php echo $total_events; ?> result<?php echo $total_events !== 1 ? 's' : ''; ?> for <strong>"<?php echo htmlspecialchars($search); ?>"</strong>
@@ -120,30 +159,53 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                     <?php endif; ?>
                 </div>
             </form>
+            
+            <!-- Filter Tabs for Pusat View -->
+            <?php if ($event_view_mode === 'all'): ?>
+            <div class="filter-tabs" style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                <a href="?filter=all<?php echo $search ? '&search=' . urlencode($search) : ''; ?>" 
+                   class="filter-tab <?php echo $filter === 'all' ? 'active' : ''; ?>"
+                   style="padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; <?php echo $filter === 'all' ? 'background:#0d6efd;color:#fff;' : 'background:#f8f9fa;color:#495057;'; ?>">
+                    📊 All Events
+                </a>
+                <a href="?filter=pusat<?php echo $search ? '&search=' . urlencode($search) : ''; ?>" 
+                   class="filter-tab <?php echo $filter === 'pusat' ? 'active' : ''; ?>"
+                   style="padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; <?php echo $filter === 'pusat' ? 'background:#198754;color:#fff;' : 'background:#f8f9fa;color:#495057;'; ?>">
+                    🏢 Pusat Events
+                    <span style="font-size: 0.75rem; opacity: 0.8;">(<?php echo count($pusat_events); ?>)</span>
+                </a>
+                <a href="?filter=cawangan<?php echo $search ? '&search=' . urlencode($search) : ''; ?>" 
+                   class="filter-tab <?php echo $filter === 'cawangan' ? 'active' : ''; ?>"
+                   style="padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; <?php echo $filter === 'cawangan' ? 'background:#6f42c1;color:#fff;' : 'background:#f8f9fa;color:#495057;'; ?>">
+                    🏬 Cawangan Events
+                    <span style="font-size: 0.75rem; opacity: 0.8;">(<?php echo count($cawangan_events); ?>)</span>
+                </a>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 
     <div class="main-content-area">
         <div class="container-xl">
 
-            <?php if ($delete_confirm): ?>
-            <div class="modal-overlay" id="deleteModal" style="display: flex !important;">
+<?php if ($delete_confirm): ?>
+            <div class="modal-overlay" id="deleteModal" style="display: flex !important; z-index: 9999;">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2 class="modal-title">Confirm Delete</h2>
-                        <button class="modal-close" onclick="window.location='list.php'">×</button>
+                        <button class="modal-close" onclick="window.location='list.php?<?php echo $filter_param . $search_param; ?>'">×</button>
                     </div>
                     <div class="modal-body">
                         <p>Delete this event and all its documents/attendance records? This cannot be undone.</p>
                     </div>
                     <div class="modal-footer">
-                        <a href="list.php" class="btn btn-secondary">Cancel</a>
-                        <a href="?delete=<?php echo $delete_event_id; ?>&confirm=yes" class="btn btn-danger">Delete</a>
+                        <a href="list.php?<?php echo $filter_param . $search_param; ?>" class="btn btn-secondary">Cancel</a>
+                        <a href="?delete=<?php echo $delete_event_id; ?>&confirm=yes<?php echo $filter_param . $search_param; ?>" class="btn btn-danger">Delete</a>
                     </div>
             </div>
-            <?php endif; ?>
+<?php else: ?>
 
-            <?php if (!empty($message)): ?>
+<?php if (!empty($message)): ?>
             <div class="alert alert-<?php echo $message_type; ?>">
                 <span class="alert-icon"><?php echo $message_type === 'success' ? '✓' : '⚠'; ?></span>
                 <span class="alert-message"><?php echo htmlspecialchars($message); ?></span>
@@ -192,12 +254,179 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                 </div>
             </section>
 
+<?php if ($event_view_mode === 'all'): ?>
+            <?php
+                // Build display groups based on filter
+                $display_groups = [];
+
+                if ($filter === 'pusat' || $filter === 'all') {
+                    // Show Pusat events (no cawangan assigned)
+                    $pusat_masters = [];
+                    $pusat_subs = [];
+                    foreach ($pusat_events as $ev) {
+                        if (($ev['event_level'] ?? 'MASTER') === 'MASTER') {
+                            $pusat_masters[] = $ev;
+                        } else {
+                            $pusat_subs[] = $ev;
+                        }
+                    }
+                    $display_groups['pusat'] = [
+                        'label' => 'Pusat / Headquarters',
+                        'masters' => $pusat_masters,
+                        'subs' => $pusat_subs,
+                        'style' => 'border-left: 4px solid #198754; background: linear-gradient(135deg, #19875411 0%, #15734711 100%);'
+                    ];
+                }
+
+                if ($filter === 'cawangan' || $filter === 'all') {
+                    // Show Cawangan events (grouped by branch)
+                    foreach ($cawangan_events as $caw_id => $cw) {
+                        $display_groups['cawangan_' . $caw_id] = [
+                            'label' => $cw['label'],
+                            'masters' => $cw['masters'],
+                            'subs' => $cw['subs'],
+                            'style' => 'border-left: 4px solid #6f42c1; background: linear-gradient(135deg, #6f42c111 0%, #5a326711 100%);'
+                        ];
+                    }
+                }
+            ?>
+
+<?php 
+            // Helper function to render a single event row
+            function renderEventRowHelper($event, $is_sub = false) {
+                global $filter, $search;
+                
+$workflow_status = $event['status'] ?? 'Draft';
+                $badge_class = 'secondary';
+                if ($workflow_status === 'Approved') $badge_class = 'success';
+                elseif ($workflow_status === 'Submitted') $badge_class = 'warning';
+                elseif ($workflow_status === 'Rejected') $badge_class = 'danger';
+
+                // Get approval_status (President approval workflow)
+                $approval_status = $event['approval_status'] ?? 'Pending President';
+                $approval_badge_class = 'secondary';
+                if ($approval_status === 'Approved by President') $approval_badge_class = 'success';
+                elseif ($approval_status === 'Pending President') $approval_badge_class = 'warning';
+                elseif ($approval_status === 'Rejected by President') $approval_badge_class = 'danger';
+
+                $level = $event['event_level'] ?? 'MASTER';
+                $level_badge = $level === 'MASTER'
+                    ? '<span class="badge" style="background:#0d6efd;color:#fff;font-size:0.7rem;">MASTER</span>'
+                    : '<span class="badge" style="background:#6f42c1;color:#fff;font-size:0.7rem;">SUB</span>';
+
+                $indent = $is_sub ? 'padding-left: 2rem; border-left: 3px solid #6f42c1; background: #f8f5ff;' : '';
+                $title_prefix = $is_sub ? '<span style="color:#6f42c1; margin-right:4px;">↳</span>' : '';
+
+                echo '<tr style="' . $indent . '">';
+                echo '<td class="table-id">#' . str_pad($event['event_id'], 4, '0', STR_PAD_LEFT) . '</td>';
+                echo '<td>' . $level_badge . '</td>';
+                echo '<td class="table-name">' . $title_prefix . htmlspecialchars($event['event_title']) . '</td>';
+                echo '<td>' . date('M d, Y', strtotime($event['event_date'])) . '</td>';
+                echo '<td>' . htmlspecialchars($event['venue']) . '</td>';
+                echo '<td>' . ($event['budget_est'] ? 'RM ' . number_format($event['budget_est'], 2) : '-') . '</td>';
+                echo '<td>' . htmlspecialchars($event['creator_name'] ?? 'System') . '</td>';
+                echo '<td><span class="badge badge-' . $badge_class . '">' . htmlspecialchars($workflow_status) . '</span></td>';
+                echo '<td><span class="badge badge-' . $approval_badge_class . '">' . htmlspecialchars($approval_status) . '</span></td>';
+echo '<td class="table-actions">';
+echo '<a href="attendance.php?event_id=' . $event['event_id'] . '" class="action-link attendance">Attendance</a>';
+// Submit button: Setiausaha Pusat (4), Setiausaha Cawangan (33), Super Admin (888), Bendahari (6), Auditor (7)
+                if ($workflow_status === 'Draft' && hasRole([888, 4, 33, 6, 7])) {
+                    echo '<a href="?action=submit&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link submit">Submit</a>';
+                }
+                // Approve/Reject buttons: Super Admin (888), President (1)
+                if (in_array($workflow_status, ['Submitted']) && hasRole([1, 888])) {
+                    echo '<a href="?action=approve&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link approve">Approve</a>';
+                    echo '<a href="?action=reject&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link reject">Reject</a>';
+                }
+                echo '<a href="?delete=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link delete">Delete</a>';
+                echo '</td>';
+                echo '</tr>';
+            }
+            ?>
+
+            <?php foreach ($display_groups as $group_key => $group): ?>
+            <div class="dashboard-card" style="margin-bottom: 2rem;">
+                <div class="card-header-custom" style="<?php echo $group['style']; ?>">
+                    <div>
+                        <?php if (strpos($group_key, 'pusat') === 0): ?>
+                        <h3 class="card-title" style="color: #198754;">
+                            🏢 <?php echo htmlspecialchars($group['label']); ?>
+                        </h3>
+                        <?php else: ?>
+                        <h3 class="card-title" style="color: #6f42c1;">
+                            🏬 <?php echo htmlspecialchars($group['label']); ?>
+                        </h3>
+                        <?php endif; ?>
+                        <p class="card-subtitle">
+                            <?php echo count($group['masters']); ?> Master Event(s) &nbsp;·&nbsp;
+                            <?php echo count($group['subs']); ?> Sub Event(s)
+                        </p>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <?php if (empty($group['masters']) && empty($group['subs'])): ?>
+                        <p class="text-muted" style="padding: 1rem;">No events in this category.</p>
+                    <?php else: ?>
+<table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Level</th>
+                                <th>Event Title</th>
+                                <th>Date</th>
+                                <th>Venue</th>
+                                <th>Budget (RM)</th>
+                                <th>Created By</th>
+                                <th>Status</th>
+                                <th>Approval Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                            // Build index of subs by parent_event_id
+                            $subs_by_parent = [];
+                            foreach ($group['subs'] as $sub) {
+                                $pid = $sub['parent_event_id'] ?? 0;
+                                $subs_by_parent[$pid][] = $sub;
+                            }
+
+                            // Render all masters first
+                            foreach ($group['masters'] as $master_event) {
+                                renderEventRowHelper($master_event, false);
+                                
+                                // Then render sub-events under this master
+                                if (isset($subs_by_parent[$master_event['event_id']])) {
+                                    foreach ($subs_by_parent[$master_event['event_id']] as $sub_event) {
+                                        renderEventRowHelper($sub_event, true);
+                                    }
+                                }
+                            }
+
+                            // Render orphan subs (parent_event_id not in masters)
+                            $master_ids = array_column($group['masters'], 'event_id');
+                            foreach ($group['subs'] as $sub) {
+                                $pid = $sub['parent_event_id'] ?? 0;
+                                if (!in_array($pid, $master_ids, true)) {
+                                    renderEventRowHelper($sub, true);
+                                }
+                            }
+                        ?>
+                        </tbody>
+                    </table>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endforeach; ?>
+
+            <?php elseif ($event_view_mode !== 'all'): ?>
             <div class="dashboard-card">
                 <div class="card-header-custom">
                     <div>
-                        <h3 class="card-title">Event Directory</h3>
-                        <p class="card-subtitle">Complete list of all events</p>
+                        <h3 class="card-title">My Events</h3>
+                        <p class="card-subtitle">Events created by you</p>
                     </div>
+                </div>
                 <div class="card-body-custom">
                     <?php if (empty($events)): ?>
                     <div class="empty-state">
@@ -210,7 +439,8 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Event ID</th>
+                                <th>ID</th>
+                                <th>Level</th>
                                 <th>Event Title</th>
                                 <th>Date</th>
                                 <th>Venue</th>
@@ -222,40 +452,39 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                         </thead>
                         <tbody>
                             <?php foreach ($events as $event):
-                                $is_upcoming = strtotime($event['event_date']) >= strtotime(date('Y-m-d'));
+                                $workflow_status = $event['status'] ?? 'Draft';
+                                $badge_class = 'secondary';
+                                if ($workflow_status === 'Approved') $badge_class = 'success';
+                                elseif ($workflow_status === 'Submitted') $badge_class = 'warning';
+                                elseif ($workflow_status === 'Rejected') $badge_class = 'danger';
+                                $level = $event['event_level'] ?? 'MASTER';
+                                $level_badge = $level === 'MASTER'
+                                    ? '<span class="badge" style="background:#0d6efd;color:#fff;font-size:0.7rem;">MASTER</span>'
+                                    : '<span class="badge" style="background:#6f42c1;color:#fff;font-size:0.7rem;">SUB</span>';
                             ?>
                             <tr>
                                 <td class="table-id">#<?php echo str_pad($event['event_id'], 4, '0', STR_PAD_LEFT); ?></td>
+                                <td><?php echo $level_badge; ?></td>
                                 <td class="table-name"><?php echo htmlspecialchars($event['event_title']); ?></td>
                                 <td><?php echo date('M d, Y', strtotime($event['event_date'])); ?></td>
                                 <td><?php echo htmlspecialchars($event['venue']); ?></td>
                                 <td><?php echo $event['budget_est'] ? 'RM ' . number_format($event['budget_est'], 2) : '-'; ?></td>
                                 <td><?php echo htmlspecialchars($event['creator_name'] ?? 'System'); ?></td>
                                 <td>
-                                    <?php
-                                        $workflow_status = $event['status'] ?? 'Draft';
-                                        $badge_class = 'secondary';
-                                        if ($workflow_status === 'Approved') $badge_class = 'success';
-                                        elseif ($workflow_status === 'Submitted') $badge_class = 'warning';
-                                        elseif ($workflow_status === 'Rejected') $badge_class = 'danger';
-                                    ?>
                                     <span class="badge badge-<?php echo $badge_class; ?>">
                                         <?php echo htmlspecialchars($workflow_status); ?>
                                     </span>
                                 </td>
-                                <td class="table-actions">
-                                    <a href="attendance.php?event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Attendance">📋</a>
-
-                                    <?php if (($event['status'] ?? 'Draft') === 'Draft' && hasRole([4, 33, 888])): ?>
-                                        <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Submit Proposal">📤</a>
+<td class="table-actions">
+                                    <a href="attendance.php?event_id=<?php echo $event['event_id']; ?>" class="action-link attendance">Attendance</a>
+                                    <?php if ($workflow_status === 'Draft' && hasRole([888, 4, 33, 6, 7])): ?>
+                                        <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" class="action-link submit">Submit</a>
                                     <?php endif; ?>
-
-                                    <?php if (($event['status'] ?? 'Draft') === 'Submitted' && hasRole(888)): ?>
-                                        <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" class="action-btn" title="Approve">✅</a>
-                                        <a href="?action=reject&event_id=<?php echo $event['event_id']; ?>" class="action-btn action-delete" title="Reject">❌</a>
+                                    <?php if (in_array($workflow_status, ['Submitted']) && hasRole([1, 888])): ?>
+                                        <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" class="action-link approve">Approve</a>
+                                        <a href="?action=reject&event_id=<?php echo $event['event_id']; ?>" class="action-link reject">Reject</a>
                                     <?php endif; ?>
-
-                                    <a href="?delete=<?php echo $event['event_id']; ?>" class="action-btn action-delete" title="Delete">🗑️</a>
+                                    <a href="?delete=<?php echo $event['event_id'] . $filter_param . $search_param; ?>" class="action-link delete">Delete</a>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -263,7 +492,21 @@ $delete_event_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                     </table>
                     <?php endif; ?>
                 </div>
-        </div>
+            </div>
+
+<?php else: ?>
+            <div class="dashboard-card">
+                <div class="card-body-custom">
+                    <div class="empty-state">
+                        <div class="empty-icon">📅</div>
+                        <h3 class="empty-title">No Events Yet</h3>
+                        <p class="empty-text">Start by creating your first event.</p>
+                        <a href="create.php" class="btn btn-primary">Create First Event</a>
+                    </div>
+                </div>
+            </div>
+<?php endif; ?>
+<?php endif; ?>
 </div>
 
 <?php require_once '../../includes/footer.php'; ?>
