@@ -19,8 +19,8 @@ if (isset($_GET['action']) && isset($_GET['event_id'])) {
     $action = $_GET['action'];
     $result = ['status' => false, 'message' => 'Invalid action'];
 
-    // Submit action: Setiausaha Pusat (4), Setiausaha Cawangan (33), Presidents (1,2,3), Assistant Secretary (5)
-    if ($action === 'submit' && hasRole([1, 2, 3, 4, 5, 33])) {
+// Submit action: Setiausaha Pusat (4), Setiausaha Cawangan (33), Super Admin (888), Bendahari (6), Auditor (7)
+    if ($action === 'submit' && hasRole([888, 4, 33, 6, 7])) {
         $result = submitEventProposal($conn, $event_id);
     } elseif ($action === 'approve' && hasRole([1, 888])) {
         $result = approveEventProposal($conn, $event_id);
@@ -329,8 +329,8 @@ $workflow_status = $event['status'] ?? 'Draft';
                 echo '<td><span class="badge badge-' . $approval_badge_class . '">' . htmlspecialchars($approval_status) . '</span></td>';
 echo '<td class="table-actions">';
 echo '<a href="attendance.php?event_id=' . $event['event_id'] . '" class="action-link attendance">Attendance</a>';
-                // Submit button: Setiausaha Pusat (4), Setiausaha Cawangan (33), Assistant Secretary (5), Presidents (1,2,3)
-                if ($workflow_status === 'Draft' && hasRole([1, 2, 3, 4, 5, 33])) {
+// Submit button: Setiausaha Pusat (4), Setiausaha Cawangan (33), Super Admin (888), Bendahari (6), Auditor (7)
+                if ($workflow_status === 'Draft' && hasRole([888, 4, 33, 6, 7])) {
                     echo '<a href="?action=submit&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link submit">Submit</a>';
                 }
                 // Approve/Reject buttons: Super Admin (888), President (1)
@@ -477,14 +477,14 @@ echo '<a href="attendance.php?event_id=' . $event['event_id'] . '" class="action
                                 </td>
 <td class="table-actions">
                                     <a href="attendance.php?event_id=<?php echo $event['event_id']; ?>" class="action-link attendance">Attendance</a>
-                                    <?php if ($workflow_status === 'Draft' && hasRole([1, 2, 3, 4, 5, 33])): ?>
+                                    <?php if ($workflow_status === 'Draft' && hasRole([888, 4, 33, 6, 7])): ?>
                                         <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" class="action-link submit">Submit</a>
                                     <?php endif; ?>
                                     <?php if (in_array($workflow_status, ['Submitted']) && hasRole([1, 888])): ?>
                                         <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" class="action-link approve">Approve</a>
                                         <a href="?action=reject&event_id=<?php echo $event['event_id']; ?>" class="action-link reject">Reject</a>
                                     <?php endif; ?>
-<a href="?delete=<?php echo $event['event_id']; echo $filter_param . $search_param; ?>" class="action-link delete">Delete</a>
+                                    <a href="?delete=<?php echo $event['event_id'] . $filter_param . $search_param; ?>" class="action-link delete">Delete</a>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

@@ -51,14 +51,18 @@ $KEBANA_FINANCE_ROLES = [6, 7, 55, 66];
  * @return bool
  */
 function hasRole($required_role) {
-    global $role;
+    $session_role = $_SESSION['role'] ?? null;
+    
+    if ($session_role === null) {
+        return false;
+    }
 
     if (is_array($required_role)) {
         $required_roles = array_map('intval', $required_role);
-        return in_array((int)$role, $required_roles, true);
+        return in_array((int)$session_role, $required_roles, true);
     }
 
-    return (int)$role === (int)$required_role;
+    return (int)$session_role === (int)$required_role;
 }
 
 /**

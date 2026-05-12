@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 // Insert the Master Event
                 $stmt = $conn->prepare("
-                    INSERT INTO tbl_event (
+INSERT INTO tbl_event (
                         event_title, 
                         event_date, 
                         event_end_date, 
@@ -100,8 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         NULL,
                         NULL,
                         ?,
-                        'Pending President',
-                        'Submitted'
+                        'Pending',
+                        'Draft'
                     )
                 ");
                 
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $event_id = $stmt->insert_id;
                     $stmt->close();
                     
-                    $message = 'Master Event created successfully! Notification sent to President for approval.';
+$message = 'Master Event created successfully! Click Submit to send to President for approval.';
                     $message_type = 'success';
                     
                     // ============================================================

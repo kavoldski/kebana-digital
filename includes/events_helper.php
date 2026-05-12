@@ -114,7 +114,8 @@ function getAllEvents($conn, $viewMode = 'all', $userId = null, $cawanganId = nu
  */
 function getEventById($conn, $event_id) {
     $stmt = $conn->prepare("
-        SELECT e.*, u.username as creator_name
+        SELECT e.*, u.username as creator_name,
+               COALESCE(e.approval_status, 'Pending President') as approval_status
         FROM tbl_event e
         LEFT JOIN tbl_user u ON e.created_by = u.user_id
         WHERE e.event_id = ?
@@ -263,6 +264,7 @@ $title = $event_data['event_title'];
  * Submit event proposal for review
  *
  * Allowed transition: Draft -> Submitted
+ * Also updates approval_status to 'Pending President'
  */
 function submitEventProposal($conn, $event_id) {
     $current = getEventById($conn, $event_id);
@@ -275,7 +277,7 @@ function submitEventProposal($conn, $event_id) {
         return ['status' => false, 'message' => 'Only Draft proposals can be submitted'];
     }
 
-    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Submitted' WHERE event_id = ?");
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Submitted', approval_status = 'Pending President' WHERE event_id = ?");
     if (!$stmt) {
         return ['status' => false, 'message' => 'Database error: ' . $conn->error];
     }
@@ -295,6 +297,7 @@ function submitEventProposal($conn, $event_id) {
  * Approve submitted event proposal
  *
  * Allowed transition: Submitted -> Approved
+ * Also updates approval_status to 'Approved by President'
  */
 function approveEventProposal($conn, $event_id) {
     $current = getEventById($conn, $event_id);
@@ -307,7 +310,7 @@ function approveEventProposal($conn, $event_id) {
         return ['status' => false, 'message' => 'Only Draft or Submitted proposals can be approved'];
     }
 
-    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Approved' WHERE event_id = ?");
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Approved', approval_status = 'Approved by President' WHERE event_id = ?");
     if (!$stmt) {
         return ['status' => false, 'message' => 'Database error: ' . $conn->error];
     }
@@ -327,6 +330,7 @@ function approveEventProposal($conn, $event_id) {
  * Reject submitted event proposal
  *
  * Allowed transition: Submitted -> Rejected
+ * Also updates approval_status to 'Rejected by President'
  */
 function rejectEventProposal($conn, $event_id) {
     $current = getEventById($conn, $event_id);
@@ -339,7 +343,7 @@ function rejectEventProposal($conn, $event_id) {
         return ['status' => false, 'message' => 'Only Draft or Submitted proposals can be rejected'];
     }
 
-    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Rejected' WHERE event_id = ?");
+    $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Rejected', approval_status = 'Rejected by President' WHERE event_id = ?");
     if (!$stmt) {
         return ['status' => false, 'message' => 'Database error: ' . $conn->error];
     }
