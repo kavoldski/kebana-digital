@@ -234,7 +234,7 @@ function formatRelativeTime($datetime) {
                                     <span class="metric-icon">📄</span>
                                     <p class="metric-label">Total Documents</p>
                                     <h4 class="metric-value"><?php echo number_format($total_documents); ?></h4>
-                                    <span class="metric-trend warning"><?php echo number_format($pending_documents); ?> pending review</span>
+                                    <span class="metric-trend warning"><?php echo number_format($pending_documsents); ?> pending review</span>
                                 </div>
                                 <div class="metric-item">
                                     <span class="metric-icon">⏳</span>
