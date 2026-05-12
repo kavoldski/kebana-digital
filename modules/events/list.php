@@ -21,9 +21,9 @@ if (isset($_GET['action']) && isset($_GET['event_id'])) {
 
     if ($action === 'submit' && hasRole([4, 33])) {
         $result = submitEventProposal($conn, $event_id);
-    } elseif ($action === 'approve' && hasRole(888)) {
+    } elseif ($action === 'approve' && hasRole([888])) {
         $result = approveEventProposal($conn, $event_id);
-    } elseif ($action === 'reject' && hasRole(888)) {
+    } elseif ($action === 'reject' && hasRole([888])) {
         $result = rejectEventProposal($conn, $event_id);
     }
 
@@ -58,7 +58,7 @@ $event_view_mode = 'creator_only';
 if (in_array($current_role, $pusat_event_creators, true)) {
     $event_view_mode = 'all';
 } elseif ($current_role === 33) {
-    $event_view_mode = 'creator_only';
+    $event_view_mode = 'cawangan_only';
 }
 
 $events = getAllEvents($conn, $event_view_mode, $current_user_id, $cawangan_id);
@@ -320,10 +320,10 @@ $search_param = $search ? '&search=' . urlencode($search) : '';
                 echo '<td><span class="badge badge-' . $badge_class . '">' . htmlspecialchars($workflow_status) . '</span></td>';
                 echo '<td class="table-actions">';
 echo '<a href="attendance.php?event_id=' . $event['event_id'] . '" class="action-link attendance">Attendance</a>';
-if ($workflow_status === 'Draft' && hasRole([4, 33, 888])) {
+                if ($workflow_status === 'Draft' && hasRole([4, 33])) {
                     echo '<a href="?action=submit&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link submit">Submit</a>';
                 }
-                if ($workflow_status === 'Submitted' && hasRole(888)) {
+                if (in_array($workflow_status, ['Submitted']) && hasRole([888])) {
                     echo '<a href="?action=approve&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link approve">Approve</a>';
                     echo '<a href="?action=reject&event_id=' . $event['event_id'] . '&filter=' . $filter . ($search ? '&search=' . urlencode($search) : '') . '" class="action-link reject">Reject</a>';
                 }
@@ -465,10 +465,10 @@ if ($workflow_status === 'Draft' && hasRole([4, 33, 888])) {
                                 </td>
 <td class="table-actions">
                                     <a href="attendance.php?event_id=<?php echo $event['event_id']; ?>" class="action-link attendance">Attendance</a>
-                                    <?php if ($workflow_status === 'Draft' && hasRole([4, 33, 888])): ?>
+                                    <?php if ($workflow_status === 'Draft' && hasRole([4, 33])): ?>
                                         <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" class="action-link submit">Submit</a>
                                     <?php endif; ?>
-                                    <?php if ($workflow_status === 'Submitted' && hasRole(888)): ?>
+                                    <?php if (in_array($workflow_status, ['Submitted']) && hasRole([888])): ?>
                                         <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" class="action-link approve">Approve</a>
                                         <a href="?action=reject&event_id=<?php echo $event['event_id']; ?>" class="action-link reject">Reject</a>
                                     <?php endif; ?>

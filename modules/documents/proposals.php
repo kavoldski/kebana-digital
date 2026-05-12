@@ -13,6 +13,24 @@ require_once '../../includes/events_helper.php';
 $message = '';
 $message_type = '';
 
+// Handle proposal submission for approval
+if (isset($_GET['action']) && isset($_GET['event_id'])) {
+    $event_id = (int)$_GET['event_id'];
+    $action = $_GET['action'];
+    $result = ['status' => false, 'message' => 'Invalid action'];
+
+    if ($action === 'submit' && hasRole([4, 33])) {
+        $result = submitEventProposal($conn, $event_id);
+    } elseif ($action === 'approve' && hasRole([888])) {
+        $result = approveEventProposal($conn, $event_id);
+    } elseif ($action === 'reject' && hasRole([888])) {
+        $result = rejectEventProposal($conn, $event_id);
+    }
+
+    $message = $result['message'];
+    $message_type = $result['status'] ? 'success' : 'error';
+}
+
 if (isset($_GET['delete']) && isset($_GET['confirm']) && $_GET['confirm'] === 'yes') {
     if (!isAdmin()) {
         $message = 'Access denied. Super Admin only.';
@@ -137,12 +155,19 @@ $delete_doc_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                         </thead>
                         <tbody>
                             <?php foreach ($documents as $doc): ?>
+                            <?php
+                                $event_status = $doc['event_status'] ?? 'N/A';
+                                $badge_class = 'secondary';
+                                if ($event_status === 'Approved') $badge_class = 'success';
+                                elseif ($event_status === 'Submitted') $badge_class = 'warning';
+                                elseif ($event_status === 'Rejected') $badge_class = 'danger';
+                            ?>
                             <tr>
                                 <td class="table-id">#<?php echo str_pad((int)$doc['doc_id'], 4, '0', STR_PAD_LEFT); ?></td>
                                 <td><?php echo htmlspecialchars($doc['doc_name']); ?></td>
                                 <td><?php echo htmlspecialchars($doc['event_title'] ?? 'Unknown Event'); ?></td>
                                 <td>
-                                    <span class="badge badge-secondary"><?php echo htmlspecialchars($doc['event_status'] ?? 'N/A'); ?></span>
+                                    <span class="badge badge-<?php echo $badge_class; ?>"><?php echo htmlspecialchars($event_status); ?></span>
                                 </td>
                                 <td><?php echo !empty($doc['uploaded_at']) ? date('M d, Y H:i', strtotime($doc['uploaded_at'])) : '-'; ?></td>
                                 <td class="table-actions">
@@ -153,6 +178,13 @@ $delete_doc_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                                         rel="noopener noreferrer"
                                         title="View/Download"
                                     >📄</a>
+                                    <?php if ($event_status === 'Draft' && hasRole([4, 33])): ?>
+                                        <a href="?action=submit&event_id=<?php echo (int)$doc['event_id']; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="action-btn action-submit" title="Submit for Approval">✓ Submit</a>
+                                    <?php endif; ?>
+                                    <?php if ($event_status === 'Submitted' && hasRole([888])): ?>
+                                        <a href="?action=approve&event_id=<?php echo (int)$doc['event_id']; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="action-btn action-approve" title="Approve Proposal">✓ Approve</a>
+                                        <a href="?action=reject&event_id=<?php echo (int)$doc['event_id']; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="action-btn action-reject" title="Reject Proposal">✕ Reject</a>
+                                    <?php endif; ?>
                                     <?php if (isAdmin()): ?>
                                         <a href="?delete=<?php echo (int)$doc['doc_id']; ?>" class="action-btn action-delete" title="Delete">🗑️</a>
                                     <?php endif; ?>

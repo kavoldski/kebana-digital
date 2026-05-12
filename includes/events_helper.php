@@ -153,7 +153,7 @@ function getMasterEventsByCawangan($conn, $cawanganId) {
     $stmt = $conn->prepare("
         SELECT event_id, event_title, event_date
         FROM tbl_event
-        WHERE event_level = 'MASTER' AND cawangan_id = ?
+        WHERE event_level = 'MASTER' AND cawangan_id = ? AND status = 'Approved'
         ORDER BY event_date DESC, event_id DESC
     ");
     if (!$stmt) return $rows;
@@ -303,8 +303,8 @@ function approveEventProposal($conn, $event_id) {
     }
 
     $current_status = $current['status'] ?? 'Draft';
-    if ($current_status !== 'Submitted') {
-        return ['status' => false, 'message' => 'Only Submitted proposals can be approved'];
+    if (!in_array($current_status, ['Draft', 'Submitted'])) {
+        return ['status' => false, 'message' => 'Only Draft or Submitted proposals can be approved'];
     }
 
     $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Approved' WHERE event_id = ?");
@@ -335,8 +335,8 @@ function rejectEventProposal($conn, $event_id) {
     }
 
     $current_status = $current['status'] ?? 'Draft';
-    if ($current_status !== 'Submitted') {
-        return ['status' => false, 'message' => 'Only Submitted proposals can be rejected'];
+    if (!in_array($current_status, ['Draft', 'Submitted'])) {
+        return ['status' => false, 'message' => 'Only Draft or Submitted proposals can be rejected'];
     }
 
     $stmt = $conn->prepare("UPDATE tbl_event SET status = 'Rejected' WHERE event_id = ?");

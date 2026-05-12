@@ -288,6 +288,9 @@ a:hover { color: var(--primary-dark); }
 .action-btn:hover { background-color: #e9ecef; transform: translateY(-2px); }
 .action-view:hover { background-color: #e7f3ff; border-color: var(--primary-color); }
 .action-edit:hover { background-color: #fff3cd; border-color: var(--warning-color); }
+.action-submit:hover { background-color: #cfe2ff; border-color: var(--primary-color); color: var(--primary-color); }
+.action-approve:hover { background-color: #d1e7dd; border-color: var(--success-color); color: var(--success-color); }
+.action-reject:hover { background-color: #f8d7da; border-color: var(--danger-color); color: var(--danger-color); }
 .action-delete:hover { background-color: #f8d7da; border-color: var(--danger-color); }
 
 /* Simple Text Links - Inline Actions */
