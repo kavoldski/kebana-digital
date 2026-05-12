@@ -1,16 +1,14 @@
 <?php
 /**
- * KEBANA Management System - Add Member Form
+ * KEBANA Management System - Add Member Form (MYDS Inspired)
  * File: modules/members/add.php
- *
- * Form to add a new member to the system
  */
 
-$page_title = 'Add Member';
-$css_path = '../../src/css/members.css';
+$page_title = 'DAFTAR AHLI BARU';
 
-require_once '../../includes/header.php';
-require_once '../../includes/members_helper.php';
+use App\Helpers\MembersHelper;
+
+require_once APP_ROOT . '/includes/header.php';
 
 // Initialize variables
 $message = '';
@@ -19,19 +17,20 @@ $message_type = '';
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $member_data = [
-        'full_name' => $_POST['full_name'] ?? '',
-        'ic_number' => $_POST['ic_number'] ?? '',
-        'village'   => $_POST['village'] ?? '',
-        'phone_no'  => $_POST['phone_no'] ?? '',
+        'full_name' => trim($_POST['full_name'] ?? ''),
+        'ic_number' => trim($_POST['ic_number'] ?? ''),
+        'village'   => trim($_POST['village'] ?? ''),
+        'phone_no'  => trim($_POST['phone_no'] ?? ''),
         'status'    => $_POST['status'] ?? 'Active'
     ];
 
-    $result = addMember($conn, $member_data);
+    $result = MembersHelper::addMember($member_data);
 
     if ($result['status']) {
         $message = $result['message'];
         $message_type = 'success';
-        $_POST = [];
+        // Success alert with redirect hint
+        echo "<script>setTimeout(() => { window.location.href = '/kebana-digital/members'; }, 2000);</script>";
     } else {
         $message = $result['message'];
         $message_type = 'error';
@@ -39,97 +38,107 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<div class="members-container">
-    <!-- Page Header Section -->
-    <section class="page-header-section">
-        <div class="container-xl">
-            <div class="page-header-content">
-                <div class="page-header-text">
-                    <h1 class="page-title">Add Member</h1>
-                    <p class="page-subtitle">Register a new member into the system</p>
-                </div>
+<div class="space-y-12">
+    <!-- Top Action Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
+        <div>
+            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Pendaftaran Ahli</h2>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Sila masukkan maklumat lengkap ahli baru.</p>
         </div>
-    </section>
+        <a href="/kebana-digital/members" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+            <i class="fa-solid fa-arrow-left mr-3"></i>
+            KEMBALI KE SENARAI
+        </a>
+    </div>
 
-    <!-- Main Content -->
-    <div class="main-content-area">
-        <div class="container-xl">
+    <?php if (!empty($message)): ?>
+    <div class="p-6 <?php echo $message_type === 'success' ? 'bg-green-50 border-green-600 text-green-800' : 'bg-red-50 border-red-600 text-red-800'; ?> border-l-4 font-black text-xs uppercase tracking-widest shadow-sm">
+        <div class="flex items-center">
+            <i class="fa-solid <?php echo $message_type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'; ?> mr-4 text-lg"></i>
+            <span><?php echo htmlspecialchars($message); ?></span>
+        </div>
+    </div>
+    <?php endif; ?>
 
-            <!-- Message Alert -->
-            <?php if (!empty($message)): ?>
-            <div class="alert alert-<?php echo $message_type; ?>" role="alert">
-                <span class="alert-icon">
-                    <?php echo $message_type === 'success' ? '✓' : '⚠'; ?>
-                </span>
-                <span class="alert-message"><?php echo htmlspecialchars($message); ?></span>
-                <?php if ($message_type === 'success'): ?>
-                <a href="list.php" class="alert-link">View Members →</a>
-                <?php endif; ?>
-            </div>
-            <?php endif; ?>
-
-            <!-- Add Member Form Card -->
-            <div class="dashboard-card">
-                <div class="card-header-custom">
-                    <div>
-                        <h3 class="card-title">Member Registration</h3>
-                        <p class="card-subtitle">Enter the member's personal details below</p>
+    <!-- Form Section -->
+    <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-8 md:p-12">
+            <form method="POST" class="space-y-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <!-- Full Name -->
+                    <div class="md:col-span-2">
+                        <label for="full_name" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">NAMA PENUH (SEPERTI DALAM IC)</label>
+                        <input type="text" id="full_name" name="full_name" required 
+                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase tracking-tight transition-all rounded-none"
+                               placeholder="Contoh: AHMAD BIN ABDULLAH"
+                               value="<?php echo isset($_POST['full_name']) ? htmlspecialchars($_POST['full_name']) : ''; ?>">
                     </div>
-                <div class="card-body-custom">
-                    <form method="POST" action="" class="member-form" id="addMemberForm">
 
-                        <div class="form-section">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="full_name" class="form-label">Full Name <span class="required">*</span></label>
-                                    <input type="text" name="full_name" id="full_name"
-                                           class="form-control" placeholder="e.g., Cedric Hilary"
-                                           value="<?php echo isset($_POST['full_name']) ? htmlspecialchars($_POST['full_name']) : ''; ?>"
-                                           required>
-                                </div>
+                    <!-- IC Number -->
+                    <div>
+                        <label for="ic_number" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">NO. KAD PENGENALAN</label>
+                        <input type="text" id="ic_number" name="ic_number" required 
+                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none"
+                               placeholder="Contoh: 900101-13-5555"
+                               value="<?php echo isset($_POST['ic_number']) ? htmlspecialchars($_POST['ic_number']) : ''; ?>">
+                    </div>
 
-                                <div class="form-group">
-                                    <label for="ic_number" class="form-label">IC Number <span class="required">*</span></label>
-                                    <input type="text" name="ic_number" id="ic_number"
-                                           class="form-control" placeholder="e.g., 000000-00-0000"
-                                           value="<?php echo isset($_POST['ic_number']) ? htmlspecialchars($_POST['ic_number']) : ''; ?>"
-                                           required>
-                                </div>
+                    <!-- Phone Number -->
+                    <div>
+                        <label for="phone_no" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">NO. TELEFON</label>
+                        <input type="text" id="phone_no" name="phone_no" 
+                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none"
+                               placeholder="Contoh: 012-3456789"
+                               value="<?php echo isset($_POST['phone_no']) ? htmlspecialchars($_POST['phone_no']) : ''; ?>">
+                    </div>
 
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="village" class="form-label">Village <span class="required">*</span></label>
-                                    <input type="text" name="village" id="village"
-                                           class="form-control" placeholder="e.g., Kampung Data Kakus"
-                                           value="<?php echo isset($_POST['village']) ? htmlspecialchars($_POST['village']) : ''; ?>"
-                                           required>
-                                </div>
+                    <!-- Village -->
+                    <div>
+                        <label for="village" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">KAWASAN / KAMPUNG</label>
+                        <input type="text" id="village" name="village" required 
+                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase tracking-tight transition-all rounded-none"
+                               placeholder="Contoh: KAMPUNG DATA KAKUS"
+                               value="<?php echo isset($_POST['village']) ? htmlspecialchars($_POST['village']) : ''; ?>">
+                    </div>
 
-                                <div class="form-group">
-                                    <label for="phone_no" class="form-label">Phone Number</label>
-                                    <input type="text" name="phone_no" id="phone_no"
-                                           class="form-control" placeholder="e.g., 012-3456789"
-                                           value="<?php echo isset($_POST['phone_no']) ? htmlspecialchars($_POST['phone_no']) : ''; ?>">
-                                </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="status" class="form-label">Status</label>
-                                    <select name="status" id="status" class="form-control">
-                                        <option value="Active" <?php echo (isset($_POST['status']) && $_POST['status'] === 'Active') ? 'selected' : ''; ?>>Active</option>
-                                        <option value="Inactive" <?php echo (isset($_POST['status']) && $_POST['status'] === 'Inactive') ? 'selected' : ''; ?>>Inactive</option>
-                                    </select>
-                                </div>
-                        </div>
-
-                        <!-- Form Actions -->
-                        <div class="form-actions">
-                            <a href="list.php" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Add Member</button>
-                        </div>
-                    </form>
+                    <!-- Status -->
+                    <div>
+                        <label for="status" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">STATUS KEAHLIAN</label>
+                        <select id="status" name="status" required 
+                                class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all rounded-none appearance-none">
+                            <option value="Active" <?php echo (isset($_POST['status']) && $_POST['status'] === 'Active') ? 'selected' : ''; ?>>AKTIF</option>
+                            <option value="Inactive" <?php echo (isset($_POST['status']) && $_POST['status'] === 'Inactive') ? 'selected' : ''; ?>>TIDAK AKTIF</option>
+                            <option value="Pending" <?php echo (isset($_POST['status']) && $_POST['status'] === 'Pending') ? 'selected' : ''; ?>>MENUNGGU</option>
+                        </select>
+                    </div>
                 </div>
+
+                <div class="pt-10 flex flex-col md:flex-row gap-6">
+                    <button type="submit" class="flex-1 bg-kebana-blue text-white py-6 text-xs font-black uppercase tracking-[0.3em] hover:bg-kebana-accent transition-all shadow-xl">
+                        SIMPAN MAKLUMAT AHLI
+                    </button>
+                    <button type="reset" class="px-10 py-6 border-2 border-slate-100 text-slate-400 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
+                        SET SEMULA
+                    </button>
+                </div>
+            </form>
         </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="bg-slate-50 p-8 border border-slate-100">
+        <div class="flex items-start space-x-6">
+            <div class="w-12 h-12 bg-kebana-blue/5 rounded-none flex items-center justify-center text-kebana-blue">
+                <i class="fa-solid fa-circle-info text-xl"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-black text-kebana-blue uppercase tracking-widest">Nota Penting</h4>
+                <p class="text-[10px] text-slate-400 font-bold uppercase mt-2 leading-relaxed tracking-tight">
+                    Semua maklumat yang didaftarkan adalah sulit dan tertakluk di bawah Akta Perlindungan Data Peribadi 2010. Sila pastikan No. Kad Pengenalan adalah tepat untuk mengelakkan ralat pendaftaran.
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php require_once APP_ROOT . '/includes/footer.php'; ?>

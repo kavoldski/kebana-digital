@@ -7,7 +7,7 @@
  */
 
 session_start();
-require_once '../../includes/dbconnect.php';
+require_once APP_ROOT . '/includes/dbconnect.php';
 
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['new_user'] = true; // Flag for first-time setup
 
         // Redirect to dashboard with welcome message
-        header('Location: ../../src/php/index.php?welcome=true');
+        header('Location: /kebana-digital/dashboard?welcome=true');
         exit();
 
     } catch (Exception $e) {

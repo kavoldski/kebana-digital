@@ -6,12 +6,14 @@
  * Validates user session and checks authentication status
  */
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Check if user is logged in
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     // If not logged in, redirect to login page
-    header('Location: ../../modules/auth/login.php');
+    header('Location: /kebana-digital/login');
     exit();
 }
 
@@ -28,7 +30,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['username']) || !isset($_SE
 if (isset($_SESSION['last_activity']) && (time() - (int)$_SESSION['last_activity']) > INACTIVITY_TIMEOUT_SECONDS) {
     session_unset();
     session_destroy();
-    header('Location: ../../modules/auth/login.php?error=Logged out due to inactivity');
+    header('Location: /kebana-digital/login?error=Logged out due to inactivity');
     exit();
 }
 
@@ -78,7 +80,7 @@ function isAdmin() {
  */
 function logout() {
     session_destroy();
-    header('Location: ../../modules/auth/login.php?logout=true');
+    header('Location: /kebana-digital/login?logout=true');
     exit();
 }
 

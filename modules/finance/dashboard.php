@@ -1,128 +1,121 @@
 <?php
-$page_title = 'Finance Dashboard';
-$css_path = '../../src/css/dashboard.css';
-$extra_css = '../../src/css/finance.css';
+/**
+ * KEBANA Management System - Finance Dashboard (MYDS Inspired)
+ * File: modules/finance/dashboard.php
+ */
 
-require_once '../../includes/header.php';
+use App\Helpers\FinanceHelper;
 
-$fund_balance = 0;
-$total_income = 0;
-$total_expense = 0;
+require_once APP_ROOT . '/includes/header.php';
 
-// Simple totals (add dashboard_helper.php logic later)
-if (isset($conn)) {
-    $result = $conn->query("SELECT SUM(CASE WHEN trans_type = 'Income' THEN amount ELSE 0 END) as income, SUM(CASE WHEN trans_type = 'Expense' THEN amount ELSE 0 END) as expense FROM tbl_transaction");
-    if ($row = $result->fetch_assoc()) {
-        $total_income = (float)$row['income'];
-        $total_expense = (float)$row['expense'];
-        $fund_balance = $total_income - $total_expense;
-    }
+// Access Control: Super Admin (888), Bendahari Pusat (6), Bendahari Cawangan (55), Auditor (7/66)
+if (!hasRole([888, 6, 55, 7, 66])) {
+    echo "<div class='p-12 text-center'><h1 class='text-2xl font-black text-red-600 uppercase tracking-widest'>AKSES DISEKAT</h1></div>";
+    require_once APP_ROOT . '/includes/footer.php';
+    exit;
 }
+
+$totals = FinanceHelper::getTotals();
+$recent = FinanceHelper::getRecentTransactions(8);
+
+$page_title = 'PENGURUSAN KEWANGAN';
 ?>
-<div class="finance-dashboard finance-page">
 
-    <div class="container-xl">
-        <div class="row mb-5">
-            <div class="col-12 d-flex justify-content-between align-items-center">
-                <h1 class="mb-0" style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Finance Dashboard</h1>
-            </div>
+<div class="space-y-12">
+    <!-- Top Action Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
+        <div>
+            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Ringkasan Kewangan</h2>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Pemantauan Aliran Tunai dan Perbelanjaan Persatuan.</p>
         </div>
-
-        <!-- KPI Cards -->
-        <div class="finance-kpi-grid">
-            <div class="finance-kpi-card balance-card">
-                <div class="kpi-icon-finance">💰</div>
-                <h3 class="kpi-title">Fund Balance</h3>
-                <div class="kpi-number">RM <?php echo number_format($fund_balance, 2); ?></div>
-            </div>
-            <div class="finance-kpi-card income-card">
-                <div class="kpi-icon-finance">📈</div>
-                <h3 class="kpi-title">Total Income</h3>
-                <div class="kpi-number">RM <?php echo number_format($total_income, 2); ?></div>
-            </div>
-            <div class="finance-kpi-card expense-card">
-                <div class="kpi-icon-finance">📉</div>
-                <h3 class="kpi-title">Total Expenses</h3>
-                <div class="kpi-number">RM <?php echo number_format($total_expense, 2); ?></div>
-            </div>
+        <div class="flex gap-4">
+            <a href="/kebana-digital/finance/transactions/list" class="bg-white text-kebana-blue border-2 border-kebana-blue px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
+                <i class="fa-solid fa-list-check mr-3"></i>
+                LIHAT SEMUA
+            </a>
+            <a href="/kebana-digital/finance/transactions/create" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
+                <i class="fa-solid fa-plus-circle mr-4 text-lg"></i>
+                REKOD TRANSAKSI
+            </a>
         </div>
+    </div>
 
-        <!-- Recent Transactions -->
-        <div class="recent-transactions-card">
-            <div class="recent-header">
-                <h2 class="recent-title">Recent Transactions</h2>
-                <div class="recent-header-actions">
-                    <a href="transactions/create.php" class="btn-add-transaction-inline">
-                        <i class="fas fa-plus me-2"></i>Add New Transaction
-                    </a>
-                    <a href="transactions/list.php" class="btn-view-all">View All Transactions</a>
-                </div>
-            </div>
-            <div class="trans-table-container">
-                <div class="table-responsive">
-                    <table class="table table-finance">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Category</th>
-                                <th>Linked Event</th>
-                                <th>Payment Mode</th>
-                                <th>Amount</th>
-                                <th>Recorded By</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        $recent_stmt = $conn->prepare("
-                            SELECT
-                                t.trans_date,
-                                t.trans_type,
-                                t.category,
-                                t.payment_mode,
-                                t.amount,
-                                t.recorded_by,
-                                t.event_id,
-                                e.event_title
-                            FROM tbl_transaction t
-                            LEFT JOIN tbl_event e ON t.event_id = e.event_id
-                            ORDER BY t.trans_date DESC, t.trans_id DESC
-                            LIMIT 10
-                        ");
-                        if ($recent_stmt) {
-                            $recent_stmt->execute();
-                            $recent_result = $recent_stmt->get_result();
-                            if ($recent_result->num_rows > 0) {
-                                while ($row = $recent_result->fetch_assoc()) {
-                                    $type_class = $row['trans_type'] == 'Income' ? 'text-success' : 'text-danger';
-                                    $linked_event = !empty($row['event_title']) ? $row['event_title'] : 'General Fund';
-                                    $payment_mode = !empty($row['payment_mode']) ? $row['payment_mode'] : '-';
-                                    echo "<tr>
-                                        <td>" . date('M j', strtotime($row['trans_date'])) . "</td>
-                                        <td><span class='badge {$type_class}'>" . $row['trans_type'] . "</span></td>
-                                        <td>" . htmlspecialchars($row['category']) . "</td>
-                                        <td>" . htmlspecialchars($linked_event) . "</td>
-                                        <td>" . htmlspecialchars($payment_mode) . "</td>
-                                        <td><strong>RM " . number_format($row['amount'], 2) . "</strong></td>
-                                        <td>ID " . htmlspecialchars($row['recorded_by']) . "</td>
-                                    </tr>";
-                                }
-                            } else {
-                                echo '<tr><td colspan="7" class="text-center text-muted">No transactions yet. <a href="transactions/create.php">Add first transaction</a></td></tr>';
-                            }
-                            $recent_stmt->close();
-                        } else {
-                            echo '<tr><td colspan="7" class="text-center text-muted">No transactions found.</td></tr>';
-                        }
+    <!-- KPI Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100 bg-white">
+        <div class="p-10 border-r border-slate-50 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
+            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">DANA TERSEDIA (NET)</p>
+            <p class="text-4xl font-black text-kebana-blue mt-4">RM <?php echo number_format($totals['balance'], 2); ?></p>
+        </div>
+        <div class="p-10 border-r border-slate-50 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
+            <p class="text-[10px] font-black text-green-600/50 uppercase tracking-widest">JUMLAH PENDAPATAN</p>
+            <p class="text-4xl font-black text-green-600 mt-4">RM <?php echo number_format($totals['income'], 2); ?></p>
+        </div>
+        <div class="p-10 flex flex-col justify-center hover:bg-slate-50 transition-colors group border-b-8 border-kebana-yellow">
+            <p class="text-[10px] font-black text-red-600/50 uppercase tracking-widest">JUMLAH PERBELANJAAN</p>
+            <p class="text-4xl font-black text-red-600 mt-4">RM <?php echo number_format($totals['expense'], 2); ?></p>
+        </div>
+    </div>
 
+    <!-- Recent Transactions Section -->
+    <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-8 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+            <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">Transaksi Terkini</h3>
+            <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter italic">* Menunjukkan 8 rekod pendaftaran terakhir</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-100">
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-300 uppercase tracking-widest">Tarikh</th>
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-300 uppercase tracking-widest">Kategori & Projek</th>
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-300 uppercase tracking-widest">Mod</th>
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-300 uppercase tracking-widest">Amaun</th>
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-300 uppercase tracking-widest text-right">Direkod Oleh</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    <?php if (empty($recent)): ?>
+                    <tr>
+                        <td colspan="5" class="px-8 py-20 text-center text-[10px] font-black text-slate-200 uppercase tracking-[0.3em]">Tiada Transaksi Direkodkan</td>
+                    </tr>
+                    <?php else: ?>
+                        <?php foreach ($recent as $t): 
+                            $is_income = $t['trans_type'] === 'Income';
                         ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        <tr class="hover:bg-slate-50/50 transition-colors group">
+                            <td class="px-8 py-6">
+                                <p class="text-xs font-black text-slate-400 uppercase tracking-tighter"><?php echo date('d M', strtotime($t['trans_date'])); ?></p>
+                                <p class="text-[9px] font-bold text-slate-300 uppercase"><?php echo date('Y', strtotime($t['trans_date'])); ?></p>
+                            </td>
+                            <td class="px-8 py-6">
+                                <p class="text-xs font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($t['category']); ?></p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 italic"><?php echo htmlspecialchars($t['event_title'] ?? 'Dana Am Persatuan'); ?></p>
+                            </td>
+                            <td class="px-8 py-6">
+                                <span class="text-[9px] font-black px-3 py-1 bg-slate-100 text-slate-500 uppercase tracking-widest">
+                                    <?php echo (!empty($t['payment_mode']) && $t['payment_mode'] !== '0') ? htmlspecialchars($t['payment_mode']) : 'Cash'; ?>
+                                </span>
+                            </td>
+                            <td class="px-8 py-6">
+                                <p class="text-sm font-black <?php echo $is_income ? 'text-green-600' : 'text-red-600'; ?>">
+                                    <?php echo $is_income ? '+' : '-'; ?> RM <?php echo number_format($t['amount'], 2); ?>
+                                </p>
+                            </td>
+                            <td class="px-8 py-6 text-right">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest"><?php echo htmlspecialchars($t['recorder_name'] ?? 'Sistem'); ?></p>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <div class="p-8 bg-slate-50 border-t border-slate-100 text-center">
+            <a href="/kebana-digital/finance/transactions/list" class="text-[10px] font-black text-kebana-blue uppercase tracking-widest hover:text-kebana-accent transition-colors">
+                LIHAT SEMUA TRANSAKSI <i class="fa-solid fa-arrow-right ml-2"></i>
+            </a>
         </div>
     </div>
 </div>
-<?php require_once '../../includes/footer.php'; ?>
 
-
+<?php require_once APP_ROOT . '/includes/footer.php'; ?>

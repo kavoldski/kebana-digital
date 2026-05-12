@@ -1,10 +1,9 @@
 <?php
 /**
- * KEBANA Management System - Header Component with Sidebar
+ * KEBANA Management System - Header Component (MYDS Inspired)
  * File: includes/header.php
  * 
- * HTML head section and sidebar navigation
- * Include this file at the top of your page
+ * Clean, sharp design based on MYDS without official government branding.
  */
 
 require_once __DIR__ . '/auth.php';
@@ -13,10 +12,17 @@ require_once __DIR__ . '/dbconnect.php';
 $session_role_raw = $_SESSION['role'] ?? null;
 $current_role = is_numeric($session_role_raw) ? (int)$session_role_raw : 0;
 $current_cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null && $_SESSION['cawangan_id'] !== '' ? (int)$_SESSION['cawangan_id'] : null;
+$username = $_SESSION['username'] ?? 'User';
+$page_title = $page_title ?? '';
 
+// Role Constants
 $ROLE_SUPER_ADMIN = 888;
 $ROLE_SETIAUSAHA_PUSAT = 4;
 $ROLE_SETIAUSAHA_CAWANGAN = 33;
+$ROLE_BENDAHARI_PUSAT = 6;
+$ROLE_BENDAHARI_CAWANGAN = 55;
+$ROLE_AUDITOR_PUSAT = 7;
+$ROLE_AUDITOR_CAWANGAN = 66;
 
 $PUSAT_ROLES = [888, 1, 2, 3, 4, 5, 6, 7];
 $CAWANGAN_ROLES = [11, 22, 33, 44, 55, 66];
@@ -24,332 +30,183 @@ $FINANCE_ROLES = [6, 7, 55, 66];
 
 $is_known_role = in_array($current_role, $PUSAT_ROLES, true) || in_array($current_role, $CAWANGAN_ROLES, true);
 
-// Safe fallback: if role is unknown/legacy but user is logged in, keep baseline modules visible
-$can_view_members = $is_known_role ? true : true;
-$can_view_events = $is_known_role ? true : true;
-$can_view_documents = $is_known_role ? true : true;
-$can_view_finance = $is_known_role
-    ? (in_array($current_role, $FINANCE_ROLES, true) || $current_role === $ROLE_SUPER_ADMIN)
-    : true;
-$can_view_projects = $is_known_role ? in_array($current_role, $PUSAT_ROLES, true) : true;
+// Visibility Flags
+$can_view_members = true; // Everyone can view members for now
+$can_view_events = true;
+$can_view_documents = true;
+$can_view_finance = ($is_known_role && (in_array($current_role, $FINANCE_ROLES, true) || $current_role === $ROLE_SUPER_ADMIN));
+$can_view_projects = in_array($current_role, $PUSAT_ROLES, true);
 
-$can_create_master_event = ($current_role === $ROLE_SETIAUSAHA_PUSAT && $current_cawangan_id === null);
-$can_create_sub_event = ($current_role === $ROLE_SETIAUSAHA_CAWANGAN && $current_cawangan_id !== null);
-$can_open_create_event = $can_create_master_event || $can_create_sub_event;
+$role_name = 'User';
+if ($current_role === 888) $role_name = 'Super Admin';
+elseif ($current_role === 4) $role_name = 'Setiausaha Pusat';
+elseif ($current_role === 33) $role_name = 'Setiausaha Cawangan';
+elseif ($current_role === 6) $role_name = 'Bendahari Pusat';
+elseif ($current_role === 55) $role_name = 'Bendahari Cawangan';
+elseif ($current_role === 7) $role_name = 'Auditor Pusat';
+elseif ($current_role === 66) $role_name = 'Auditor Cawangan';
 
-// Calculate CSS base path relative to the calling page
-if (!isset($css_base_path)) {
-    // Use relative path calculation from the includes directory to src/css
-    $script = $_SERVER['SCRIPT_FILENAME'];
-    $includes_dir = __DIR__;
-    
-    // Normalize slashes for Windows compatibility
-    $script_dir_normalized = str_replace('\\', '/', dirname($script));
-    $base_dir_normalized = str_replace('\\', '/', dirname($includes_dir));
-    
-    // Calculate relative path from the script's directory to kebana-digital root
-    // Use case-insensitive replace for Windows drive letters
-    $rel_path = str_ireplace($base_dir_normalized, '', $script_dir_normalized);
-    $up_count = substr_count($rel_path, '/');
-    
-    // Base path for general links
-    $base_path = $up_count > 0 ? str_repeat('../', $up_count) : './';
-    
-    // The path should be enough '../' to get from script location to kebana-digital root,
-    // then into src/css/
-    $css_base_path = $base_path . 'src/css/';
-}
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full bg-slate-50">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="KEBANA Digital Management System for NGO Administration">
-    <title><?php echo isset($page_title) ? htmlspecialchars($page_title) . ' - KEBANA' : 'KEBANA Management System'; ?></title>
+    <title><?php echo isset($page_title) ? htmlspecialchars($page_title) . ' - KEBANA' : 'KEBANA'; ?></title>
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GtvK6y1nZGn9L9k1iKMdDoV6nupN9zL+ZSLR0sZOsY/hyx3D+0DGz1h/6URyhu2M" crossorigin="anonymous">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVJkEZSMUkrQ6usKICqvgiA1jz9tBXsdNGWWXFsX8Z5K8G9N1e6zqLyX9Di+G/CNm+rRnSpoC4A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Sidebar CSS -->
-    <link rel="stylesheet" href="<?php echo $css_base_path; ?>sidebar.css">
-    
-    <!-- Custom CSS -->
-<link rel="stylesheet" href="<?php echo isset($css_path) ? htmlspecialchars($css_path) : $css_base_path . 'dashboard.css'; ?>">
-        <?php if (isset($extra_css)): ?>
-        <!-- extra_css (page-scoped) loaded after sidebar.
-             Use a cache-busting querystring to avoid stale/broken CSS during dev. -->
-        <link rel="stylesheet" href="<?php echo htmlspecialchars($extra_css); ?>?v=<?php echo urlencode(date('YmdHis')); ?>">
-    <?php endif; ?>
-
-
-
-    
-    <style>
-        :root {
-            --primary-color: #0d6efd;
-            --primary-dark: #0b5ed7;
-        }
-    </style>
-</head>
-<body>
-    <!-- Sidebar Toggle Button -->
-    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" title="Menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-    </button>
-
-    <!-- Sidebar Overlay (click to close) -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h2>KEBANA</h2>
-            <button class="sidebar-close" id="sidebarClose" aria-label="Close sidebar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        </div>
-
-        <nav>
-            <ul class="sidebar-menu">
-                <li>
-                    <a href="<?php echo $base_path; ?>src/php/index.php" class="sidebar-menu-item active">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline>
-                            <line x1="12" y1="12" x2="20" y2="7.5"></line>
-                            <line x1="12" y1="12" x2="12" y2="21"></line>
-                            <line x1="12" y1="12" x2="4" y2="7.5"></line>
-                        </svg>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-
-                <?php if ($can_view_members): ?>
-                <li>
-                    <a href="#" class="sidebar-menu-item has-submenu">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
-                        <span>Members</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="<?php echo $base_path; ?>modules/members/list.php" class="sidebar-submenu-item">Member List</a></li>
-                        <li><a href="<?php echo $base_path; ?>modules/members/add.php" class="sidebar-submenu-item">Add Member</a></li>
-                        <li><a href="<?php echo $base_path; ?>modules/members/report.php" class="sidebar-submenu-item">Reports</a></li>
-                    </ul>
-                </li>
-                <?php endif; ?>
-
-                <?php if ($can_view_events): ?>
-                <li>
-                    <a href="#" class="sidebar-menu-item has-submenu">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
-                        <span>Events</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="<?php echo $base_path; ?>modules/events/list.php" class="sidebar-submenu-item">Event List</a></li>
-                        <?php if ($can_open_create_event): ?>
-                        <li><a href="<?php echo $base_path; ?>modules/events/create.php" class="sidebar-submenu-item">Create Event</a></li>
-                        <?php endif; ?>
-                        <li><a href="<?php echo $base_path; ?>modules/events/attendance.php" class="sidebar-submenu-item">Attendance</a></li>
-                    </ul>
-                </li>
-                <?php endif; ?>
-
-                <?php if ($can_view_documents): ?>
-                <li>
-                    <a href="#" class="sidebar-menu-item has-submenu">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                            <polyline points="13 2 13 9 20 9"></polyline>
-                        </svg>
-                        <span>Documents</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="<?php echo $base_path; ?>modules/documents/upload.php" class="sidebar-submenu-item">Upload Document</a></li>
-                        <li><a href="<?php echo $base_path; ?>modules/documents/proposals.php" class="sidebar-submenu-item">Proposals</a></li>
-                        <li><a href="<?php echo $base_path; ?>modules/documents/minutes.php" class="sidebar-submenu-item">Minutes</a></li>
-                        <li><a href="<?php echo $base_path; ?>modules/documents/reports.php" class="sidebar-submenu-item">Reports</a></li>
-                    </ul>
-                </li>
-                <?php endif; ?>
-
-                <?php if ($can_view_finance): ?>
-                <li>
-                    <a href="#" class="sidebar-menu-item has-submenu">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        <span>Finance</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-<li><a href="<?php echo $base_path; ?>modules/finance/dashboard.php" class="sidebar-submenu-item">Dashboard</a></li>
-
-                        <li><a href="<?php echo $base_path; ?>modules/finance/budget.php" class="sidebar-submenu-item">Budget</a></li>
-                        <li><a href="#" class="sidebar-submenu-item">Reports</a></li>
-                    </ul>
-                </li>
-                <?php endif; ?>
-
-                <?php if ($can_view_projects): ?>
-                <li>
-                    <a href="#" class="sidebar-menu-item has-submenu">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="1"></circle>
-                            <path d="M12 1v6m6.66 1.34l-4.24 4.24M19 12h6m-1.34 6.66l-4.24-4.24M12 19v6m-6.66-1.34l4.24-4.24M5 12H-1m1.34-6.66l4.24 4.24"></path>
-                        </svg>
-                        <span>Projects</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="#" class="sidebar-submenu-item">Active Projects</a></li>
-                        <li><a href="#" class="sidebar-submenu-item">New Project</a></li>
-                        <li><a href="#" class="sidebar-submenu-item">Reports</a></li>
-                    </ul>
-                </li>
-                <?php endif; ?>
-
-                <?php if (isAdmin()): ?>
-                <li>
-                    <hr style="margin: 1rem 0; border-color: rgba(255, 255, 255, 0.1);">
-                </li>
-                <li>
-                    <a href="#" class="sidebar-menu-item has-submenu">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="1"></circle>
-                            <path d="M12 1v6m6.66 1.34l-4.24 4.24M19 12h6m-1.34 6.66l-4.24-4.24M12 19v6m-6.66-1.34l4.24-4.24M5 12H-1m1.34-6.66l4.24 4.24"></path>
-                        </svg>
-                        <span>Administration</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li><a href="#" class="sidebar-submenu-item">User Management</a></li>
-                        <li><a href="#" class="sidebar-submenu-item">System Settings</a></li>
-                        <li><a href="#" class="sidebar-submenu-item">Audit Logs</a></li>
-                    </ul>
-                </li>
-                <?php endif; ?>
-            </ul>
-        </nav>
-
-        <div class="sidebar-footer">
-            <div class="sidebar-user">
-                <div class="sidebar-user-avatar"><?php echo strtoupper(substr($username, 0, 1)); ?></div>
-                <div class="sidebar-user-info">
-                    <p class="sidebar-user-name"><?php echo htmlspecialchars($username); ?></p>
-                    <p class="sidebar-user-role"><?php echo htmlspecialchars((string)$role); ?></p>
-                </div>
-            </div>
-            <a href="<?php echo $base_path; ?>modules/auth/logout.php" style="display: block; padding: 0.75rem; color: rgba(255, 255, 255, 0.85); text-decoration: none; text-align: center; font-size: 0.9rem; margin-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;" onmouseover="this.style.color='white'; this.style.background='rgba(255, 255, 255, 0.1)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.85)'; this.style.background='transparent';">
-                Logout
-            </a>
-        </div>
-    </aside>
-
-    <!-- Main Content Wrapper -->
-    <div class="main-content" id="mainContent">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
-
-        // Sidebar toggle functionality
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebarClose = document.getElementById('sidebarClose');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const mainContent = document.getElementById('mainContent');
-
-        let sidebarLocked = false; // Track if sidebar is locked open
-
-        // Toggle sidebar on button click
-        sidebarToggle.addEventListener('click', () => {
-            sidebarLocked = !sidebarLocked;
-            updateSidebarState();
-        });
-
-        // Close sidebar on close button click
-        sidebarClose.addEventListener('click', () => {
-            sidebarLocked = false;
-            updateSidebarState();
-        });
-
-        // Close sidebar when clicking overlay
-        sidebarOverlay.addEventListener('click', () => {
-            sidebarLocked = false;
-            updateSidebarState();
-        });
-
-        // Show sidebar on hover when not locked
-        sidebar.addEventListener('mouseenter', () => {
-            if (!sidebarLocked) {
-                sidebar.classList.add('active');
-                sidebarOverlay.classList.add('active');
-            }
-        });
-
-        // Hide sidebar on mouse leave when not locked
-        sidebar.addEventListener('mouseleave', () => {
-            if (!sidebarLocked) {
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-            }
-        });
-
-        // Show sidebar on hover of toggle button when not locked
-        sidebarToggle.addEventListener('mouseenter', () => {
-            if (!sidebarLocked) {
-                sidebar.classList.add('active');
-                sidebarOverlay.classList.add('active');
-            }
-        });
-
-        // Submenu toggle
-        document.querySelectorAll('.sidebar-menu-item.has-submenu').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                item.classList.toggle('expanded');
-            });
-        });
-
-        // Update sidebar state on page load
-        updateSidebarState();
-
-        // Update sidebar state
-        function updateSidebarState() {
-            if (sidebarLocked) {
-                sidebar.classList.add('active');
-                sidebarOverlay.classList.add('active');
-            } else {
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        kebana: {
+                            blue: '#003366',      // MYDS Blue
+                            yellow: '#FFCC00',    // MYDS Yellow
+                            light: '#F8FAFC',
+                            dark: '#0F172A',
+                            accent: '#004A99'
+                        }
+                    }
+                }
             }
         }
-
-        // Close sidebar when clicking on a menu item (except submenus)
-        document.querySelectorAll('.sidebar-submenu-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                if (!sidebarLocked) {
-                    sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
-                }
-            });
-        });
     </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="h-full">
+    <div class="min-h-full flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#0f172a] text-white transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 sidebar-transition flex flex-col shadow-2xl overflow-hidden border-r border-white/5">
+            <!-- Subtle Gradient Accent -->
+            <div class="absolute inset-0 bg-gradient-to-b from-kebana-blue/10 to-transparent pointer-events-none"></div>
 
+            <div class="h-24 flex items-center px-8 relative z-10 border-b border-white/5">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-kebana-yellow flex items-center justify-center shadow-lg shadow-kebana-yellow/10">
+                        <span class="text-kebana-blue font-black text-xl">K</span>
+                    </div>
+                    <span class="text-2xl font-black tracking-tighter italic uppercase">KEBANA<span class="text-kebana-yellow">.</span></span>
+                </div>
+            </div>
 
+            <nav class="flex-1 overflow-y-auto py-8 px-4 space-y-1 relative z-10">
+                <!-- Dashboard Link -->
+                <?php $is_dash = ($page_title == 'PAPARAN UTAMA'); ?>
+                <a href="<?php echo $base_path; ?>dashboard" class="group flex items-center px-4 py-3.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all <?php echo $is_dash ? 'bg-kebana-blue text-white shadow-xl shadow-kebana-blue/20' : 'text-slate-400 hover:text-white hover:bg-white/5'; ?>">
+                    <i class="fa-solid fa-layer-group w-8 text-lg <?php echo $is_dash ? 'text-kebana-yellow' : 'text-slate-600 group-hover:text-kebana-yellow'; ?>"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="pt-10 pb-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.4em] px-4">Modul Utama</div>
+                
+                <?php 
+                $nav_items = [
+                    ['link' => 'members', 'icon' => 'fa-users-between-lines', 'label' => 'Pengurusan Ahli', 'visible' => $can_view_members],
+                    ['link' => 'events', 'icon' => 'fa-calendar-check', 'label' => 'Aktiviti & Program', 'visible' => $can_view_events],
+                    ['link' => 'finance', 'icon' => 'fa-wallet', 'label' => 'Laporan Kewangan', 'visible' => $can_view_finance],
+                    ['link' => 'documents', 'icon' => 'fa-box-archive', 'label' => 'Pusat Arkib Fail', 'visible' => $can_view_documents],
+                ];
+
+                foreach ($nav_items as $item): 
+                    if (!$item['visible']) continue;
+                    $isActive = (stripos($_SERVER['REQUEST_URI'], $item['link']) !== false);
+                ?>
+                <a href="<?php echo $base_path . $item['link']; ?>" class="group flex items-center px-4 py-3.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all <?php echo $isActive ? 'bg-kebana-blue text-white shadow-xl shadow-kebana-blue/10' : 'text-slate-400 hover:text-white hover:bg-white/5'; ?>">
+                    <i class="fa-solid <?php echo $item['icon']; ?> w-8 text-lg <?php echo $isActive ? 'text-kebana-yellow' : 'text-slate-600 group-hover:text-kebana-yellow'; ?>"></i>
+                    <span><?php echo $item['label']; ?></span>
+                </a>
+                <?php endforeach; ?>
+
+                <div class="pt-10 pb-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.4em] px-4">Sistem</div>
+                
+                <a href="<?php echo $base_path; ?>logout" class="group flex items-center px-4 py-3.5 text-[10px] font-black uppercase tracking-[0.2em] text-red-400/60 hover:text-red-400 hover:bg-red-500/5 transition-all">
+                    <i class="fa-solid fa-power-off w-8 text-lg text-red-500/20 group-hover:text-red-500"></i>
+                    <span>Log Keluar</span>
+                </a>
+            </nav>
+
+            <div class="p-6 relative z-10 border-t border-white/5 bg-black/20">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-kebana-yellow text-kebana-blue flex items-center justify-center font-black text-lg">
+                        <?php echo strtoupper(substr($username, 0, 1)); ?>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[10px] font-black text-white truncate uppercase tracking-tighter"><?php echo htmlspecialchars($username); ?></p>
+                        <p class="text-[8px] text-slate-500 truncate font-black uppercase tracking-[0.2em]"><?php echo htmlspecialchars((string)$role_name); ?></p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Overlay -->
+        <div id="sidebarOverlay" class="fixed inset-0 z-40 bg-slate-900/50 hidden lg:hidden"></div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-white">
+            <!-- Topbar -->
+            <header class="h-16 flex items-center justify-between px-8 border-b border-slate-100 sticky top-0 bg-white/80 backdrop-blur-md z-30">
+                <div class="flex items-center">
+                    <button id="mobileToggle" class="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-50">
+                        <i class="fa-solid fa-bars-staggered text-xl"></i>
+                    </button>
+                    <div class="h-8 w-8 lg:hidden ml-2 flex items-center justify-center bg-kebana-blue text-white font-black text-xs">K</div>
+                </div>
+
+                <div class="flex items-center space-x-6">
+                    <div class="hidden sm:flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest space-x-2">
+                        <i class="fa-solid fa-clock text-kebana-blue/30"></i>
+                        <span><?php echo date('d F Y • H:i'); ?></span>
+                    </div>
+                    <div class="h-6 w-[1px] bg-slate-100 hidden sm:block"></div>
+                    <div class="relative inline-block text-left" id="notificationDropdown">
+                        <button id="notificationBtn" class="relative p-2 text-slate-400 hover:text-kebana-blue transition-colors focus:outline-none">
+                            <i class="fa-regular fa-bell text-xl"></i>
+                            <span id="notificationBadge" class="absolute top-1.5 right-1.5 hidden h-4 w-4 bg-red-500 ring-2 ring-white rounded-full text-[10px] text-white flex items-center justify-center font-bold">0</span>
+                        </button>
+                        
+                        <div id="notificationMenu" class="absolute right-0 mt-3 w-80 origin-top-right bg-white shadow-2xl ring-1 ring-slate-200 focus:outline-none hidden z-50 rounded-none border-t-4 border-kebana-blue">
+                            <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                                <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">Notifications</h3>
+                                <button onclick="markAllRead()" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase transition-colors">Mark all read</button>
+                            </div>
+                            <div id="notificationList" class="max-h-96 overflow-y-auto">
+                                <div class="p-8 text-center text-slate-300">
+                                    <i class="fa-regular fa-bell-slash text-2xl mb-2 block"></i>
+                                    <p class="text-[10px] font-bold uppercase">Checking for updates...</p>
+                                </div>
+                            </div>
+                            <div class="p-3 border-t border-slate-100 text-center">
+                                <a href="#" class="text-[10px] font-black text-kebana-blue uppercase tracking-tighter hover:underline">Papar Semua Notifikasi</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto p-6 lg:p-12">
+                <div class="max-w-7xl mx-auto space-y-10">
+                    <!-- Title Bar -->
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-8 border-b-2 border-slate-50">
+                        <div>
+                            <h1 class="text-4xl font-black text-kebana-blue tracking-tighter uppercase italic"><?php echo htmlspecialchars($page_title ?? ''); ?></h1>
+                            <p class="text-sm text-slate-400 mt-2 font-bold uppercase tracking-tight">Kebana Digital Management Suite</p>
+                        </div>
+                    </div>

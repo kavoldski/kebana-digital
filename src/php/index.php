@@ -1,329 +1,188 @@
 <?php
 /**
- * KEBANA Management System - Dashboard
+ * KEBANA Management System - Dashboard (MYDS Inspired)
  * File: src/php/index.php
- * 
- * Main dashboard page - requires authentication
  */
 
-$page_title = 'Dashboard';
-$css_path = '../css/dashboard.css';
+$page_title = 'PAPARAN UTAMA';
 
-require_once '../../includes/header.php';
-require_once '../../includes/members_helper.php';
-require_once '../../includes/dashboard_helper.php';
-require_once '../../includes/finance_helper.php';
+use App\Core\Database;
+use App\Helpers\MembersHelper;
+use App\Helpers\FinanceHelper;
+use App\Helpers\DashboardHelper;
 
-// Get dashboard statistics (real data only)
-$total_members = getMemberCount($conn);
-$active_members = count(getMembersByStatus($conn, 'Active'));
+$db = Database::getInstance()->getConnection();
+$username = $_SESSION['username'] ?? 'User';
 
-$upcoming_events = getUpcomingEventsCount($conn);
-$past_events = 0;
-$past_events_result = $conn->query("SELECT COUNT(*) AS total FROM tbl_event WHERE event_date < CURDATE()");
-if ($past_events_result) {
-    $past_events = (int)($past_events_result->fetch_assoc()['total'] ?? 0);
-}
+require_once APP_ROOT . '/includes/header.php';
+
+// Data fetching
+$total_members = MembersHelper::getMemberCount();
+$active_members = count(MembersHelper::getMembersByStatus('Active'));
+$upcoming_events = DashboardHelper::getUpcomingEventsCount();
+$past_events = DashboardHelper::getPastEventsCount();
 $total_events = $upcoming_events + $past_events;
 
-$pending_documents = getPendingDocumentsCount($conn);
+$pending_docs = DashboardHelper::getPendingDocumentsCount();
+$total_docs = DashboardHelper::getTotalDocumentsCount();
 
-// Total documents (real)
-$total_documents = 0;
-$doc_count_result = $conn->query("SELECT COUNT(*) AS total FROM tbl_document");
-if ($doc_count_result) {
-    $total_documents = (int)($doc_count_result->fetch_assoc()['total'] ?? 0);
-}
+$fund_balance = DashboardHelper::getFundBalance();
+$finance_totals = FinanceHelper::getFinanceTotals();
 
-// Pending approvals from submitted events awaiting super admin action
-$pending_approvals = getPendingApprovalsCount($conn);
+$pending_approvals = DashboardHelper::getPendingApprovalsCount();
 
-$fund_balance = getFundBalance($conn);
-$finance_totals = getFinanceTotals($conn);
+$recent_activities = DashboardHelper::getRecentActivities(5);
 
-// Members participation ratio based on Active status (real)
-$participation_rate = $total_members > 0 ? round(($active_members / $total_members) * 100) : 0;
-
-// Build recent activity from real records
-$recent_activity = [];
-
-// Latest member registrations
-$member_activity_result = $conn->query("
-    SELECT full_name, created_at
-    FROM tbl_member
-    ORDER BY created_at DESC
-    LIMIT 2
-");
-if ($member_activity_result) {
-    while ($row = $member_activity_result->fetch_assoc()) {
-        $recent_activity[] = [
-            'text' => 'New member registered: ' . $row['full_name'],
-            'time' => $row['created_at'] ?? null
-        ];
-    }
-}
-
-// Latest uploaded documents
-$doc_activity_result = $conn->query("
-    SELECT doc_name, uploaded_at
-    FROM tbl_document
-    ORDER BY uploaded_at DESC
-    LIMIT 2
-");
-if ($doc_activity_result) {
-    while ($row = $doc_activity_result->fetch_assoc()) {
-        $recent_activity[] = [
-            'text' => 'Document uploaded: ' . $row['doc_name'],
-            'time' => $row['uploaded_at'] ?? null
-        ];
-    }
-}
-
-// Latest transactions
-$transactions = getRecentTransactions($conn, 2);
-foreach ($transactions as $txn) {
-    $recent_activity[] = [
-        'text' => $txn['trans_type'] . ' transaction recorded (' . $txn['category'] . ')',
-        'time' => $txn['created_at'] ?? null
-    ];
-}
-
-// Sort activities by datetime desc and keep latest 6
-usort($recent_activity, function ($a, $b) {
-    $ta = strtotime($a['time'] ?? '1970-01-01 00:00:00');
-    $tb = strtotime($b['time'] ?? '1970-01-01 00:00:00');
-    return $tb <=> $ta;
-});
-$recent_activity = array_slice($recent_activity, 0, 6);
-
-function formatRelativeTime($datetime) {
-    if (!$datetime) return 'Unknown time';
-    $ts = strtotime($datetime);
-    if (!$ts) return 'Unknown time';
-    $diff = time() - $ts;
-    if ($diff < 60) return 'Just now';
-    if ($diff < 3600) return floor($diff / 60) . ' minute(s) ago';
-    if ($diff < 86400) return floor($diff / 3600) . ' hour(s) ago';
-    return floor($diff / 86400) . ' day(s) ago';
-}
-
+// Participation Rate
+$participation_rate = $total_members > 0 ? round(($active_members / $total_members) * 100, 1) : 0;
 ?>
 
-<div class="dashboard-container">
-    <!-- Page Header Section -->
-    <section class="page-header-section">
-        <div class="container-xl">
-            <div class="page-header-content">
-                <div class="page-header-text">
-                    <h1 class="page-title">Welcome back, <?php echo htmlspecialchars($username); ?></h1>
-                    <p class="page-subtitle">Here's an overview of your organization's activities and performance metrics.</p>
+<div class="space-y-12">
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border border-slate-100">
+        <!-- Members -->
+        <div class="bg-white p-8 border-r border-slate-50 last:border-r-0 hover:bg-slate-50 transition-colors group">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">JUMLAH AHLI</span>
+                <i class="fa-solid fa-users text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+            <h3 class="text-5xl font-black text-kebana-blue tracking-tighter"><?php echo number_format($total_members); ?></h3>
+            <div class="mt-6 flex items-center text-[10px] font-black text-slate-400">
+                <span class="text-kebana-blue"><?php echo number_format($active_members); ?></span>
+                <span class="mx-2">AKTIF</span>
+            </div>
+        </div>
+
+        <!-- Events -->
+        <div class="bg-white p-8 border-r border-slate-50 last:border-r-0 hover:bg-slate-50 transition-colors group">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">PROGRAM AKTIF</span>
+                <i class="fa-solid fa-calendar-star text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+            <h3 class="text-5xl font-black text-kebana-blue tracking-tighter"><?php echo number_format($upcoming_events); ?></h3>
+            <div class="mt-6 flex items-center text-[10px] font-black text-slate-400">
+                <span class="text-kebana-blue uppercase tracking-widest"><?php echo $total_events; ?> KESELURUHAN</span>
+            </div>
+        </div>
+
+        <!-- Finance -->
+        <div class="bg-white p-8 border-r border-slate-50 last:border-r-0 hover:bg-slate-50 transition-colors group">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">BAKI TABUNG</span>
+                <i class="fa-solid fa-wallet text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+            <h3 class="text-5xl font-black text-kebana-blue tracking-tighter"><?php echo DashboardHelper::formatFundBalance($fund_balance); ?></h3>
+            <div class="mt-6 flex items-center text-[10px] font-black <?php echo $fund_balance >= 0 ? 'text-green-600' : 'text-red-500'; ?>">
+                <span class="uppercase tracking-widest"><?php echo $fund_balance >= 0 ? 'Positif' : 'Defisit'; ?></span>
+            </div>
+        </div>
+
+        <!-- Approvals -->
+        <div class="bg-white p-8 hover:bg-slate-50 transition-colors group border-b-4 border-kebana-yellow">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">TINDAKAN</span>
+                <i class="fa-solid fa-bell-exclamation text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+            <h3 class="text-5xl font-black text-kebana-blue tracking-tighter"><?php echo str_pad($pending_approvals + $pending_docs, 2, '0', STR_PAD_LEFT); ?></h3>
+            <div class="mt-6 flex items-center text-[10px] font-black text-amber-500 uppercase tracking-widest">
+                <span>Perlu Kelulusan / Semakan</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <!-- Left Column -->
+        <div class="lg:col-span-2 space-y-12">
+            <div class="bg-white border-t-8 border-kebana-blue shadow-sm p-10 space-y-10">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-black text-kebana-blue tracking-tight uppercase italic">Statistik Organisasi</h2>
+                    <a href="/kebana-digital/members/report" class="bg-kebana-blue text-white px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all">Analisis Data</a>
                 </div>
-                <div class="page-header-status">
-                    <div class="status-item">
-                        <span class="status-label">System Status</span>
-                        <span class="badge badge-success">Active</span>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-baseline">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kadar Keaktifan Ahli</span>
+                            <span class="text-2xl font-black text-kebana-blue italic"><?php echo $participation_rate; ?>%</span>
+                        </div>
+                        <div class="h-3 w-full bg-slate-50 border border-slate-100">
+                            <div class="h-full bg-kebana-blue shadow-lg shadow-kebana-blue/20 transition-all duration-1000" style="width: <?php echo $participation_rate; ?>%"></div>
+                        </div>
                     </div>
-                    <div class="status-item">
-                        <span class="status-label">Last Updated</span>
-                        <span class="status-time"><?php echo date('M d, Y • H:i'); ?></span>
+
+                    <div class="space-y-6 border-l border-slate-50 pl-8 hidden md:block">
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dana Masuk</span>
+                            <span class="text-sm font-black text-kebana-blue">RM <?php echo number_format($finance_totals['total_income'], 2); ?></span>
+                        </div>
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dana Keluar</span>
+                            <span class="text-sm font-black text-red-500">RM <?php echo number_format($finance_totals['total_expense'], 2); ?></span>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Quick Access -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="/kebana-digital/members/add" class="p-8 bg-kebana-blue text-white flex flex-col items-center justify-center space-y-4 hover:bg-kebana-accent transition-all group">
+                    <i class="fa-solid fa-user-plus text-3xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Daftar Ahli</span>
+                </a>
+                <a href="/kebana-digital/documents" class="p-8 bg-white border border-slate-100 text-kebana-blue flex flex-col items-center justify-center space-y-4 hover:bg-slate-50 transition-all group border-b-4 border-kebana-yellow">
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Pusat Fail</span>
+                </a>
+                <a href="/kebana-digital/events/create" class="p-8 bg-white border border-slate-100 text-kebana-blue flex flex-col items-center justify-center space-y-4 hover:bg-slate-50 transition-all group">
+                    <i class="fa-solid fa-calendar-plus text-3xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Acara Baru</span>
+                </a>
+                <a href="/kebana-digital/finance" class="p-8 bg-white border border-slate-100 text-kebana-blue flex flex-col items-center justify-center space-y-4 hover:bg-slate-50 transition-all group">
+                    <i class="fa-solid fa-chart-line-up text-3xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Kewangan</span>
+                </a>
+            </div>
         </div>
-    </section>
 
-    <!-- Main Content -->
-    <div class="main-content-area">
-        <div class="container-xl">
-            <!-- KPI Cards Section -->
-            <section class="kpi-section">
-                <div class="section-header">
-                    <h2 class="section-title">Key Performance Indicators</h2>
+        <!-- Sidebar -->
+        <div class="space-y-10">
+            <div class="bg-white border-t-8 border-kebana-yellow shadow-sm p-10">
+                <h3 class="text-[10px] font-black text-kebana-blue uppercase tracking-[0.2em] mb-10 pb-4 border-b border-slate-50 flex items-center justify-between">
+                    Log Aktiviti
+                    <i class="fa-solid fa-list-check opacity-20"></i>
+                </h3>
+                <div class="space-y-10">
+                    <?php if (empty($recent_activities)): ?>
+                        <p class="text-[10px] text-slate-300 font-bold uppercase tracking-widest text-center py-10">Tiada aktiviti terbaru.</p>
+                    <?php else: ?>
+                        <?php foreach ($recent_activities as $activity): ?>
+                        <div class="relative pl-8 border-l-2 border-slate-50">
+                            <div class="absolute -left-[6px] top-0 w-3 h-3 bg-white border-2 border-slate-200 ring-4 ring-white"></div>
+                            <p class="text-[10px] font-black <?php echo $activity['color']; ?> uppercase italic flex items-center">
+                                <i class="fa-solid <?php echo $activity['icon']; ?> mr-2"></i>
+                                <?php echo DashboardHelper::formatRelativeTime($activity['time']); ?>
+                            </p>
+                            <p class="text-sm text-slate-700 mt-3 font-bold"><?php echo htmlspecialchars($activity['text']); ?></p>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-icon" style="background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
-                        <div class="kpi-content">
-                            <p class="kpi-label">Total Members</p>
-                            <h3 class="kpi-value"><?php echo number_format($total_members); ?></h3>
-                            <span class="kpi-change neutral">Total registered</span>
-                        </div>
-                    </div>
+                <button class="w-full mt-12 py-4 text-[10px] font-black text-slate-400 border border-slate-100 uppercase tracking-widest hover:bg-slate-50 hover:text-kebana-blue transition-all">Lihat Semua Aktiviti</button>
+            </div>
 
-                    <div class="kpi-card">
-                        <div class="kpi-icon" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                        </div>
-                        <div class="kpi-content">
-                            <p class="kpi-label">Upcoming Events</p>
-                            <h3 class="kpi-value"><?php echo number_format($upcoming_events); ?></h3>
-                            <span class="kpi-change neutral">All scheduled</span>
-                        </div>
+            <div class="bg-kebana-dark p-10 text-white shadow-2xl relative overflow-hidden group">
+                <div class="relative z-10">
+                    <div class="flex items-center space-x-3 mb-8">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+                        <span class="text-[10px] font-black uppercase tracking-widest">Status Sistem: Aktif</span>
                     </div>
-
-                    <div class="kpi-card">
-                        <div class="kpi-icon" style="background: linear-gradient(135deg, #198754 0%, #157347 100%);">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                                <polyline points="13 2 13 9 20 9"></polyline>
-                            </svg>
-                        </div>
-                        <div class="kpi-content">
-                            <p class="kpi-label">Pending Documents</p>
-                            <h3 class="kpi-value"><?php echo number_format($pending_documents); ?></h3>
-                            <span class="kpi-change warning">Requires review</span>
-                        </div>
-                    </div>
-
-                    <div class="kpi-card">
-                        <div class="kpi-icon" style="background: linear-gradient(135deg, #ff9800 0%, #e68900 100%);">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                        </div>
-                        <div class="kpi-content">
-                            <p class="kpi-label">Fund Balance</p>
-                            <h3 class="kpi-value"><?php echo formatFundBalance($fund_balance); ?></h3>
-                            <span class="kpi-change positive">Available</span>
-                        </div>
-                    </div>
+                    <p class="text-[10px] text-white/30 font-bold leading-relaxed uppercase tracking-widest">Pangkalan data disinkronisasi ke pusat data utama KEBANA.</p>
                 </div>
-            </section>
-
-            <!-- Main Dashboard Grid -->
-            <section class="dashboard-grid">
-                <!-- Left Column -->
-                <div class="dashboard-column-main">
-                    <!-- Operational Summary -->
-                    <div class="dashboard-card">
-                        <div class="card-header-custom">
-                            <div>
-                                <h3 class="card-title">Operational Summary</h3>
-                                <p class="card-subtitle">Key metrics for program delivery and community support</p>
-                            </div>
-                            <a href="#" class="btn-link">View Full Report →</a>
-                        </div>
-                        <div class="card-body-custom">
-                            <div class="metrics-grid">
-                                <div class="metric-item">
-                                    <span class="metric-icon">👥</span>
-                                    <p class="metric-label">Active Members</p>
-                                    <h4 class="metric-value"><?php echo number_format($active_members); ?></h4>
-                                    <span class="metric-trend neutral">Out of <?php echo number_format($total_members); ?> total members</span>
-                                </div>
-                                <div class="metric-item">
-                                    <span class="metric-icon">📊</span>
-                                    <p class="metric-label">Total Events</p>
-                                    <h4 class="metric-value"><?php echo number_format($total_events); ?></h4>
-                                    <span class="metric-trend neutral"><?php echo number_format($upcoming_events); ?> upcoming, <?php echo number_format($past_events); ?> past</span>
-                                </div>
-                                <div class="metric-item">
-                                    <span class="metric-icon">📄</span>
-                                    <p class="metric-label">Total Documents</p>
-                                    <h4 class="metric-value"><?php echo number_format($total_documents); ?></h4>
-                                    <span class="metric-trend warning"><?php echo number_format($pending_documsents); ?> pending review</span>
-                                </div>
-                                <div class="metric-item">
-                                    <span class="metric-icon">⏳</span>
-                                    <p class="metric-label">Pending Approvals</p>
-                                    <h4 class="metric-value"><?php echo number_format($pending_approvals); ?></h4>
-                                    <span class="metric-trend alert">Current pending items</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Members & Finance Row -->
-                    <div class="dashboard-row">
-                        <div class="dashboard-card">
-                            <div class="card-header-custom">
-                                <div>
-                                    <h3 class="card-title">Members Overview</h3>
-                                    <p class="card-subtitle">Active participation metrics</p>
-                                </div>
-                            </div>
-                            <div class="card-body-custom">
-                                <div class="progress-section">
-                                    <div class="progress-header">
-                                        <span class="progress-label">Active Member Ratio</span>
-                                        <span class="progress-value"><?php echo $participation_rate; ?>%</span>
-                                    </div>
-                                    <div class="progress-bar-custom" role="progressbar" style="width: <?php echo $participation_rate; ?>%;" aria-valuenow="<?php echo $participation_rate; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                    <p class="progress-note"><?php echo number_format($active_members); ?> active members from <?php echo number_format($total_members); ?> registered members</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="dashboard-card">
-                            <div class="card-header-custom">
-                                <div>
-                                    <h3 class="card-title">Finance Snapshot</h3>
-                                    <p class="card-subtitle">Budget status overview</p>
-                                </div>
-                            </div>
-                            <div class="card-body-custom">
-                                <div class="finance-box">
-                                    <div class="finance-item">
-                                        <span class="finance-label">Available Funds</span>
-                                        <p class="finance-value"><?php echo 'RM ' . number_format($fund_balance, 2); ?></p>
-                                    </div>
-                                    <div class="finance-item">
-                                        <span class="finance-label">Status</span>
-                                        <p class="finance-badge"><?php echo $fund_balance >= 0 ? 'Positive' : 'Deficit'; ?></p>
-                                    </div>
-                                </div>
-                                <p class="finance-note">Income: RM <?php echo number_format((float)$finance_totals['total_income'], 2); ?> | Expense: RM <?php echo number_format((float)$finance_totals['total_expense'], 2); ?></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column (Sidebar) -->
-                <div class="dashboard-column-sidebar">
-                    <!-- Recent Activity -->
-                    <div class="dashboard-card">
-                        <div class="card-header-custom">
-                            <h3 class="card-title">Recent Activity</h3>
-                        </div>
-                        <div class="card-body-custom">
-                            <div class="activity-timeline">
-                                <?php if (!empty($recent_activity)): ?>
-                                    <?php foreach ($recent_activity as $activity): ?>
-                                        <div class="activity-item">
-                                            <span class="activity-dot"></span>
-                                            <p class="activity-text"><?php echo htmlspecialchars($activity['text']); ?></p>
-                                            <span class="activity-time"><?php echo htmlspecialchars(formatRelativeTime($activity['time'])); ?></span>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <div class="activity-item">
-                                        <span class="activity-dot"></span>
-                                        <p class="activity-text">No recent activity found</p>
-                                        <span class="activity-time">—</span>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                <i class="fa-solid fa-server absolute -right-4 -bottom-4 text-7xl text-white/5 group-hover:text-white/10 transition-all duration-700"></i>
+            </div>
         </div>
     </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
-
-<!-- End -->
+<?php require_once APP_ROOT . '/includes/footer.php'; ?>

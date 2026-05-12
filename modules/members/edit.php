@@ -1,16 +1,15 @@
 <?php
 /**
- * KEBANA Management System - Edit Member
+ * KEBANA Management System - Edit Member (MYDS Inspired)
  * File: modules/members/edit.php
- *
- * Form to edit member profile details
  */
 
-$page_title = 'Edit Member';
-$css_path = '../../src/css/members.css';
+use App\Helpers\MembersHelper;
+use App\Core\Database;
 
-require_once '../../includes/header.php';
-require_once '../../includes/members_helper.php';
+require_once APP_ROOT . '/includes/header.php';
+
+$db = Database::getInstance()->getConnection();
 
 // Initialize variables
 $message = '';
@@ -21,158 +20,127 @@ $member = null;
 $member_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($member_id <= 0) {
-    $message = 'Invalid member ID';
-    $message_type = 'error';
-} else {
-    $member = getMemberById($conn, $member_id);
-    if (empty($member)) {
-        $message = 'Member not found';
-        $message_type = 'error';
-    }
+    header('Location: /kebana-digital/members');
+    exit;
+}
+
+$member = MembersHelper::getMemberById($member_id);
+
+if (empty($member)) {
+    header('Location: /kebana-digital/members');
+    exit;
 }
 
 // Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($member)) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $member_data = [
-        'full_name' => $_POST['full_name'] ?? '',
-        'ic_number' => $_POST['ic_number'] ?? '',
-        'village'   => $_POST['village'] ?? '',
-        'phone_no'  => $_POST['phone_no'] ?? '',
+        'full_name' => trim($_POST['full_name'] ?? ''),
+        'ic_number' => trim($_POST['ic_number'] ?? ''),
+        'village'   => trim($_POST['village'] ?? ''),
+        'phone_no'  => trim($_POST['phone_no'] ?? ''),
         'status'    => $_POST['status'] ?? 'Active'
     ];
 
-    $result = updateMember($conn, $member_id, $member_data);
+    // Simple update logic since we're in a module file
+    $stmt = $db->prepare("UPDATE tbl_member SET full_name = ?, ic_number = ?, village = ?, phone_no = ?, status = ?, updated_at = NOW() WHERE member_id = ?");
+    $stmt->bind_param("sssssi", $member_data['full_name'], $member_data['ic_number'], $member_data['village'], $member_data['phone_no'], $member_data['status'], $member_id);
 
-    if ($result['status']) {
-        $message = $result['message'];
+    if ($stmt->execute()) {
+        $message = 'Maklumat ahli berjaya dikemaskini.';
         $message_type = 'success';
-        $member = getMemberById($conn, $member_id);
+        $member = MembersHelper::getMemberById($member_id);
     } else {
-        $message = $result['message'];
+        $message = 'Ralat: ' . $stmt->error;
         $message_type = 'error';
     }
+    $stmt->close();
 }
+
+$page_title = 'KEMASKINI AHLI';
 ?>
 
-<div class="members-container">
-    <!-- Page Header Section -->
-    <section class="page-header-section">
-        <div class="container-xl">
-            <div class="page-header-content">
-                <div class="page-header-text">
-                    <h1 class="page-title">Edit Member</h1>
-                    <p class="page-subtitle">Update member information</p>
-                </div>
-            </div>
+<div class="space-y-12">
+    <!-- Top Action Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
+        <div>
+            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Kemaskini Maklumat</h2>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">ID AHLI: #<?php echo str_pad($member['member_id'], 4, '0', STR_PAD_LEFT); ?></p>
         </div>
-    </section>
+        <a href="/kebana-digital/members/view/<?php echo $member['member_id']; ?>" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+            <i class="fa-solid fa-arrow-left mr-3"></i>
+            KEMBALI KE PROFIL
+        </a>
+    </div>
 
-    <!-- Main Content -->
-    <div class="main-content-area">
-        <div class="container-xl">
+    <?php if (!empty($message)): ?>
+    <div class="p-6 <?php echo $message_type === 'success' ? 'bg-green-50 border-green-600 text-green-800' : 'bg-red-50 border-red-600 text-red-800'; ?> border-l-4 font-black text-xs uppercase tracking-widest shadow-sm">
+        <div class="flex items-center">
+            <i class="fa-solid <?php echo $message_type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'; ?> mr-4 text-lg"></i>
+            <span><?php echo htmlspecialchars($message); ?></span>
+        </div>
+    </div>
+    <?php endif; ?>
 
-            <!-- Message Alert -->
-            <?php if (!empty($message)): ?>
-            <div class="alert alert-<?php echo $message_type; ?>" role="alert">
-                <span class="alert-icon">
-                    <?php echo $message_type === 'success' ? '✓' : '⚠'; ?>
-                </span>
-                <span class="alert-message"><?php echo htmlspecialchars($message); ?></span>
-                <?php if ($message_type === 'success'): ?>
-                <a href="list.php" class="alert-link">Back to Members →</a>
-                <?php endif; ?>
-            </div>
-            <?php endif; ?>
-
-            <?php if (!empty($member)): ?>
-            <!-- Edit Member Form Card -->
-            <div class="form-card">
-                <form method="POST" action="" class="member-form">
-
-                    <div class="form-section">
-                        <h2 class="section-title">Member Information</h2>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="full_name" class="form-label">Full Name <span class="required">*</span></label>
-                                <input type="text" name="full_name" id="full_name"
-                                       class="form-control"
-                                       value="<?php echo htmlspecialchars($member['full_name']); ?>"
-                                       required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="ic_number" class="form-label">IC Number <span class="required">*</span></label>
-                                <input type="text" name="ic_number" id="ic_number"
-                                       class="form-control"
-                                       value="<?php echo htmlspecialchars($member['ic_number']); ?>"
-                                       required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="village" class="form-label">Village <span class="required">*</span></label>
-                                <input type="text" name="village" id="village"
-                                       class="form-control"
-                                       value="<?php echo htmlspecialchars($member['village']); ?>"
-                                       required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="phone_no" class="form-label">Phone Number</label>
-                                <input type="text" name="phone_no" id="phone_no"
-                                       class="form-control"
-                                       value="<?php echo htmlspecialchars($member['phone_no'] ?? ''); ?>">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="status" class="form-label">Status</label>
-                                <select name="status" id="status" class="form-control">
-                                    <option value="Active" <?php echo ($member['status'] === 'Active') ? 'selected' : ''; ?>>Active</option>
-                                    <option value="Inactive" <?php echo ($member['status'] === 'Inactive') ? 'selected' : ''; ?>>Inactive</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Member Since</label>
-                                <input type="text" class="form-control"
-                                       value="<?php echo date('M d, Y', strtotime($member['created_at'])); ?>"
-                                       disabled>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Last Updated</label>
-                                <input type="text" class="form-control"
-                                       value="<?php echo date('M d, Y at H:i', strtotime($member['updated_at'])); ?>"
-                                       disabled>
-                            </div>
-                        </div>
+    <!-- Form Section -->
+    <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-8 md:p-12">
+            <form method="POST" class="space-y-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <!-- Full Name -->
+                    <div class="md:col-span-2">
+                        <label for="full_name" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">NAMA PENUH</label>
+                        <input type="text" id="full_name" name="full_name" required 
+                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase tracking-tight transition-all rounded-none"
+                               value="<?php echo htmlspecialchars($member['full_name']); ?>">
                     </div>
 
-                    <!-- Form Actions -->
-                    <div class="form-actions">
-                        <a href="list.php" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <!-- IC Number -->
+                    <div>
+                        <label for="ic_number" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">NO. KAD PENGENALAN</label>
+                        <input type="text" id="ic_number" name="ic_number" required 
+                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none"
+                               value="<?php echo htmlspecialchars($member['ic_number']); ?>">
                     </div>
-                </form>
-            </div>
 
-            <?php else: ?>
-            <!-- Error State -->
-            <div class="form-card" style="text-align: center; padding: 3rem 2rem;">
-                <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
-                <h2 style="color: #212529; margin-bottom: 0.5rem;">Member Not Found</h2>
-                <p style="color: #6c757d; margin-bottom: 1.5rem;">The member you're looking for does not exist.</p>
-                <a href="list.php" class="btn btn-primary">Back to Members</a>
-            </div>
-            <?php endif; ?>
+                    <!-- Phone Number -->
+                    <div>
+                        <label for="phone_no" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">NO. TELEFON</label>
+                        <input type="text" id="phone_no" name="phone_no" 
+                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none"
+                               value="<?php echo htmlspecialchars($member['phone_no'] ?? ''); ?>">
+                    </div>
+
+                    <!-- Village -->
+                    <div>
+                        <label for="village" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">KAWASAN / KAMPUNG</label>
+                        <input type="text" id="village" name="village" required 
+                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase tracking-tight transition-all rounded-none"
+                               value="<?php echo htmlspecialchars($member['village']); ?>">
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label for="status" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">STATUS KEAHLIAN</label>
+                        <select id="status" name="status" required 
+                                class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all rounded-none appearance-none">
+                            <option value="Active" <?php echo $member['status'] === 'Active' ? 'selected' : ''; ?>>AKTIF</option>
+                            <option value="Inactive" <?php echo $member['status'] === 'Inactive' ? 'selected' : ''; ?>>TIDAK AKTIF</option>
+                            <option value="Pending" <?php echo $member['status'] === 'Pending' ? 'selected' : ''; ?>>MENUNGGU</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-10 flex flex-col md:flex-row gap-6">
+                    <button type="submit" class="flex-1 bg-kebana-blue text-white py-6 text-xs font-black uppercase tracking-[0.3em] hover:bg-kebana-accent transition-all shadow-xl">
+                        KEMASKINI MAKLUMAT
+                    </button>
+                    <a href="/kebana-digital/members/view/<?php echo $member['member_id']; ?>" class="px-10 py-6 border-2 border-slate-100 text-slate-400 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all text-center">
+                        BATALKAN
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
-
+<?php require_once APP_ROOT . '/includes/footer.php'; ?>

@@ -1,228 +1,191 @@
 <?php
 /**
- * KEBANA Management System - Members List
+ * KEBANA Management System - Members List (MYDS Inspired)
  * File: modules/members/list.php
- *
- * Display all members with options to view, edit, and delete
  */
 
-$page_title = 'Members List';
-$css_path = '../../src/css/members.css';
+use App\Core\Database;
+use App\Helpers\MembersHelper;
 
-require_once '../../includes/header.php';
-require_once '../../includes/members_helper.php';
+$db = Database::getInstance()->getConnection();
+
+// Handle deletion
+$message = '';
+$message_type = '';
+if (isset($_GET['delete'])) {
+    $del_id = (int)$_GET['delete'];
+    $result = MembersHelper::deleteMember($del_id);
+    if ($result['status']) {
+        $message = 'Rekod ahli berjaya dipadam.';
+        $message_type = 'success';
+    } else {
+        $message = 'Ralat pemadaman: ' . $result['message'];
+        $message_type = 'error';
+    }
+}
+
+$page_title = 'PENGURUSAN AHLI';
+
+require_once APP_ROOT . '/includes/header.php';
 
 // Pagination
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $per_page = 20;
 
 // Get members
-$members_data = getAllMembers($conn, $page, $per_page);
+$members_data = MembersHelper::getMembersPaginated($page, $per_page);
 $members = $members_data['members'];
 $total_members = $members_data['total'];
 $total_pages = ceil($total_members / $per_page);
 
-// Get stats for KPI cards
-$active_members = count(getMembersByStatus($conn, 'Active'));
-$inactive_members = count(getMembersByStatus($conn, 'Inactive'));
-
-// Delete member if requested
-$delete_message = '';
-$delete_message_type = '';
-
-if (isset($_GET['delete']) && isset($_GET['confirm']) && $_GET['confirm'] === 'yes') {
-    $member_id = (int)$_GET['delete'];
-    $result = deleteMember($conn, $member_id);
-
-if ($result['status']) {
-        $delete_message = $result['message'];
-        $delete_message_type = 'success';
-        // Use JavaScript redirect since HTML has already been output via header.php
-        echo '<script>setTimeout(function(){ window.location.href = "list.php"; }, 2000);</script>';
-    } else {
-        $delete_message = $result['message'];
-        $delete_message_type = 'error';
-    }
-}
-
-$delete_confirm = isset($_GET['delete']) && (!isset($_GET['confirm']) || $_GET['confirm'] !== 'yes');
-$delete_member_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
+// Stats
+$active_members = count(MembersHelper::getMembersByStatus('Active'));
+$inactive_members = count(MembersHelper::getMembersByStatus('Inactive'));
 ?>
 
-<div class="members-container">
-    <!-- Page Header Section -->
-    <section class="page-header-section">
-        <div class="container-xl">
-            <div class="page-header-content">
-                <div class="page-header-text">
-                    <h1 class="page-title">Members Management</h1>
-                    <p class="page-subtitle">View and manage all registered members</p>
-                </div>
-                <div class="page-header-action">
-                    <a href="add.php" class="btn btn-primary">+ Add Member</a>
-                </div>
+<div class="space-y-12">
+    <!-- Top Action Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
+        <div>
+            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Senarai Ahli</h2>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Pangkalan Data Komuniti KEBANA Digital.</p>
         </div>
-    </section>
-
-    <!-- Main Content -->
-    <div class="main-content-area">
-        <div class="container-xl">
-
-            <!-- Delete Confirmation Modal -->
-            <?php if ($delete_confirm): ?>
-            <div class="modal-overlay" id="deleteModal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 class="modal-title">Confirm Delete</h2>
-                        <button class="modal-close" onclick="window.location='list.php'">×</button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete this member? This action cannot be undone.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <a href="list.php" class="btn btn-secondary">Cancel</a>
-                        <a href="?delete=<?php echo $delete_member_id; ?>&confirm=yes" class="btn btn-danger">Delete</a>
-                    </div>
-            </div>
+        <div class="flex gap-4">
+            <?php if (in_array($current_role, [888, 4, 33])): ?>
+            <a href="/kebana-digital/members/report" class="bg-slate-100 text-kebana-blue px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all shadow-sm inline-flex items-center">
+                <i class="fa-solid fa-chart-mixed mr-4 text-lg"></i>
+                LAPORAN & ANALISIS
+            </a>
             <?php endif; ?>
+            <a href="/kebana-digital/members/add" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
+                <i class="fa-solid fa-user-plus mr-4 text-lg"></i>
+                DAFTAR AHLI BARU
+            </a>
+        </div>
+    </div>
 
-            <!-- Delete Message -->
-            <?php if (!empty($delete_message)): ?>
-            <div class="alert alert-<?php echo $delete_message_type; ?>">
-                <span class="alert-icon"><?php echo $delete_message_type === 'success' ? '✓' : '⚠'; ?></span>
-                <span class="alert-message"><?php echo htmlspecialchars($delete_message); ?></span>
+    <?php if (!empty($message)): ?>
+    <div class="p-6 <?php echo $message_type === 'success' ? 'bg-green-50 border-green-600 text-green-800' : 'bg-red-50 border-red-600 text-red-800'; ?> border-l-4 font-black text-xs uppercase tracking-widest shadow-sm">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fa-solid <?php echo $message_type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'; ?> mr-4 text-lg"></i>
+                <span><?php echo htmlspecialchars($message); ?></span>
             </div>
-            <?php endif; ?>
+            <a href="/kebana-digital/members" class="text-[10px] font-black underline">TUTUP</a>
+        </div>
+    </div>
+    <?php endif; ?>
 
-            <!-- KPI Cards Section -->
-            <section class="kpi-section">
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-icon" style="background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
-                        <div class="kpi-content">
-                            <p class="kpi-label">Total Members</p>
-                            <h3 class="kpi-value"><?php echo number_format($total_members); ?></h3>
-                            <span class="kpi-change neutral">All registered</span>
-                        </div>
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100">
+        <div class="bg-white p-8 border-r border-slate-50 last:border-r-0 flex items-center justify-between group hover:bg-slate-50 transition-colors">
+            <div>
+                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">JUMLAH KESELURUHAN</p>
+                <p class="text-3xl font-black text-kebana-blue mt-2"><?php echo number_format($total_members); ?></p>
+            </div>
+            <i class="fa-solid fa-users text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity text-3xl"></i>
+        </div>
+        <div class="bg-white p-8 border-r border-slate-50 last:border-r-0 flex items-center justify-between group hover:bg-slate-50 transition-colors">
+            <div>
+                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">AHLI AKTIF</p>
+                <p class="text-3xl font-black text-green-600 mt-2"><?php echo number_format($active_members); ?></p>
+            </div>
+            <i class="fa-solid fa-user-check text-green-600 opacity-10 group-hover:opacity-100 transition-opacity text-3xl"></i>
+        </div>
+        <div class="bg-white p-8 last:border-r-0 flex items-center justify-between group hover:bg-slate-50 transition-colors border-b-4 border-kebana-yellow">
+            <div>
+                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">AHLI TIDAK AKTIF</p>
+                <p class="text-3xl font-black text-amber-500 mt-2"><?php echo number_format($inactive_members); ?></p>
+            </div>
+            <i class="fa-solid fa-user-slash text-amber-500 opacity-10 group-hover:opacity-100 transition-opacity text-3xl"></i>
+        </div>
+    </div>
 
-                    <div class="kpi-card">
-                        <div class="kpi-icon" style="background: linear-gradient(135deg, #198754 0%, #157347 100%);">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                        </div>
-                        <div class="kpi-content">
-                            <p class="kpi-label">Active Members</p>
-                            <h3 class="kpi-value"><?php echo number_format($active_members); ?></h3>
-                            <span class="kpi-change positive">Currently active</span>
-                        </div>
+    <!-- Search Bar -->
+    <div class="bg-white p-6 border border-slate-100 flex flex-col md:flex-row gap-4">
+        <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+            <input type="text" placeholder="CARI AHLI (NAMA, NO. IC, ID)..." class="w-full pl-14 pr-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase tracking-tight transition-all rounded-none">
+        </div>
+        <button class="px-10 py-4 bg-kebana-dark text-white text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
+            TAPISAN
+        </button>
+    </div>
 
-                    <div class="kpi-card">
-                        <div class="kpi-icon" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                            </svg>
-                        </div>
-                        <div class="kpi-content">
-                            <p class="kpi-label">Inactive Members</p>
-                            <h3 class="kpi-value"><?php echo number_format($inactive_members); ?></h3>
-                            <span class="kpi-change warning">On hold</span>
-                        </div>
-                </div>
-            </section>
-
-            <!-- Members Table Card -->
-            <div class="dashboard-card">
-                <div class="card-header-custom">
-                    <div>
-                        <h3 class="card-title">Member Directory</h3>
-                        <p class="card-subtitle">Complete list of all registered members</p>
-                    </div>
-                <div class="card-body-custom">
+    <!-- Table -->
+    <div class="bg-white border border-slate-100 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b-2 border-slate-100">
+                        <th class="px-8 py-5 text-[10px] font-black text-kebana-blue uppercase tracking-[0.2em]">ID AHLI</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-kebana-blue uppercase tracking-[0.2em]">MAKLUMAT AHLI</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-kebana-blue uppercase tracking-[0.2em]">PENGENALAN</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-kebana-blue uppercase tracking-[0.2em]">KAWASAN</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-kebana-blue uppercase tracking-[0.2em] text-center">STATUS</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-kebana-blue uppercase tracking-[0.2em] text-right">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
                     <?php if (empty($members)): ?>
-                    <div class="empty-state">
-                        <div class="empty-icon">👥</div>
-                        <h3 class="empty-title">No Members Yet</h3>
-                        <p class="empty-text">Start by adding a member profile.</p>
-                        <a href="add.php" class="btn btn-primary">Add First Member</a>
-                    </div>
+                    <tr>
+                        <td colspan="6" class="px-8 py-24 text-center">
+                            <i class="fa-solid fa-user-slash text-5xl text-slate-100 mb-6 block"></i>
+                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Tiada Rekod Ahli Ditemui</p>
+                        </td>
+                    </tr>
                     <?php else: ?>
-
-                    <!-- Members Table -->
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Member ID</th>
-                                <th>Full Name</th>
-                                <th>IC Number</th>
-                                <th>Village</th>
-                                <th>Phone</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($members as $member): ?>
-                            <tr>
-                                <td class="table-id">#<?php echo str_pad($member['member_id'], 4, '0', STR_PAD_LEFT); ?></td>
-                                <td class="table-name"><?php echo htmlspecialchars($member['full_name']); ?></td>
-                                <td class="table-ic"><?php echo htmlspecialchars($member['ic_number']); ?></td>
-                                <td class="table-village"><?php echo htmlspecialchars($member['village']); ?></td>
-                                <td class="table-phone"><?php echo htmlspecialchars($member['phone_no'] ?? 'N/A'); ?></td>
-                                <td class="table-status">
-                                    <span class="badge badge-<?php echo strtolower($member['status']) === 'active' ? 'success' : 'warning'; ?>">
-                                        <?php echo htmlspecialchars($member['status']); ?>
-                                    </span>
-                                </td>
-                                <td class="table-actions">
-                                    <a href="view.php?id=<?php echo $member['member_id']; ?>" class="action-btn action-view" title="View">👁️</a>
-                                    <a href="edit.php?id=<?php echo $member['member_id']; ?>" class="action-btn action-edit" title="Edit">✏️</a>
-                                    <a href="?delete=<?php echo $member['member_id']; ?>" class="action-btn action-delete" title="Delete">🗑️</a>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-
-                    <!-- Pagination -->
-                    <?php if ($total_pages > 1): ?>
-                    <div class="pagination">
-                        <?php if ($page > 1): ?>
-                        <a href="?page=1" class="pagination-link">« First</a>
-                        <a href="?page=<?php echo $page - 1; ?>" class="pagination-link">‹ Previous</a>
-                        <?php endif; ?>
-
-                        <?php
-                        $start = max(1, $page - 2);
-                        $end = min($total_pages, $page + 2);
-                        for ($i = $start; $i <= $end; $i++):
-                        ?>
-                        <a href="?page=<?php echo $i; ?>"
-                           class="pagination-link <?php echo $i === $page ? 'active' : ''; ?>">
-                            <?php echo $i; ?>
-                        </a>
-                        <?php endfor; ?>
-
-                        <?php if ($page < $total_pages): ?>
-                        <a href="?page=<?php echo $page + 1; ?>" class="pagination-link">Next ›</a>
-                        <a href="?page=<?php echo $total_pages; ?>" class="pagination-link">Last »</a>
-                        <?php endif; ?>
-                    </div>
+                    <?php foreach ($members as $member): ?>
+                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                        <td class="px-8 py-6 text-xs font-black text-slate-300 group-hover:text-kebana-blue transition-colors">
+                            #<?php echo str_pad($member['member_id'], 4, '0', STR_PAD_LEFT); ?>
+                        </td>
+                        <td class="px-8 py-6">
+                            <p class="text-sm font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($member['full_name']); ?></p>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase mt-1 tracking-widest"><?php echo htmlspecialchars($member['phone_no'] ?? 'TIADA TALIAN'); ?></p>
+                        </td>
+                        <td class="px-8 py-6 text-sm font-bold text-slate-600 tracking-tighter italic">
+                            <?php echo htmlspecialchars($member['ic_number']); ?>
+                        </td>
+                        <td class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <?php echo htmlspecialchars($member['village']); ?>
+                        </td>
+                        <td class="px-8 py-6 text-center">
+                            <span class="inline-block px-4 py-1.5 text-[9px] font-black uppercase tracking-widest <?php echo strtolower($member['status']) === 'active' ? 'bg-green-600 text-white shadow-lg shadow-green-600/20' : 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'; ?>">
+                                <?php echo htmlspecialchars($member['status']); ?>
+                            </span>
+                        </td>
+                        <td class="px-8 py-6 text-right space-x-3">
+                            <a href="/kebana-digital/members/view/<?php echo $member['member_id']; ?>" class="inline-flex items-center justify-center w-10 h-10 bg-slate-50 text-slate-300 hover:bg-kebana-blue hover:text-white transition-all shadow-sm" title="Lihat">
+                                <i class="fa-solid fa-eye text-xs"></i>
+                            </a>
+                            <a href="/kebana-digital/members/edit/<?php echo $member['member_id']; ?>" class="inline-flex items-center justify-center w-10 h-10 bg-slate-50 text-slate-300 hover:bg-kebana-blue hover:text-white transition-all shadow-sm" title="Kemaskini">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
                     <?php endif; ?>
-
-                    <?php endif; ?>
-                </div>
+                </tbody>
+            </table>
         </div>
+
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+        <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+            <p class="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">
+                JUMLAH REKOD: <?php echo $total_members; ?> • PAPARAN: <?php echo count($members); ?>
+            </p>
+            <div class="flex space-x-2">
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <a href="?page=<?php echo $i; ?>" class="w-10 h-10 flex items-center justify-center text-[10px] font-black <?php echo $i === $page ? 'bg-kebana-blue text-white shadow-xl shadow-kebana-blue/20' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-100'; ?> transition-all">
+                    <?php echo $i; ?>
+                </a>
+                <?php endfor; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php require_once APP_ROOT . '/includes/footer.php'; ?>

@@ -6,8 +6,12 @@
  * Handles user login authentication with new schema
  */
 
-session_start();
-require_once '../../includes/dbconnect.php';
+if (!defined('APP_ROOT')) {
+    require_once dirname(__DIR__, 2) . '/bootstrap.php';
+}
+use App\Core\Database;
+
+$conn = Database::getInstance()->getConnection();
 
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -18,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Basic validation
     if (empty($username) || empty($password)) {
-        header('Location: login.php?error=All fields are required');
+        header('Location: /kebana-digital/login?error=All fields are required');
         exit();
     }
 
@@ -36,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Check if user exists
         if ($result->num_rows === 0) {
-            header('Location: login.php?error=Invalid username or password');
+            header('Location: /kebana-digital/login?error=Invalid username or password');
             exit();
         }
 
@@ -44,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Verify password using bcrypt
         if (!password_verify($password, $user['password_hash'])) {
-            header('Location: login.php?error=Invalid username or password');
+            header('Location: /kebana-digital/login?error=Invalid username or password');
             exit();
         }
 
@@ -71,7 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $expiry = time() + (30 * 24 * 60 * 60); // 30 days
 
             // Store cookie token in database
-            $cookie_stmt = $conn->prepare("UPDATE users SET remember_token = ? WHERE user_id = ?");
+            // Note: tbl_user must have remember_token column. Adding as a placeholder for consistency.
+            $cookie_stmt = $conn->prepare("UPDATE tbl_user SET remember_token = ? WHERE user_id = ?");
             if ($cookie_stmt) {
                 $cookie_stmt->bind_param("si", $cookie_hash, $user['user_id']);
                 $cookie_stmt->execute();
@@ -85,17 +90,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
 
         // Redirect to dashboard
-        header('Location: ../../src/php/index.php');
+        header('Location: /kebana-digital/dashboard');
         exit();
 
     } catch (Exception $e) {
         error_log("Login error: " . $e->getMessage());
-        header('Location: login.php?error=An error occurred. Please try again.');
+        header('Location: /kebana-digital/login?error=An error occurred. Please try again.');
         exit();
     }
 } else {
     // If accessed directly without POST, redirect to login
-    header('Location: login.php');
+    header('Location: /kebana-digital/login');
     exit();
 }
 ?>

@@ -1,258 +1,151 @@
 <?php
-$page_title = 'New Transaction';
-$css_path = '../../../src/css/dashboard.css';
-$extra_css = '../../../src/css/finance.css';
+/**
+ * KEBANA Management System - New Transaction (MYDS Inspired)
+ * File: modules/finance/transactions/create.php
+ */
 
-require_once '../../../includes/header.php';
-require_once '../../../includes/auth.php';
+use App\Helpers\FinanceHelper;
+use App\Helpers\EventsHelper;
 
-if (!hasRole([6, 7, 55, 66, 888])) {
-    die('Access denied. Finance/Super Admin only.');
+require_once APP_ROOT . '/includes/header.php';
+
+if (!hasRole([888, 6, 55])) {
+    echo "<div class='p-12 text-center'><h1 class='text-2xl font-black text-red-600 uppercase tracking-widest'>AKSES DISEKAT</h1></div>";
+    require_once APP_ROOT . '/includes/footer.php';
+    exit;
 }
 
 $message = '';
-$type = $_POST['trans_type'] ?? 'Income';
-$amount = $_POST['amount'] ?? '';
-$category = $_POST['category'] ?? '';
-$trans_date = $_POST['trans_date'] ?? date('Y-m-d');
-$event_id_post = $_POST['event_id'] ?? '';
-$payment_mode = $_POST['payment_mode'] ?? 'Cash';
+$message_type = '';
 
-$current_role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
-$current_cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null ? (int)$_SESSION['cawangan_id'] : null;
-$is_cawangan_finance = in_array($current_role, [55, 66], true);
-
-if (isset($_POST['submit'])) {
-    $amount = floatval($amount);
-    $trans_date = $_POST['trans_date'];
-    $month_label = strtoupper(date('M', strtotime($trans_date)));
-    $event_id = isset($_POST['event_id']) && $_POST['event_id'] !== '' ? (int)$_POST['event_id'] : null;
-
-    if ($event_id !== null && $is_cawangan_finance) {
-        if ($current_cawangan_id === null) {
-            $message = 'Your account has no cawangan assigned.';
-        } else {
-            $event_check_stmt = $conn->prepare("SELECT event_id FROM tbl_event WHERE event_id = ? AND cawangan_id = ?");
-            if ($event_check_stmt) {
-                $event_check_stmt->bind_param("ii", $event_id, $current_cawangan_id);
-                $event_check_stmt->execute();
-                $event_check_result = $event_check_stmt->get_result();
-                if ($event_check_result->num_rows === 0) {
-                    $message = 'Invalid event selection for your cawangan.';
-                }
-                $event_check_stmt->close();
-            }
-        }
-    }
-
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $current_user_id = (int)($_SESSION['user_id'] ?? 0);
+    $current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
     
-    if (!empty($message)) {
-        // validation message already set
-    } elseif ($amount <= 0) {
-        $message = 'Amount must be greater than 0';
-    } elseif (empty($category)) {
-        $message = 'Category is required';
-    } elseif (empty($trans_date)) {
-        $message = 'Transaction date is required';
+    if (FinanceHelper::addTransaction($_POST, $current_user_id, $current_cawangan_id)) {
+        $message = 'Transaksi berjaya direkodkan.';
+        $message_type = 'success';
+        echo '<script>setTimeout(function(){ window.location.href = "/kebana-digital/finance"; }, 1500);</script>';
     } else {
-        if ($event_id === null) {
-            $stmt = $conn->prepare("INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, recorded_by, event_id, payment_mode, month_label) VALUES (?, ?, ?, ?, ?, NULL, ?, ?)");
-            if (!$stmt) {
-                $message = 'Error preparing transaction insert: ' . $conn->error;
-            } else {
-                $stmt->bind_param(
-                    "sdssiss",
-                    $type,
-                    $amount,
-                    $category,
-                    $trans_date,
-                    $user_id,
-                    $payment_mode,
-                    $month_label
-                );
-            }
-        } else {
-            $stmt = $conn->prepare("INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, recorded_by, event_id, payment_mode, month_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            if (!$stmt) {
-                $message = 'Error preparing transaction insert: ' . $conn->error;
-            } else {
-                $stmt->bind_param(
-                    "sdssiiss",
-                    $type,
-                    $amount,
-                    $category,
-                    $trans_date,
-                    $user_id,
-                    $event_id,
-                    $payment_mode,
-                    $month_label
-                );
-            }
-        }
-
-        if (isset($stmt) && $stmt) {
-            if ($stmt->execute()) {
-                $message = 'Transaction created successfully!';
-                // Reset form
-                $amount = '';
-                $category = '';
-                $trans_date = date('Y-m-d');
-                $event_id_post = '';
-            } else {
-                $message = 'Error creating transaction: ' . $conn->error;
-            }
-            $stmt->close();
-        }
+        $message = 'Gagal merekod transaksi. Sila semak input anda.';
+        $message_type = 'error';
     }
 }
 
-// Get categories for datalist
-$categories = [];
-$cat_result = $conn->query("SELECT DISTINCT category FROM tbl_transaction ORDER BY category");
-if ($cat_result) {
-    $categories = $cat_result->fetch_all(MYSQLI_ASSOC);
-}
+$categories = FinanceHelper::getCategories();
 
-// Get active events for dropdown
-$events = [];
-if ($is_cawangan_finance) {
-    if ($current_cawangan_id !== null) {
-        $event_stmt = $conn->prepare("SELECT event_id, event_title FROM tbl_event WHERE cawangan_id = ? ORDER BY event_date DESC");
-        if ($event_stmt) {
-            $event_stmt->bind_param("i", $current_cawangan_id);
-            $event_stmt->execute();
-            $event_result = $event_stmt->get_result();
-            if ($event_result) {
-                $events = $event_result->fetch_all(MYSQLI_ASSOC);
-            }
-            $event_stmt->close();
-        }
-    }
+// Filter events based on role
+$current_role = (int)($_SESSION['role'] ?? 0);
+$current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
+
+if (in_array($current_role, [55, 66]) && $current_cawangan_id !== null) {
+    $events = EventsHelper::getAllEvents('cawangan_only', null, $current_cawangan_id);
 } else {
-    $event_result = $conn->query("SELECT event_id, event_title FROM tbl_event ORDER BY event_date DESC");
-    if ($event_result) {
-        $events = $event_result->fetch_all(MYSQLI_ASSOC);
-    }
+    $events = EventsHelper::getAllEvents();
 }
+
+$page_title = 'REKOD TRANSAKSI';
 ?>
 
-<div class="container-xl py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8 col-xl-6">
-            <div class="recent-transactions-card shadow-sm border-0 rounded-4">
-                <div class="card-header text-center py-4 rounded-top-4" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white;">
-                    <h2 style="font-weight: 700; margin: 0;">New Transaction</h2>
-                    <p class="mb-0 opacity-90">Record Income or Expense</p>
-                </div>
-                <div class="card-body p-5">
-                    <?php if ($message): ?>
-                        <div class="alert <?php echo strpos($message, 'successfully') !== false ? 'alert-success' : 'alert-danger'; ?> mb-4 shadow-sm border-0">
-                            <?php echo htmlspecialchars($message); ?>
+<div class="max-w-4xl mx-auto space-y-12 pb-24">
+    <!-- Top Action Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
+        <div>
+            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Rekod Transaksi Baru</h2>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Sila isi butiran pendapatan atau perbelanjaan.</p>
+        </div>
+        <a href="/kebana-digital/finance" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+            <i class="fa-solid fa-arrow-left mr-3"></i>
+            KEMBALI
+        </a>
+    </div>
+
+    <?php if ($message): ?>
+    <div class="p-6 <?php echo $message_type === 'success' ? 'bg-green-50 text-green-700 border-l-4 border-green-600' : 'bg-red-50 text-red-700 border-l-4 border-red-600'; ?> font-bold text-xs uppercase tracking-widest animate-pulse">
+        <?php echo $message; ?>
+    </div>
+    <?php endif; ?>
+
+    <div class="bg-white p-12 border border-slate-100 shadow-xl">
+        <form method="POST" class="space-y-12">
+            <!-- Type Selector -->
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 text-center">Jenis Transaksi</label>
+                <div class="flex gap-6 justify-center">
+                    <label class="cursor-pointer group flex-1">
+                        <input type="radio" name="trans_type" value="Income" checked class="hidden peer">
+                        <div class="p-6 text-center border-2 border-slate-100 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                            <i class="fa-solid fa-arrow-trend-up text-2xl text-slate-200 group-hover:text-green-600 peer-checked:text-green-600 mb-3 block"></i>
+                            <span class="text-xs font-black uppercase tracking-widest text-slate-400 peer-checked:text-green-700">Pendapatan</span>
                         </div>
-                    <?php endif; ?>
-
-                    <form method="POST" class="transaction-create-form">
-                        <div class="mb-4 transaction-type-block">
-                            <label class="form-label fw-bold mb-2">Transaction Type</label>
-                            <div class="d-flex gap-3">
-                                <div class="form-check flex-fill mb-0">
-                                    <input class="form-check-input" type="radio" name="trans_type" id="income" value="Income" <?php echo $type == 'Income' ? 'checked' : ''; ?> >
-                                    <label class="form-check-label fw-bold" for="income">
-                                        <i class="fas fa-arrow-up me-2 text-success"></i>Income
-                                    </label>
-                                </div>
-                                <div class="form-check flex-fill mb-0">
-                                    <input class="form-check-input" type="radio" name="trans_type" id="expense" value="Expense" <?php echo $type == 'Expense' ? 'checked' : ''; ?> >
-                                    <label class="form-check-label fw-bold" for="expense">
-                                        <i class="fas fa-arrow-down me-2 text-danger"></i>Expense
-                                    </label>
-                                </div>
-                            </div>
-
-
-                            <script>
-                                document.querySelectorAll('.form-check-input').forEach(input => {
-                                    input.addEventListener('change', function() {
-                                        document.querySelector('label[for="income"]').classList.remove('border', 'border-2', 'border-success', 'shadow-sm');
-                                        document.querySelector('label[for="expense"]').classList.remove('border', 'border-2', 'border-danger', 'shadow-sm');
-                                        
-                                        if (this.value === 'Income') {
-                                            document.querySelector('label[for="income"]').classList.add('border', 'border-2', 'border-success', 'shadow-sm');
-                                        } else {
-                                            document.querySelector('label[for="expense"]').classList.add('border', 'border-2', 'border-danger', 'shadow-sm');
-                                        }
-                                    });
-                                });
-                            </script>
+                    </label>
+                    <label class="cursor-pointer group flex-1">
+                        <input type="radio" name="trans_type" value="Expense" class="hidden peer">
+                        <div class="p-6 text-center border-2 border-slate-100 peer-checked:border-red-600 peer-checked:bg-red-50 transition-all">
+                            <i class="fa-solid fa-arrow-trend-down text-2xl text-slate-200 group-hover:text-red-600 peer-checked:text-red-600 mb-3 block"></i>
+                            <span class="text-xs font-black uppercase tracking-widest text-slate-400 peer-checked:text-red-700">Perbelanjaan</span>
                         </div>
-
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <label for="amount" class="form-label fw-bold">Amount (RM)</label>
-                                <div class="input-group input-group-lg shadow-sm">
-                                    <span class="input-group-text bg-light border-end-0 text-muted fw-bold">RM</span>
-                                    <input type="number" class="form-control border-start-0 ps-0" id="amount" name="amount" value="<?php echo htmlspecialchars($amount); ?>" step="0.01" min="0.01" required placeholder="0.00">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="trans_date" class="form-label fw-bold">Date</label>
-                                <input type="date" class="form-control form-control-lg shadow-sm" id="trans_date" name="trans_date" value="<?php echo htmlspecialchars($trans_date); ?>" required>
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <label for="category" class="form-label fw-bold mb-2">Category</label>
-                            <input class="form-control form-control-lg shadow-sm" list="categoryOptions" id="category" name="category" value="<?php echo htmlspecialchars($category); ?>" placeholder="Type or select a category..." required>
-                            <datalist id="categoryOptions">
-                                <?php foreach ($categories as $cat): ?>
-                                    <option value="<?php echo htmlspecialchars($cat['category']); ?>">
-                                <?php endforeach; ?>
-                            </datalist>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <label for="event_id" class="form-label fw-bold mb-2">Link to Project / Event (Optional)</label>
-                            <select class="form-select form-select-lg shadow-sm" id="event_id" name="event_id">
-                                <option value="">-- General Association Fund --</option>
-                                <?php foreach ($events as $event): ?>
-                                    <option value="<?php echo htmlspecialchars($event['event_id']); ?>" <?php echo $event_id_post == $event['event_id'] ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($event['event_title']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <div class="form-text mt-2"><i class="fas fa-info-circle me-1"></i>Leave blank for general transactions not tied to a specific project/event.</div>
-                        </div>
-
-                        <div class="mt-4">
-                            <label for="payment_mode" class="form-label fw-bold mb-2">Payment Mode</label>
-                            <select class="form-select form-select-lg shadow-sm" id="payment_mode" name="payment_mode" required>
-                                <option value="Cash" <?php echo $payment_mode === 'Cash' ? 'selected' : ''; ?>>Cash</option>
-                                <option value="Bank" <?php echo $payment_mode === 'Bank' ? 'selected' : ''; ?>>Bank</option>
-                            </select>
-                        </div>
-
-
-                        <div class="transaction-footer-actions mt-5 text-center d-flex flex-column flex-sm-row justify-content-center gap-3" style="position: relative;">
-
-
-                            <button type="submit" name="submit" class="btn btn-lg px-5 py-3 text-white" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); border: none; border-radius: 50px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(13,110,253,0.3);">
-                                <i class="fas fa-save me-2"></i>Save Transaction
-                            </button>
-                            <a href="../dashboard.php" class="btn btn-outline-secondary btn-lg px-4 py-3" style="border-radius: 50px; font-weight: 600;">
-                                Cancel
-                            </a>
-                        </div>
-
-                    </form>
+                    </label>
                 </div>
             </div>
-        </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Amaun (RM) <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute left-6 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300">RM</span>
+                        <input type="number" step="0.01" name="amount" required
+                               class="w-full pl-16 pr-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xl font-black transition-all"
+                               placeholder="0.00">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh Transaksi <span class="text-red-500">*</span></label>
+                    <input type="date" name="trans_date" value="<?php echo date('Y-m-d'); ?>" required
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-10">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Kategori <span class="text-red-500">*</span></label>
+                    <input type="text" name="category" list="cat-list" required
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                           placeholder="Cth: Yuran Ahli, Sewa Dewan, dsb.">
+                    <datalist id="cat-list">
+                        <?php foreach ($categories as $cat): ?>
+                        <option value="<?php echo htmlspecialchars($cat); ?>">
+                        <?php endforeach; ?>
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Pautkan ke Projek (Opsional)</label>
+                    <select name="event_id" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                        <option value="">-- Dana Am Persatuan --</option>
+                        <?php foreach ($events as $ev): ?>
+                        <option value="<?php echo $ev['event_id']; ?>"><?php echo htmlspecialchars($ev['event_title']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Mod Pembayaran</label>
+                    <select name="payment_mode" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                        <option value="Cash">Tunai (Cash)</option>
+                        <option value="Bank">Pindahan Bank / Cek</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pt-10">
+                <button type="submit" class="w-full bg-kebana-blue text-white py-6 text-xs font-black uppercase tracking-[0.3em] hover:bg-kebana-accent transition-all shadow-2xl">
+                    SIMPAN TRANSAKSI
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<style>
-.cursor-pointer { cursor: pointer; }
-.transition-all { transition: all 0.2s ease-in-out; }
-</style>
-
-<?php require_once '../../../includes/footer.php'; ?>
+<?php require_once APP_ROOT . '/includes/footer.php'; ?>

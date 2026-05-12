@@ -1,249 +1,172 @@
 <?php
 /**
- * KEBANA Management System - Create Event
+ * KEBANA Management System - Create Event (MYDS Inspired)
  * File: modules/events/create.php
  */
 
-$page_title = 'Create Event';
-$css_path = '../../src/css/members.css';
+use App\Helpers\EventsHelper;
 
-require_once '../../includes/header.php';
-require_once '../../includes/events_helper.php';
+require_once APP_ROOT . '/includes/header.php';
 
 if (!hasRole([4, 33, 888])) {
-    die('Access denied. Setiausaha/Super Admin only.');
+    echo "<div class='p-12 text-center'><h1 class='text-2xl font-black text-red-600 uppercase tracking-widest'>AKSES DISEKAT</h1></div>";
+    require_once APP_ROOT . '/includes/footer.php';
+    exit;
 }
 
-$current_role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
-$current_cawangan_id = $_SESSION['cawangan_id'] ?? null;
+$current_role = (int)($_SESSION['role'] ?? 0);
+$current_user_id = (int)($_SESSION['user_id'] ?? 0);
+$current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
 
-// Enforce latest branch mapping from DB to avoid stale/null session edge-cases
-$resolved_cawangan_id = null;
-$user_stmt = $conn->prepare("SELECT cawangan_id FROM tbl_user WHERE user_id = ? LIMIT 1");
-if ($user_stmt) {
-    $user_stmt->bind_param("i", $user_id);
-    $user_stmt->execute();
-    $user_result = $user_stmt->get_result();
-    if ($user_result && $user_result->num_rows > 0) {
-        $user_row = $user_result->fetch_assoc();
-        $resolved_cawangan_id = isset($user_row['cawangan_id']) && $user_row['cawangan_id'] !== null ? (int)$user_row['cawangan_id'] : null;
-        $_SESSION['cawangan_id'] = $resolved_cawangan_id;
-    }
-    $user_stmt->close();
-}
+// Determine if creator is Pusat (can create Master Events)
+$is_pusat_creator = in_array($current_role, [888, 4]) && $current_cawangan_id === null;
 
-// Effective cawangan id (DB value has priority if available)
-$effective_cawangan_id = $resolved_cawangan_id !== null ? $resolved_cawangan_id : (isset($current_cawangan_id) ? (is_null($current_cawangan_id) ? null : (int)$current_cawangan_id) : null);
-
-$is_pusat_creator = in_array((int)$current_role, [888, 4], true) && $effective_cawangan_id === null;
-
-// Hard block for non-allowed role/cawangan combinations
-if (
-    !(
-        ($current_role === 4 && $effective_cawangan_id === null) ||
-        ($current_role === 33 && $effective_cawangan_id !== null) ||
-        ($current_role === 888)
-    )
-) {
-    die('Access denied. Invalid role/cawangan combination for event creation.');
-}
-
-$cawangan_options = getAllCawangan($conn);
+$cawangan_options = EventsHelper::getAllCawangan();
 $master_event_options = [];
-if (!$is_pusat_creator && $effective_cawangan_id !== null) {
-    $master_event_options = getMasterEventsByCawangan($conn, (int)$effective_cawangan_id);
+if (!$is_pusat_creator && $current_cawangan_id !== null) {
+    $master_event_options = EventsHelper::getMasterEventsByCawangan($current_cawangan_id);
 }
 
 $message = '';
 $message_type = '';
+$preselected_parent_id = isset($_GET['parent_id']) ? (int)$_GET['parent_id'] : 0;
+
+if ($preselected_parent_id > 0 && empty($master_event_options) && !$is_pusat_creator) {
+    // If we have a preselected ID but it's not in the cawangan list, 
+    // we should still allow it if it's a valid master event for this cawangan
+    $db = \App\Core\Database::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT event_id, event_title FROM tbl_event WHERE event_id = ? AND event_level = 'MASTER' AND (cawangan_id = ? OR cawangan_id IS NULL)");
+    $stmt->bind_param("ii", $preselected_parent_id, $current_cawangan_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($row = $res->fetch_assoc()) {
+        $master_event_options[] = $row;
+    }
+    $stmt->close();
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $result = addEvent($conn, $_POST, $user_id, $is_pusat_creator, $effective_cawangan_id);
+    $event_id = EventsHelper::addEvent($_POST, $current_user_id, $is_pusat_creator, $current_cawangan_id);
 
-    if ($result['status']) {
-        $message = $result['message'];
+    if ($event_id) {
+        $message = 'Acara berjaya didaftarkan.';
         $message_type = 'success';
 
-        $event_id = $result['event_id'];
-
-        // Step 2: Optional proposal upload (after required fields are validated and event is created)
+        // Optional proposal upload
         if (isset($_FILES['proposal_file']) && $_FILES['proposal_file']['error'] === UPLOAD_ERR_OK) {
-            $upload_result = handleEventDocumentUpload($conn, $event_id, $_FILES['proposal_file']);
-            if (!$upload_result['status']) {
-                $message_type = 'error';
-                $message = 'Event created, but proposal upload failed: ' . $upload_result['message'];
-            } else {
-                $message .= ' Proposal uploaded successfully.';
-            }
-        } elseif (isset($_FILES['proposal_file']) && $_FILES['proposal_file']['error'] !== UPLOAD_ERR_NO_FILE && $_FILES['proposal_file']['error'] !== UPLOAD_ERR_OK) {
-            $message_type = 'error';
-            $message = 'Event created, but proposal upload failed due to upload error code: ' . (int)$_FILES['proposal_file']['error'];
+            EventsHelper::handleDocumentUpload($event_id, $_FILES['proposal_file'], $current_user_id);
         }
 
-        // Use JavaScript redirect since HTML has already been output via header.php
-        echo '<script>setTimeout(function(){ window.location.href = "list.php"; }, 1200);</script>';
+        echo '<script>setTimeout(function(){ window.location.href = "/kebana-digital/events"; }, 1500);</script>';
     } else {
-        $message = $result['message'];
+        $message = 'Gagal mendaftar acara. Sila pastikan semua maklumat wajib diisi.';
         $message_type = 'error';
     }
 }
+
+$page_title = 'DAFTAR ACARA';
 ?>
 
-<div class="members-container">
-    <section class="page-header-section">
-        <div class="container-xl">
-            <div class="page-header-content">
-                <div class="page-header-text">
-                    <h1 class="page-title">Create New Event</h1>
-                    <p class="page-subtitle">Step 1: Complete required event details, then proceed to proposal upload (optional)</p>
-                </div>
-                <div class="page-header-action">
-                    <a href="list.php" class="btn btn-secondary">← Back to Events</a>
-                </div>
-            </div>
+<div class="max-w-4xl mx-auto space-y-12 pb-24">
+    <!-- Top Action Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
+        <div>
+            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Daftar Acara Baru</h2>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Sila lengkapkan butiran program di bawah.</p>
         </div>
-    </section>
+        <a href="/kebana-digital/events" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+            <i class="fa-solid fa-arrow-left mr-3"></i>
+            KEMBALI
+        </a>
+    </div>
 
-    <div class="main-content-area">
-        <div class="container-xl">
-            <?php if (!empty($message)): ?>
-            <div class="alert alert-<?php echo $message_type; ?>">
-                <span class="alert-icon"><?php echo $message_type === 'success' ? '✓' : '⚠'; ?></span>
-                <span class="alert-message"><?php echo htmlspecialchars($message); ?></span>
-            </div>
-            <?php endif; ?>
+    <?php if ($message): ?>
+    <div class="p-6 <?php echo $message_type === 'success' ? 'bg-green-50 text-green-700 border-l-4 border-green-600' : 'bg-red-50 text-red-700 border-l-4 border-red-600'; ?> font-bold text-xs uppercase tracking-widest animate-pulse">
+        <?php echo $message; ?>
+    </div>
+    <?php endif; ?>
 
-            <div class="dashboard-card">
-                <div class="card-header-custom">
-                    <h3 class="card-title">Event Details & Proposal</h3>
-                </div>
-                <div class="card-body-custom">
-                    <form method="POST" action="" class="form-container" enctype="multipart/form-data">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="event_title" class="form-label">Event Title <span class="text-danger">*</span></label>
-                                <input
-                                    type="text"
-                                    class="form-input"
-                                    id="event_title"
-                                    name="event_title"
-                                    required
-                                    placeholder="e.g., Annual General Meeting 2024"
-                                    value="<?php echo isset($_POST['event_title']) ? htmlspecialchars($_POST['event_title']) : ''; ?>"
-                                >
-                            </div>
-                        </div>
-
-                        <?php if ($is_pusat_creator): ?>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="assigned_cawangan_id" class="form-label">Assign to Cawangan <span class="text-danger">*</span></label>
-                                <select class="form-input" id="assigned_cawangan_id" name="assigned_cawangan_id" required>
-                                    <option value="">-- Select Cawangan --</option>
-                                    <?php foreach ($cawangan_options as $cawangan): ?>
-                                        <option value="<?php echo (int)$cawangan['cawangan_id']; ?>" <?php echo (isset($_POST['assigned_cawangan_id']) && (int)$_POST['assigned_cawangan_id'] === (int)$cawangan['cawangan_id']) ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($cawangan['cawangan_name']); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <small class="text-muted">Master Event must be assigned to one cawangan.</small>
-                            </div>
-                        </div>
-                        <?php else: ?>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="parent_master_event_id" class="form-label">Select Master Event <span class="text-danger">*</span></label>
-                                <select class="form-input" id="parent_master_event_id" name="parent_master_event_id" required>
-                                    <option value="">-- Select Master Event --</option>
-                                    <?php foreach ($master_event_options as $master_event): ?>
-                                        <option value="<?php echo (int)$master_event['event_id']; ?>" <?php echo (isset($_POST['parent_master_event_id']) && (int)$_POST['parent_master_event_id'] === (int)$master_event['event_id']) ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($master_event['event_title']); ?> (<?php echo date('M d, Y', strtotime($master_event['event_date'])); ?>)
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <small class="text-muted">You can only create Sub Event under Master Event assigned to your cawangan.</small>
-                            </div>
-                        </div>
-                        <?php endif; ?>
-
-<div class="form-row">
-                            <div class="form-group">
-                                <label for="event_date" class="form-label">Start Date <span class="text-danger">*</span></label>
-                                <input
-                                    type="date"
-                                    class="form-input"
-                                    id="event_date"
-                                    name="event_date"
-                                    required
-                                    value="<?php echo isset($_POST['event_date']) ? htmlspecialchars($_POST['event_date']) : ''; ?>"
-                                >
-                            </div>
-
-                            <div class="form-group">
-                                <label for="event_end_date" class="form-label">End Date</label>
-                                <input
-                                    type="date"
-                                    class="form-input"
-                                    id="event_end_date"
-                                    name="event_end_date"
-                                    value="<?php echo isset($_POST['event_end_date']) ? htmlspecialchars($_POST['event_end_date']) : ''; ?>"
-                                >
-                                <small class="text-muted">Optional - leave blank for single-day events</small>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="venue" class="form-label">Venue <span class="text-danger">*</span></label>
-                                <input
-                                    type="text"
-                                    class="form-input"
-                                    id="venue"
-                                    name="venue"
-                                    required
-                                    placeholder="e.g., Community Hall"
-                                    value="<?php echo isset($_POST['venue']) ? htmlspecialchars($_POST['venue']) : ''; ?>"
-                                >
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="budget_est" class="form-label">Estimated Budget (RM)</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    class="form-input"
-                                    id="budget_est"
-                                    name="budget_est"
-                                    placeholder="0.00"
-                                    value="<?php echo isset($_POST['budget_est']) ? htmlspecialchars($_POST['budget_est']) : ''; ?>"
-                                >
-                            </div>
-
-                            <div class="form-group">
-                                <label for="proposal_file" class="form-label">Step 2: Upload Proposal (PDF/JPG/JPEG/PNG, max 5MB)</label>
-                                <input
-                                    type="file"
-                                    class="form-input"
-                                    id="proposal_file"
-                                    name="proposal_file"
-                                    accept=".pdf,.jpg,.jpeg,.png"
-                                >
-                                <small class="text-muted">Optional - upload after required fields are completed</small>
-                            </div>
-                        </div>
-
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary"><?php echo $is_pusat_creator ? 'Create Master Event' : 'Create Sub Event'; ?></button>
-                            <a href="list.php" class="btn btn-secondary">Cancel</a>
-                        </div>
-                    </form>
+    <div class="bg-white p-12 border border-slate-100 shadow-xl">
+        <form method="POST" enctype="multipart/form-data" class="space-y-10">
+            <!-- Basic Info -->
+            <div class="grid grid-cols-1 gap-10">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tajuk Acara <span class="text-red-500">*</span></label>
+                    <input type="text" name="event_title" required
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                           placeholder="Cth: Mesyuarat Agung Tahunan 2024">
                 </div>
             </div>
-        </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <?php if ($is_pusat_creator): ?>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tugaskan ke Cawangan <span class="text-red-500">*</span></label>
+                    <select name="assigned_cawangan_id" required
+                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all rounded-none appearance-none">
+                        <option value="">-- Pilih Cawangan --</option>
+                        <?php foreach ($cawangan_options as $caw): ?>
+                        <option value="<?php echo $caw['cawangan_id']; ?>"><?php echo htmlspecialchars($caw['cawangan_name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <?php else: ?>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Pilih Acara Induk (Master) <span class="text-red-500">*</span></label>
+                    <select name="parent_master_event_id" required
+                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all rounded-none appearance-none">
+                        <option value="">-- Pilih Acara Master --</option>
+                        <?php foreach ($master_event_options as $master): ?>
+                        <option value="<?php echo $master['event_id']; ?>" <?php echo ($preselected_parent_id == $master['event_id']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($master['event_title']); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <?php endif; ?>
+
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Lokasi / Venue <span class="text-red-500">*</span></label>
+                    <input type="text" name="venue" required
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                           placeholder="Cth: Dewan Komuniti Bintulu">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh Mula <span class="text-red-500">*</span></label>
+                    <input type="date" name="event_date" required
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh Tamat (Opsional)</label>
+                    <input type="date" name="event_end_date"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Anggaran Bajet (RM)</label>
+                    <input type="number" step="0.01" name="budget_est"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                           placeholder="0.00">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3"><?php echo $is_pusat_creator ? 'Muat Naik Guideline (PDF)' : 'Muat Naik Kertas Kerja (PDF/Imej)'; ?></label>
+                    <input type="file" name="proposal_file" accept=".pdf,.jpg,.jpeg,.png"
+                           class="w-full px-6 py-3 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                </div>
+            </div>
+
+            <div class="pt-10">
+                <button type="submit" class="w-full bg-kebana-blue text-white py-6 text-xs font-black uppercase tracking-[0.3em] hover:bg-kebana-accent transition-all shadow-2xl">
+                    <?php echo $is_pusat_creator ? 'DAFTAR ACARA MASTER' : 'DAFTAR ACARA SUB'; ?>
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php require_once APP_ROOT . '/includes/footer.php'; ?>

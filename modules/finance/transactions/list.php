@@ -1,296 +1,176 @@
 <?php
-$page_title = 'Transactions';
-$css_path = '../../../src/css/dashboard.css';
-$extra_css = '../../../src/css/finance.css';
+/**
+ * KEBANA Management System - Transaction List (MYDS Inspired)
+ * File: modules/finance/transactions/list.php
+ */
 
-require_once '../../../includes/header.php';
-require_once '../../../includes/auth.php';
+use App\Helpers\FinanceHelper;
+use App\Core\Database;
 
-if (!hasRole([6, 7, 55, 66, 888])) {
-    die('Access denied. Finance/Super Admin only.');
-}
+require_once APP_ROOT . '/includes/header.php';
 
-$total_income = 0;
-$total_expense = 0;
-
-// Handle delete
-if (isset($_GET['delete']) && isAdmin()) {
-    $trans_id = (int)$_GET['delete'];
-    $stmt = $conn->prepare("DELETE FROM tbl_transaction WHERE trans_id = ?");
-    $stmt->bind_param("i", $trans_id);
-    $stmt->execute();
-    $stmt->close();
-    header('Location: list.php');
+if (!hasRole([888, 6, 55, 7, 66])) {
+    echo "<div class='p-12 text-center'><h1 class='text-2xl font-black text-red-600 uppercase tracking-widest'>AKSES DISEKAT</h1></div>";
+    require_once APP_ROOT . '/includes/footer.php';
     exit;
 }
 
-// Filter vars
+$db = Database::getInstance()->getConnection();
+
+// Filters
 $from_date = $_GET['from'] ?? '';
 $to_date = $_GET['to'] ?? '';
 $type_filter = $_GET['type'] ?? '';
 $category_filter = $_GET['category'] ?? '';
-$page_num = max(1, (int)($_GET['page'] ?? 1));
-$per_page = 20;
-$offset = ($page_num - 1) * $per_page;
 
-// Build WHERE clause
-$current_role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
-$current_cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null ? (int)$_SESSION['cawangan_id'] : null;
-$is_cawangan_finance = in_array($current_role, [55, 66], true);
+// Build dynamic query
+$where = "1=1";
+$params = [];
+$types = "";
 
-$from_clause = ' FROM tbl_transaction t ';
-$where = '1=1';
-$filter_params = [];
-$filter_types = '';
+if ($from_date) { $where .= " AND t.trans_date >= ?"; $params[] = $from_date; $types .= "s"; }
+if ($to_date) { $where .= " AND t.trans_date <= ?"; $params[] = $to_date; $types .= "s"; }
+if ($type_filter) { $where .= " AND t.trans_type = ?"; $params[] = $type_filter; $types .= "s"; }
+if ($category_filter) { $where .= " AND t.category LIKE ?"; $params[] = "%$category_filter%"; $types .= "s"; }
 
-if ($is_cawangan_finance) {
-    if ($current_cawangan_id === null) {
-        die('Access denied. Cawangan finance account has no cawangan assigned.');
+$sql = "SELECT t.*, e.event_title, u.username as recorder_name 
+        FROM tbl_transaction t 
+        LEFT JOIN tbl_event e ON t.event_id = e.event_id 
+        LEFT JOIN tbl_user u ON t.recorded_by = u.user_id 
+        WHERE $where 
+        ORDER BY t.trans_date DESC, t.trans_id DESC";
+
+$stmt = $db->prepare($sql);
+$transactions = [];
+if ($stmt) {
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
     }
-    $from_clause = ' FROM tbl_transaction t LEFT JOIN tbl_event e ON e.event_id = t.event_id ';
-    $where .= ' AND e.cawangan_id = ?';
-    $filter_params[] = $current_cawangan_id;
-    $filter_types .= 'i';
-}
-if ($from_date) {
-    $where .= ' AND t.trans_date >= ?';
-    $filter_params[] = $from_date;
-    $filter_types .= 's';
-}
-if ($to_date) {
-    $where .= ' AND t.trans_date <= ?';
-    $filter_params[] = $to_date;
-    $filter_types .= 's';
-}
-if ($type_filter) {
-    $where .= ' AND t.trans_type = ?';
-    $filter_params[] = $type_filter;
-    $filter_types .= 's';
-}
-if ($category_filter) {
-    $where .= ' AND t.category LIKE ?';
-    $filter_params[] = "%$category_filter%";
-    $filter_types .= 's';
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $transactions[] = $row;
+    }
+    $stmt->close();
 }
 
-// Get filtered transactions
-$stmt = $conn->prepare("SELECT t.* $from_clause WHERE $where ORDER BY t.trans_date DESC, t.trans_id DESC LIMIT ? OFFSET ?");
-if (!$stmt) {
-    die('DB error (prepare transactions list)');
+// Calculate filtered totals
+$filtered_income = 0;
+$filtered_expense = 0;
+foreach ($transactions as $t) {
+    if ($t['trans_type'] === 'Income') $filtered_income += $t['amount'];
+    else $filtered_expense += $t['amount'];
 }
+$filtered_balance = $filtered_income - $filtered_expense;
 
-$list_params = $filter_params;
-$list_params[] = $per_page;
-$list_params[] = $offset;
-$list_types = $filter_types . 'ii';
-
-$stmt->bind_param($list_types, ...$list_params);
-$stmt->execute();
-$result = $stmt->get_result();
-$stmt->close();
-
-
-// Get totals + count for current filters (prepared to match placeholders)
-$totals_sql = "SELECT 
-    SUM(CASE WHEN t.trans_type = 'Income' THEN t.amount ELSE 0 END) as total_income,
-    SUM(CASE WHEN t.trans_type = 'Expense' THEN t.amount ELSE 0 END) as total_expense
-    $from_clause WHERE $where";
-
-// Bind filter params only (no pagination params)
-$types_totals = $filter_types;
-$params_totals = $filter_params;
-
-// If there are no filters, $types will be '' and params will be empty; mysqli allows this.
-$totals_stmt = $conn->prepare($totals_sql);
-if (!$totals_stmt) {
-    die('DB error (prepare totals)');
-}
-if (!empty($params_totals)) {
-    $totals_stmt->bind_param($types_totals, ...$params_totals);
-}
-$totals_stmt->execute();
-$totals_result = $totals_stmt->get_result();
-$totals_row = $totals_result ? $totals_result->fetch_assoc() : null;
-$totals_stmt->close();
-
-$total_income = (float)($totals_row['total_income'] ?? 0);
-$total_expense = (float)($totals_row['total_expense'] ?? 0);
-$balance = $total_income - $total_expense;
-
-// Total count for pagination (also prepared)
-$count_sql = "SELECT COUNT(*) as count $from_clause WHERE $where";
-$count_stmt = $conn->prepare($count_sql);
-if (!$count_stmt) {
-    die('DB error (prepare count)');
-}
-if (!empty($params_totals)) {
-    $count_stmt->bind_param($types_totals, ...$params_totals);
-}
-$count_stmt->execute();
-$count_result = $count_stmt->get_result();
-$count_row = $count_result ? $count_result->fetch_assoc() : null;
-$count_stmt->close();
-
-$total_count = (int)($count_row['count'] ?? 0);
-$total_pages = max(1, (int)ceil($total_count / $per_page));
+$page_title = 'SENARAI TRANSAKSI';
 ?>
 
+<div class="space-y-12">
+    <!-- Top Action Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
+        <div>
+            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Senarai Transaksi</h2>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Rekod Terperinci Aliran Masuk dan Keluar Dana.</p>
+        </div>
+        <a href="/kebana-digital/finance/transactions/create" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
+            <i class="fa-solid fa-plus-circle mr-4 text-lg"></i>
+            REKOD BARU
+        </a>
+    </div>
 
-<div class="container-xl py-5 transactions-list-page">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                    Transactions
-                </h1>
-                <a href="create.php" class="btn btn-lg transactions-list-add-btn">
-                    <i class="fas fa-plus me-2"></i>New Transaction
-                </a>
+    <!-- Filter Bar -->
+    <div class="bg-white p-8 border border-slate-100 shadow-sm">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+            <div>
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Dari Tarikh</label>
+                <input type="date" name="from" value="<?php echo htmlspecialchars($from_date); ?>" 
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
             </div>
+            <div>
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Hingga Tarikh</label>
+                <input type="date" name="to" value="<?php echo htmlspecialchars($to_date); ?>" 
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+            </div>
+            <div>
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Jenis</label>
+                <select name="type" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                    <option value="">Semua</option>
+                    <option value="Income" <?php echo $type_filter === 'Income' ? 'selected' : ''; ?>>Pendapatan</option>
+                    <option value="Expense" <?php echo $type_filter === 'Expense' ? 'selected' : ''; ?>>Perbelanjaan</option>
+                </select>
+            </div>
+            <button type="submit" class="bg-kebana-dark text-white py-4 text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
+                TAPIS REKOD
+            </button>
+        </form>
+    </div>
+
+    <!-- Filtered Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100 bg-white shadow-sm">
+        <div class="p-8 border-r border-slate-50">
+            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Baki Dalam Tempoh</p>
+            <p class="text-2xl font-black text-kebana-blue mt-2">RM <?php echo number_format($filtered_balance, 2); ?></p>
+        </div>
+        <div class="p-8 border-r border-slate-50">
+            <p class="text-[9px] font-black text-green-600/50 uppercase tracking-widest text-green-600">Total Pendapatan</p>
+            <p class="text-2xl font-black text-green-600 mt-2">RM <?php echo number_format($filtered_income, 2); ?></p>
+        </div>
+        <div class="p-8 border-b-4 border-kebana-yellow">
+            <p class="text-[9px] font-black text-red-600/50 uppercase tracking-widest text-red-600">Total Perbelanjaan</p>
+            <p class="text-2xl font-black text-red-600 mt-2">RM <?php echo number_format($filtered_expense, 2); ?></p>
         </div>
     </div>
 
-    <!-- Filter Form -->
-    <div class="card mb-4 transactions-filter-card">
-        <div class="card-body">
-            <form method="GET" class="transactions-filter-form">
-                <div class="filter-field">
-                    <label class="form-label">From Date</label>
-                    <input type="date" name="from" value="<?php echo htmlspecialchars($from_date); ?>" class="form-control">
-                </div>
-                <div class="filter-field">
-                    <label class="form-label">To Date</label>
-                    <input type="date" name="to" value="<?php echo htmlspecialchars($to_date); ?>" class="form-control">
-                </div>
-                <div class="filter-field">
-                    <label class="form-label">Type</label>
-                    <select name="type" class="form-select">
-                        <option value="">All</option>
-                        <option value="Income" <?php echo $type_filter == 'Income' ? 'selected' : ''; ?>>Income</option>
-                        <option value="Expense" <?php echo $type_filter == 'Expense' ? 'selected' : ''; ?>>Expense</option>
-                    </select>
-                </div>
-                <div class="filter-field filter-field-wide">
-                    <label class="form-label">Category</label>
-                    <input type="text" name="category" value="<?php echo htmlspecialchars($category_filter); ?>" placeholder="e.g. Membership, Donation" class="form-control">
-                </div>
-                <div class="filter-actions">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search me-2"></i>Filter
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Summary Cards -->
-    <div class="row mb-4 transactions-summary-row">
-        <div class="col-md-4">
-            <div class="finance-kpi-card balance-card">
-                <div class="kpi-icon-finance">💰</div>
-                <h3 class="kpi-title">Period Balance</h3>
-                <div class="kpi-number">RM <?php echo number_format($balance, 2); ?></div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="finance-kpi-card income-card">
-                <div class="kpi-icon-finance">📈</div>
-                <h3 class="kpi-title">Total Income</h3>
-                <div class="kpi-number">RM <?php echo number_format($total_income, 2); ?></div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="finance-kpi-card expense-card">
-                <div class="kpi-icon-finance">📉</div>
-                <h3 class="kpi-title">Total Expenses</h3>
-                <div class="kpi-number">RM <?php echo number_format($total_expense, 2); ?></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Transactions Table -->
-    <div class="recent-transactions-card">
-        <div class="trans-table-container">
-            <div class="table-responsive">
-                <?php if ($result->num_rows > 0): ?>
-                    <table class="table table-finance">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Category</th>
-                                <th>Amount</th>
-                                <th>Recorded</th>
-                                <?php if (isAdmin()): ?>
-                                    <th>Actions</th>
-                                <?php endif; ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = $result->fetch_assoc()): ?>
-                                <?php 
-                                $amount_class = $row['trans_type'] == 'Income' ? 'amount-positive' : 'amount-negative';
-                                ?>
-                                <tr>
-                                    <td><?php echo date('M j, Y', strtotime($row['trans_date'])); ?></td>
-                                    <td><span class="badge badge-<?php echo strtolower($row['trans_type']); ?>">
-                                        <?php echo $row['trans_type']; ?>
-                                    </span></td>
-                                    <td><?php echo htmlspecialchars($row['category']); ?></td>
-                                    <td><span class="<?php echo $amount_class; ?>">RM <?php echo number_format($row['amount'], 2); ?></span></td>
-                                    <td>ID <?php echo $row['recorded_by']; ?></td>
-                                    <?php if (isAdmin()): ?>
-                                        <td>
-                                            <a href="edit.php?id=<?php echo $row['trans_id']; ?>" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                                            <a href="list.php?delete=<?php echo $row['trans_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this transaction?')">Delete</a>
-                                        </td>
-                                    <?php endif; ?>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
-
-                    <!-- Pagination -->
-                    <nav aria-label="Transaction pagination">
-                        <ul class="pagination justify-content-center">
-                            <?php if ($page_num > 1): ?>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=1&from=<?php echo urlencode($from_date); ?>&to=<?php echo urlencode($to_date); ?>&type=<?php echo urlencode($type_filter); ?>&category=<?php echo urlencode($category_filter); ?>">First</a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page_num - 1; ?>&from=<?php echo urlencode($from_date); ?>&to=<?php echo urlencode($to_date); ?>&type=<?php echo urlencode($type_filter); ?>&category=<?php echo urlencode($category_filter); ?>">Previous</a>
-                                </li>
-                            <?php endif; ?>
-
-                            <?php for ($i = max(1, $page_num - 2); $i <= min($total_pages, $page_num + 2); $i++): ?>
-                                <li class="page-item <?php echo $i == $page_num ? 'active' : ''; ?>">
-                                    <a class="page-link" href="?page=<?php echo $i; ?>&from=<?php echo urlencode($from_date); ?>&to=<?php echo urlencode($to_date); ?>&type=<?php echo urlencode($type_filter); ?>&category=<?php echo urlencode($category_filter); ?>"><?php echo $i; ?></a>
-                                </li>
-                            <?php endfor; ?>
-
-                            <?php if ($page_num < $total_pages): ?>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $page_num + 1; ?>&from=<?php echo urlencode($from_date); ?>&to=<?php echo urlencode($to_date); ?>&type=<?php echo urlencode($type_filter); ?>&category=<?php echo urlencode($category_filter); ?>">Next</a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=<?php echo $total_pages; ?>&from=<?php echo urlencode($from_date); ?>&to=<?php echo urlencode($to_date); ?>&type=<?php echo urlencode($type_filter); ?>&category=<?php echo urlencode($category_filter); ?>">Last</a>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </nav>
-                <?php else: ?>
-                    <div class="text-center py-5">
-                        <div class="no-data-icon">📊</div>
-                        <h4 class="no-data-text">No transactions match your filters</h4>
-                        <p class="text-muted mb-4">Try adjusting your date range or type filter.</p>
-                        <a href="list.php" class="btn btn-primary me-2">Reset Filters</a>
-                        <a href="create.php" class="btn-add-first">Add First Transaction</a>
-                    </div>
-                <?php endif; ?>
-            </div>
+    <!-- Table -->
+    <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-100 bg-slate-50/50">
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Tarikh</th>
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Kategori & Projek</th>
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Mod</th>
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Amaun</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    <?php if (empty($transactions)): ?>
+                    <tr>
+                        <td colspan="4" class="px-8 py-20 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
+                            Tiada rekod transaksi dijumpai.
+                        </td>
+                    </tr>
+                    <?php else: ?>
+                        <?php foreach ($transactions as $t): 
+                            $is_income = $t['trans_type'] === 'Income';
+                        ?>
+                        <tr class="hover:bg-slate-50/50 transition-colors group">
+                            <td class="px-8 py-6">
+                                <p class="text-xs font-black text-slate-400 uppercase"><?php echo date('d M Y', strtotime($t['trans_date'])); ?></p>
+                            </td>
+                            <td class="px-8 py-6">
+                                <p class="text-xs font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($t['category']); ?></p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 italic"><?php echo htmlspecialchars($t['event_title'] ?? 'Dana Am Persatuan'); ?></p>
+                            </td>
+                            <td class="px-8 py-6">
+                                <span class="px-3 py-1 text-[8px] font-black uppercase tracking-widest bg-slate-100 text-slate-500">
+                                    <?php echo (!empty($t['payment_mode']) && $t['payment_mode'] !== '0') ? htmlspecialchars($t['payment_mode']) : 'Cash'; ?>
+                                </span>
+                            </td>
+                            <td class="px-8 py-6 text-right">
+                                <p class="text-sm font-black <?php echo $is_income ? 'text-green-600' : 'text-red-600'; ?>">
+                                    <?php echo $is_income ? '+' : '-'; ?> RM <?php echo number_format($t['amount'], 2); ?>
+                                </p>
+                                <p class="text-[8px] font-bold text-slate-300 uppercase mt-1">Oleh: <?php echo htmlspecialchars($t['recorder_name'] ?? 'Sistem'); ?></p>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<?php require_once '../../../includes/footer.php'; ?>
-
+<?php require_once APP_ROOT . '/includes/footer.php'; ?>

@@ -5,10 +5,10 @@
  */
 
 $page_title = 'Documents - Reports';
-$css_path = '../../src/css/members.css';
+$css_path = $base_path . 'src/css/members.css';
 
-require_once '../../includes/header.php';
-require_once '../../includes/events_helper.php';
+require_once APP_ROOT . '/includes/header.php';
+require_once APP_ROOT . '/includes/events_helper.php';
 
 $message = '';
 $message_type = '';
@@ -168,4 +168,4 @@ $delete_doc_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
     </div>
 </div>
 
-<?php require_once '../../includes/footer.php'; ?>
+<?php require_once APP_ROOT . '/includes/footer.php'; ?>

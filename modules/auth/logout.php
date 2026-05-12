@@ -6,7 +6,9 @@
  * Handles user logout
  */
 
-session_start();
+if (!defined('APP_ROOT')) {
+    require_once dirname(__DIR__, 2) . '/bootstrap.php';
+}
 
 // Destroy session
 session_destroy();
@@ -17,6 +19,6 @@ if (isset($_COOKIE['kebana_remember'])) {
 }
 
 // Redirect to login page
-header('Location: login.php?logout=true');
+header('Location: /kebana-digital/login?logout=true');
 exit();
 ?>
