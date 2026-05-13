@@ -13,6 +13,7 @@ $session_role_raw = $_SESSION['role'] ?? null;
 $current_role = is_numeric($session_role_raw) ? (int)$session_role_raw : 0;
 $current_cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null && $_SESSION['cawangan_id'] !== '' ? (int)$_SESSION['cawangan_id'] : null;
 $username = $_SESSION['username'] ?? 'User';
+$current_user_id = $_SESSION['user_id'] ?? 0;
 $page_title = $page_title ?? '';
 
 // Role Constants (Pusat)
@@ -137,11 +138,13 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                 <div class="pt-10 pb-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.4em] px-4">Modul Utama</div>
                 
                 <?php 
+                $unreadChatCount = \App\Helpers\ChatHelper::getTotalUnreadCount($current_user_id);
                 $nav_items = [
                     ['link' => 'members', 'icon' => 'fa-users-between-lines', 'label' => 'Pengurusan Ahli', 'visible' => $can_view_members],
                     ['link' => 'events', 'icon' => 'fa-calendar-check', 'label' => 'Aktiviti & Program', 'visible' => $can_view_events],
                     ['link' => 'finance', 'icon' => 'fa-wallet', 'label' => 'Laporan Kewangan', 'visible' => $can_view_finance],
                     ['link' => 'documents', 'icon' => 'fa-box-archive', 'label' => 'Pusat Arkib Fail', 'visible' => $can_view_documents],
+                    ['link' => 'chat', 'icon' => 'fa-comments', 'label' => 'Pusat Komunikasi', 'visible' => true, 'badge' => $unreadChatCount],
                 ];
 
                 foreach ($nav_items as $item): 
@@ -150,7 +153,10 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                 ?>
                 <a href="<?php echo $base_path . $item['link']; ?>" class="group flex items-center px-4 py-3.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all <?php echo $isActive ? 'bg-kebana-blue text-white shadow-xl shadow-kebana-blue/10' : 'text-slate-400 hover:text-white hover:bg-white/5'; ?>">
                     <i class="fa-solid <?php echo $item['icon']; ?> w-8 text-lg <?php echo $isActive ? 'text-kebana-yellow' : 'text-slate-600 group-hover:text-kebana-yellow'; ?>"></i>
-                    <span><?php echo $item['label']; ?></span>
+                    <span class="flex-1"><?php echo $item['label']; ?></span>
+                    <?php if (isset($item['badge']) && $item['badge'] > 0): ?>
+                        <span class="bg-red-500 text-white text-[8px] px-2 py-0.5 rounded-full font-black animate-pulse"><?php echo $item['badge']; ?></span>
+                    <?php endif; ?>
                 </a>
                 <?php endforeach; ?>
 
@@ -190,6 +196,12 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                 </div>
 
                 <div class="flex items-center space-x-6">
+                    <a href="/kebana-digital/chat" class="relative p-2 text-slate-400 hover:text-kebana-blue transition-colors focus:outline-none">
+                        <i class="fa-regular fa-comments text-xl"></i>
+                        <?php if (isset($unreadChatCount) && $unreadChatCount > 0): ?>
+                            <span class="absolute top-1.5 right-1.5 h-4 w-4 bg-red-500 ring-2 ring-white rounded-full text-[10px] text-white flex items-center justify-center font-bold animate-bounce"><?php echo $unreadChatCount; ?></span>
+                        <?php endif; ?>
+                    </a>
                     <div class="hidden sm:flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest space-x-2">
                         <i class="fa-solid fa-clock text-kebana-blue/30"></i>
                         <span><?php echo date('d F Y • H:i'); ?></span>
