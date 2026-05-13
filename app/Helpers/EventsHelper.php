@@ -142,8 +142,8 @@ class EventsHelper {
                 $stmt->close();
 
                 if ($success) {
-                    // Notify: Presiden (1), SU Cawangan (33), Pengerusi Cawangan (11)
-                    NotificationHelper::notifyRoles([1, 33, 11], 'master_event_created', 'Aktiviti Master Baru Dicipta', "Aktiviti Master \"$title\" telah dicipta oleh HQ. Sila rujuk guideline yang disertakan.", "events/view/$insert_id");
+                    // Notify: SU Cawangan (33), Pengerusi Cawangan (11) (President only on Submit)
+                    NotificationHelper::notifyRoles([33, 11], 'master_event_created', 'Aktiviti Master Baru Dicipta', "Aktiviti Master \"$title\" telah dicipta oleh HQ. Sila rujuk guideline yang disertakan.", "events/view/$insert_id");
                     NotificationHelper::notifyRoles([888, 4], 'event_created', 'Aktiviti Baru Dicipta (HQ)', "Aktiviti \"$title\" telah dicipta oleh HQ.", "events/view/$insert_id");
                 }
 
@@ -284,7 +284,7 @@ class EventsHelper {
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare("
             SELECT e.*, u.username as creator_name,
-                   COALESCE(e.approval_status, 'Pending President') as approval_status
+                   COALESCE(e.approval_status, 'Pending Submission') as approval_status
             FROM tbl_event e
             LEFT JOIN tbl_user u ON e.created_by = u.user_id
             WHERE e.event_id = ?

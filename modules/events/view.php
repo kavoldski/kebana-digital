@@ -18,7 +18,7 @@ if (isset($_GET['action'])) {
         $success = EventsHelper::submitToBranch($eventId);
     } elseif ($action === 'branch_approve' && hasRole(11)) {
         $success = EventsHelper::branchApprove($eventId);
-    } elseif ($action === 'submit_to_pusat' && hasRole(33)) {
+    } elseif ($action === 'submit_to_pusat' && hasRole([33, 4])) {
         $success = EventsHelper::submitEvent($eventId);
     } elseif ($action === 'approve' && hasRole([1, 888])) {
         $success = EventsHelper::approveEvent($eventId);
@@ -124,10 +124,16 @@ $page_title = 'PERINCIAN ACARA';
                             TOLAK ACARA
                         </a>
                     </div>
-                <?php elseif ($check_status === 'DRAFT' && $level === 'MASTER' && hasRole([1, 888])): ?>
-                    <a href="?id=<?php echo $eventId; ?>&action=approve" class="bg-green-600 text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-green-700 transition-all text-center shadow-xl">
-                        SAHKAN MASTER EVENT
-                    </a>
+                <?php elseif ($check_status === 'DRAFT' && $level === 'MASTER'): ?>
+                    <?php if (hasRole(4)): ?>
+                        <a href="?id=<?php echo $eventId; ?>&action=submit_to_pusat" class="bg-amber-500 text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-amber-600 transition-all text-center shadow-xl">
+                            HANTAR KE PRESIDEN
+                        </a>
+                    <?php elseif (hasRole(888)): ?>
+                        <a href="?id=<?php echo $eventId; ?>&action=approve" class="bg-green-600 text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-green-700 transition-all text-center shadow-xl">
+                            SAHKAN (SUPER ADMIN)
+                        </a>
+                    <?php endif; ?>
                 <?php endif; ?>
 
                 <a href="/kebana-digital/events/attendance?event_id=<?php echo $eventId; ?>" class="bg-slate-800 text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-black transition-all text-center shadow-xl">

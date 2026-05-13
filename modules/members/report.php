@@ -64,9 +64,9 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 
 require_once APP_ROOT . '/includes/header.php';
 
-// Report access: Secretary and Super Admin
-if (!hasRole([4, 33, 888])) {
-    echo "<div class='p-12 text-center'><h1 class='text-2xl font-black text-red-600 uppercase tracking-widest'>AKSES DISEKAT</h1><p class='text-xs font-bold text-slate-400 mt-4 uppercase tracking-widest'>Hanya Setiausaha atau Super Admin dibenarkan melihat laporan ini.</p></div>";
+// Report access: Leadership, Secretary and Super Admin
+if (!hasRole([1, 2, 3, 4, 33, 888])) {
+    echo "<div class='p-12 text-center'><h1 class='text-2xl font-black text-red-600 uppercase tracking-widest'>AKSES DISEKAT</h1><p class='text-xs font-bold text-slate-400 mt-4 uppercase tracking-widest'>Hanya Kepimpinan, Setiausaha atau Super Admin dibenarkan melihat laporan ini.</p></div>";
     require_once APP_ROOT . '/includes/footer.php';
     exit;
 }
@@ -211,8 +211,8 @@ $page_title = 'LAPORAN & ANALISIS';
 
     <!-- Growth Chart -->
     <div class="bg-white p-10 border border-slate-100 shadow-xl relative overflow-hidden group">
-        <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-            <i class="fa-solid fa-chart-line text-8xl"></i>
+        <div class="absolute bottom-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity translate-y-4 translate-x-4">
+            <i class="fa-solid fa-arrow-trend-up text-9xl"></i>
         </div>
         <div class="relative z-10 space-y-8">
             <div class="flex items-center justify-between">
