@@ -115,12 +115,21 @@ class DashboardHelper {
         }
     }
 
-    public static function getRecentActivities($limit = 6) {
+    public static function getRecentActivities($limit = 6, $role = 0, $cawanganId = null) {
         $db = Database::getInstance()->getConnection();
         $activities = [];
+        
+        $pusat_roles = [888, 1, 2, 3, 4, 5, 6, 7];
+        $is_pusat = in_array($role, $pusat_roles);
 
-        // Member registrations
-        $res = $db->query("SELECT full_name, created_at FROM tbl_member ORDER BY created_at DESC LIMIT $limit");
+        // 1. Member registrations
+        $member_sql = "SELECT m.full_name, m.created_at FROM tbl_member m ";
+        if (!$is_pusat && $cawanganId !== null) {
+            $member_sql .= "JOIN tbl_user u ON m.created_by = u.user_id WHERE u.cawangan_id = " . (int)$cawanganId;
+        }
+        $member_sql .= " ORDER BY m.created_at DESC LIMIT $limit";
+        
+        $res = $db->query($member_sql);
         if ($res) {
             while ($row = $res->fetch_assoc()) {
                 $activities[] = [
@@ -132,8 +141,15 @@ class DashboardHelper {
             }
         }
 
-        // Documents
-        $res = $db->query("SELECT doc_name, uploaded_at FROM tbl_document ORDER BY uploaded_at DESC LIMIT $limit");
+        // 2. Documents
+        $doc_sql = "SELECT d.doc_name, d.uploaded_at FROM tbl_document d ";
+        $doc_sql .= "JOIN tbl_event e ON d.event_id = e.event_id ";
+        if (!$is_pusat && $cawanganId !== null) {
+            $doc_sql .= " WHERE e.cawangan_id = " . (int)$cawanganId;
+        }
+        $doc_sql .= " ORDER BY d.uploaded_at DESC LIMIT $limit";
+        
+        $res = $db->query($doc_sql);
         if ($res) {
             while ($row = $res->fetch_assoc()) {
                 $activities[] = [
@@ -145,8 +161,14 @@ class DashboardHelper {
             }
         }
 
-        // Transactions
-        $res = $db->query("SELECT trans_type, category, amount, created_at FROM tbl_transaction ORDER BY created_at DESC LIMIT $limit");
+        // 3. Transactions
+        $trans_sql = "SELECT t.trans_type, t.category, t.amount, t.trans_date as created_at FROM tbl_transaction t ";
+        if (!$is_pusat && $cawanganId !== null) {
+            $trans_sql .= "JOIN tbl_user u ON t.recorded_by = u.user_id WHERE u.cawangan_id = " . (int)$cawanganId;
+        }
+        $trans_sql .= " ORDER BY t.trans_id DESC LIMIT $limit";
+        
+        $res = $db->query($trans_sql);
         if ($res) {
             while ($row = $res->fetch_assoc()) {
                 $prefix = ($row['trans_type'] === 'Income') ? '+' : '-';

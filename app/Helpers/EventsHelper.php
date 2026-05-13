@@ -444,4 +444,29 @@ class EventsHelper {
     public static function getParentEvent($parentId) {
         return self::getEventById($parentId);
     }
+
+    /**
+     * Fetch documents for a given event.
+     */
+    public static function getDocumentsByEventId($eventId) {
+        $db = Database::getInstance()->getConnection();
+        $rows = [];
+        $stmt = $db->prepare("
+            SELECT d.*, u.username as uploader_name
+            FROM tbl_document d
+            LEFT JOIN tbl_user u ON d.uploaded_by = u.user_id
+            WHERE d.event_id = ?
+            ORDER BY d.uploaded_at DESC
+        ");
+        if ($stmt) {
+            $stmt->bind_param("i", $eventId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = $row;
+            }
+            $stmt->close();
+        }
+        return $rows;
+    }
 }

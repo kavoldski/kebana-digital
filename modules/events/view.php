@@ -266,21 +266,54 @@ $page_title = 'PERINCIAN ACARA';
                 </div>
                 
                 <div class="space-y-4">
-                    <!-- This would normally loop through event documents -->
-                    <div class="p-6 bg-slate-50 border border-slate-100 flex items-center justify-between group hover:border-kebana-blue transition-colors">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-white flex items-center justify-center text-red-500 shadow-sm">
-                                <i class="fa-solid fa-file-pdf text-xl"></i>
+                    <?php 
+                    $docs = EventsHelper::getDocumentsByEventId($eventId);
+                    if (empty($docs)):
+                    ?>
+                        <p class="py-10 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
+                            Tiada dokumen dimuatnaik bagi acara ini.
+                        </p>
+                    <?php else: ?>
+                        <?php foreach ($docs as $doc): 
+                            $ext = strtolower(pathinfo($doc['file_path'], PATHINFO_EXTENSION));
+                            $icon = 'fa-file';
+                            $iconColor = 'text-slate-400';
+                            
+                            if ($ext === 'pdf') {
+                                $icon = 'fa-file-pdf';
+                                $iconColor = 'text-red-500';
+                            } elseif (in_array($ext, ['jpg', 'jpeg', 'png'])) {
+                                $icon = 'fa-file-image';
+                                $iconColor = 'text-blue-500';
+                            }
+                            
+                            // Mocking file size for now since we don't store it in DB
+                            $fileSize = '---';
+                            if (file_exists(APP_ROOT . '/' . $doc['file_path'])) {
+                                $bytes = filesize(APP_ROOT . '/' . $doc['file_path']);
+                                if ($bytes >= 1048576) $fileSize = number_format($bytes / 1048576, 1) . ' MB';
+                                elseif ($bytes >= 1024) $fileSize = number_format($bytes / 1024, 0) . ' KB';
+                                else $fileSize = $bytes . ' B';
+                            }
+                        ?>
+                        <div class="p-6 bg-slate-50 border border-slate-100 flex items-center justify-between group hover:border-kebana-blue transition-colors">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-white flex items-center justify-center <?php echo $iconColor; ?> shadow-sm">
+                                    <i class="fa-solid <?php echo $icon; ?> text-xl"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-black text-slate-800 uppercase italic"><?php echo htmlspecialchars($doc['doc_name']); ?></p>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase mt-1">
+                                        Uploaded on <?php echo date('d M Y', strtotime($doc['uploaded_at'])); ?> • <?php echo $fileSize; ?>
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-xs font-black text-slate-800 uppercase italic">Kertas Kerja Program.pdf</p>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-1">Uploaded on 12 May 2026 • 2.4 MB</p>
-                            </div>
+                            <a href="/kebana-digital/<?php echo $doc['file_path']; ?>" target="_blank" class="text-kebana-blue opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
                         </div>
-                        <a href="#" class="text-kebana-blue opacity-0 group-hover:opacity-100 transition-opacity">
-                            <i class="fa-solid fa-download"></i>
-                        </a>
-                    </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

@@ -69,6 +69,9 @@ class DocumentsHelper {
             if ($stmt) {
                 $stmt->bind_param("isssi", $eventId, $name, $path, $tags, $userId);
                 $success = $stmt->execute();
+                if (!$success) {
+                    error_log("Database execution failed: " . $stmt->error);
+                }
                 $stmt->close();
                 
                 if ($success) {
@@ -76,7 +79,11 @@ class DocumentsHelper {
                 }
 
                 return $success;
+            } else {
+                error_log("Database prepare failed: " . $db->error);
             }
+        } else {
+            error_log("move_uploaded_file failed for: " . $target);
         }
         return false;
     }

@@ -36,7 +36,7 @@ $finance_totals = FinanceHelper::getFinanceTotals();
 
 $pending_approvals = DashboardHelper::getPendingApprovalsCount($current_role, $current_cawangan_id);
 
-$recent_activities = DashboardHelper::getRecentActivities(5);
+$recent_activities = DashboardHelper::getRecentActivities(5, $current_role, $current_cawangan_id);
 
 // Participation Rate
 $participation_rate = $total_members > 0 ? round(($active_members / $total_members) * 100, 1) : 0;
