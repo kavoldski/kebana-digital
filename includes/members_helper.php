@@ -62,6 +62,9 @@ function addMember($conn, $member_data) {
     $member_id = $stmt->insert_id;
     $stmt->close();
 
+    // Notify Super Admin and Pusat Secretaries about new member
+    \App\Helpers\NotificationHelper::notifyRoles([888, 4], 'new_member', 'Ahli Baharu Berdaftar', 'Ahli "' . $full_name . '" telah didaftarkan ke dalam sistem.', 'modules/members/view.php?id=' . $member_id);
+
     return [
         'status' => true,
         'message' => 'Member added successfully',

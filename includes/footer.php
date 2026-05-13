@@ -145,7 +145,10 @@
                 .then(data => {
                     if (data.success) {
                         notificationBadge.classList.add('hidden');
-                        // Optional: clear list or update UI
+                        // Optimistic UI: Mark all notifications in the list as read
+                        document.querySelectorAll('#notificationList > div').forEach(el => {
+                            el.classList.remove('bg-blue-50/30');
+                        });
                     }
                 });
             };
@@ -162,7 +165,14 @@
 
             function formatTime(dateStr) {
                 const date = new Date(dateStr);
-                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const now = new Date();
+                const isToday = date.toDateString() === now.toDateString();
+                
+                if (isToday) {
+                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                } else {
+                    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                }
             }
         });
     </script>

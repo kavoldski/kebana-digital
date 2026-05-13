@@ -290,6 +290,10 @@ function submitEventProposal($conn, $event_id) {
     }
 
     $stmt->close();
+
+    // Notify Super Admin and Pusat Secretaries
+    \App\Helpers\NotificationHelper::notifyRoles([888, 4], 'proposal_submitted', 'Permohonan Aktiviti Baharu', 'Aktiviti "' . $current['event_title'] . '" telah dihantar untuk kelulusan.', 'modules/documents/proposals.php');
+
     return ['status' => true, 'message' => 'Proposal submitted for approval'];
 }
 
@@ -323,6 +327,10 @@ function approveEventProposal($conn, $event_id) {
     }
 
     $stmt->close();
+
+    // Notify the creator of the event
+    \App\Helpers\NotificationHelper::create($current['created_by'], 'proposal_approved', 'Permohonan Diluluskan', 'Tahniah! Permohonan untuk "' . $current['event_title'] . '" telah diluluskan.', 'modules/events/view.php?id=' . $event_id);
+
     return ['status' => true, 'message' => 'Proposal approved successfully'];
 }
 
@@ -356,6 +364,10 @@ function rejectEventProposal($conn, $event_id) {
     }
 
     $stmt->close();
+
+    // Notify the creator of the event
+    \App\Helpers\NotificationHelper::create($current['created_by'], 'proposal_rejected', 'Permohonan Ditolak', 'Dukacita dimaklumkan bahawa permohonan untuk "' . $current['event_title'] . '" telah ditolak.', 'modules/events/list.php');
+
     return ['status' => true, 'message' => 'Proposal rejected'];
 }
 
