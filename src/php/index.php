@@ -10,6 +10,7 @@ use App\Core\Database;
 use App\Helpers\MembersHelper;
 use App\Helpers\FinanceHelper;
 use App\Helpers\DashboardHelper;
+use App\Helpers\AuditHelper;
 
 $db = Database::getInstance()->getConnection();
 $username = $_SESSION['username'] ?? 'User';
@@ -36,7 +37,7 @@ $finance_totals = FinanceHelper::getFinanceTotals();
 
 $pending_approvals = DashboardHelper::getPendingApprovalsCount($current_role, $current_cawangan_id);
 
-$recent_activities = DashboardHelper::getRecentActivities(5, $current_role, $current_cawangan_id);
+$recent_activities = AuditHelper::getRecentLogs(5);
 
 // Participation Rate
 $participation_rate = $total_members > 0 ? round(($active_members / $total_members) * 100, 1) : 0;
@@ -70,6 +71,7 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
             </div>
         </div>
 
+        <?php if ($can_view_finance): ?>
         <!-- Finance -->
         <div class="bg-white p-8 border-r border-slate-50 last:border-r-0 hover:bg-slate-50 transition-colors group">
             <div class="flex items-center justify-between mb-4">
@@ -81,7 +83,9 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
                 <span class="uppercase tracking-widest"><?php echo $fund_balance >= 0 ? 'Positif' : 'Defisit'; ?></span>
             </div>
         </div>
+        <?php endif; ?>
 
+        <?php if (in_array($current_role, [888, 1, 2, 3, 11, 22])): ?>
         <!-- Approvals -->
         <div class="bg-white p-8 hover:bg-slate-50 transition-colors group border-b-4 border-kebana-yellow">
             <div class="flex items-center justify-between mb-4">
@@ -93,6 +97,7 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
                 <span>Perlu Kelulusan / Semakan</span>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 
     <!-- Main Grid -->
@@ -102,7 +107,9 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
             <div class="bg-white border-t-8 border-kebana-blue shadow-sm p-10 space-y-10">
                 <div class="flex items-center justify-between">
                     <h2 class="text-2xl font-black text-kebana-blue tracking-tight uppercase italic">Statistik Organisasi</h2>
+                    <?php if (in_array($current_role, [888, 1, 2, 3])): ?>
                     <a href="/kebana-digital/members/report" class="bg-kebana-blue text-white px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all">Analisis Data</a>
+                    <?php endif; ?>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -116,6 +123,7 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
                         </div>
                     </div>
 
+                    <?php if ($can_view_finance): ?>
                     <div class="space-y-6 border-l border-slate-50 pl-8 hidden md:block">
                         <div class="flex items-center justify-between py-2">
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dana Masuk</span>
@@ -126,6 +134,7 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
                             <span class="text-sm font-black text-red-500">RM <?php echo number_format($finance_totals['total_expense'], 2); ?></span>
                         </div>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -143,10 +152,12 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
                     <i class="fa-solid fa-calendar-plus text-3xl group-hover:scale-110 transition-transform"></i>
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Acara Baru</span>
                 </a>
+                <?php if ($can_view_finance): ?>
                 <a href="/kebana-digital/finance" class="p-8 bg-white border border-slate-100 text-kebana-blue flex flex-col items-center justify-center space-y-4 hover:bg-slate-50 transition-all group">
                     <i class="fa-solid fa-chart-line-up text-3xl group-hover:scale-110 transition-transform"></i>
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Kewangan</span>
                 </a>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -161,19 +172,32 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
                     <?php if (empty($recent_activities)): ?>
                         <p class="text-[10px] text-slate-300 font-bold uppercase tracking-widest text-center py-10">Tiada aktiviti terbaru.</p>
                     <?php else: ?>
-                        <?php foreach ($recent_activities as $activity): ?>
+                        <?php foreach ($recent_activities as $log): 
+                            $icon = 'fa-circle-dot';
+                            $color = 'text-slate-400';
+                            if ($log['module'] == 'AUTH') { $icon = 'fa-shield-keyhole'; $color = 'text-amber-500'; }
+                            if ($log['module'] == 'CHAT') { $icon = 'fa-comments'; $color = 'text-kebana-blue'; }
+                            if ($log['module'] == 'MEMBERS') { $icon = 'fa-user-check'; $color = 'text-purple-500'; }
+                            if ($log['module'] == 'EVENTS') { $icon = 'fa-calendar-star'; $color = 'text-blue-500'; }
+                            if ($log['module'] == 'FINANCE') { $icon = 'fa-money-bill-transfer'; $color = 'text-green-600'; }
+                        ?>
                         <div class="relative pl-8 border-l-2 border-slate-50">
                             <div class="absolute -left-[6px] top-0 w-3 h-3 bg-white border-2 border-slate-200 ring-4 ring-white"></div>
-                            <p class="text-[10px] font-black <?php echo $activity['color']; ?> uppercase italic flex items-center">
-                                <i class="fa-solid <?php echo $activity['icon']; ?> mr-2"></i>
-                                <?php echo DashboardHelper::formatRelativeTime($activity['time']); ?>
+                            <p class="text-[10px] font-black <?php echo $color; ?> uppercase italic flex items-center">
+                                <i class="fa-solid <?php echo $icon; ?> mr-2"></i>
+                                <?php echo DashboardHelper::formatRelativeTime($log['created_at']); ?>
                             </p>
-                            <p class="text-sm text-slate-700 mt-3 font-bold"><?php echo htmlspecialchars($activity['text']); ?></p>
+                            <p class="text-sm text-slate-700 mt-3 font-bold">
+                                <?php echo htmlspecialchars($log['username'] ?? 'SYSTEM'); ?>: 
+                                <?php echo htmlspecialchars($log['action']); ?>
+                            </p>
                         </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
-                <button class="w-full mt-12 py-4 text-[10px] font-black text-slate-400 border border-slate-100 uppercase tracking-widest hover:bg-slate-50 hover:text-kebana-blue transition-all">Lihat Semua Aktiviti</button>
+                <?php if (in_array($current_role, [888, 1, 4, 6])): ?>
+                <a href="/kebana-digital/audit" class="block w-full mt-12 py-4 text-[10px] font-black text-slate-400 border border-slate-100 uppercase tracking-widest hover:bg-slate-50 hover:text-kebana-blue transition-all text-center">Lihat Semua Aktiviti</a>
+                <?php endif; ?>
             </div>
 
             <div class="bg-kebana-dark p-10 text-white shadow-2xl relative overflow-hidden group">

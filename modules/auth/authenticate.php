@@ -60,6 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $update_stmt->close();
         }
 
+        // Audit Log
+        \App\Helpers\AuditHelper::log($user['user_id'], 'Log masuk berjaya', 'AUTH', 'Sesi dimulakan');
+
         // Set session variables
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];

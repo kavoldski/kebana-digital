@@ -32,6 +32,7 @@ $routes = [
     'documents' => 'modules/documents/index.php',
     'documents/upload' => 'modules/documents/upload.php',
     'chat' => 'modules/chat/index.php',
+    'audit' => 'modules/audit/list.php',
 ];
 
 // Clean up route (remove .php extension if present)
