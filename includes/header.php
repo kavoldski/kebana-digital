@@ -15,14 +15,23 @@ $current_cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id
 $username = $_SESSION['username'] ?? 'User';
 $page_title = $page_title ?? '';
 
-// Role Constants
+// Role Constants (Pusat)
 $ROLE_SUPER_ADMIN = 888;
+$ROLE_PRESIDEN = 1;
+$ROLE_TIMBALAN_1 = 2;
+$ROLE_TIMBALAN_2 = 3;
 $ROLE_SETIAUSAHA_PUSAT = 4;
-$ROLE_SETIAUSAHA_CAWANGAN = 33;
+$ROLE_PEN_SETIAUSAHA_PUSAT = 5;
 $ROLE_BENDAHARI_PUSAT = 6;
+$ROLE_PEN_BENDAHARI_PUSAT = 7;
+
+// Role Constants (Cawangan)
+$ROLE_PENGERUSI = 11;
+$ROLE_TIMB_PENGERUSI = 22;
+$ROLE_SETIAUSAHA_CAWANGAN = 33;
+$ROLE_PEN_SETIAUSAHA_CAWANGAN = 44;
 $ROLE_BENDAHARI_CAWANGAN = 55;
-$ROLE_AUDITOR_PUSAT = 7;
-$ROLE_AUDITOR_CAWANGAN = 66;
+$ROLE_PEN_BENDAHARI_CAWANGAN = 66;
 
 $PUSAT_ROLES = [888, 1, 2, 3, 4, 5, 6, 7];
 $CAWANGAN_ROLES = [11, 22, 33, 44, 55, 66];
@@ -31,20 +40,31 @@ $FINANCE_ROLES = [6, 7, 55, 66];
 $is_known_role = in_array($current_role, $PUSAT_ROLES, true) || in_array($current_role, $CAWANGAN_ROLES, true);
 
 // Visibility Flags
-$can_view_members = true; // Everyone can view members for now
+$can_view_members = true;
 $can_view_events = true;
 $can_view_documents = true;
 $can_view_finance = ($is_known_role && (in_array($current_role, $FINANCE_ROLES, true) || $current_role === $ROLE_SUPER_ADMIN));
 $can_view_projects = in_array($current_role, $PUSAT_ROLES, true);
 
-$role_name = 'User';
-if ($current_role === 888) $role_name = 'Super Admin';
-elseif ($current_role === 4) $role_name = 'Setiausaha Pusat';
-elseif ($current_role === 33) $role_name = 'Setiausaha Cawangan';
-elseif ($current_role === 6) $role_name = 'Bendahari Pusat';
-elseif ($current_role === 55) $role_name = 'Bendahari Cawangan';
-elseif ($current_role === 7) $role_name = 'Auditor Pusat';
-elseif ($current_role === 66) $role_name = 'Auditor Cawangan';
+// Role Name Mapping
+$role_names = [
+    888 => 'Super Admin',
+    1   => 'Presiden',
+    2   => 'Timbalan Presiden 1',
+    3   => 'Timbalan Presiden 2',
+    4   => 'Setiausaha Pusat',
+    5   => 'Penolong Setiausaha Pusat',
+    6   => 'Bendahari Kehormat',
+    7   => 'Penolong Bendahari Kehormat',
+    11  => 'Pengerusi Cawangan',
+    22  => 'Timb. Pengerusi Cawangan',
+    33  => 'Setiausaha Cawangan',
+    44  => 'Pen. Setiausaha Cawangan',
+    55  => 'Bendahari Cawangan',
+    66  => 'Pen. Bendahari Cawangan'
+];
+
+$role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
 
 ?>
 <!doctype html>

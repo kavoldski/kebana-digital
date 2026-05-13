@@ -50,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'You must agree to the Terms and Conditions';
     }
 
-    $allowed_roles = [888, 4, 33, 6, 7, 55, 66];
-    $pusat_roles = [888, 4, 6, 7];
+    $allowed_roles = [888, 1, 2, 3, 4, 5, 6, 7, 11, 22, 33, 44, 55, 66];
+    $pusat_roles = [888, 1, 2, 3, 4, 5, 6, 7];
 
     if (!in_array($role, $allowed_roles, true)) {
         $errors[] = 'Invalid role selected';

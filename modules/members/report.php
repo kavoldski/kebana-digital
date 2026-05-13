@@ -201,7 +201,7 @@ $page_title = 'LAPORAN & ANALISIS';
         </div>
         <div class="p-8 border-r border-slate-50 flex flex-col justify-center hover:bg-slate-50 transition-colors">
             <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">AHLI TIDAK AKTIF</p>
-            <p class="text-3xl font-black text-amber-500 mt-2"><?php echo number_format($inactive_members); ?></p>
+            <p class="text-3xl font-black text-slate-400 mt-2"><?php echo number_format($inactive_members); ?></p>
         </div>
         <div class="p-8 flex flex-col justify-center hover:bg-slate-50 transition-colors border-b-4 border-kebana-yellow">
             <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">KADAR PERTUMBUHAN</p>

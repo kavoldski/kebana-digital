@@ -102,7 +102,12 @@ $page_title = 'PROFIL AHLI';
                 <div class="p-8 space-y-8">
                     <div class="flex items-center justify-between">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Semasa</span>
-                        <span class="px-4 py-1.5 text-[9px] font-black uppercase tracking-widest <?php echo strtolower($member['status']) === 'active' ? 'bg-green-600 text-white shadow-lg shadow-green-600/20' : 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'; ?>">
+                        <?php 
+                        $status_class = 'bg-amber-500 text-white shadow-lg shadow-amber-500/20';
+                        if (strtolower($member['status']) === 'active') $status_class = 'bg-green-600 text-white shadow-lg shadow-green-600/20';
+                        elseif (strtolower($member['status']) === 'inactive') $status_class = 'bg-slate-400 text-white shadow-lg shadow-slate-400/20';
+                        ?>
+                        <span class="px-4 py-1.5 text-[9px] font-black uppercase tracking-widest <?php echo $status_class; ?>">
                             <?php echo htmlspecialchars($member['status']); ?>
                         </span>
                     </div>

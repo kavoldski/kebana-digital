@@ -7,11 +7,9 @@
 use App\Helpers\EventsHelper;
 use App\Helpers\DashboardHelper;
 
-require_once APP_ROOT . '/includes/header.php';
-
 $eventId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-// Workflow actions
+// Workflow actions - MUST BE BEFORE ANY HTML OUTPUT
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
     $success = false;
@@ -33,6 +31,8 @@ if (isset($_GET['action'])) {
         exit;
     }
 }
+
+require_once APP_ROOT . '/includes/header.php';
 
 $event = EventsHelper::getEventById($eventId);
 

@@ -92,12 +92,12 @@ $inactive_members = count(MembersHelper::getMembersByStatus('Inactive'));
             </div>
             <i class="fa-solid fa-user-check text-green-600 opacity-10 group-hover:opacity-100 transition-opacity text-3xl"></i>
         </div>
-        <div class="bg-white p-8 last:border-r-0 flex items-center justify-between group hover:bg-slate-50 transition-colors border-b-4 border-kebana-yellow">
+        <div class="bg-white p-8 last:border-r-0 flex items-center justify-between group hover:bg-slate-50 transition-colors border-b-4 border-slate-300">
             <div>
                 <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">AHLI TIDAK AKTIF</p>
-                <p class="text-3xl font-black text-amber-500 mt-2"><?php echo number_format($inactive_members); ?></p>
+                <p class="text-3xl font-black text-slate-400 mt-2"><?php echo number_format($inactive_members); ?></p>
             </div>
-            <i class="fa-solid fa-user-slash text-amber-500 opacity-10 group-hover:opacity-100 transition-opacity text-3xl"></i>
+            <i class="fa-solid fa-user-slash text-slate-400 opacity-10 group-hover:opacity-100 transition-opacity text-3xl"></i>
         </div>
     </div>
 
@@ -151,7 +151,12 @@ $inactive_members = count(MembersHelper::getMembersByStatus('Inactive'));
                             <?php echo htmlspecialchars($member['village']); ?>
                         </td>
                         <td class="px-8 py-6 text-center">
-                            <span class="inline-block px-4 py-1.5 text-[9px] font-black uppercase tracking-widest <?php echo strtolower($member['status']) === 'active' ? 'bg-green-600 text-white shadow-lg shadow-green-600/20' : 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'; ?>">
+                            <?php 
+                            $status_class = 'bg-amber-500 text-white shadow-lg shadow-amber-500/20';
+                            if (strtolower($member['status']) === 'active') $status_class = 'bg-green-600 text-white shadow-lg shadow-green-600/20';
+                            elseif (strtolower($member['status']) === 'inactive') $status_class = 'bg-slate-400 text-white shadow-lg shadow-slate-400/20';
+                            ?>
+                            <span class="inline-block px-4 py-1.5 text-[9px] font-black uppercase tracking-widest <?php echo $status_class; ?>">
                                 <?php echo htmlspecialchars($member['status']); ?>
                             </span>
                         </td>

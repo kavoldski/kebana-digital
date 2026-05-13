@@ -58,6 +58,30 @@ if (in_array($current_role, [33, 55, 66])) {
 
 $all_events = EventsHelper::getAllEvents($view_mode, $current_user_id, $current_cawangan_id);
 
+// Organize into Hierarchy
+$master_events = [];
+$orphan_subs = [];
+
+foreach ($all_events as $event) {
+    if (($event['event_level'] ?? 'MASTER') === 'MASTER') {
+        $event['sub_events'] = [];
+        $master_events[$event['event_id']] = $event;
+    } else {
+        $orphan_subs[] = $event;
+    }
+}
+
+foreach ($orphan_subs as $sub) {
+    $parent_id = $sub['parent_event_id'] ?? 0;
+    if (isset($master_events[$parent_id])) {
+        $master_events[$parent_id]['sub_events'][] = $sub;
+    } else {
+        // If parent not found, treat as top-level but keep level tag
+        $sub['sub_events'] = [];
+        $master_events['orphan_' . $sub['event_id']] = $sub;
+    }
+}
+
 // Search & Filter
 $search = trim($_GET['search'] ?? '');
 if ($search) {
@@ -143,14 +167,14 @@ $page_title = 'PENGURUSAN ACARA';
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
-                    <?php if (empty($all_events)): ?>
+                    <?php if (empty($master_events)): ?>
                     <tr>
                         <td colspan="5" class="px-8 py-20 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
                             Tiada rekod acara dijumpai.
                         </td>
                     </tr>
                     <?php else: ?>
-                        <?php foreach ($all_events as $event): 
+                        <?php foreach ($master_events as $event): 
                             $status = !empty($event['status']) && $event['status'] !== '0' ? $event['status'] : 'Draft';
                             $status_class = 'bg-slate-100 text-slate-400';
                             
@@ -162,9 +186,11 @@ $page_title = 'PENGURUSAN ACARA';
                             elseif ($check_status === 'BRANCH APPROVED') $status_class = 'bg-emerald-100 text-emerald-700';
                             
                             $level = $event['event_level'] ?? 'MASTER';
-                            $level_class = ($level === 'MASTER') ? 'bg-kebana-blue text-white' : 'bg-slate-200 text-slate-600';
+                            $is_master = ($level === 'MASTER');
+                            $level_class = $is_master ? 'bg-kebana-blue text-white shadow-lg shadow-kebana-blue/20' : 'bg-slate-200 text-slate-600';
                         ?>
-                        <tr class="hover:bg-slate-50/50 transition-colors group">
+                        <!-- Master / Main Row -->
+                        <tr class="hover:bg-slate-50/50 transition-colors group <?php echo $is_master ? 'bg-white' : 'bg-slate-50/30'; ?>">
                             <td class="px-8 py-6">
                                 <span class="px-3 py-1 text-[8px] font-black uppercase tracking-widest <?php echo $level_class; ?>">
                                     <?php echo $level; ?>
@@ -217,6 +243,53 @@ $page_title = 'PENGURUSAN ACARA';
                                 </div>
                             </td>
                         </tr>
+
+                        <!-- Sub Events Nested -->
+                        <?php foreach ($event['sub_events'] as $sub): 
+                             $s_status = !empty($sub['status']) && $sub['status'] !== '0' ? $sub['status'] : 'Draft';
+                             $s_status_class = 'bg-slate-100 text-slate-400';
+                             
+                             $s_check = strtoupper($s_status);
+                             if ($s_check === 'APPROVED') $s_status_class = 'bg-green-100 text-green-700';
+                             elseif ($s_check === 'SUBMITTED') $s_status_class = 'bg-amber-100 text-amber-700';
+                             elseif ($s_check === 'BRANCH APPROVED') $s_status_class = 'bg-emerald-100 text-emerald-700';
+                        ?>
+                        <tr class="hover:bg-slate-50 transition-colors group bg-slate-50/20">
+                            <td class="px-8 py-4 text-center">
+                                <div class="flex items-center justify-center">
+                                    <div class="h-6 w-[2px] bg-slate-200"></div>
+                                    <div class="w-4 h-[2px] bg-slate-200"></div>
+                                    <span class="px-2 py-0.5 text-[7px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 ml-2">
+                                        SUB
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-4 pl-12">
+                                <p class="text-[11px] font-bold text-slate-600 uppercase tracking-tight group-hover:text-kebana-blue transition-colors">
+                                    <?php echo htmlspecialchars($sub['event_title']); ?>
+                                </p>
+                                <p class="text-[8px] font-bold text-slate-300 uppercase mt-0.5"><?php echo htmlspecialchars($sub['cawangan_name'] ?? 'Cawangan'); ?></p>
+                            </td>
+                            <td class="px-8 py-4">
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                    <i class="fa-solid fa-calendar-day mr-2 text-slate-200"></i>
+                                    <?php echo date('d M Y', strtotime($sub['event_date'])); ?>
+                                </p>
+                            </td>
+                            <td class="px-8 py-4">
+                                <span class="px-2 py-1 text-[8px] font-black uppercase tracking-widest <?php echo $s_status_class; ?>">
+                                    <?php echo $s_status; ?>
+                                </span>
+                            </td>
+                            <td class="px-8 py-4 text-right">
+                                <div class="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <a href="/kebana-digital/events/view/<?php echo $sub['event_id']; ?>" class="text-[8px] font-black text-slate-400 uppercase hover:text-kebana-blue">Lihat</a>
+                                    <a href="/kebana-digital/events/attendance?event_id=<?php echo $sub['event_id']; ?>" class="text-[8px] font-black text-slate-400 uppercase hover:text-kebana-blue">Hadir</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>

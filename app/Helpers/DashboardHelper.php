@@ -9,36 +9,44 @@ namespace App\Helpers;
 use App\Core\Database;
 
 class DashboardHelper {
-    public static function getUpcomingEventsCount() {
+    public static function getUpcomingEventsCount($cawanganId = null) {
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT COUNT(*) as total FROM tbl_event WHERE event_date >= CURDATE()");
-        if (!$stmt) return 0;
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $count = $result->fetch_assoc()['total'] ?? 0;
-        $stmt->close();
+        $sql = "SELECT COUNT(*) as total FROM tbl_event WHERE event_date >= CURDATE() AND status = 'Approved'";
+        if ($cawanganId !== null) {
+            $sql .= " AND cawangan_id = " . (int)$cawanganId;
+        }
+        $result = $db->query($sql);
+        $count = $result ? $result->fetch_assoc()['total'] : 0;
         return (int) $count;
     }
 
-    public static function getPastEventsCount() {
+    public static function getPastEventsCount($cawanganId = null) {
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT COUNT(*) as total FROM tbl_event WHERE event_date < CURDATE()");
-        if (!$stmt) return 0;
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $count = $result->fetch_assoc()['total'] ?? 0;
-        $stmt->close();
+        $sql = "SELECT COUNT(*) as total FROM tbl_event WHERE event_date < CURDATE() AND status = 'Approved'";
+        if ($cawanganId !== null) {
+            $sql .= " AND cawangan_id = " . (int)$cawanganId;
+        }
+        $result = $db->query($sql);
+        $count = $result ? $result->fetch_assoc()['total'] : 0;
         return (int) $count;
     }
 
-    public static function getPendingDocumentsCount() {
+    public static function getPendingDocumentsCount($role = 0, $cawanganId = null) {
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT COUNT(*) as total FROM tbl_document WHERE status = 'Pending'");
-        if (!$stmt) return 0;
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $count = $result->fetch_assoc()['total'] ?? 0;
-        $stmt->close();
+        
+        // Base SQL
+        $sql = "SELECT COUNT(*) as total FROM tbl_document d ";
+        $sql .= "JOIN tbl_event e ON d.event_id = e.event_id ";
+        $sql .= "WHERE d.status = 'Pending'";
+
+        // Filter by branch if not Pusat role
+        $pusat_roles = [888, 1, 2, 3, 4, 5, 6, 7];
+        if (!in_array($role, $pusat_roles) && $cawanganId !== null) {
+            $sql .= " AND e.cawangan_id = " . (int)$cawanganId;
+        }
+
+        $result = $db->query($sql);
+        $count = $result ? $result->fetch_assoc()['total'] : 0;
         return (int) $count;
     }
 
@@ -53,14 +61,30 @@ class DashboardHelper {
         return (int) $count;
     }
 
-    public static function getPendingApprovalsCount() {
+    public static function getPendingApprovalsCount($role = 0, $cawanganId = null) {
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("SELECT COUNT(*) as total FROM tbl_event WHERE status = 'Submitted'");
-        if (!$stmt) return 0;
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $count = $result->fetch_assoc()['total'] ?? 0;
-        $stmt->close();
+        
+        // Role-based status filtering
+        if (in_array($role, [1, 888])) {
+            // President/Super Admin: See items submitted to Pusat
+            $status = 'Submitted';
+            $sql = "SELECT COUNT(*) as total FROM tbl_event WHERE status = '$status'";
+        } elseif ($role === 11) {
+            // Pengerusi Cawangan: See items pending branch approval
+            $status = 'Pending Branch Approval';
+            $sql = "SELECT COUNT(*) as total FROM tbl_event WHERE status = '$status' AND cawangan_id = " . (int)$cawanganId;
+        } else {
+            // Other roles might not have direct approval authority in the dashboard count for now
+            // or we show Submitted for Pusat roles 2-7 if needed.
+            if (in_array($role, [2, 3, 4, 5, 6, 7])) {
+                $sql = "SELECT COUNT(*) as total FROM tbl_event WHERE status = 'Submitted'";
+            } else {
+                return 0;
+            }
+        }
+
+        $result = $db->query($sql);
+        $count = $result ? $result->fetch_assoc()['total'] : 0;
         return (int) $count;
     }
 

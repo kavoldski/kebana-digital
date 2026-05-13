@@ -16,20 +16,25 @@ $username = $_SESSION['username'] ?? 'User';
 
 require_once APP_ROOT . '/includes/header.php';
 
+$current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
+
 // Data fetching
 $total_members = MembersHelper::getMemberCount();
 $active_members = count(MembersHelper::getMembersByStatus('Active'));
-$upcoming_events = DashboardHelper::getUpcomingEventsCount();
-$past_events = DashboardHelper::getPastEventsCount();
+$upcoming_events = DashboardHelper::getUpcomingEventsCount($current_cawangan_id);
+$past_events = DashboardHelper::getPastEventsCount($current_cawangan_id);
 $total_events = $upcoming_events + $past_events;
 
-$pending_docs = DashboardHelper::getPendingDocumentsCount();
+$current_role = (int)($_SESSION['role'] ?? 0);
+$current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
+
+$pending_docs = DashboardHelper::getPendingDocumentsCount($current_role, $current_cawangan_id);
 $total_docs = DashboardHelper::getTotalDocumentsCount();
 
 $fund_balance = DashboardHelper::getFundBalance();
 $finance_totals = FinanceHelper::getFinanceTotals();
 
-$pending_approvals = DashboardHelper::getPendingApprovalsCount();
+$pending_approvals = DashboardHelper::getPendingApprovalsCount($current_role, $current_cawangan_id);
 
 $recent_activities = DashboardHelper::getRecentActivities(5);
 

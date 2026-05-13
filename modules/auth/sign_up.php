@@ -136,13 +136,24 @@ if ($table_check && $table_check->num_rows > 0) {
                                     class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-kebana-blue focus:bg-white focus:ring-4 focus:ring-kebana-blue/10"
                                 >
                                     <option value="">Pilih Peranan</option>
-                                    <option value="888">Super Admin (Pusat)</option>
-                                    <option value="4">Setiausaha Pusat</option>
-                                    <option value="33">Setiausaha Cawangan</option>
-                                    <option value="6">Bendahari Pusat</option>
-                                    <option value="55">Bendahari Cawangan</option>
-                                    <option value="7">Auditor Pusat</option>
-                                    <option value="66">Auditor Cawangan</option>
+                                    <optgroup label="KEBANA PUSAT">
+                                        <option value="888">Super Admin</option>
+                                        <option value="1">Presiden</option>
+                                        <option value="2">Timbalan Presiden 1</option>
+                                        <option value="3">Timbalan Presiden 2</option>
+                                        <option value="4">Setiausaha Pusat</option>
+                                        <option value="5">Penolong Setiausaha Pusat</option>
+                                        <option value="6">Bendahari Kehormat</option>
+                                        <option value="7">Penolong Bendahari Kehormat</option>
+                                    </optgroup>
+                                    <optgroup label="KEBANA CAWANGAN">
+                                        <option value="11">Pengerusi Cawangan</option>
+                                        <option value="22">Timb. Pengerusi Cawangan</option>
+                                        <option value="33">Setiausaha Cawangan</option>
+                                        <option value="44">Pen. Setiausaha Cawangan</option>
+                                        <option value="55">Bendahari Cawangan</option>
+                                        <option value="66">Pen. Bendahari Cawangan</option>
+                                    </optgroup>
                                 </select>
                             </div>
 
