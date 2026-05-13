@@ -7,9 +7,62 @@
 use App\Core\Database;
 use App\Helpers\MembersHelper;
 
-require_once APP_ROOT . '/includes/header.php';
-
 $db = Database::getInstance()->getConnection();
+
+// CSV export - MUST BE BEFORE ANY HTML OUTPUT
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+    // Build query for filtered list (copy logic from below or share it)
+    $filter_status = $_GET['status'] ?? '';
+    $filter_village = $_GET['village'] ?? '';
+    
+    $where = "1=1";
+    $params = [];
+    $types = '';
+
+    if ($filter_status !== '') {
+        $where .= " AND status = ?";
+        $params[] = $filter_status;
+        $types .= 's';
+    }
+    if ($filter_village !== '') {
+        $where .= " AND village LIKE ?";
+        $params[] = '%' . $filter_village . '%';
+        $types .= 's';
+    }
+
+    $list_sql = "SELECT member_id, full_name, ic_number, village, phone_no, status, created_at FROM tbl_member WHERE $where ORDER BY member_id DESC";
+    $list_stmt = $db->prepare($list_sql);
+    
+    if ($list_stmt) {
+        if ($types !== '') {
+            $list_stmt->bind_param($types, ...$params);
+        }
+        $list_stmt->execute();
+        $list_result = $list_stmt->get_result();
+        
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="kebana_member_report_' . date('Ymd_His') . '.csv"');
+
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['ID', 'Nama Penuh', 'No. IC', 'Kawasan', 'No. Telefon', 'Status', 'Tarikh Daftar']);
+        while ($row = $list_result->fetch_assoc()) {
+            fputcsv($out, [
+                $row['member_id'],
+                $row['full_name'],
+                $row['ic_number'],
+                $row['village'],
+                $row['phone_no'],
+                $row['status'],
+                $row['created_at']
+            ]);
+        }
+        fclose($out);
+        $list_stmt->close();
+        exit;
+    }
+}
+
+require_once APP_ROOT . '/includes/header.php';
 
 // Report access: Secretary and Super Admin
 if (!hasRole([4, 33, 888])) {
@@ -40,9 +93,11 @@ function extractICInfo($ic) {
 $total_members = MembersHelper::getMemberCount();
 $active_members = count(MembersHelper::getMembersByStatus('Active'));
 $inactive_members = count(MembersHelper::getMembersByStatus('Inactive'));
+$growth_rate = MembersHelper::getGrowthRate();
+$growth_data = MembersHelper::getGrowthDataForLast6Months();
 
 // Fetch all members for demographics
-$all_members_res = $db->query("SELECT ic_number, village, status FROM tbl_member");
+$all_members_res = $db->query("SELECT gender, ic_number, village, status FROM tbl_member");
 $villages = [];
 $genders = ['Lelaki' => 0, 'Wanita' => 0];
 $age_groups = ['Belia (18-30)' => 0, 'Dewasa (31-50)' => 0, 'Warga Emas (51+)' => 0, 'Lain-lain' => 0];
@@ -52,10 +107,22 @@ while ($m = $all_members_res->fetch_assoc()) {
     $v = strtoupper($m['village']);
     $villages[$v] = ($villages[$v] ?? 0) + 1;
     
-    // IC Info
+    // Gender logic: Use column if available, else IC
+    $gender = $m['gender'];
+    if ($gender === 'Perempuan') $gender = 'Wanita'; // Sync with report labels
+    
+    // IC Info for Age (and Gender fallback)
     $info = extractICInfo($m['ic_number']);
+    
+    if (!$gender && $info) {
+        $gender = $info['gender'];
+    }
+    
+    if ($gender) {
+        $genders[$gender] = ($genders[$gender] ?? 0) + 1;
+    }
+
     if ($info) {
-        $genders[$info['gender']]++;
         if ($info['age'] >= 18 && $info['age'] <= 30) $age_groups['Belia (18-30)']++;
         elseif ($info['age'] >= 31 && $info['age'] <= 50) $age_groups['Dewasa (31-50)']++;
         elseif ($info['age'] >= 51) $age_groups['Warga Emas (51+)']++;
@@ -65,11 +132,11 @@ while ($m = $all_members_res->fetch_assoc()) {
 arsort($villages);
 $top_villages = array_slice($villages, 0, 5);
 
-// Filters
+// Filter parameters for UI display
 $filter_status = $_GET['status'] ?? '';
 $filter_village = $_GET['village'] ?? '';
 
-// Build query for filtered list
+// Build query for UI list
 $where = "1=1";
 $params = [];
 $types = '';
@@ -98,28 +165,6 @@ if ($list_stmt) {
         $filtered_members[] = $m;
     }
     $list_stmt->close();
-}
-
-// CSV export
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="kebana_member_report_' . date('Ymd_His') . '.csv"');
-
-    $out = fopen('php://output', 'w');
-    fputcsv($out, ['ID', 'Nama Penuh', 'No. IC', 'Kawasan', 'No. Telefon', 'Status', 'Tarikh Daftar']);
-    foreach ($filtered_members as $row) {
-        fputcsv($out, [
-            $row['member_id'],
-            $row['full_name'],
-            $row['ic_number'],
-            $row['village'],
-            $row['phone_no'],
-            $row['status'],
-            $row['created_at']
-        ]);
-    }
-    fclose($out);
-    exit;
 }
 
 $page_title = 'LAPORAN & ANALISIS';
@@ -160,83 +205,104 @@ $page_title = 'LAPORAN & ANALISIS';
         </div>
         <div class="p-8 flex flex-col justify-center hover:bg-slate-50 transition-colors border-b-4 border-kebana-yellow">
             <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">KADAR PERTUMBUHAN</p>
-            <p class="text-3xl font-black text-kebana-blue mt-2">+12%</p>
+            <p class="text-3xl font-black text-kebana-blue mt-2"><?php echo ($growth_rate >= 0 ? '+' : '') . $growth_rate; ?>%</p>
+        </div>
+    </div>
+
+    <!-- Growth Chart -->
+    <div class="bg-white p-10 border border-slate-100 shadow-xl relative overflow-hidden group">
+        <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+            <i class="fa-solid fa-chart-line text-8xl"></i>
+        </div>
+        <div class="relative z-10 space-y-8">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xs font-black text-kebana-blue uppercase tracking-[0.3em] flex items-center">
+                    <span class="w-8 h-1 bg-kebana-yellow mr-4"></span>
+                    Trend Pertumbuhan Keahlian (6 Bulan)
+                </h3>
+                <div class="flex items-center gap-4 text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                    <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-kebana-blue"></span> JUMLAH AHLI</span>
+                </div>
+            </div>
+            <div class="h-[350px]">
+                <canvas id="growthChart"></canvas>
+            </div>
         </div>
     </div>
 
     <!-- Quick Insights -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <!-- Gender & Age Distribution -->
-        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div class="bg-white p-8 border border-slate-100 shadow-sm space-y-8">
-                <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest flex items-center">
-                    <i class="fa-solid fa-venus-mars mr-4"></i>
-                    Demografi Jantina
-                </h3>
-                <div class="space-y-6">
-                    <?php 
-                    $total_gendered = $genders['Lelaki'] + $genders['Wanita'];
-                    foreach ($genders as $label => $count): 
-                        $pct = $total_gendered > 0 ? round(($count / $total_gendered) * 100) : 0;
-                    ?>
-                    <div>
-                        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest mb-3">
-                            <span><?php echo $label; ?></span>
-                            <span><?php echo $count; ?> Ahli (<?php echo $pct; ?>%)</span>
-                        </div>
-                        <div class="h-3 bg-slate-50 overflow-hidden">
-                            <div class="h-full <?php echo $label === 'Lelaki' ? 'bg-kebana-blue' : 'bg-kebana-yellow'; ?> transition-all duration-1000" style="width: <?php echo $pct; ?>%"></div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
+        <!-- Gender Distribution -->
+        <div class="bg-white p-10 border border-slate-100 shadow-xl space-y-10">
+            <h3 class="text-xs font-black text-kebana-blue uppercase tracking-[0.3em] flex items-center">
+                <i class="fa-solid fa-venus-mars mr-4 text-kebana-yellow"></i>
+                Demografi Jantina
+            </h3>
+            <div class="relative h-64 flex items-center justify-center">
+                <canvas id="genderChart"></canvas>
+                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span class="text-2xl font-black text-kebana-blue"><?php echo $total_members; ?></span>
+                    <span class="text-[8px] font-black text-slate-300 uppercase tracking-widest">JUMLAH</span>
                 </div>
             </div>
-
-            <div class="bg-white p-8 border border-slate-100 shadow-sm space-y-8">
-                <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest flex items-center">
-                    <i class="fa-solid fa-chart-simple-horizontal mr-4"></i>
-                    Taburan Umur
-                </h3>
-                <div class="space-y-6">
-                    <?php 
-                    $total_aged = array_sum($age_groups);
-                    foreach ($age_groups as $label => $count): 
-                        $pct = $total_aged > 0 ? round(($count / $total_aged) * 100) : 0;
-                    ?>
-                    <div>
-                        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest mb-3">
-                            <span><?php echo $label; ?></span>
-                            <span><?php echo $pct; ?>%</span>
-                        </div>
-                        <div class="h-3 bg-slate-50 overflow-hidden">
-                            <div class="h-full bg-kebana-blue/20 group-hover:bg-kebana-blue transition-all" style="width: <?php echo $pct; ?>%"></div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
+            <div class="grid grid-cols-2 gap-4">
+                <?php foreach ($genders as $label => $count): 
+                    $pct = $total_members > 0 ? round(($count / $total_members) * 100) : 0;
+                ?>
+                <div class="p-4 bg-slate-50 border-l-4 <?php echo $label === 'Lelaki' ? 'border-kebana-blue' : 'border-kebana-yellow'; ?>">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest"><?php echo $label; ?></p>
+                    <p class="text-lg font-black text-kebana-blue mt-1"><?php echo $pct; ?>%</p>
                 </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Age Distribution -->
+        <div class="bg-white p-10 border border-slate-100 shadow-xl space-y-10">
+            <h3 class="text-xs font-black text-kebana-blue uppercase tracking-[0.3em] flex items-center">
+                <i class="fa-solid fa-chart-simple-horizontal mr-4 text-kebana-yellow"></i>
+                Taburan Umur
+            </h3>
+            <div class="h-64">
+                <canvas id="ageChart"></canvas>
+            </div>
+            <div class="space-y-4">
+                <?php foreach ($age_groups as $label => $count): 
+                    $pct = array_sum($age_groups) > 0 ? round(($count / array_sum($age_groups)) * 100) : 0;
+                ?>
+                <div class="flex items-center justify-between text-[9px] font-black uppercase tracking-widest pb-3 border-b border-slate-50">
+                    <span class="text-slate-400"><?php echo $label; ?></span>
+                    <span class="text-kebana-blue"><?php echo $count; ?> AHLI</span>
+                </div>
+                <?php endforeach; ?>
             </div>
         </div>
 
         <!-- Top Villages -->
-        <div class="bg-kebana-blue p-8 text-white space-y-8 shadow-xl">
-            <h3 class="text-xs font-black uppercase tracking-widest flex items-center">
-                <i class="fa-solid fa-map-location-dot mr-4 text-kebana-yellow"></i>
+        <div class="bg-kebana-blue p-10 text-white space-y-10 shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 opacity-10 rotate-12">
+                <i class="fa-solid fa-map-location-dot text-[200px]"></i>
+            </div>
+            <h3 class="text-xs font-black uppercase tracking-[0.3em] flex items-center relative z-10">
+                <i class="fa-solid fa-location-dot mr-4 text-kebana-yellow"></i>
                 Kawasan Utama
             </h3>
-            <div class="space-y-6">
+            <div class="space-y-8 relative z-10">
                 <?php $rank = 1; foreach ($top_villages as $village => $count): ?>
-                <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                    <div class="flex items-center gap-4">
-                        <span class="text-xs font-black text-kebana-yellow">#<?php echo $rank++; ?></span>
+                <div class="flex items-center justify-between group">
+                    <div class="flex items-center gap-6">
+                        <span class="w-8 h-8 flex items-center justify-center bg-white/10 text-[10px] font-black group-hover:bg-kebana-yellow group-hover:text-kebana-blue transition-all">0<?php echo $rank++; ?></span>
                         <span class="text-[10px] font-black uppercase tracking-widest"><?php echo $village; ?></span>
                     </div>
-                    <span class="text-xs font-black"><?php echo $count; ?></span>
+                    <div class="flex flex-col items-end">
+                        <span class="text-sm font-black"><?php echo $count; ?></span>
+                        <div class="w-12 h-1 bg-white/10 mt-1 overflow-hidden">
+                            <div class="h-full bg-kebana-yellow" style="width: <?php echo ($count/max($villages))*100; ?>%"></div>
+                        </div>
+                    </div>
                 </div>
                 <?php endforeach; ?>
             </div>
-            <p class="text-[9px] font-bold text-white/40 uppercase tracking-tighter italic mt-4">
-                * Berdasarkan data pendaftaran terkini.
-            </p>
         </div>
     </div>
 
@@ -314,3 +380,96 @@ $page_title = 'LAPORAN & ANALISIS';
 </div>
 
 <?php require_once APP_ROOT . '/includes/footer.php'; ?>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Shared Chart Options
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        }
+    };
+
+    // 1. Membership Growth Chart (Line)
+    const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+    new Chart(ctxGrowth, {
+        type: 'line',
+        data: {
+            labels: <?php echo json_encode(array_column($growth_data, 'label')); ?>,
+            datasets: [{
+                label: 'Jumlah Ahli',
+                data: <?php echo json_encode(array_column($growth_data, 'total')); ?>,
+                borderColor: '#003366',
+                borderWidth: 4,
+                backgroundColor: 'rgba(0, 51, 102, 0.05)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#003366',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { font: { family: 'Inter', weight: 'bold', size: 10 } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { family: 'Inter', weight: 'bold', size: 10 } }
+                }
+            }
+        }
+    });
+
+    // 2. Gender Distribution Chart (Doughnut)
+    const ctxGender = document.getElementById('genderChart').getContext('2d');
+    new Chart(ctxGender, {
+        type: 'doughnut',
+        data: {
+            labels: <?php echo json_encode(array_keys($genders)); ?>,
+            datasets: [{
+                data: <?php echo json_encode(array_values($genders)); ?>,
+                backgroundColor: ['#003366', '#FFCC00'],
+                borderWidth: 0,
+                cutout: '80%'
+            }]
+        },
+        options: chartOptions
+    });
+
+    // 3. Age Distribution Chart (Bar)
+    const ctxAge = document.getElementById('ageChart').getContext('2d');
+    new Chart(ctxAge, {
+        type: 'bar',
+        data: {
+            labels: <?php echo json_encode(array_keys($age_groups)); ?>,
+            datasets: [{
+                data: <?php echo json_encode(array_values($age_groups)); ?>,
+                backgroundColor: 'rgba(0, 51, 102, 0.1)',
+                hoverBackgroundColor: '#003366',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                y: { display: false },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { family: 'Inter', weight: 'bold', size: 9 } }
+                }
+            }
+        }
+    });
+});
+</script>

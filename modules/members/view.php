@@ -61,6 +61,10 @@ $page_title = 'PROFIL AHLI';
                             <p class="text-sm font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($member['full_name']); ?></p>
                         </div>
                         <div>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Jantina</p>
+                            <p class="text-sm font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($member['gender'] ?? 'TIDAK DINYATAKAN'); ?></p>
+                        </div>
+                        <div>
                             <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">No. Kad Pengenalan</p>
                             <p class="text-sm font-black text-kebana-blue"><?php echo htmlspecialchars($member['ic_number']); ?></p>
                         </div>

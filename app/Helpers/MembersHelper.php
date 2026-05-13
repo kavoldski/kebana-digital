@@ -81,17 +81,18 @@ class MembersHelper {
         $ic_check->close();
 
         $stmt = $db->prepare("
-            INSERT INTO tbl_member (full_name, ic_number, village, phone_no, status) 
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO tbl_member (full_name, gender, ic_number, village, phone_no, status) 
+            VALUES (?, ?, ?, ?, ?, ?)
         ");
 
         $full_name = $member_data['full_name'];
+        $gender = $member_data['gender'] ?? null;
         $ic_number = $member_data['ic_number'];
         $village = $member_data['village'];
         $phone_no = $member_data['phone_no'] ?? null;
         $status = $member_data['status'] ?? 'Active';
 
-        $stmt->bind_param("sssss", $full_name, $ic_number, $village, $phone_no, $status);
+        $stmt->bind_param("ssssss", $full_name, $gender, $ic_number, $village, $phone_no, $status);
 
         if (!$stmt->execute()) {
             $error = $stmt->error;
@@ -135,5 +136,41 @@ class MembersHelper {
         $member = $result->fetch_assoc();
         $stmt->close();
         return $member;
+    }
+
+    public static function getGrowthRate() {
+        $db = Database::getInstance()->getConnection();
+        
+        // Count this month
+        $this_month = $db->query("SELECT COUNT(*) as total FROM tbl_member WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())")->fetch_assoc()['total'];
+        
+        // Count last month
+        $last_month = $db->query("SELECT COUNT(*) as total FROM tbl_member WHERE MONTH(created_at) = MONTH(CURRENT_DATE() - INTERVAL 1 MONTH) AND YEAR(created_at) = YEAR(CURRENT_DATE() - INTERVAL 1 MONTH)")->fetch_assoc()['total'];
+        
+        if ($last_month == 0) {
+            return $this_month > 0 ? 100 : 0;
+        }
+        
+        return round((($this_month - $last_month) / $last_month) * 100);
+    }
+
+    public static function getGrowthDataForLast6Months() {
+        $db = Database::getInstance()->getConnection();
+        $data = [];
+        
+        for ($i = 5; $i >= 0; $i--) {
+            $month_label = date('M Y', strtotime("-$i months"));
+            $month_sql = date('Y-m', strtotime("-$i months"));
+            
+            $res = $db->query("SELECT COUNT(*) as total FROM tbl_member WHERE created_at <= LAST_DAY('$month_sql-01')");
+            $total = $res->fetch_assoc()['total'] ?? 0;
+            
+            $data[] = [
+                'label' => $month_label,
+                'total' => $total
+            ];
+        }
+        
+        return $data;
     }
 }

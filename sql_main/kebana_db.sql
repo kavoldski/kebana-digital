@@ -104,6 +104,7 @@ CREATE TABLE `tbl_event` (
 CREATE TABLE `tbl_member` (
   `member_id` int(11) NOT NULL,
   `full_name` varchar(150) NOT NULL,
+  `gender` enum('Lelaki','Perempuan') DEFAULT NULL,
   `ic_number` varchar(20) NOT NULL,
   `village` varchar(100) NOT NULL,
   `phone_no` varchar(20) DEFAULT NULL,

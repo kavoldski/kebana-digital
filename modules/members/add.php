@@ -18,6 +18,7 @@ $message_type = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $member_data = [
         'full_name' => trim($_POST['full_name'] ?? ''),
+        'gender'    => $_POST['gender'] ?? null,
         'ic_number' => trim($_POST['ic_number'] ?? ''),
         'village'   => trim($_POST['village'] ?? ''),
         'phone_no'  => trim($_POST['phone_no'] ?? ''),
@@ -72,6 +73,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase tracking-tight transition-all rounded-none"
                                placeholder="Contoh: AHMAD BIN ABDULLAH"
                                value="<?php echo isset($_POST['full_name']) ? htmlspecialchars($_POST['full_name']) : ''; ?>">
+                    </div>
+
+                    <!-- Gender -->
+                    <div>
+                        <label for="gender" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">JANTINA</label>
+                        <select id="gender" name="gender" required 
+                                class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all rounded-none appearance-none">
+                            <option value="" disabled <?php echo !isset($_POST['gender']) ? 'selected' : ''; ?>>PILIH JANTINA</option>
+                            <option value="Lelaki" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Lelaki') ? 'selected' : ''; ?>>LELAKI</option>
+                            <option value="Perempuan" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Perempuan') ? 'selected' : ''; ?>>PEREMPUAN</option>
+                        </select>
                     </div>
 
                     <!-- IC Number -->

@@ -35,6 +35,7 @@ if (empty($member)) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $member_data = [
         'full_name' => trim($_POST['full_name'] ?? ''),
+        'gender'    => $_POST['gender'] ?? null,
         'ic_number' => trim($_POST['ic_number'] ?? ''),
         'village'   => trim($_POST['village'] ?? ''),
         'phone_no'  => trim($_POST['phone_no'] ?? ''),
@@ -42,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 
     // Simple update logic since we're in a module file
-    $stmt = $db->prepare("UPDATE tbl_member SET full_name = ?, ic_number = ?, village = ?, phone_no = ?, status = ?, updated_at = NOW() WHERE member_id = ?");
-    $stmt->bind_param("sssssi", $member_data['full_name'], $member_data['ic_number'], $member_data['village'], $member_data['phone_no'], $member_data['status'], $member_id);
+    $stmt = $db->prepare("UPDATE tbl_member SET full_name = ?, gender = ?, ic_number = ?, village = ?, phone_no = ?, status = ?, updated_at = NOW() WHERE member_id = ?");
+    $stmt->bind_param("ssssssi", $member_data['full_name'], $member_data['gender'], $member_data['ic_number'], $member_data['village'], $member_data['phone_no'], $member_data['status'], $member_id);
 
     if ($stmt->execute()) {
         $message = 'Maklumat ahli berjaya dikemaskini.';
@@ -92,6 +93,16 @@ $page_title = 'KEMASKINI AHLI';
                         <input type="text" id="full_name" name="full_name" required 
                                class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase tracking-tight transition-all rounded-none"
                                value="<?php echo htmlspecialchars($member['full_name']); ?>">
+                    </div>
+
+                    <!-- Gender -->
+                    <div>
+                        <label for="gender" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">JANTINA</label>
+                        <select id="gender" name="gender" required 
+                                class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all rounded-none appearance-none">
+                            <option value="Lelaki" <?php echo $member['gender'] === 'Lelaki' ? 'selected' : ''; ?>>LELAKI</option>
+                            <option value="Perempuan" <?php echo $member['gender'] === 'Perempuan' ? 'selected' : ''; ?>>PEREMPUAN</option>
+                        </select>
                     </div>
 
                     <!-- IC Number -->
