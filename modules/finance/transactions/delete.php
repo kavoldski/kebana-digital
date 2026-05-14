@@ -15,7 +15,7 @@ $current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawanga
 
 // Only Treasurers and Admins can delete
 $CAWANGAN_ROLES = [11, 22, 33, 44, 55, 66];
-if (!in_array($current_role, [888, 6, 55])) {
+if (!in_array($current_role, [888, 1, 2, 3, 6, 7, 55, 66])) {
     header("Location: /kebana-digital/finance/transactions/list?msg=denied");
     exit;
 }
