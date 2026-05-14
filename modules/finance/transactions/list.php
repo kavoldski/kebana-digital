@@ -34,7 +34,14 @@ if ($from_date) { $where .= " AND t.trans_date >= ?"; $params[] = $from_date; $t
 if ($to_date) { $where .= " AND t.trans_date <= ?"; $params[] = $to_date; $types .= "s"; }
 if ($type_filter) { $where .= " AND t.trans_type = ?"; $params[] = $type_filter; $types .= "s"; }
 if ($category_filter) { $where .= " AND t.category LIKE ?"; $params[] = "%$category_filter%"; $types .= "s"; }
-if ($search) { $where .= " AND (t.category LIKE ? OR e.event_title LIKE ? OR t.description LIKE ?)"; $params[] = "%$search%"; $params[] = "%$search%"; $params[] = "%$search%"; $types .= "sss"; }
+if ($search) { 
+    $where .= " AND (t.category LIKE ? OR e.event_title LIKE ? OR u.username LIKE ? OR t.payment_mode LIKE ?)"; 
+    $params[] = "%$search%"; 
+    $params[] = "%$search%"; 
+    $params[] = "%$search%"; 
+    $params[] = "%$search%"; 
+    $types .= "ssss"; 
+}
 
 // Scoping based on role
 if (in_array($current_role, $CAWANGAN_ROLES)) {
