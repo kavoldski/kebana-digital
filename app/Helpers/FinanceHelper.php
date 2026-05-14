@@ -242,13 +242,19 @@ class FinanceHelper {
                     e.event_id,
                     e.event_title,
                     e.event_date,
+                    COALESCE(e.event_level, 'MASTER') AS event_level,
+                    e.parent_event_id,
+                    c.cawangan_name,
                     COALESCE(e.budget_est, 0) AS planned_budget,
-                    COALESCE(SUM(CASE WHEN t.trans_type = 'Expense' THEN t.amount ELSE 0 END), 0) AS actual_expense
+                    COALESCE(SUM(CASE WHEN t.trans_type = 'Expense' THEN t.amount ELSE 0 END), 0) AS actual_expense,
+                    COALESCE(SUM(CASE WHEN t.trans_type = 'Income'  THEN t.amount ELSE 0 END), 0) AS actual_income
                 FROM tbl_event e
                 LEFT JOIN tbl_transaction t ON t.event_id = e.event_id
+                LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
                 WHERE $where
-                GROUP BY e.event_id, e.event_title, e.event_date, e.budget_est
-                ORDER BY e.event_date DESC";
+                GROUP BY e.event_id, e.event_title, e.event_date, e.budget_est,
+                         e.event_level, e.parent_event_id, c.cawangan_name
+                ORDER BY COALESCE(e.event_level,'MASTER') ASC, e.event_date DESC";
         
         $stmt = $db->prepare($sql);
         $rows = [];
@@ -258,6 +264,56 @@ class FinanceHelper {
             $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
                 $rows[] = $row;
+            }
+            $stmt->close();
+        }
+        return $rows;
+    }
+
+    /**
+     * All transactions linked to a specific event, with recorder name.
+     * Used by the event financial drilldown page (Phase B).
+     */
+    public static function getTransactionsByEvent($eventId) {
+        $db = Database::getInstance()->getConnection();
+        $sql = "SELECT t.*, u.username AS recorder_name
+                FROM tbl_transaction t
+                LEFT JOIN tbl_user u ON t.recorded_by = u.user_id
+                WHERE t.event_id = ?
+                ORDER BY t.trans_date ASC, t.trans_id ASC";
+        $stmt = $db->prepare($sql);
+        $rows = [];
+        if ($stmt) {
+            $stmt->bind_param("i", $eventId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = $row;
+            }
+            $stmt->close();
+        }
+        return $rows;
+    }
+
+    /**
+     * Category-level breakdown of expenses for a single event.
+     * Used for the event drilldown donut chart.
+     */
+    public static function getEventCategoryBreakdown($eventId) {
+        $db = Database::getInstance()->getConnection();
+        $sql = "SELECT category, SUM(amount) AS total
+                FROM tbl_transaction
+                WHERE event_id = ? AND trans_type = 'Expense'
+                GROUP BY category
+                ORDER BY total DESC";
+        $stmt = $db->prepare($sql);
+        $rows = [];
+        if ($stmt) {
+            $stmt->bind_param("i", $eventId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = ['label' => $row['category'], 'total' => (float)$row['total']];
             }
             $stmt->close();
         }

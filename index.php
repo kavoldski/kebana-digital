@@ -59,6 +59,12 @@ if (preg_match('/^events\/(view|edit|attendance)\/(\d+)$/', $route, $matches)) {
     exit();
 }
 
+if (preg_match('/^finance\/event\/(\d+)$/', $route, $matches)) {
+    $_GET['id'] = $matches[1];
+    require_once "modules/finance/event.php";
+    exit();
+}
+
 // Fallback logic
 if (file_exists($route . '.php')) {
     require_once $route . '.php';

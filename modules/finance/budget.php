@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Budget Management (MYDS Inspired)
+ * KEBANA Management System - Budget vs Actual (Phase A Enhanced)
  * File: modules/finance/budget.php
  */
 
@@ -15,30 +15,75 @@ if (!hasRole([888, 6, 55, 7, 66])) {
 }
 
 $filters = [
-    'year' => $_GET['year'] ?? date('Y'),
-    'search' => $_GET['search'] ?? ''
+    'year'   => isset($_GET['year'])   && is_numeric($_GET['year']) ? (int)$_GET['year'] : (int)date('Y'),
+    'search' => trim($_GET['search'] ?? '')
 ];
 
-$budgets = FinanceHelper::getBudgetSummary($filters);
+$budgets_raw = FinanceHelper::getBudgetSummary($filters);
 
-// KPI Calcs
-$total_planned = 0;
-$total_actual = 0;
-foreach ($budgets as $b) {
-    $total_planned += $b['planned_budget'];
-    $total_actual += $b['actual_expense'];
+// ── Build Master → Sub hierarchy ─────────────────────────────────────────────
+$masters = [];
+$subs    = [];
+
+foreach ($budgets_raw as $b) {
+    $level = $b['event_level'] ?? 'MASTER';
+    if ($level === 'MASTER') {
+        $b['sub_events'] = [];
+        $masters[$b['event_id']] = $b;
+    } else {
+        $subs[] = $b;
+    }
 }
-$variance = $total_planned - $total_actual;
+foreach ($subs as $s) {
+    $pid = $s['parent_event_id'] ?? 0;
+    if (isset($masters[$pid])) {
+        $masters[$pid]['sub_events'][] = $s;
+    } else {
+        // orphan sub — show as top-level
+        $s['sub_events'] = [];
+        $masters['orphan_' . $s['event_id']] = $s;
+    }
+}
 
-$page_title = 'PENGURUSAN BAJET';
+// ── KPI Totals (MASTER only for summary) ─────────────────────────────────────
+$total_planned = 0; $total_expense = 0; $total_income = 0;
+foreach ($budgets_raw as $b) {
+    $total_planned += (float)$b['planned_budget'];
+    $total_expense += (float)$b['actual_expense'];
+    $total_income  += (float)$b['actual_income'];
+}
+$total_variance = $total_planned - $total_expense;
+$total_net_pl   = $total_income - $total_expense;
+
+// ── Chart data (top 10 events with budget set) ───────────────────────────────
+$chart_events  = [];
+$chart_budget  = [];
+$chart_expense = [];
+foreach ($budgets_raw as $b) {
+    if ($b['planned_budget'] > 0 || $b['actual_expense'] > 0) {
+        $chart_events[]  = addslashes($b['event_title']);
+        $chart_budget[]  = (float)$b['planned_budget'];
+        $chart_expense[] = (float)$b['actual_expense'];
+        if (count($chart_events) >= 10) break;
+    }
+}
+
+$js_events  = json_encode($chart_events);
+$js_budget  = json_encode($chart_budget);
+$js_expense = json_encode($chart_expense);
+
+$page_title = 'ANALISIS BAJET';
 ?>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
 <div class="space-y-12">
+
     <!-- Top Action Bar -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
         <div>
-            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Pengurusan Bajet Acara</h2>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Analisis Bajet Berbanding Perbelanjaan Sebenar untuk Setiap Program.</p>
+            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Analisis Bajet vs Sebenar</h2>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Semakan Penggunaan Dana dan Prestasi Kewangan Setiap Program.</p>
         </div>
         <a href="/kebana-digital/finance" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i>
@@ -48,16 +93,23 @@ $page_title = 'PENGURUSAN BAJET';
 
     <!-- Filter Bar -->
     <div class="bg-white p-8 border border-slate-100 shadow-sm">
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
             <div>
                 <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Tahun</label>
-                <input type="number" name="year" value="<?php echo htmlspecialchars($filters['year']); ?>" 
-                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all">
+                <select name="year" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                    <?php for ($y = (int)date('Y'); $y >= (int)date('Y') - 4; $y--): ?>
+                    <option value="<?php echo $y; ?>" <?php echo $y === (int)$filters['year'] ? 'selected' : ''; ?>><?php echo $y; ?></option>
+                    <?php endfor; ?>
+                </select>
             </div>
-            <div>
+            <div class="md:col-span-2">
                 <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Cari Nama Acara</label>
-                <input type="text" name="search" value="<?php echo htmlspecialchars($filters['search']); ?>" placeholder="Cth: Mesyuarat Agung..."
-                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                    <input type="text" name="search" value="<?php echo htmlspecialchars($filters['search']); ?>"
+                           placeholder="Cth: Mesyuarat Agung..."
+                           class="w-full pl-12 pr-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                </div>
             </div>
             <button type="submit" class="bg-kebana-dark text-white py-4 text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
                 JANA ANALISIS
@@ -66,75 +118,315 @@ $page_title = 'PENGURUSAN BAJET';
     </div>
 
     <!-- KPI Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100 bg-white">
-        <div class="p-10 border-r border-slate-50">
-            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">JUMLAH BAJET DIRANCANG</p>
-            <p class="text-3xl font-black text-kebana-blue mt-4">RM <?php echo number_format($total_planned, 2); ?></p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-0 border border-slate-100 bg-white">
+        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
+            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">BAJET DIRANCANG</p>
+            <p class="text-2xl font-black text-kebana-blue mt-3">RM <?php echo number_format($total_planned, 2); ?></p>
         </div>
-        <div class="p-10 border-r border-slate-50">
-            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">PERBELANJAAN SEBENAR</p>
-            <p class="text-3xl font-black text-red-600 mt-4">RM <?php echo number_format($total_actual, 2); ?></p>
+        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
+            <p class="text-[9px] font-black text-red-400/70 uppercase tracking-widest">BELANJA SEBENAR</p>
+            <p class="text-2xl font-black text-red-600 mt-3">RM <?php echo number_format($total_expense, 2); ?></p>
         </div>
-        <div class="p-10 border-b-8 <?php echo $variance >= 0 ? 'border-green-500' : 'border-red-500'; ?>">
-            <p class="text-[10px] font-black <?php echo $variance >= 0 ? 'text-green-600/50' : 'text-red-600/50'; ?> uppercase tracking-widest">VARIAN BAJET (BAKI)</p>
-            <p class="text-3xl font-black <?php echo $variance >= 0 ? 'text-green-600' : 'text-red-600'; ?> mt-4">RM <?php echo number_format($variance, 2); ?></p>
+        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
+            <p class="text-[9px] font-black text-green-400/70 uppercase tracking-widest">PENDAPATAN TERKUMPUL</p>
+            <p class="text-2xl font-black text-green-600 mt-3">RM <?php echo number_format($total_income, 2); ?></p>
+        </div>
+        <div class="p-8 flex flex-col justify-center border-b-8 <?php echo $total_net_pl >= 0 ? 'border-green-500' : 'border-red-500'; ?>">
+            <p class="text-[9px] font-black uppercase tracking-widest <?php echo $total_net_pl >= 0 ? 'text-green-400/70' : 'text-red-400/70'; ?>">UNTUNG / RUGI BERSIH</p>
+            <p class="text-2xl font-black mt-3 <?php echo $total_net_pl >= 0 ? 'text-green-600' : 'text-red-600'; ?>">
+                <?php echo $total_net_pl >= 0 ? '+' : ''; ?>RM <?php echo number_format($total_net_pl, 2); ?>
+            </p>
+            <p class="text-[8px] font-black mt-2 uppercase tracking-wider <?php echo $total_net_pl >= 0 ? 'text-green-400' : 'text-red-400'; ?>">
+                <?php echo $total_net_pl >= 0 ? '✓ Surplus' : '⚠ Defisit'; ?>
+            </p>
         </div>
     </div>
 
-    <!-- Budget Table -->
+    <!-- Budget vs Actual Bar Chart -->
+    <?php if (!empty($chart_events)): ?>
     <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-8 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+            <div>
+                <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">
+                    <i class="fa-solid fa-chart-bar mr-2 text-kebana-yellow"></i>
+                    Bajet Dirancang vs Belanja Sebenar
+                </h3>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-tighter mt-1">Perbandingan visual setiap program — Tahun <?php echo $filters['year']; ?></p>
+            </div>
+        </div>
+        <div class="p-8" style="height: <?php echo min(80 + count($chart_events) * 48, 480); ?>px">
+            <canvas id="budgetChart"></canvas>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Budget Table with Master/Sub Hierarchy -->
+    <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-8 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+            <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">
+                <i class="fa-solid fa-table-list mr-2"></i>
+                Senarai Terperinci Per Program
+            </h3>
+            <div class="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 bg-green-500 inline-block"></span> Under Budget</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 bg-red-500 inline-block"></span> Over Budget</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 bg-slate-200 inline-block"></span> Tiada Bajet</span>
+            </div>
+        </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="border-b border-slate-100 bg-slate-50/50">
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Acara & Tarikh</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Bajet Dirancang</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Belanja Sebenar</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Varian</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Status</th>
+                        <th class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Program</th>
+                        <th class="px-6 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Bajet</th>
+                        <th class="px-6 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Belanja</th>
+                        <th class="px-6 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Pendapatan</th>
+                        <th class="px-6 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">P&L</th>
+                        <th class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Penggunaan Bajet</th>
+                        <th class="px-6 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                        <th class="px-6 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center"></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
-                    <?php if (empty($budgets)): ?>
+                    <?php if (empty($masters)): ?>
                     <tr>
-                        <td colspan="5" class="px-8 py-20 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
-                            Tiada data bajet dijumpai untuk kriteria ini.
+                        <td colspan="8" class="px-8 py-20 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
+                            Tiada data dijumpai untuk kriteria ini.
                         </td>
                     </tr>
                     <?php else: ?>
-                        <?php foreach ($budgets as $b): 
-                            $v = $b['planned_budget'] - $b['actual_expense'];
+                        <?php foreach ($masters as $b):
+                            $v          = (float)$b['planned_budget'] - (float)$b['actual_expense'];
+                            $net_pl     = (float)$b['actual_income'] - (float)$b['actual_expense'];
+                            $utilPct    = $b['planned_budget'] > 0 ? min(round(($b['actual_expense'] / $b['planned_budget']) * 100), 999) : null;
+                            $isOver     = $b['planned_budget'] > 0 && $b['actual_expense'] > $b['planned_budget'];
+                            $hasbudget  = $b['planned_budget'] > 0;
+                            $barColor   = !$hasbudget ? 'bg-slate-200' : ($isOver ? 'bg-red-500' : 'bg-green-500');
+                            $barWidth   = $hasbudget ? min($utilPct, 100) : 0;
+                            $level      = $b['event_level'] ?? 'MASTER';
                         ?>
-                        <tr class="hover:bg-slate-50/50 transition-colors group">
-                            <td class="px-8 py-6">
-                                <p class="text-xs font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($b['event_title']); ?></p>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 italic"><?php echo date('d M Y', strtotime($b['event_date'])); ?></p>
+                        <!-- Master Row -->
+                        <tr class="hover:bg-slate-50/30 transition-colors group bg-white">
+                            <td class="px-8 py-5">
+                                <div class="flex items-start gap-3">
+                                    <span class="mt-0.5 px-2 py-0.5 text-[7px] font-black uppercase tracking-widest bg-kebana-blue text-white shrink-0"><?php echo $level; ?></span>
+                                    <div>
+                                        <p class="text-xs font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($b['event_title']); ?></p>
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase mt-0.5 italic">
+                                            <?php echo htmlspecialchars($b['cawangan_name'] ?? 'Pusat'); ?>
+                                            <?php if (!empty($b['event_date']) && $b['event_date'] !== '0000-00-00'): ?>
+                                            &nbsp;·&nbsp; <?php echo date('d M Y', strtotime($b['event_date'])); ?>
+                                            <?php endif; ?>
+                                        </p>
+                                    </div>
+                                </div>
                             </td>
-                            <td class="px-8 py-6">
-                                <p class="text-xs font-black text-slate-600 uppercase tracking-widest">RM <?php echo number_format($b['planned_budget'], 2); ?></p>
-                            </td>
-                            <td class="px-8 py-6">
-                                <p class="text-xs font-black text-slate-400 uppercase tracking-widest">RM <?php echo number_format($b['actual_expense'], 2); ?></p>
-                            </td>
-                            <td class="px-8 py-6">
-                                <p class="text-xs font-black <?php echo $v >= 0 ? 'text-green-600' : 'text-red-600'; ?> uppercase tracking-widest">
-                                    RM <?php echo number_format($v, 2); ?>
+                            <td class="px-6 py-5 text-right">
+                                <p class="text-xs font-black text-slate-600 uppercase tracking-widest">
+                                    <?php echo $hasbudget ? 'RM ' . number_format($b['planned_budget'], 2) : '<span class="text-slate-300 text-[9px]">—</span>'; ?>
                                 </p>
                             </td>
-                            <td class="px-8 py-6 text-right">
-                                <?php if ($v >= 0): ?>
-                                <span class="px-4 py-2 text-[8px] font-black uppercase tracking-widest bg-green-50 text-green-700 border border-green-200">UNDER BUDGET</span>
+                            <td class="px-6 py-5 text-right">
+                                <p class="text-xs font-black text-red-600 uppercase tracking-widest">
+                                    RM <?php echo number_format($b['actual_expense'], 2); ?>
+                                </p>
+                            </td>
+                            <td class="px-6 py-5 text-right">
+                                <p class="text-xs font-black text-green-600 uppercase tracking-widest">
+                                    RM <?php echo number_format($b['actual_income'], 2); ?>
+                                </p>
+                            </td>
+                            <td class="px-6 py-5 text-right">
+                                <p class="text-xs font-black uppercase tracking-widest <?php echo $net_pl >= 0 ? 'text-green-600' : 'text-red-600'; ?>">
+                                    <?php echo ($net_pl >= 0 ? '+' : '') . 'RM ' . number_format($net_pl, 2); ?>
+                                </p>
+                            </td>
+                            <td class="px-8 py-5">
+                                <?php if ($hasbudget): ?>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between text-[8px] font-black uppercase text-slate-400">
+                                        <span><?php echo $utilPct; ?>% digunakan</span>
+                                        <?php if ($isOver): ?><span class="text-red-500">MELEBIHI</span><?php endif; ?>
+                                    </div>
+                                    <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full <?php echo $barColor; ?> rounded-full transition-all duration-700"
+                                             style="width: <?php echo $barWidth; ?>%"></div>
+                                    </div>
+                                </div>
                                 <?php else: ?>
-                                <span class="px-4 py-2 text-[8px] font-black uppercase tracking-widest bg-red-50 text-red-700 border border-red-200">OVER BUDGET</span>
+                                <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Tiada bajet ditetapkan</span>
                                 <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-5 text-right">
+                                <?php if (!$hasbudget): ?>
+                                <span class="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest bg-slate-50 text-slate-400 border border-slate-100">TIADA BAJET</span>
+                                <?php elseif ($isOver): ?>
+                                <span class="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest bg-red-50 text-red-700 border border-red-200">OVER BUDGET</span>
+                                <?php else: ?>
+                                <span class="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest bg-green-50 text-green-700 border border-green-200">UNDER BUDGET</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-5 text-center">
+                                <a href="/kebana-digital/finance/event/<?php echo $b['event_id']; ?>"
+                                   class="text-[9px] font-black text-kebana-blue hover:text-white hover:bg-kebana-blue border border-kebana-blue/30 hover:border-kebana-blue px-4 py-2 transition-all uppercase tracking-widest inline-flex items-center gap-2">
+                                    <i class="fa-solid fa-magnifying-glass-chart"></i> Lihat
+                                </a>
+                            </td>
+                        </tr>
+
+                        <!-- Sub Event Rows -->
+                        <?php foreach ($b['sub_events'] as $s):
+                            $sv      = (float)$s['planned_budget'] - (float)$s['actual_expense'];
+                            $s_pl    = (float)$s['actual_income'] - (float)$s['actual_expense'];
+                            $sUtil   = $s['planned_budget'] > 0 ? min(round(($s['actual_expense'] / $s['planned_budget']) * 100), 999) : null;
+                            $sOver   = $s['planned_budget'] > 0 && $s['actual_expense'] > $s['planned_budget'];
+                            $sHasBud = $s['planned_budget'] > 0;
+                            $sBar    = !$sHasBud ? 'bg-slate-200' : ($sOver ? 'bg-red-400' : 'bg-emerald-400');
+                            $sWidth  = $sHasBud ? min($sUtil, 100) : 0;
+                        ?>
+                        <tr class="hover:bg-slate-50 transition-colors group bg-slate-50/30">
+                            <td class="px-8 py-4 pl-16">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-[1px] bg-slate-300"></div>
+                                    <span class="px-1.5 py-0.5 text-[7px] font-black uppercase tracking-widest bg-slate-100 text-slate-500 shrink-0">SUB</span>
+                                    <div>
+                                        <p class="text-[11px] font-bold text-slate-600 uppercase tracking-tight group-hover:text-kebana-blue transition-colors"><?php echo htmlspecialchars($s['event_title']); ?></p>
+                                        <p class="text-[8px] font-bold text-slate-300 uppercase mt-0.5">
+                                            <?php echo htmlspecialchars($s['cawangan_name'] ?? 'Cawangan'); ?>
+                                            <?php if (!empty($s['event_date']) && $s['event_date'] !== '0000-00-00'): ?>
+                                            &nbsp;·&nbsp; <?php echo date('d M Y', strtotime($s['event_date'])); ?>
+                                            <?php endif; ?>
+                                        </p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                    <?php echo $sHasBud ? 'RM ' . number_format($s['planned_budget'], 2) : '<span class="text-slate-300">—</span>'; ?>
+                                </p>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest">RM <?php echo number_format($s['actual_expense'], 2); ?></p>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <p class="text-[10px] font-bold text-green-500 uppercase tracking-widest">RM <?php echo number_format($s['actual_income'], 2); ?></p>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <p class="text-[10px] font-bold uppercase tracking-widest <?php echo $s_pl >= 0 ? 'text-green-500' : 'text-red-500'; ?>">
+                                    <?php echo ($s_pl >= 0 ? '+' : '') . 'RM ' . number_format($s_pl, 2); ?>
+                                </p>
+                            </td>
+                            <td class="px-8 py-4">
+                                <?php if ($sHasBud): ?>
+                                <div class="space-y-1">
+                                    <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full <?php echo $sBar; ?> rounded-full transition-all duration-700"
+                                             style="width: <?php echo $sWidth; ?>%"></div>
+                                    </div>
+                                    <p class="text-[8px] font-black text-slate-400 uppercase"><?php echo $sUtil; ?>%</p>
+                                </div>
+                                <?php else: ?>
+                                <span class="text-[9px] font-black text-slate-300 uppercase">—</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <?php if (!$sHasBud): ?>
+                                <span class="text-[8px] font-black text-slate-300 uppercase">—</span>
+                                <?php elseif ($sOver): ?>
+                                <span class="px-2 py-1 text-[7px] font-black uppercase bg-red-50 text-red-600 border border-red-100">OVER</span>
+                                <?php else: ?>
+                                <span class="px-2 py-1 text-[7px] font-black uppercase bg-green-50 text-green-600 border border-green-100">OK</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <a href="/kebana-digital/finance/event/<?php echo $s['event_id']; ?>"
+                                   class="text-[8px] font-black text-slate-400 hover:text-white hover:bg-kebana-blue border border-slate-200 hover:border-kebana-blue px-3 py-1.5 transition-all uppercase tracking-widest inline-flex items-center gap-2">
+                                    <i class="fa-solid fa-magnifying-glass-chart"></i> Lihat
+                                </a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
+
+                    <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<!-- Budget vs Actual Chart -->
+<?php if (!empty($chart_events)): ?>
+<script>
+(function() {
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size   = 11;
+    Chart.defaults.color       = '#94a3b8';
+
+    const ctx = document.getElementById('budgetChart');
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: <?php echo $js_events; ?>,
+            datasets: [
+                {
+                    label: 'Bajet Dirancang',
+                    data: <?php echo $js_budget; ?>,
+                    backgroundColor: 'rgba(0,51,102,0.75)',
+                    borderColor: '#003366',
+                    borderWidth: 1.5,
+                    borderRadius: 3,
+                },
+                {
+                    label: 'Belanja Sebenar',
+                    data: <?php echo $js_expense; ?>,
+                    backgroundColor: 'rgba(239,68,68,0.70)',
+                    borderColor: '#ef4444',
+                    borderWidth: 1.5,
+                    borderRadius: 3,
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: {
+                    labels: { font: { weight: '700', size: 11 }, padding: 20 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ' RM ' + ctx.parsed.x.toLocaleString('ms-MY', { minimumFractionDigits: 2 })
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#f1f5f9' },
+                    ticks: {
+                        font: { weight: '700' },
+                        callback: v => 'RM ' + v.toLocaleString('ms-MY')
+                    }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { weight: '700' },
+                        callback: function(val) {
+                            const label = this.getLabelForValue(val);
+                            return label.length > 28 ? label.substring(0, 28) + '…' : label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+})();
+</script>
+<?php endif; ?>
 
 <?php require_once APP_ROOT . '/includes/footer.php'; ?>

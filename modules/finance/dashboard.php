@@ -52,6 +52,10 @@ $page_title = 'PENGURUSAN KEWANGAN';
                 <i class="fa-solid fa-list-check mr-3"></i>
                 LIHAT SEMUA
             </a>
+            <a href="/kebana-digital/finance/budget" class="bg-white text-kebana-blue border-2 border-slate-200 px-7 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
+                <i class="fa-solid fa-chart-bar mr-3"></i>
+                ANALISIS BAJET
+            </a>
             <a href="/kebana-digital/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-arrow-trend-up mr-3 text-base"></i>
                 REKOD MASUK
