@@ -24,6 +24,9 @@ if (isset($_GET['action']) && isset($_GET['event_id'])) {
     if ($action === 'submit' && hasRole([888, 4, 33, 6, 7])) {
         $success = EventsHelper::submitEvent($event_id);
         $message = $success ? 'Projek berjaya dihantar untuk semakan.' : 'Gagal menghantar projek.';
+    } elseif ($action === 'submit_to_branch' && hasRole(33)) {
+        $success = EventsHelper::submitToBranch($event_id);
+        $message = $success ? 'Kertas kerja berjaya dihantar kepada Pengerusi Cawangan.' : 'Gagal menghantar kertas kerja.';
     } elseif ($action === 'approve' && hasRole([1, 888])) {
         $success = EventsHelper::approveEvent($event_id);
         $message = $success ? 'Projek telah diluluskan.' : 'Gagal meluluskan projek.';
@@ -105,10 +108,12 @@ $page_title = 'PENGURUSAN ACARA';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Senarai Aktiviti & Program</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Kalendar dan Pengurusan Program Organisasi.</p>
         </div>
+        <?php if (hasRole([888, 4, 33])): ?>
         <a href="/kebana-digital/events/create" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
             <i class="fa-solid fa-calendar-plus mr-4 text-lg"></i>
             DAFTAR ACARA BARU
         </a>
+        <?php endif; ?>
     </div>
 
     <?php if ($message): ?>
@@ -229,9 +234,14 @@ $page_title = 'PENGURUSAN ACARA';
                                     <a href="/kebana-digital/events/attendance?event_id=<?php echo $event['event_id']; ?>" 
                                        class="text-[9px] font-black text-kebana-blue uppercase border-b border-kebana-blue/20 hover:border-kebana-blue pb-0.5 transition-all">Kehadiran</a>
                                     
-                                    <?php if ($status === 'Draft' && hasRole([888, 4, 33, 6, 7])): ?>
-                                    <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" 
-                                       class="text-[9px] font-black text-amber-600 uppercase border-b border-amber-600/20 hover:border-amber-600 pb-0.5 transition-all">Hantar</a>
+                                    <?php if ($status === 'Draft'): ?>
+                                        <?php if ($level === 'MASTER' && hasRole([888, 4, 33])): ?>
+                                            <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" 
+                                               class="text-[9px] font-black text-amber-600 uppercase border-b border-amber-600/20 hover:border-amber-600 pb-0.5 transition-all">Hantar</a>
+                                        <?php elseif ($level === 'SUB' && hasRole(33)): ?>
+                                            <a href="?action=submit_to_branch&event_id=<?php echo $event['event_id']; ?>" 
+                                               class="text-[9px] font-black text-amber-600 uppercase border-b border-amber-600/20 hover:border-amber-600 pb-0.5 transition-all">Hantar Ke Pengerusi</a>
+                                        <?php endif; ?>
                                     <?php endif; ?>
 
                                     <?php if ($status === 'Submitted' && hasRole([1, 888])): ?>
@@ -291,6 +301,9 @@ $page_title = 'PENGURUSAN ACARA';
                                 <div class="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <a href="/kebana-digital/events/view/<?php echo $sub['event_id']; ?>" class="text-[8px] font-black text-slate-400 uppercase hover:text-kebana-blue">Lihat</a>
                                     <a href="/kebana-digital/events/attendance?event_id=<?php echo $sub['event_id']; ?>" class="text-[8px] font-black text-slate-400 uppercase hover:text-kebana-blue">Hadir</a>
+                                    <?php if ($s_status === 'Draft' && hasRole(33)): ?>
+                                    <a href="?action=submit_to_branch&event_id=<?php echo $sub['event_id']; ?>" class="text-[8px] font-black text-amber-600 uppercase hover:text-amber-700">Hantar Ke Pengerusi</a>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>

@@ -33,7 +33,14 @@ if ($to_date) { $where .= " AND t.trans_date <= ?"; $params[] = $to_date; $types
 if ($type_filter) { $where .= " AND t.trans_type = ?"; $params[] = $type_filter; $types .= "s"; }
 if ($category_filter) { $where .= " AND t.category LIKE ?"; $params[] = "%$category_filter%"; $types .= "s"; }
 
-$sql = "SELECT t.*, e.event_title, u.username as recorder_name 
+// Scoping based on role
+if (in_array($current_role, $CAWANGAN_ROLES)) {
+    $where .= " AND COALESCE(e.cawangan_id, u.cawangan_id) = ?";
+    $params[] = $current_cawangan_id;
+    $types .= "i";
+}
+
+$sql = "SELECT t.*, e.event_title, u.username as recorder_name, u.role as recorder_role 
         FROM tbl_transaction t 
         LEFT JOIN tbl_event e ON t.event_id = e.event_id 
         LEFT JOIN tbl_user u ON t.recorded_by = u.user_id 
@@ -73,10 +80,16 @@ $page_title = 'SENARAI TRANSAKSI';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Senarai Transaksi</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Rekod Terperinci Aliran Masuk dan Keluar Dana.</p>
         </div>
-        <a href="/kebana-digital/finance/transactions/create" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
-            <i class="fa-solid fa-plus-circle mr-4 text-lg"></i>
-            REKOD BARU
-        </a>
+        <div class="flex flex-wrap gap-3">
+            <a href="/kebana-digital/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
+                <i class="fa-solid fa-arrow-trend-up mr-3 text-base"></i>
+                REKOD MASUK
+            </a>
+            <a href="/kebana-digital/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center">
+                <i class="fa-solid fa-arrow-trend-down mr-3 text-base"></i>
+                REKOD KELUAR
+            </a>
+        </div>
     </div>
 
     <!-- Filter Bar -->
@@ -131,6 +144,7 @@ $page_title = 'SENARAI TRANSAKSI';
                         <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Tarikh</th>
                         <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Kategori & Projek</th>
                         <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Mod</th>
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Resit</th>
                         <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Amaun</th>
                     </tr>
                 </thead>
@@ -144,6 +158,15 @@ $page_title = 'SENARAI TRANSAKSI';
                     <?php else: ?>
                         <?php foreach ($transactions as $t): 
                             $is_income = $t['trans_type'] === 'Income';
+                            
+                            // Edit/Delete Permissions Check
+                            $can_edit_delete = true;
+                            if (in_array($current_role, $CAWANGAN_ROLES)) {
+                                $rec_role = (int)($t['recorder_role'] ?? 0);
+                                if (in_array($rec_role, [888, 1, 2, 3, 4, 5, 6, 7])) {
+                                    $can_edit_delete = false; // Branch cannot edit HQ transactions
+                                }
+                            }
                         ?>
                         <tr class="hover:bg-slate-50/50 transition-colors group">
                             <td class="px-8 py-6">
@@ -158,11 +181,39 @@ $page_title = 'SENARAI TRANSAKSI';
                                     <?php echo (!empty($t['payment_mode']) && $t['payment_mode'] !== '0') ? htmlspecialchars($t['payment_mode']) : 'Cash'; ?>
                                 </span>
                             </td>
+                            <td class="px-8 py-6 text-center">
+                                <?php if (!empty($t['receipt_path'])): ?>
+                                <a href="/kebana-digital/<?php echo $t['receipt_path']; ?>" target="_blank" class="text-kebana-blue hover:text-kebana-accent transition-colors" title="Lihat Resit">
+                                    <i class="fa-solid fa-file-invoice-dollar text-lg"></i>
+                                </a>
+                                <?php else: ?>
+                                <span class="text-slate-200 text-[10px] uppercase font-black tracking-tighter">N/A</span>
+                                <?php endif; ?>
+                            </td>
                             <td class="px-8 py-6 text-right">
                                 <p class="text-sm font-black <?php echo $is_income ? 'text-green-600' : 'text-red-600'; ?>">
                                     <?php echo $is_income ? '+' : '-'; ?> RM <?php echo number_format($t['amount'], 2); ?>
                                 </p>
                                 <p class="text-[8px] font-bold text-slate-300 uppercase mt-1">Oleh: <?php echo htmlspecialchars($t['recorder_name'] ?? 'Sistem'); ?></p>
+                            </td>
+                            <td class="px-8 py-6 text-right">
+                                <div class="flex justify-end gap-2">
+                                    <?php if ($can_edit_delete): ?>
+                                        <a href="/kebana-digital/finance/transactions/edit?id=<?php echo $t['trans_id']; ?>" 
+                                           class="p-2 text-slate-300 hover:text-kebana-blue transition-colors" title="Kemaskini">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <a href="/kebana-digital/finance/transactions/delete?id=<?php echo $t['trans_id']; ?>" 
+                                           onclick="return confirm('Adakah anda pasti mahu memadam transaksi ini?')"
+                                           class="p-2 text-slate-300 hover:text-red-600 transition-colors" title="Padam">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="p-2 text-slate-200 cursor-not-allowed" title="Direkod oleh Ibu Pejabat Pusat">
+                                            <i class="fa-solid fa-lock"></i>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>

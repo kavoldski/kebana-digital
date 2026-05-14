@@ -28,11 +28,15 @@ $routes = [
     'finance' => 'modules/finance/dashboard.php',
     'finance/transactions/list' => 'modules/finance/transactions/list.php',
     'finance/transactions/create' => 'modules/finance/transactions/create.php',
+    'finance/transactions/edit' => 'modules/finance/transactions/edit.php',
+    'finance/transactions/delete' => 'modules/finance/transactions/delete.php',
     'finance/budget' => 'modules/finance/budget.php',
     'documents' => 'modules/documents/index.php',
     'documents/upload' => 'modules/documents/upload.php',
     'chat' => 'modules/chat/index.php',
     'audit' => 'modules/audit/list.php',
+    'users' => 'modules/users/list.php',
+    'users/add' => 'modules/users/add.php',
 ];
 
 // Clean up route (remove .php extension if present)
@@ -56,6 +60,18 @@ if (preg_match('/^events\/(view|edit|attendance)\/(\d+)$/', $route, $matches)) {
     $_GET['id'] = $matches[2];
     $action = $matches[1];
     require_once "modules/events/{$action}.php";
+    exit();
+}
+
+if (preg_match('/^finance\/event\/(\d+)$/', $route, $matches)) {
+    $_GET['id'] = $matches[1];
+    require_once "modules/finance/event.php";
+    exit();
+}
+
+if (preg_match('/^users\/edit\/(\d+)$/', $route, $matches)) {
+    $_GET['id'] = $matches[1];
+    require_once "modules/users/edit.php";
     exit();
 }
 
