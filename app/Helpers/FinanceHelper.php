@@ -8,6 +8,7 @@ namespace App\Helpers;
 
 use App\Core\Database;
 use App\Helpers\NotificationHelper;
+use App\Services\OllamaService;
 
 class FinanceHelper {
     public static function getFinanceTotals() {
@@ -166,6 +167,7 @@ class FinanceHelper {
         $event_id = !empty($data['event_id']) ? (int)$data['event_id'] : null;
         $month_label = strtoupper(date('M', strtotime($date)));
         $receipt_path = null;
+        $metadata = !empty($data['metadata']) ? $data['metadata'] : null;
 
         // Security check for Branch Finance roles
         if ($event_id !== null && $cawanganId !== null) {
@@ -184,12 +186,17 @@ class FinanceHelper {
             $receipt_path = self::handleReceiptUpload($receiptFile);
         }
 
-        $sql = "INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, payment_mode, receipt_path, event_id, month_label, recorded_by) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, payment_mode, receipt_path, metadata, event_id, month_label, recorded_by) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $db->prepare($sql);
         if ($stmt) {
-            $stmt->bind_param("sdsssssis", $type, $amount, $category, $date, $payment_mode, $receipt_path, $event_id, $month_label, $userId);
+            $stmt->bind_param("sdsssssisi", $type, $amount, $category, $date, $payment_mode, $receipt_path, $metadata, $event_id, $month_label, $userId);
             $success = $stmt->execute();
+            
+            if (!$success) {
+                error_log("FinanceHelper Execute Error: " . $stmt->error);
+            }
+            
             $stmt->close();
 
             if ($success) {
@@ -198,6 +205,8 @@ class FinanceHelper {
             }
 
             return $success;
+        } else {
+            error_log("FinanceHelper Prepare Error: " . $db->error);
         }
         return false;
     }

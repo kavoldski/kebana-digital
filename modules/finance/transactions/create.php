@@ -95,15 +95,15 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Amaun (RM) <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <span class="absolute left-6 top-1/2 -translate-y-1/2 text-xs font-black text-slate-300">RM</span>
-                        <input type="number" step="0.01" name="amount" required
+                        <span class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 font-bold">RM</span>
+                        <input type="number" name="amount" id="amount-input" step="0.01" required
                                class="w-full pl-16 pr-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xl font-black transition-all"
                                placeholder="0.00">
                     </div>
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh Transaksi <span class="text-red-500">*</span></label>
-                    <input type="date" name="trans_date" value="<?php echo date('Y-m-d'); ?>" required
+                    <input type="date" name="trans_date" id="date-input" value="<?php echo date('Y-m-d'); ?>" required
                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
                 </div>
             </div>
@@ -172,8 +172,13 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
             <div class="grid grid-cols-1 gap-10">
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Muat Naik Resit / Bukti Pembayaran (PDF/Imej)</label>
-                    <input type="file" name="receipt" accept=".pdf,.jpg,.jpeg,.png"
+                    <input type="file" name="receipt" id="receipt-input" accept=".pdf,.jpg,.jpeg,.png"
                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all">
+                    <input type="hidden" name="metadata" id="metadata-input">
+                    <p class="mt-2 text-[9px] font-black text-kebana-blue uppercase tracking-widest flex items-center gap-2" id="ai-status">
+                        <i class="fa-solid fa-microchip animate-pulse"></i> 
+                        <span id="ai-status-text">AI Smart Scan Aktif: Pilih fail untuk mula imbasan.</span>
+                    </p>
                 </div>
             </div>
 
@@ -185,5 +190,94 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
         </form>
     </div>
 </div>
+
+<script>
+document.getElementById('receipt-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check if it's an image
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (!validTypes.includes(file.type)) return;
+
+    const statusText = document.getElementById('ai-status-text');
+    const statusIcon = document.querySelector('#ai-status i');
+    const originalText = statusText.innerText;
+
+    // Start loading
+    statusText.innerText = "Imbasan AI Sedang Dijalankan... Sila Tunggu.";
+    statusText.classList.add('text-kebana-accent');
+    statusIcon.classList.remove('fa-microchip');
+    statusIcon.classList.add('fa-spinner', 'fa-spin');
+
+    const formData = new FormData();
+    formData.append('receipt', file);
+
+    // Use a more robust path detection
+    const scanUrl = window.location.origin + '/kebana-digital/modules/finance/transactions/ajax_scan.php';
+
+    fetch(scanUrl, {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`HTTP ${response.status}: ${text.substring(0, 100)}`);
+        }
+        return response.json();
+    })
+    .then(result => {
+        if (result.success && result.data) {
+            const data = result.data;
+            
+            // Fill Amount
+            if (data.amount) {
+                document.getElementById('amount-input').value = data.amount;
+                flashField('amount-input');
+            }
+            
+            // Fill Date
+            if (data.date) {
+                document.getElementById('date-input').value = data.date;
+                flashField('date-input');
+            }
+            
+            // Fill Category
+            if (data.category) {
+                document.getElementById('category-input').value = data.category;
+                flashField('category-input');
+            }
+
+            // Store raw metadata
+            document.getElementById('metadata-input').value = JSON.stringify(data);
+
+            statusText.innerText = "Imbasan AI Selesai! Data Telah Diisi.";
+            statusText.classList.replace('text-kebana-accent', 'text-green-500');
+            statusIcon.classList.replace('fa-spinner', 'fa-check');
+            statusIcon.classList.remove('fa-spin');
+        } else {
+            statusText.innerText = "Imbasan AI Gagal. Sila Isi Secara Manual.";
+            statusText.classList.replace('text-kebana-accent', 'text-red-500');
+            statusIcon.classList.replace('fa-spinner', 'fa-triangle-exclamation');
+            statusIcon.classList.remove('fa-spin');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        statusText.innerText = "Ralat Sambungan AI.";
+        statusText.classList.replace('text-kebana-accent', 'text-red-500');
+    });
+});
+
+function flashField(id) {
+    const el = document.getElementById(id);
+    el.style.backgroundColor = '#ecfdf5'; // light green
+    setTimeout(() => {
+        el.style.transition = 'background-color 1s';
+        el.style.backgroundColor = '';
+    }, 1000);
+}
+</script>
 
 <?php require_once APP_ROOT . '/includes/footer.php'; ?>
