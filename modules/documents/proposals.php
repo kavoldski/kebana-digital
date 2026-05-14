@@ -8,12 +8,19 @@ $page_title = 'Documents - Proposals';
 $css_path = $base_path . 'src/css/members.css';
 
 require_once APP_ROOT . '/includes/header.php';
+
+// Access Control: Admin/Executives/Secretaries/Treasurers
+if (!hasRole([888, 1, 2, 3, 11, 22, 4, 33, 6, 55, 7, 66])) {
+    echo "<div class='p-12 text-center'><h1 class='text-2xl font-black text-red-600 uppercase tracking-widest'>AKSES DISEKAT</h1></div>";
+    require_once APP_ROOT . '/includes/footer.php';
+    exit;
+}
+
 require_once APP_ROOT . '/includes/events_helper.php';
 
 $message = '';
 $message_type = '';
 
-// Handle proposal submission for approval
 if (isset($_GET['action']) && isset($_GET['event_id'])) {
     $event_id = (int)$_GET['event_id'];
     $action = $_GET['action'];
@@ -21,9 +28,9 @@ if (isset($_GET['action']) && isset($_GET['event_id'])) {
 
     if ($action === 'submit' && hasRole([4, 33])) {
         $result = submitEventProposal($conn, $event_id);
-    } elseif ($action === 'approve' && hasRole([888])) {
+    } elseif ($action === 'approve' && hasRole([1, 888])) {
         $result = approveEventProposal($conn, $event_id);
-    } elseif ($action === 'reject' && hasRole([888])) {
+    } elseif ($action === 'reject' && hasRole([1, 888])) {
         $result = rejectEventProposal($conn, $event_id);
     }
 
@@ -181,7 +188,7 @@ $delete_doc_id = isset($_GET['delete']) ? (int)$_GET['delete'] : 0;
                                     <?php if ($event_status === 'Draft' && hasRole([4, 33])): ?>
                                         <a href="?action=submit&event_id=<?php echo (int)$doc['event_id']; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="action-btn action-submit" title="Submit for Approval">✓ Submit</a>
                                     <?php endif; ?>
-                                    <?php if ($event_status === 'Submitted' && hasRole([888])): ?>
+                                    <?php if ($event_status === 'Submitted' && hasRole([1, 888])): ?>
                                         <a href="?action=approve&event_id=<?php echo (int)$doc['event_id']; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="action-btn action-approve" title="Approve Proposal">✓ Approve</a>
                                         <a href="?action=reject&event_id=<?php echo (int)$doc['event_id']; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" class="action-btn action-reject" title="Reject Proposal">✕ Reject</a>
                                     <?php endif; ?>
