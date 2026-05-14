@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Notifications API
+ * KEBANA Digital Management System - Notifications API
  * File: modules/api/notifications.php
  */
 

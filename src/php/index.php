@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Dashboard (MYDS Inspired)
+ * KEBANA Digital Management System - Dashboard (MYDS Inspired)
  * File: src/php/index.php
  */
 

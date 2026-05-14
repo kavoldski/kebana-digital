@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Chat Interface
+ * KEBANA Digital Management System - Chat Interface
  * File: modules/chat/index.php
  */
 

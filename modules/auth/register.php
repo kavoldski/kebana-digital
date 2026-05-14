@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - User Registration Handler
+ * KEBANA Digital Management System - User Registration Handler
  * File: modules/auth/register.php
  * 
  * Handles user registration and account creation with new schema

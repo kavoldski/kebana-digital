@@ -1,5 +1,5 @@
 -- =====================================================
--- KEBANA Management System - Database Schema
+-- KEBANA Digital Management System - Database Schema
 -- Database: kebana_db
 -- =====================================================
 

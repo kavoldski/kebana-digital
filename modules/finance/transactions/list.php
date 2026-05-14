@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Transaction List (MYDS Inspired)
+ * KEBANA Digital Management System - Transaction List (MYDS Inspired)
  * File: modules/finance/transactions/list.php
  */
 

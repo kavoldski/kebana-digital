@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Database Configuration
+ * KEBANA Digital Management System - Database Configuration
  * File: config/database.php
  */
 

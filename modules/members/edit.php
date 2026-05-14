@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Edit Member (MYDS Inspired)
+ * KEBANA Digital Management System - Edit Member (MYDS Inspired)
  * File: modules/members/edit.php
  */
 

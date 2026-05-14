@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Audit Helper
+ * KEBANA Digital Management System - Audit Helper
  * File: app/Helpers/AuditHelper.php
  */
 

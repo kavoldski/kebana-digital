@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - New Transaction (MYDS Inspired)
+ * KEBANA Digital Management System - New Transaction (MYDS Inspired)
  * File: modules/finance/transactions/create.php
  */
 

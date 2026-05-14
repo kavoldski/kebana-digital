@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Header Component (MYDS Inspired)
+ * KEBANA Digital Management System - Header Component (MYDS Inspired)
  * File: includes/header.php
  * 
  * Clean, sharp design based on MYDS without official government branding.
@@ -248,6 +248,6 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-8 border-b-2 border-slate-50">
                         <div>
                             <h1 class="text-4xl font-black text-kebana-blue tracking-tighter uppercase italic"><?php echo htmlspecialchars($page_title ?? ''); ?></h1>
-                            <p class="text-sm text-slate-400 mt-2 font-bold uppercase tracking-tight">Kebana Digital Management Suite</p>
+                            <p class="text-sm text-slate-400 mt-2 font-bold uppercase tracking-tight">Kebana Digital Management System</p>
                         </div>
                     </div>

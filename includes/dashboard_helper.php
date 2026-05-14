@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Dashboard Helper Functions
+ * KEBANA Digital Management System - Dashboard Helper Functions
  * File: includes/dashboard_helper.php
  *
  * Helper functions for dashboard statistics and KPIs

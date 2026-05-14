@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Edit Transaction
+ * KEBANA Digital Management System - Edit Transaction
  * File: modules/finance/transactions/edit.php
  */
 

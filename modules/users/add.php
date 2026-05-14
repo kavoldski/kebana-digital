@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Add New User
+ * KEBANA Digital Management System - Add New User
  * File: modules/users/add.php
  */
 

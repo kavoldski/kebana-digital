@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Finance Dashboard with Data Visualisation
+ * KEBANA Digital Management System - Finance Dashboard with Data Visualisation
  * File: modules/finance/dashboard.php
  */
 

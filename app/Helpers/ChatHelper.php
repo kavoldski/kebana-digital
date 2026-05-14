@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Chat Helper
+ * KEBANA Digital Management System - Chat Helper
  * File: app/Helpers/ChatHelper.php
  */
 

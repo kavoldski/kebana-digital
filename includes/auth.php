@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Session & Authentication Handler
+ * KEBANA Digital Management System - Session & Authentication Handler
  * File: includes/auth.php
  * 
  * Validates user session and checks authentication status

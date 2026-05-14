@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - User Management List
+ * KEBANA Digital Management System - User Management List
  * File: modules/users/list.php
  */
 

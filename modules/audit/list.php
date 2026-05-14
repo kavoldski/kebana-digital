@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Audit Log List
+ * KEBANA Digital Management System - Audit Log List
  * File: modules/audit/list.php
  */
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Database Connection
+ * KEBANA Digital Management System - Database Connection
  * File: includes/dbconnect.php
  * 
  * Database connection script for MySQL

@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Bootstrap
+ * KEBANA Digital Management System - Bootstrap
  * File: bootstrap.php
  */
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Login
+ * KEBANA Digital Management System - Login
  * File: modules/auth/login.php
  *
  * Premium split-screen login with a branded visual hero.

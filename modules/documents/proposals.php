@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Documents: Proposals
+ * KEBANA Digital Management System - Documents: Proposals
  * File: modules/documents/proposals.php
  */
 

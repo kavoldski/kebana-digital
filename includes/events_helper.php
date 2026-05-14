@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Event Helper Functions
+ * KEBANA Digital Management System - Event Helper Functions
  * File: includes/events_helper.php
  *
  * Helper functions for event management and attendance tracking

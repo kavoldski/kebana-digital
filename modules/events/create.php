@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Create Event (MYDS Inspired)
+ * KEBANA Digital Management System - Create Event (MYDS Inspired)
  * File: modules/events/create.php
  */
 

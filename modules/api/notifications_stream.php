@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Notification SSE Stream
+ * KEBANA Digital Management System - Notification SSE Stream
  * File: modules/api/notifications_stream.php
  */
 

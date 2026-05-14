@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Footer Component with Tailwind
+ * KEBANA Digital Management System - Footer Component with Tailwind
  * File: includes/footer.php
  */
 ?>
@@ -9,7 +9,7 @@
             <footer class="mt-auto py-8 bg-white border-t border-slate-200">
                 <div class="px-4 lg:px-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                     <p class="text-sm text-slate-500">
-                        &copy; <?php echo date('Y'); ?> KEBANA Management System.
+                        &copy; <?php echo date('Y'); ?> KEBANA Digital Management System.
                     </p>
                     <div class="flex space-x-6 text-sm text-slate-500">
                         <a href="#" class="hover:text-primary-600 transition-colors">Privacy Policy</a>
