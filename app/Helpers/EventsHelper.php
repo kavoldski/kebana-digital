@@ -127,6 +127,7 @@ class EventsHelper {
         $end_date = !empty($data['event_end_date']) ? $data['event_end_date'] : null;
         $venue = $data['venue'] ?? '';
         $kawasan = $data['kawasan'] ?? '';
+        $objective = $data['objective'] ?? '';
         $budget = !empty($data['budget_est']) ? (float)$data['budget_est'] : null;
         $status = 'Draft';
         $approval_status = 'Pending Submission';
@@ -135,11 +136,11 @@ class EventsHelper {
             $assigned_cawangan_id = !empty($data['assigned_cawangan_id']) ? (int)$data['assigned_cawangan_id'] : null;
             $level = 'MASTER';
             $stmt = $db->prepare("
-                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, kawasan, budget_est, created_by, status, approval_status, cawangan_id, event_level)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, kawasan, objective, budget_est, created_by, status, approval_status, cawangan_id, event_level)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             if ($stmt) {
-                $stmt->bind_param("ssssdisisss", $title, $date, $end_date, $venue, $kawasan, $budget, $userId, $status, $approval_status, $assigned_cawangan_id, $level);
+                $stmt->bind_param("sssssdisisss", $title, $date, $end_date, $venue, $kawasan, $objective, $budget, $userId, $status, $approval_status, $assigned_cawangan_id, $level);
                 $success = $stmt->execute();
                 $insert_id = $stmt->insert_id;
                 $stmt->close();
@@ -156,11 +157,11 @@ class EventsHelper {
             $parent_master_id = !empty($data['parent_master_event_id']) ? (int)$data['parent_master_event_id'] : null;
             $level = 'SUB';
             $stmt = $db->prepare("
-                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, kawasan, budget_est, created_by, status, approval_status, cawangan_id, event_level, parent_event_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, kawasan, objective, budget_est, created_by, status, approval_status, cawangan_id, event_level, parent_event_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             if ($stmt) {
-                $stmt->bind_param("ssssdisisssi", $title, $date, $end_date, $venue, $kawasan, $budget, $userId, $status, $approval_status, $cawanganId, $level, $parent_master_id);
+                $stmt->bind_param("sssssdisisssi", $title, $date, $end_date, $venue, $kawasan, $objective, $budget, $userId, $status, $approval_status, $cawanganId, $level, $parent_master_id);
                 $success = $stmt->execute();
                 $insert_id = $stmt->insert_id;
                 $stmt->close();
@@ -484,6 +485,19 @@ class EventsHelper {
             $stmt->close();
         }
         return $rows;
+    }
+
+    /**
+     * Update the objective/description of an event.
+     */
+    public static function updateEventObjective($id, $objective) {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("UPDATE tbl_event SET objective = ? WHERE event_id = ?");
+        if (!$stmt) return false;
+        $stmt->bind_param("si", $objective, $id);
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
     }
 
     /**

@@ -180,6 +180,13 @@ $page_title = 'DAFTAR ACARA';
                        class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
             </div>
 
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Objektif & Keterangan</label>
+                <textarea name="objective" rows="4"
+                          class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                          placeholder="Sila nyatakan objektif program, kumpulan sasaran, atau keterangan ringkas..."></textarea>
+            </div>
+
             <div class="pt-10">
                 <button type="submit" class="w-full bg-kebana-blue text-white py-6 text-xs font-black uppercase tracking-[0.3em] hover:bg-kebana-accent transition-all shadow-2xl">
                     <?php echo $is_pusat_creator ? 'DAFTAR ACARA MASTER' : 'DAFTAR ACARA SUB'; ?>

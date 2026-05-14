@@ -32,6 +32,14 @@ if (isset($_GET['action'])) {
     }
 }
 
+// Handle objective update
+if (isset($_POST['update_objective'])) {
+    if (EventsHelper::updateEventObjective($eventId, $_POST['objective'])) {
+        echo '<script>window.location.href = "/kebana-digital/events/view/' . $eventId . '?msg=updated";</script>';
+        exit;
+    }
+}
+
 require_once APP_ROOT . '/includes/header.php';
 
 $event = EventsHelper::getEventById($eventId);
@@ -192,11 +200,34 @@ $page_title = 'PERINCIAN ACARA';
                 </div>
 
                 <div class="pt-8 border-t border-slate-50 space-y-4">
-                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Objektif & Keterangan</p>
-                    <div class="prose prose-sm max-w-none text-slate-600 font-medium leading-relaxed">
-                        <?php echo nl2br(htmlspecialchars($event['description'] ?? 'Tiada keterangan tambahan disediakan untuk acara ini.')); ?>
+                    <div class="flex items-center justify-between">
+                        <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Objektif & Keterangan</p>
+                        <?php if (hasRole([1, 4, 33, 888]) && ($check_status === 'DRAFT' || $check_status === 'PENDING BRANCH APPROVAL' || hasRole([1, 888]))): ?>
+                            <button onclick="toggleObjectiveEdit()" class="text-[9px] font-black text-kebana-blue uppercase border-b border-kebana-blue pb-0.5 hover:text-kebana-accent transition-colors">Edit</button>
+                        <?php endif; ?>
                     </div>
+                    
+                    <div id="objective_display" class="prose prose-sm max-w-none text-slate-600 font-medium leading-relaxed">
+                        <?php echo !empty($event['objective']) ? nl2br(htmlspecialchars($event['objective'])) : 'Tiada keterangan tambahan disediakan untuk acara ini.'; ?>
+                    </div>
+
+                    <form id="objective_form" method="POST" class="hidden space-y-4">
+                        <textarea name="objective" rows="5" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-200 focus:border-kebana-blue focus:bg-white outline-none text-sm font-medium transition-all"><?php echo htmlspecialchars($event['objective'] ?? ''); ?></textarea>
+                        <div class="flex gap-4">
+                            <button type="submit" name="update_objective" class="bg-kebana-blue text-white px-6 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all">Simpan</button>
+                            <button type="button" onclick="toggleObjectiveEdit()" class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-6 py-2 hover:bg-slate-50 transition-all">Batal</button>
+                        </div>
+                    </form>
                 </div>
+
+                <script>
+                    function toggleObjectiveEdit() {
+                        const display = document.getElementById('objective_display');
+                        const form = document.getElementById('objective_form');
+                        display.classList.toggle('hidden');
+                        form.classList.toggle('hidden');
+                    }
+                </script>
             </div>
 
             <!-- SUB EVENTS SECTION (Only for Master Events) -->
