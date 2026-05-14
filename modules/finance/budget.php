@@ -45,12 +45,32 @@ foreach ($subs as $s) {
     }
 }
 
+// ── Roll up Sub totals into each Master (Cascading Budget Model) ──────────────────
+// Master's displayed expense/income = its own direct transactions + all sub totals.
+// Sub rows continue to show their own individual figures only.
+foreach ($masters as &$m) {
+    $m['own_expense'] = (float)$m['actual_expense'];
+    $m['own_income']  = (float)$m['actual_income'];
+    $sub_expense = 0;
+    $sub_income  = 0;
+    $sub_budget  = 0;
+    foreach ($m['sub_events'] as $s) {
+        $sub_expense += (float)$s['actual_expense'];
+        $sub_income  += (float)$s['actual_income'];
+        $sub_budget  += (float)$s['planned_budget'];
+    }
+    $m['actual_expense']  = $m['own_expense'] + $sub_expense;
+    $m['actual_income']   = $m['own_income']  + $sub_income;
+    $m['sub_budget_used'] = $sub_budget; // total budget allocated to subs
+}
+unset($m); // break reference
+
 // ── KPI Totals (MASTER only for summary) ─────────────────────────────────────
 $total_planned = 0; $total_expense = 0; $total_income = 0;
-foreach ($budgets_raw as $b) {
-    $total_planned += (float)$b['planned_budget'];
-    $total_expense += (float)$b['actual_expense'];
-    $total_income  += (float)$b['actual_income'];
+foreach ($masters as $m) {
+    $total_planned += (float)$m['planned_budget'];
+    $total_expense += (float)$m['actual_expense'];
+    $total_income  += (float)$m['actual_income'];
 }
 $total_variance = $total_planned - $total_expense;
 $total_net_pl   = $total_income - $total_expense;
@@ -59,11 +79,11 @@ $total_net_pl   = $total_income - $total_expense;
 $chart_events  = [];
 $chart_budget  = [];
 $chart_expense = [];
-foreach ($budgets_raw as $b) {
-    if ($b['planned_budget'] > 0 || $b['actual_expense'] > 0) {
-        $chart_events[]  = addslashes($b['event_title']);
-        $chart_budget[]  = (float)$b['planned_budget'];
-        $chart_expense[] = (float)$b['actual_expense'];
+foreach ($masters as $m) {
+    if ($m['planned_budget'] > 0 || $m['actual_expense'] > 0) {
+        $chart_events[]  = addslashes($m['event_title']);
+        $chart_budget[]  = (float)$m['planned_budget'];
+        $chart_expense[] = (float)$m['actual_expense'];
         if (count($chart_events) >= 10) break;
     }
 }
@@ -257,13 +277,13 @@ $page_title = 'ANALISIS BAJET';
                                 <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Tiada bajet ditetapkan</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="px-6 py-5 text-right">
+                            <td class="px-6 py-5 text-center">
                                 <?php if (!$hasbudget): ?>
-                                <span class="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest bg-slate-50 text-slate-400 border border-slate-100">TIADA BAJET</span>
+                                <span class="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest bg-slate-50 text-slate-400 border border-slate-100 whitespace-nowrap">TIADA BAJET</span>
                                 <?php elseif ($isOver): ?>
-                                <span class="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest bg-red-50 text-red-700 border border-red-200">OVER BUDGET</span>
+                                <span class="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest bg-red-50 text-red-700 border border-red-200 whitespace-nowrap">OVER BUDGET</span>
                                 <?php else: ?>
-                                <span class="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest bg-green-50 text-green-700 border border-green-200">UNDER BUDGET</span>
+                                <span class="px-3 py-1.5 text-[8px] font-black uppercase tracking-widest bg-green-50 text-green-700 border border-green-200 whitespace-nowrap">UNDER BUDGET</span>
                                 <?php endif; ?>
                             </td>
                             <td class="px-6 py-5 text-center">
@@ -329,13 +349,13 @@ $page_title = 'ANALISIS BAJET';
                                 <span class="text-[9px] font-black text-slate-300 uppercase">—</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="px-6 py-4 text-right">
+                            <td class="px-6 py-4 text-center">
                                 <?php if (!$sHasBud): ?>
                                 <span class="text-[8px] font-black text-slate-300 uppercase">—</span>
                                 <?php elseif ($sOver): ?>
-                                <span class="px-2 py-1 text-[7px] font-black uppercase bg-red-50 text-red-600 border border-red-100">OVER</span>
+                                <span class="px-2 py-1 text-[7px] font-black uppercase bg-red-50 text-red-600 border border-red-100 whitespace-nowrap">OVER</span>
                                 <?php else: ?>
-                                <span class="px-2 py-1 text-[7px] font-black uppercase bg-green-50 text-green-600 border border-green-100">OK</span>
+                                <span class="px-2 py-1 text-[7px] font-black uppercase bg-green-50 text-green-600 border border-green-100 whitespace-nowrap">OK</span>
                                 <?php endif; ?>
                             </td>
                             <td class="px-6 py-4 text-center">
