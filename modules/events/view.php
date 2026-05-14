@@ -309,9 +309,9 @@ $page_title = 'PERINCIAN ACARA';
                                         </span>
                                     </td>
                                     <td class="py-5 text-right">
-                                        <a href="/kebana-digital/events/view/<?php echo $sub['event_id']; ?>" class="text-[10px] font-black text-kebana-blue hover:underline uppercase tracking-widest">
+                                        <button onclick="viewSubEvent(<?php echo $sub['event_id']; ?>)" class="text-[10px] font-black text-kebana-blue hover:underline uppercase tracking-widest">
                                             LIHAT →
-                                        </a>
+                                        </button>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -571,6 +571,105 @@ function closeSubEventDrawer() {
     drawer.classList.add('translate-x-full');
 }
 
-// Close drawer on overlay click
-document.getElementById('subEventOverlay').addEventListener('click', closeSubEventDrawer);
+document.getElementById('subEventOverlay')?.addEventListener('click', closeSubEventDrawer);
+
+// View Sub-Event Logic
+async function viewSubEvent(id) {
+    const overlay = document.getElementById('viewSubEventOverlay');
+    const drawer = document.getElementById('viewSubEventDrawer');
+    const content = document.getElementById('viewSubEventContent');
+    
+    // Reset content and show loading
+    content.innerHTML = '<div class="py-20 text-center"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-kebana-blue"></i></div>';
+    
+    overlay.classList.remove('opacity-0', 'pointer-events-none');
+    overlay.classList.add('opacity-100');
+    drawer.classList.remove('translate-x-full');
+
+    try {
+        const response = await fetch(`/kebana-digital/modules/api/events.php?id=${id}`);
+        const data = await response.json();
+
+        if (data.error) {
+            content.innerHTML = `<div class="p-8 bg-red-50 text-red-700 text-xs font-black uppercase tracking-widest">${data.error}</div>`;
+            return;
+        }
+
+        content.innerHTML = `
+            <div class="space-y-8">
+                <div class="space-y-2">
+                    <span class="px-3 py-1 bg-kebana-blue text-white text-[9px] font-black uppercase tracking-widest">${data.event_level} EVENT</span>
+                    <h4 class="text-3xl font-black text-kebana-blue uppercase tracking-tighter leading-none italic">${data.event_title}</h4>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-6 pt-4">
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Tarikh</p>
+                        <p class="text-sm font-black text-slate-700">${data.formatted_date}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Status</p>
+                        <p class="text-sm font-black text-kebana-blue uppercase">${data.status}</p>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Lokasi / Venue</p>
+                    <p class="text-sm font-black text-slate-700">${data.venue} ${data.kawasan ? '· ' + data.kawasan : ''}</p>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Anggaran Bajet</p>
+                    <p class="text-xl font-black text-kebana-blue">RM ${data.formatted_budget}</p>
+                </div>
+
+                <div class="pt-6 border-t border-slate-100 space-y-3">
+                    <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Objektif & Keterangan</p>
+                    <div class="text-sm font-medium text-slate-600 leading-relaxed">
+                        ${data.objective ? data.objective.replace(/\n/g, '<br>') : 'Tiada keterangan tambahan.'}
+                    </div>
+                </div>
+
+                <div class="pt-10 flex gap-4">
+                    <a href="/kebana-digital/events/view/${data.event_id}" class="flex-1 bg-kebana-dark text-white text-center py-4 text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
+                        LIHAT PROFIL PENUH
+                    </a>
+                    <button onclick="closeViewSubEventDrawer()" class="px-8 py-4 border border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 transition-all">
+                        TUTUP
+                    </button>
+                </div>
+            </div>
+        `;
+    } catch (err) {
+        content.innerHTML = `<div class="p-8 bg-red-50 text-red-700 text-xs font-black uppercase tracking-widest">Gagal memuat turun data.</div>`;
+    }
+}
+
+function closeViewSubEventDrawer() {
+    const overlay = document.getElementById('viewSubEventOverlay');
+    const drawer = document.getElementById('viewSubEventDrawer');
+    overlay.classList.add('opacity-0', 'pointer-events-none');
+    overlay.classList.remove('opacity-100');
+    drawer.classList.add('translate-x-full');
+}
+
+document.getElementById('viewSubEventOverlay')?.addEventListener('click', closeViewSubEventDrawer);
 </script>
+
+<!-- View Sub-Event Drawer UI -->
+<div id="viewSubEventOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] opacity-0 pointer-events-none transition-opacity duration-300"></div>
+<div id="viewSubEventDrawer" class="fixed top-0 right-0 h-full w-full max-w-[550px] bg-white z-[111] translate-x-full transition-transform duration-500 ease-in-out shadow-2xl overflow-y-auto">
+    <div class="p-10">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-6 mb-10">
+            <div>
+                <h3 class="text-xs font-black text-kebana-blue uppercase tracking-[0.3em]">Perincian Sub-Acara</h3>
+            </div>
+            <button onclick="closeViewSubEventDrawer()" class="w-10 h-10 flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+        </div>
+        <div id="viewSubEventContent">
+            <!-- Content loaded via AJAX -->
+        </div>
+    </div>
+</div>
