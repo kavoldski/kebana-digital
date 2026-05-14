@@ -1,11 +1,11 @@
 <?php
 require_once 'bootstrap.php';
 
-$route = $_GET['route'] ?? 'dashboard';
+$route = $_GET['route'] ?? 'portal';
 $route = preg_replace('/\.php$/', '', $route);
 
 // Define public routes that don't require authentication
-$public_routes = ['login', 'authenticate', 'sign_up', 'register'];
+$public_routes = ['login', 'authenticate', 'sign_up', 'register', 'portal'];
 
 if (!in_array($route, $public_routes)) {
     require_once 'includes/auth.php';
@@ -39,6 +39,10 @@ $routes = [
     'users' => 'modules/users/list.php',
     'users/add' => 'modules/users/add.php',
     'notifications' => 'modules/notifications/index.php',
+    'announcements' => 'modules/announcements/index.php',
+    'announcements/index' => 'modules/announcements/index.php',
+    'announcements/create' => 'modules/announcements/create.php',
+    'portal' => 'modules/portal/index.php',
 ];
 
 // Clean up route (remove .php extension if present)
@@ -74,6 +78,12 @@ if (preg_match('/^finance\/event\/(\d+)$/', $route, $matches)) {
 if (preg_match('/^users\/edit\/(\d+)$/', $route, $matches)) {
     $_GET['id'] = $matches[1];
     require_once "modules/users/edit.php";
+    exit();
+}
+
+if (preg_match('/^announcements\/edit\/(\d+)$/', $route, $matches)) {
+    $_GET['id'] = $matches[1];
+    require_once 'modules/announcements/edit.php';
     exit();
 }
 

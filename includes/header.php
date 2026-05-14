@@ -159,6 +159,7 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     ['link' => 'events', 'icon' => 'fa-calendar-check', 'label' => 'Aktiviti & Program', 'visible' => $can_view_events],
                     ['link' => 'finance', 'icon' => 'fa-wallet', 'label' => 'Laporan Kewangan', 'visible' => $can_view_finance],
                     ['link' => 'documents', 'icon' => 'fa-box-archive', 'label' => 'Pusat Arkib Fail', 'visible' => $can_view_documents],
+                    ['link' => 'announcements', 'icon' => 'fa-bullhorn', 'label' => 'Pengurusan Hebahan', 'visible' => in_array($current_role, [888, 1, 4])],
                     ['link' => 'users', 'icon' => 'fa-user-gear', 'label' => 'Pengurusan Pengguna', 'visible' => ($current_role === 888)],
                     ['link' => 'cawangan', 'icon' => 'fa-building-shield', 'label' => 'Pengurusan Cawangan', 'visible' => ($current_role === 888)],
                     ['link' => 'chat', 'icon' => 'fa-comments', 'label' => 'Pusat Komunikasi', 'visible' => true, 'badge' => $unreadChatCount],
