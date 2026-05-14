@@ -182,10 +182,6 @@ $page_title = 'LAPORAN & ANALISIS';
                 <i class="fa-solid fa-arrow-left mr-3"></i>
                 KEMBALI
             </a>
-            <a href="?status=<?php echo urlencode($filter_status); ?>&village=<?php echo urlencode($filter_village); ?>&export=csv" class="bg-green-600 text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-green-700 transition-all shadow-xl inline-flex items-center">
-                <i class="fa-solid fa-file-csv mr-4 text-lg"></i>
-                EKSPORT DATA
-            </a>
         </div>
     </div>
 
@@ -310,9 +306,9 @@ $page_title = 'LAPORAN & ANALISIS';
     <div class="bg-white p-8 border border-slate-100 shadow-sm">
         <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest mb-8 flex items-center">
             <i class="fa-solid fa-filter mr-4"></i>
-            Penjana Laporan Dinamik
+            Tapis Data Keahlian
         </h3>
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
                 <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Status</label>
                 <select name="status" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
@@ -328,8 +324,13 @@ $page_title = 'LAPORAN & ANALISIS';
             </div>
             <div class="flex items-end">
                 <button type="submit" class="w-full bg-kebana-dark text-white py-4 text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
-                    JANA LAPORAN
+                    TAPIS DATA
                 </button>
+            </div>
+            <div class="flex items-end">
+                <a href="/kebana-digital/members/report" class="w-full bg-slate-100 text-slate-400 py-4 text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all text-center">
+                    KOSONGKAN
+                </a>
             </div>
         </form>
     </div>
@@ -338,9 +339,16 @@ $page_title = 'LAPORAN & ANALISIS';
     <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
             <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">Data Terperinci</h3>
-            <span class="text-[9px] font-black bg-white text-slate-400 px-4 py-1.5 border border-slate-100 uppercase tracking-widest">
-                <?php echo count($filtered_members); ?> Rekod Dijumpai
-            </span>
+            <div class="flex items-center gap-4">
+                <span class="text-[9px] font-black bg-white text-slate-400 px-4 py-1.5 border border-slate-100 uppercase tracking-widest">
+                    <?php echo count($filtered_members); ?> Rekod Dijumpai
+                </span>
+                <a href="?status=<?php echo urlencode($filter_status); ?>&village=<?php echo urlencode($filter_village); ?>&export=csv" 
+                   class="bg-green-600 text-white px-6 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-all shadow-lg flex items-center">
+                    <i class="fa-solid fa-file-csv mr-3"></i>
+                    EKSPORT (CSV)
+                </a>
+            </div>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">

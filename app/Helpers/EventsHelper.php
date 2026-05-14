@@ -132,8 +132,8 @@ class EventsHelper {
         if ($isPusatCreator) {
             $assigned_cawangan_id = !empty($data['assigned_cawangan_id']) ? (int)$data['assigned_cawangan_id'] : null;
             $stmt = $db->prepare("
-                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, budget_est, created_by, status, cawangan_id, event_level)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'MASTER')
+                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, budget_est, created_by, status, approval_status, cawangan_id, event_level)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending Submission', ?, 'MASTER')
             ");
             if ($stmt) {
                 $stmt->bind_param("sssdisis", $title, $date, $end_date, $venue, $budget, $userId, $status, $assigned_cawangan_id);
@@ -152,8 +152,8 @@ class EventsHelper {
         } else {
             $parent_master_id = !empty($data['parent_master_event_id']) ? (int)$data['parent_master_event_id'] : null;
             $stmt = $db->prepare("
-                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, budget_est, created_by, status, cawangan_id, event_level, parent_event_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'SUB', ?)
+                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, budget_est, created_by, status, approval_status, cawangan_id, event_level, parent_event_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending Submission', ?, 'SUB', ?)
             ");
             if ($stmt) {
                 $stmt->bind_param("sssdisiii", $title, $date, $end_date, $venue, $budget, $userId, $status, $cawanganId, $parent_master_id);
@@ -331,7 +331,7 @@ class EventsHelper {
         $title = $event['event_title'] ?? 'Unknown Event';
         $cawanganId = $event['cawangan_id'] ?? null;
 
-        $stmt = $db->prepare("UPDATE tbl_event SET status = 'Pending Branch Approval' WHERE event_id = ? AND (UPPER(status) = 'DRAFT' OR status = '0' OR status IS NULL)");
+        $stmt = $db->prepare("UPDATE tbl_event SET status = 'Pending Branch Approval', approval_status = 'Pending Branch Approval' WHERE event_id = ? AND (UPPER(status) = 'DRAFT' OR status = '0' OR status IS NULL)");
         if (!$stmt) return false;
         $stmt->bind_param("i", $id);
         $success = $stmt->execute();
@@ -350,7 +350,16 @@ class EventsHelper {
         $title = $event['event_title'] ?? 'Unknown Event';
         $creatorId = $event['created_by'] ?? null;
 
-        $stmt = $db->prepare("UPDATE tbl_event SET status = 'Branch Approved' WHERE event_id = ?");
+        $level = $event['event_level'] ?? 'MASTER';
+        
+        if ($level === 'SUB') {
+            // Sub Events are finalized by Branch Approval
+            $stmt = $db->prepare("UPDATE tbl_event SET status = 'Approved', approval_status = 'Approved by Branch' WHERE event_id = ?");
+        } else {
+            // Master Events still need HQ submission
+            $stmt = $db->prepare("UPDATE tbl_event SET status = 'Branch Approved', approval_status = 'Approved by Branch' WHERE event_id = ?");
+        }
+        
         if (!$stmt) return false;
         $stmt->bind_param("i", $id);
         $success = $stmt->execute();
@@ -389,9 +398,12 @@ class EventsHelper {
         $title = $event['event_title'] ?? 'Unknown Event';
         $creatorId = $event['created_by'] ?? null;
 
-        $stmt = $db->prepare("UPDATE tbl_event SET status = 'Rejected', approval_status = 'Rejected by President' WHERE event_id = ?");
+        $current_role = (int)($_SESSION['role'] ?? 0);
+        $reject_label = ($current_role == 11) ? 'Rejected by Branch' : 'Rejected by President';
+        
+        $stmt = $db->prepare("UPDATE tbl_event SET status = 'Rejected', approval_status = ? WHERE event_id = ?");
         if (!$stmt) return false;
-        $stmt->bind_param("i", $id);
+        $stmt->bind_param("si", $reject_label, $id);
         $success = $stmt->execute();
         $stmt->close();
 

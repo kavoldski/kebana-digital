@@ -22,12 +22,12 @@ if (isset($_GET['action'])) {
         $success = EventsHelper::submitEvent($eventId);
     } elseif ($action === 'approve' && hasRole([1, 888])) {
         $success = EventsHelper::approveEvent($eventId);
-    } elseif ($action === 'reject' && hasRole([1, 888])) {
+    } elseif ($action === 'reject' && hasRole([1, 11, 888])) {
         $success = EventsHelper::rejectEvent($eventId);
     }
     
     if ($success) {
-        header("Location: /kebana-digital/events/view?id=$eventId&msg=success");
+        header("Location: /kebana-digital/events/view/$eventId?msg=success");
         exit;
     }
 }
@@ -160,7 +160,7 @@ $page_title = 'PERINCIAN ACARA';
                     <?php if ($level === 'SUB' && !empty($event['parent_event_id'])): ?>
                         <?php $parent = EventsHelper::getParentEvent($event['parent_event_id']); ?>
                         <?php if ($parent): ?>
-                        <a href="/kebana-digital/events/view?id=<?php echo $parent['event_id']; ?>" class="text-[9px] font-black bg-slate-100 text-slate-500 px-3 py-1 uppercase tracking-widest hover:bg-kebana-blue hover:text-white transition-all">
+                        <a href="/kebana-digital/events/view/<?php echo $parent['event_id']; ?>" class="text-[9px] font-black bg-slate-100 text-slate-500 px-3 py-1 uppercase tracking-widest hover:bg-kebana-blue hover:text-white transition-all">
                             Master: <?php echo htmlspecialchars($parent['event_title']); ?>
                         </a>
                         <?php endif; ?>
@@ -251,7 +251,7 @@ $page_title = 'PERINCIAN ACARA';
                                         </span>
                                     </td>
                                     <td class="py-5 text-right">
-                                        <a href="/kebana-digital/events/view?id=<?php echo $sub['event_id']; ?>" class="text-[10px] font-black text-kebana-blue hover:underline uppercase tracking-widest">
+                                        <a href="/kebana-digital/events/view/<?php echo $sub['event_id']; ?>" class="text-[10px] font-black text-kebana-blue hover:underline uppercase tracking-widest">
                                             LIHAT →
                                         </a>
                                     </td>
