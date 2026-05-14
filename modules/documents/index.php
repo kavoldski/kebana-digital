@@ -15,12 +15,28 @@ if (!hasRole([888, 4, 33, 6, 55, 7, 66])) {
     exit;
 }
 
+// Handle Deletion
+if (isset($_GET['delete_id']) && hasRole([888, 4])) {
+    $delete_id = (int)$_GET['delete_id'];
+    if (DocumentsHelper::deleteDocument($delete_id)) {
+        echo "<script>window.location.href = '/kebana-digital/documents?deleted=1';</script>";
+        exit;
+    }
+}
+
 $filters = [
     'tag' => $_GET['tag'] ?? '',
     'search' => $_GET['search'] ?? ''
 ];
 
-$docs = DocumentsHelper::getAllDocuments($filters);
+// Pagination Logic
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit = 12;
+$offset = ($page - 1) * $limit;
+
+$docs = DocumentsHelper::getAllDocuments($filters, $limit, $offset);
+$total_docs = DocumentsHelper::countAllDocuments($filters);
+$total_pages = ceil($total_docs / $limit);
 $all_tags = DocumentsHelper::getUniqueTags();
 
 $page_title = 'ARKIB FAIL & DOKUMEN';
@@ -79,15 +95,29 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                 elseif (in_array($ext, ['jpg', 'jpeg', 'png'])) { $icon = 'fa-file-image'; $icon_color = 'text-blue-500'; }
                 elseif ($ext === 'docx') { $icon = 'fa-file-word'; $icon_color = 'text-kebana-blue'; }
                 elseif ($ext === 'xlsx') { $icon = 'fa-file-excel'; $icon_color = 'text-green-600'; }
+                
+                $size_str = isset($d['doc_size']) ? DocumentsHelper::formatBytes($d['doc_size']) : 'N/A';
             ?>
             <div class="bg-white border border-slate-100 hover:border-kebana-blue transition-all group relative overflow-hidden flex flex-col h-full shadow-sm">
                 <!-- Status Strip -->
                 <div class="h-1 <?php echo $d['status'] === 'Approved' ? 'bg-green-500' : ($d['status'] === 'Rejected' ? 'bg-red-500' : 'bg-kebana-yellow'); ?>"></div>
                 
+                <!-- Delete Button Overlay (For Admin) -->
+                <?php if (hasRole([888, 4])): ?>
+                <a href="?delete_id=<?php echo $d['doc_id']; ?>" 
+                   onclick="return confirm('Adakah anda pasti ingin memadam dokumen ini? Fail akan dipadamkan secara kekal dari pelayan.')"
+                   class="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur border border-slate-100 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-10 shadow-sm">
+                    <i class="fa-solid fa-trash-can text-[10px]"></i>
+                </a>
+                <?php endif; ?>
+
                 <div class="p-6 flex-1">
                     <div class="flex items-start justify-between mb-4">
                         <i class="fa-solid <?php echo $icon; ?> <?php echo $icon_color; ?> text-4xl opacity-50 group-hover:opacity-100 transition-opacity"></i>
-                        <span class="text-[8px] font-black uppercase tracking-widest text-slate-300"><?php echo strtoupper($ext); ?></span>
+                        <div class="text-right">
+                            <span class="block text-[8px] font-black uppercase tracking-widest text-slate-300"><?php echo strtoupper($ext); ?></span>
+                            <span class="block text-[8px] font-bold text-slate-400 mt-1"><?php echo $size_str; ?></span>
+                        </div>
                     </div>
                     
                     <h3 class="text-sm font-black text-kebana-blue uppercase tracking-tight leading-tight mb-2 line-clamp-2" title="<?php echo htmlspecialchars($d['doc_name']); ?>">
@@ -132,6 +162,23 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
+
+    <!-- Pagination -->
+    <?php if ($total_pages > 1): ?>
+    <div class="flex justify-center mt-12">
+        <div class="flex gap-2">
+            <?php for ($i = 1; $i <= $total_pages; $i++): 
+                $active = ($i === $page);
+                $url = "?page=$i" . ($filters['tag'] ? "&tag=" . urlencode($filters['tag']) : "") . ($filters['search'] ? "&search=" . urlencode($filters['search']) : "");
+            ?>
+            <a href="<?php echo $url; ?>" 
+               class="w-10 h-10 flex items-center justify-center text-[10px] font-black border <?php echo $active ? 'bg-kebana-blue text-white border-kebana-blue shadow-lg' : 'bg-white text-slate-400 border-slate-100 hover:border-kebana-blue hover:text-kebana-blue'; ?> transition-all">
+                <?php echo $i; ?>
+            </a>
+            <?php endfor; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
 
 <?php require_once APP_ROOT . '/includes/footer.php'; ?>

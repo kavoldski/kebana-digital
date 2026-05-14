@@ -19,22 +19,40 @@ $message = '';
 $message_type = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_FILES['doc_file']) && $_FILES['doc_file']['error'] === UPLOAD_ERR_OK) {
-        $userId = (int)($_SESSION['user_id'] ?? 0);
-        $eventId = !empty($_POST['event_id']) ? (int)$_POST['event_id'] : null;
-        $tags = trim($_POST['tags'] ?? '');
+    if (isset($_FILES['doc_file'])) {
+        $error = $_FILES['doc_file']['error'];
         
-        if (DocumentsHelper::uploadDocument($_FILES['doc_file'], $userId, $eventId, $tags)) {
-            $message = 'Fail berjaya dimuat naik dan diarkibkan.';
-            $message_type = 'success';
-            echo '<script>setTimeout(function(){ window.location.href = "/kebana-digital/documents"; }, 1500);</script>';
+        if ($error === UPLOAD_ERR_OK) {
+            $userId = (int)($_SESSION['user_id'] ?? 0);
+            $eventId = !empty($_POST['event_id']) ? (int)$_POST['event_id'] : null;
+            $tags = trim($_POST['tags'] ?? '');
+            
+            if (DocumentsHelper::uploadDocument($_FILES['doc_file'], $userId, $eventId, $tags)) {
+                $message = 'Fail berjaya dimuat naik dan diarkibkan.';
+                $message_type = 'success';
+                echo '<script>setTimeout(function(){ window.location.href = "/kebana-digital/documents"; }, 1500);</script>';
+            } else {
+                $message = 'Gagal memuat naik fail. Sila pastikan format fail dibenarkan (PDF, JPG, PNG, DOCX, XLSX).';
+                $message_type = 'error';
+            }
         } else {
-            $message = 'Gagal memuat naik fail. Sila pastikan format fail dibenarkan (PDF, JPG, PNG, DOCX, XLSX).';
+            switch ($error) {
+                case UPLOAD_ERR_INI_SIZE:
+                case UPLOAD_ERR_FORM_SIZE:
+                    $message = 'Saiz fail melebihi had yang dibenarkan.';
+                    break;
+                case UPLOAD_ERR_PARTIAL:
+                    $message = 'Fail hanya dimuat naik sebahagian sahaja.';
+                    break;
+                case UPLOAD_ERR_NO_FILE:
+                    $message = 'Sila pilih fail untuk dimuat naik.';
+                    break;
+                default:
+                    $message = 'Ralat sistem berlaku semasa memuat naik fail.';
+                    break;
+            }
             $message_type = 'error';
         }
-    } else {
-        $message = 'Sila pilih fail untuk dimuat naik.';
-        $message_type = 'error';
     }
 }
 
@@ -66,10 +84,10 @@ $page_title = 'MUAT NAIK FAIL';
             <!-- File Input -->
             <div class="relative group">
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Pilih Fail Untuk Diarkibkan</label>
-                <div class="border-4 border-dashed border-slate-100 p-12 text-center group-hover:border-kebana-blue/30 transition-all cursor-pointer relative">
-                    <i class="fa-solid fa-cloud-arrow-up text-6xl text-slate-100 group-hover:text-kebana-blue/20 mb-6 block transition-colors"></i>
-                    <input type="file" name="doc_file" required class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Klik atau seret fail ke sini</p>
+                <div id="drop-zone" class="border-4 border-dashed border-slate-100 p-12 text-center group-hover:border-kebana-blue/30 transition-all cursor-pointer relative">
+                    <i id="upload-icon" class="fa-solid fa-cloud-arrow-up text-6xl text-slate-100 group-hover:text-kebana-blue/20 mb-6 block transition-colors"></i>
+                    <input type="file" name="doc_file" id="doc_file" required class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                    <p id="file-label" class="text-xs font-black text-slate-400 uppercase tracking-widest">Klik atau seret fail ke sini</p>
                     <p class="text-[8px] text-slate-300 font-bold uppercase mt-2 italic">PDF, JPG, PNG, DOCX, XLSX (Maks: 10MB)</p>
                 </div>
             </div>
@@ -101,5 +119,34 @@ $page_title = 'MUAT NAIK FAIL';
         </form>
     </div>
 </div>
+
+<script>
+document.getElementById('doc_file').addEventListener('change', function(e) {
+    const fileLabel = document.getElementById('file-label');
+    const uploadIcon = document.getElementById('upload-icon');
+    const dropZone = document.getElementById('drop-zone');
+    
+    if (this.files && this.files[0]) {
+        const fileName = this.files[0].name;
+        fileLabel.textContent = "FAIL DIPILIH: " + fileName;
+        fileLabel.classList.remove('text-slate-400');
+        fileLabel.classList.add('text-kebana-blue', 'font-black');
+        
+        uploadIcon.classList.remove('text-slate-100');
+        uploadIcon.classList.add('text-kebana-blue', 'opacity-50');
+        
+        dropZone.classList.add('border-kebana-blue', 'bg-slate-50');
+    } else {
+        fileLabel.textContent = "Klik atau seret fail ke sini";
+        fileLabel.classList.add('text-slate-400');
+        fileLabel.classList.remove('text-kebana-blue', 'font-black');
+        
+        uploadIcon.classList.add('text-slate-100');
+        uploadIcon.classList.remove('text-kebana-blue', 'opacity-50');
+        
+        dropZone.classList.remove('border-kebana-blue', 'bg-slate-50');
+    }
+});
+</script>
 
 <?php require_once APP_ROOT . '/includes/footer.php'; ?>

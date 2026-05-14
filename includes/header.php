@@ -213,7 +213,7 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     </a>
                     <div class="hidden sm:flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest space-x-2">
                         <i class="fa-solid fa-clock text-kebana-blue/30"></i>
-                        <span><?php echo date('d F Y • H:i'); ?></span>
+                        <span><?php echo date('d F Y • h:i A'); ?></span>
                     </div>
                     <div class="h-6 w-[1px] bg-slate-100 hidden sm:block"></div>
                     <div class="relative inline-block text-left" id="notificationDropdown">
@@ -225,7 +225,11 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                         <div id="notificationMenu" class="absolute right-0 mt-3 w-80 origin-top-right bg-white shadow-2xl ring-1 ring-slate-200 focus:outline-none hidden z-50 rounded-none border-t-4 border-kebana-blue">
                             <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                                 <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">Notifications</h3>
-                                <button onclick="markAllRead()" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase transition-colors">Mark all read</button>
+                                <div class="flex items-center space-x-3">
+                                    <button onclick="markAllRead()" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase transition-colors">Mark all read</button>
+                                    <span class="text-slate-200">|</span>
+                                    <button onclick="clearAllNotifications()" class="text-[10px] font-black text-red-400 hover:text-red-600 uppercase transition-colors">Clear All</button>
+                                </div>
                             </div>
                             <div id="notificationList" class="max-h-96 overflow-y-auto">
                                 <div class="p-8 text-center text-slate-300">
@@ -234,7 +238,7 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                                 </div>
                             </div>
                             <div class="p-3 border-t border-slate-100 text-center">
-                                <a href="#" class="text-[10px] font-black text-kebana-blue uppercase tracking-tighter hover:underline">Papar Semua Notifikasi</a>
+                                <a href="/kebana-digital/notifications" class="text-[10px] font-black text-kebana-blue uppercase tracking-tighter hover:underline">Papar Semua Notifikasi</a>
                             </div>
                         </div>
                     </div>

@@ -37,6 +37,7 @@ $routes = [
     'audit' => 'modules/audit/list.php',
     'users' => 'modules/users/list.php',
     'users/add' => 'modules/users/add.php',
+    'notifications' => 'modules/notifications/index.php',
 ];
 
 // Clean up route (remove .php extension if present)
