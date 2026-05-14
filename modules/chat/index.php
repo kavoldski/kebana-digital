@@ -18,7 +18,7 @@ if (isset($_GET['fetch_list'])) {
         $roleNames = [888 => 'Super Admin', 1 => 'Presiden', 4 => 'Setiausaha Pusat', 11 => 'Pengerusi Cawangan', 33 => 'Setiausaha Cawangan'];
         $roleName = $roleNames[$u['role']] ?? 'Pegawai';
         
-        echo '<a href="/kebana-digital/chat?user_id=' . $u['user_id'] . '" class="flex items-center p-6 border-b border-slate-50 transition-all hover:bg-white group ' . ($isActive ? 'bg-white border-l-4 border-l-kebana-blue shadow-inner' : '') . '">';
+        echo '<a href="/kebana-digital/chat?user_id=' . $u['user_id'] . '" class="chat-item flex items-center p-6 border-b border-slate-50 transition-all hover:bg-white group ' . ($isActive ? 'bg-white border-l-4 border-l-kebana-blue shadow-inner' : '') . '">';
         echo '  <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-400 font-black text-xs relative group-hover:bg-kebana-blue group-hover:text-white transition-all">';
         echo '    ' . strtoupper(substr($u['username'], 0, 2));
         if ($u['unread_count'] > 0) {
@@ -94,7 +94,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'clear' && $activeChatId) {
 
 require_once APP_ROOT . '/includes/header.php';
 
-$chatList = ChatHelper::getChatList($userId, true);
+$chatList = ChatHelper::getChatList($userId, false);
 $allUsers = ChatHelper::getAllUsers($userId);
 $activeUser = null;
 
@@ -110,14 +110,20 @@ $page_title = 'PUSAT KOMUNIKASI';
 <div class="h-[calc(100vh-180px)] flex flex-col md:flex-row bg-white border border-slate-100 shadow-2xl overflow-hidden">
     <!-- Sidebar: User List -->
     <div class="w-full md:w-96 border-r border-slate-100 flex flex-col bg-slate-50/30">
-        <div class="p-8 border-b border-slate-100 bg-white flex justify-between items-center">
-            <div>
-                <h2 class="text-sm font-black text-kebana-blue uppercase tracking-[0.3em] italic">Mesej Terus</h2>
-                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Komunikasi Dalaman</p>
+        <div class="p-8 border-b border-slate-100 bg-white">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-sm font-black text-kebana-blue uppercase tracking-[0.3em] italic">Mesej Terus</h2>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Komunikasi Dalaman</p>
+                </div>
             </div>
-            <button onclick="document.getElementById('newChatModal').classList.remove('hidden')" class="w-10 h-10 bg-kebana-blue text-white rounded-full flex items-center justify-center shadow-lg shadow-kebana-blue/20 hover:bg-kebana-accent transition-all">
-                <i class="fa-solid fa-plus"></i>
-            </button>
+            <!-- Sidebar Search -->
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-[10px]"></i>
+                <input type="text" id="sidebarSearch" placeholder="Cari pengguna..." 
+                       class="w-full bg-slate-50 border border-slate-100 pl-10 pr-4 py-3 text-[10px] font-bold uppercase tracking-widest outline-none focus:border-kebana-blue focus:bg-white transition-all rounded-lg"
+                       onkeyup="filterSidebarUsers()">
+            </div>
         </div>
         
         <div id="chat-list" class="flex-1 overflow-y-auto custom-scrollbar">
@@ -130,7 +136,7 @@ $page_title = 'PUSAT KOMUNIKASI';
                 $roleName = $roleNames[$u['role']] ?? 'Pegawai';
             ?>
             <a href="/kebana-digital/chat?user_id=<?php echo $u['user_id']; ?>" 
-               class="flex items-center p-6 border-b border-slate-50 transition-all hover:bg-white group <?php echo $isActive ? 'bg-white border-l-4 border-l-kebana-blue shadow-inner' : ''; ?>">
+               class="chat-item flex items-center p-6 border-b border-slate-50 transition-all hover:bg-white group <?php echo $isActive ? 'bg-white border-l-4 border-l-kebana-blue shadow-inner' : ''; ?>">
                 <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-400 font-black text-xs relative group-hover:bg-kebana-blue group-hover:text-white transition-all">
                     <?php echo strtoupper(substr($u['username'], 0, 2)); ?>
                     <?php if ($u['unread_count'] > 0): ?>
@@ -253,8 +259,24 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(html => {
                 if (chatList.innerHTML !== html) {
                     chatList.innerHTML = html;
+                    filterSidebarUsers(); // Re-apply filter after update
                 }
             });
+    }
+
+    window.filterSidebarUsers = function() {
+        const input = document.getElementById('sidebarSearch');
+        const filter = input.value.toUpperCase();
+        const items = chatList.getElementsByClassName('chat-item');
+        
+        for (let i = 0; i < items.length; i++) {
+            const text = items[i].textContent || items[i].innerText;
+            if (text.toUpperCase().indexOf(filter) > -1) {
+                items[i].style.display = "";
+            } else {
+                items[i].style.display = "none";
+            }
+        }
     }
 
     // Initial fetch
@@ -322,58 +344,5 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </style>
 
-<!-- New Chat Modal -->
-<div id="newChatModal" class="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="bg-white w-full max-w-md shadow-2xl overflow-hidden animate-fade-in border-t-8 border-kebana-blue">
-        <div class="p-8 border-b border-slate-100 flex justify-between items-center">
-            <div>
-                <h3 class="text-sm font-black text-kebana-blue uppercase tracking-widest">Mesej Baru</h3>
-                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Pilih Rakan Sejawat</p>
-            </div>
-            <button onclick="document.getElementById('newChatModal').classList.add('hidden')" class="text-slate-300 hover:text-red-500 transition-colors">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
-        </div>
-        <div class="p-6 bg-slate-50">
-            <input type="text" id="userSearch" placeholder="Cari nama atau peranan..." 
-                   class="w-full bg-white border border-slate-100 p-4 text-xs font-bold uppercase tracking-widest outline-none focus:border-kebana-blue transition-all"
-                   onkeyup="filterUsers()">
-        </div>
-        <div class="max-h-96 overflow-y-auto custom-scrollbar" id="allUsersList">
-            <?php foreach ($allUsers as $u): 
-                $roleNames = [888 => 'Super Admin', 1 => 'Presiden', 4 => 'Setiausaha Pusat', 11 => 'Pengerusi Cawangan', 33 => 'Setiausaha Cawangan'];
-                $roleName = $roleNames[$u['role']] ?? 'Pegawai';
-            ?>
-            <a href="/kebana-digital/chat?user_id=<?php echo $u['user_id']; ?>" class="user-item flex items-center p-6 border-b border-slate-50 hover:bg-slate-50 transition-all">
-                <div class="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center text-slate-400 font-black text-[10px]">
-                    <?php echo strtoupper(substr($u['username'], 0, 2)); ?>
-                </div>
-                <div class="ml-4">
-                    <p class="text-xs font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($u['username']); ?></p>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest"><?php echo $roleName; ?></p>
-                </div>
-            </a>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</div>
-
-<script>
-function filterUsers() {
-    const input = document.getElementById('userSearch');
-    const filter = input.value.toUpperCase();
-    const list = document.getElementById('allUsersList');
-    const items = list.getElementsByClassName('user-item');
-    
-    for (let i = 0; i < items.length; i++) {
-        const text = items[i].textContent || items[i].innerText;
-        if (text.toUpperCase().indexOf(filter) > -1) {
-            items[i].style.display = "";
-        } else {
-            items[i].style.display = "none";
-        }
-    }
-}
-</script>
 
 <?php require_once APP_ROOT . '/includes/footer.php'; ?>

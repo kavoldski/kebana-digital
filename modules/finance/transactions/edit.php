@@ -155,11 +155,23 @@ require_once APP_ROOT . '/includes/header.php';
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Mod Pembayaran</label>
-                    <select name="payment_mode" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all rounded-none appearance-none">
-                        <option value="Cash" <?php echo $transaction['payment_mode'] === 'Cash' ? 'selected' : ''; ?>>Tunai (Cash)</option>
-                        <option value="Bank" <?php echo $transaction['payment_mode'] === 'Bank' ? 'selected' : ''; ?>>Pindahan Bank / Cek</option>
-                    </select>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Mod Pembayaran <span class="text-red-500">*</span></label>
+                    <div class="flex gap-4">
+                        <label class="cursor-pointer group flex-1">
+                            <input type="radio" name="payment_mode" value="Cash" <?php echo $transaction['payment_mode'] === 'Cash' ? 'checked' : ''; ?> required class="hidden peer">
+                            <div class="p-4 text-center border-2 border-slate-100 peer-checked:border-kebana-blue peer-checked:bg-blue-50 transition-all">
+                                <i class="fa-solid fa-money-bill-wave text-xl text-slate-200 group-hover:text-kebana-blue peer-checked:text-kebana-blue mb-2 block transition-colors"></i>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 peer-checked:text-kebana-blue">Tunai (Cash)</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group flex-1">
+                            <input type="radio" name="payment_mode" value="Bank" <?php echo $transaction['payment_mode'] === 'Bank' ? 'checked' : ''; ?> required class="hidden peer">
+                            <div class="p-4 text-center border-2 border-slate-100 peer-checked:border-kebana-blue peer-checked:bg-blue-50 transition-all">
+                                <i class="fa-solid fa-building-columns text-xl text-slate-200 group-hover:text-kebana-blue peer-checked:text-kebana-blue mb-2 block transition-colors"></i>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 peer-checked:text-kebana-blue">Bank / Cek</span>
+                            </div>
+                        </label>
+                    </div>
                 </div>
             </div>
 

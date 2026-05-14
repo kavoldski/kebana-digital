@@ -102,11 +102,11 @@ class ChatHelper {
     }
 
     /**
-     * Get list of users with last message (Recent only)
+     * Get list of users with last message
      */
-    public static function getChatList($userId, $onlyRecent = true) {
+    public static function getChatList($userId, $onlyRecent = false) {
         $db = Database::getInstance()->getConnection();
-        $having = $onlyRecent ? "HAVING last_message IS NOT NULL OR unread_count > 0" : "";
+        $having = $onlyRecent ? "HAVING last_message_raw IS NOT NULL OR unread_count > 0" : "";
         $sql = "
             SELECT 
                 u.user_id, 
