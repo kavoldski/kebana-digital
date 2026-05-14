@@ -94,6 +94,16 @@ class CawanganHelper {
      * @param array $data
      * @return array
      */
+    public static function updateCawangan($id, $data) {
+        $db = Database::getInstance()->getConnection();
+        
+        $stmt = $db->prepare("UPDATE tbl_cawangan SET cawangan_name = ?, cawangan_code = ?, is_active = ? WHERE cawangan_id = ?");
+        if (!$stmt) return ['status' => false, 'message' => 'Ralat sistem: ' . $db->error];
+        
+        $name = trim($data['cawangan_name']);
+        $code = strtoupper(trim($data['cawangan_code']));
+        $active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+
         // Check if anything changed
         $current = self::getCawanganById($id);
         if ($current && $current['cawangan_name'] === $name && $current['cawangan_code'] === $code && (int)$current['is_active'] === $active) {
@@ -140,6 +150,8 @@ class CawanganHelper {
         $new_status = $cawangan['is_active'] ? 0 : 1;
         
         $stmt = $db->prepare("UPDATE tbl_cawangan SET is_active = ? WHERE cawangan_id = ?");
+        if (!$stmt) return ['status' => false, 'message' => 'Ralat sistem: ' . $db->error];
+        
         $stmt->bind_param("ii", $new_status, $id);
         
         if ($stmt->execute()) {
