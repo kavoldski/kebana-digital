@@ -85,18 +85,26 @@ foreach ($orphan_subs as $sub) {
     }
 }
 
+// KPI Stats
+$total_events = count($all_events);
+$upcoming = DashboardHelper::getUpcomingEventsCount();
+$past = DashboardHelper::getPastEventsCount();
+
 // Search & Filter
 $search = trim($_GET['search'] ?? '');
+$filter_status = trim($_GET['status'] ?? '');
+
 if ($search) {
     $all_events = array_filter($all_events, function($e) use ($search) {
         return stripos($e['event_title'], $search) !== false || stripos($e['venue'], $search) !== false;
     });
 }
 
-// KPI Stats
-$total_events = count($all_events);
-$upcoming = DashboardHelper::getUpcomingEventsCount();
-$past = DashboardHelper::getPastEventsCount();
+if ($filter_status) {
+    $all_events = array_filter($all_events, function($e) use ($filter_status) {
+        return strcasecmp($e['status'] ?? '', $filter_status) === 0;
+    });
+}
 
 $page_title = 'PENGURUSAN ACARA';
 ?>
@@ -141,6 +149,9 @@ $page_title = 'PENGURUSAN ACARA';
     <!-- Search & Filter -->
     <div class="bg-white p-8 border border-slate-100 shadow-sm">
         <form method="GET" class="flex flex-col md:flex-row gap-6">
+            <?php if ($filter_status): ?>
+            <input type="hidden" name="status" value="<?php echo htmlspecialchars($filter_status); ?>">
+            <?php endif; ?>
             <div class="flex-1 relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
                 <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" 
