@@ -166,6 +166,7 @@ $page_title = 'PENGURUSAN ACARA';
                 KOSONGKAN
             </a>
             <?php endif; ?>
+        </form>
     </div>
 
     <div id="live-search-results" class="space-y-12">
