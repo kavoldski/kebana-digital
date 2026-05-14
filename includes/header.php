@@ -247,8 +247,8 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto p-6 lg:p-12">
-                <div class="max-w-7xl mx-auto space-y-10">
+            <main class="flex-1 overflow-y-auto p-6 lg:p-12 bg-slate-50/50">
+                <div class="max-w-screen-2xl mx-auto w-full space-y-10">
                     <!-- Title Bar -->
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-8 border-b-2 border-slate-50">
                         <div>

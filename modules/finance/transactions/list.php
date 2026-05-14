@@ -7,6 +7,7 @@
 use App\Helpers\FinanceHelper;
 use App\Core\Database;
 
+$page_title = 'SENARAI TRANSAKSI';
 require_once APP_ROOT . '/includes/header.php';
 
 if (!hasRole([888, 1, 2, 3, 6, 7, 55, 66])) {
@@ -71,15 +72,12 @@ foreach ($transactions as $t) {
     else $filtered_expense += $t['amount'];
 }
 $filtered_balance = $filtered_income - $filtered_expense;
-
-$page_title = 'SENARAI TRANSAKSI';
 ?>
 
 <div class="space-y-12">
     <!-- Top Action Bar -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
         <div>
-            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Senarai Transaksi</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Rekod Terperinci Aliran Masuk dan Keluar Dana.</p>
         </div>
         <div class="flex flex-wrap gap-3">
@@ -160,12 +158,13 @@ $page_title = 'SENARAI TRANSAKSI';
                         <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Mod</th>
                         <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Resit</th>
                         <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Amaun</th>
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Tindakan</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
                     <?php if (empty($transactions)): ?>
                     <tr>
-                        <td colspan="4" class="px-8 py-20 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
+                        <td colspan="6" class="px-8 py-20 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
                             Tiada rekod transaksi dijumpai.
                         </td>
                     </tr>
@@ -236,8 +235,6 @@ $page_title = 'SENARAI TRANSAKSI';
             </table>
         </div>
     </div>
-</div>
-
     </div>
 </div>
 

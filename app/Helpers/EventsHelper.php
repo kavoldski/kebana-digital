@@ -165,7 +165,7 @@ class EventsHelper {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             if ($stmt) {
-                $stmt->bind_param("sssssdisisss", $title, $date, $end_date, $venue, $kawasan, $objective, $budget, $userId, $status, $approval_status, $assigned_cawangan_id, $level);
+                $stmt->bind_param("ssssssdiissi", $title, $date, $end_date, $venue, $kawasan, $objective, $budget, $userId, $status, $approval_status, $assigned_cawangan_id, $level);
                 $success = $stmt->execute();
                 $insert_id = $stmt->insert_id;
                 $stmt->close();
@@ -186,7 +186,7 @@ class EventsHelper {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             if ($stmt) {
-                $stmt->bind_param("sssssdisisssi", $title, $date, $end_date, $venue, $kawasan, $objective, $budget, $userId, $status, $approval_status, $cawanganId, $level, $parent_master_id);
+                $stmt->bind_param("ssssssdiissii", $title, $date, $end_date, $venue, $kawasan, $objective, $budget, $userId, $status, $approval_status, $cawanganId, $level, $parent_master_id);
                 $success = $stmt->execute();
                 $insert_id = $stmt->insert_id;
                 $stmt->close();
@@ -547,5 +547,125 @@ class EventsHelper {
         }
         
         return $locations;
+    }
+    /**
+     * Generate a unique token for QR check-in.
+     */
+    public static function generateCheckinToken($eventId) {
+        $db = Database::getInstance()->getConnection();
+        $token = bin2hex(random_bytes(32));
+        $stmt = $db->prepare("UPDATE tbl_event SET checkin_token = ? WHERE event_id = ?");
+        if ($stmt) {
+            $stmt->bind_param("si", $token, $eventId);
+            $success = $stmt->execute();
+            $stmt->close();
+            return $success ? $token : false;
+        }
+        return false;
+    }
+
+    /**
+     * Validate event check-in token.
+     */
+    public static function validateCheckinToken($eventId, $token) {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT event_id FROM tbl_event WHERE event_id = ? AND checkin_token = ?");
+        if ($stmt) {
+            $stmt->bind_param("is", $eventId, $token);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $isValid = $result->num_rows > 0;
+            $stmt->close();
+            return $isValid;
+        }
+        return false;
+    }
+
+    /**
+     * Perform self check-in by IC number.
+     */
+    public static function checkinByIC($eventId, $icNumber) {
+        $db = Database::getInstance()->getConnection();
+        
+        // Sanitize IC: Remove dashes/spaces to match DB format
+        $icNumber = preg_replace('/[^0-9]/', '', $icNumber);
+
+        // 1. Find member by IC
+        $stmt = $db->prepare("SELECT member_id, full_name FROM tbl_member WHERE ic_number = ? AND status = 'Active'");
+        if (!$stmt) return ['status' => false, 'message' => 'System error'];
+        
+        $stmt->bind_param("s", $icNumber);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $member = $res->fetch_assoc();
+        $stmt->close();
+
+        if (!$member) {
+            return ['status' => false, 'message' => 'IC tidak dijumpai atau ahli tidak aktif.'];
+        }
+
+        // 2. Mark attendance
+        $success = self::markAttendance($eventId, $member['member_id'], 'Present', 'Self check-in via QR');
+        
+        if ($success) {
+            return ['status' => true, 'full_name' => $member['full_name']];
+        } else {
+            return ['status' => false, 'message' => 'Gagal merekodkan kehadiran.'];
+        }
+    }
+
+    /**
+     * Get unique villages for filtering.
+     */
+    public static function getDistinctVillages() {
+        $db = Database::getInstance()->getConnection();
+        $villages = [];
+        $res = $db->query("SELECT DISTINCT village FROM tbl_member WHERE village != '' ORDER BY village ASC");
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $villages[] = $row['village'];
+            }
+        }
+        return $villages;
+    }
+
+    /**
+     * Get real-time attendance data for dashboard.
+     */
+    public static function getLiveAttendanceData($eventId) {
+        $summary = self::getAttendanceSummary($eventId);
+        $db = Database::getInstance()->getConnection();
+        
+        // Get recent check-ins
+        $stmt = $db->prepare("
+            SELECT m.full_name, a.marked_at 
+            FROM tbl_attendance a
+            JOIN tbl_member m ON a.member_id = m.member_id
+            WHERE a.event_id = ? AND a.status = 'Present'
+            ORDER BY a.marked_at DESC
+            LIMIT 5
+        ");
+        $recent = [];
+        if ($stmt) {
+            $stmt->bind_param("i", $eventId);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            while ($row = $res->fetch_assoc()) {
+                $recent[] = [
+                    'name' => $row['full_name'],
+                    'time' => date('H:i:s', strtotime($row['marked_at']))
+                ];
+            }
+            $stmt->close();
+        }
+
+        // Total active members count
+        $total_members = $db->query("SELECT COUNT(*) as total FROM tbl_member WHERE status = 'Active'")->fetch_assoc()['total'];
+
+        return [
+            'summary' => $summary,
+            'recent' => $recent,
+            'total_members' => (int)$total_members
+        ];
     }
 }
