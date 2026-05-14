@@ -239,39 +239,61 @@ $page_title = 'PENGURUSAN ACARA';
                                     <?php echo $status; ?>
                                 </span>
                             </td>
-                            <td class="px-8 py-6 text-right space-x-4">
-                                <div class="flex justify-end gap-3 opacity-30 group-hover:opacity-100 transition-opacity">
+                            <td class="px-8 py-6 text-right">
+                                <div class="flex justify-end gap-2 flex-wrap">
                                     <a href="/kebana-digital/events/view/<?php echo $event['event_id']; ?>" 
-                                       class="text-[9px] font-black text-slate-800 uppercase border-b border-slate-200 hover:border-kebana-blue pb-0.5 transition-all">Papar</a>
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-slate-800 hover:bg-black uppercase tracking-widest transition-all shadow-sm">
+                                        <i class="fa-solid fa-eye text-xs"></i>
+                                        Papar
+                                    </a>
                                     
                                     <a href="/kebana-digital/events/attendance?event_id=<?php echo $event['event_id']; ?>" 
-                                       class="text-[9px] font-black text-kebana-blue uppercase border-b border-kebana-blue/20 hover:border-kebana-blue pb-0.5 transition-all">Kehadiran</a>
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-kebana-blue hover:bg-kebana-accent uppercase tracking-widest transition-all shadow-sm">
+                                        <i class="fa-solid fa-users-check text-xs"></i>
+                                        Kehadiran
+                                    </a>
                                        
                                     <?php if ($is_master): ?>
                                     <a href="/kebana-digital/events/gantt?event_id=<?php echo $event['event_id']; ?>" 
-                                       class="text-[9px] font-black text-purple-600 uppercase border-b border-purple-600/20 hover:border-purple-600 pb-0.5 transition-all">Gantt Chart</a>
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-purple-600 hover:bg-purple-700 uppercase tracking-widest transition-all shadow-sm">
+                                        <i class="fa-solid fa-chart-gantt text-xs"></i>
+                                        Gantt Chart
+                                    </a>
                                     <?php endif; ?>
                                     
                                     <?php if ($status === 'Draft'): ?>
                                         <?php if ($level === 'MASTER' && hasRole([888, 4, 33])): ?>
                                             <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" 
-                                               class="text-[9px] font-black text-amber-600 uppercase border-b border-amber-600/20 hover:border-amber-600 pb-0.5 transition-all">Hantar</a>
+                                               class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all shadow-sm">
+                                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                                                Hantar
+                                            </a>
                                         <?php elseif ($level === 'SUB' && hasRole(33)): ?>
                                             <a href="?action=submit_to_branch&event_id=<?php echo $event['event_id']; ?>" 
-                                               class="text-[9px] font-black text-amber-600 uppercase border-b border-amber-600/20 hover:border-amber-600 pb-0.5 transition-all">Hantar Ke Pengerusi</a>
+                                               class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all shadow-sm">
+                                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                                                Hantar Ke Pengerusi
+                                            </a>
                                         <?php endif; ?>
                                     <?php endif; ?>
 
                                     <?php if ($status === 'Submitted' && hasRole([1, 888])): ?>
                                     <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" 
-                                       class="text-[9px] font-black text-green-600 uppercase border-b border-green-600/20 hover:border-green-600 pb-0.5 transition-all">Lulus</a>
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-green-600 hover:bg-green-700 uppercase tracking-widest transition-all shadow-sm">
+                                        <i class="fa-solid fa-check-double text-xs"></i>
+                                        Lulus
+                                    </a>
                                     <a href="?action=reject&event_id=<?php echo $event['event_id']; ?>" 
-                                       class="text-[9px] font-black text-red-600 uppercase border-b border-red-600/20 hover:border-red-600 pb-0.5 transition-all">Tolak</a>
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-red-600 hover:bg-red-700 uppercase tracking-widest transition-all shadow-sm">
+                                        <i class="fa-solid fa-xmark text-xs"></i>
+                                        Tolak
+                                    </a>
                                     <?php endif; ?>
 
                                     <a href="?delete=<?php echo $event['event_id']; ?>" 
                                        onclick="return confirm('Adakah anda pasti mahu memadam acara ini?');"
-                                       class="text-[9px] font-black text-slate-300 hover:text-red-600 uppercase transition-colors">
+                                       class="inline-flex items-center justify-center w-9 h-9 text-slate-300 hover:text-red-600 hover:bg-red-50 border border-slate-100 transition-all"
+                                       title="Padam">
                                         <i class="fa-solid fa-trash-can"></i>
                                     </a>
                                 </div>
@@ -316,11 +338,23 @@ $page_title = 'PENGURUSAN ACARA';
                                 </span>
                             </td>
                             <td class="px-8 py-4 text-right">
-                                <div class="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <a href="/kebana-digital/events/view/<?php echo $sub['event_id']; ?>" class="text-[8px] font-black text-slate-400 uppercase hover:text-kebana-blue">Lihat</a>
-                                    <a href="/kebana-digital/events/attendance?event_id=<?php echo $sub['event_id']; ?>" class="text-[8px] font-black text-slate-400 uppercase hover:text-kebana-blue">Hadir</a>
+                                <div class="flex justify-end gap-2">
+                                    <a href="/kebana-digital/events/view/<?php echo $sub['event_id']; ?>" 
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-slate-600 bg-slate-100 hover:bg-slate-200 uppercase tracking-widest transition-all">
+                                        <i class="fa-solid fa-eye"></i>
+                                        Lihat
+                                    </a>
+                                    <a href="/kebana-digital/events/attendance?event_id=<?php echo $sub['event_id']; ?>" 
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-kebana-blue bg-blue-50 hover:bg-blue-100 uppercase tracking-widest transition-all">
+                                        <i class="fa-solid fa-users-check"></i>
+                                        Hadir
+                                    </a>
                                     <?php if ($s_status === 'Draft' && hasRole(33)): ?>
-                                    <a href="?action=submit_to_branch&event_id=<?php echo $sub['event_id']; ?>" class="text-[8px] font-black text-amber-600 uppercase hover:text-amber-700">Hantar Ke Pengerusi</a>
+                                    <a href="?action=submit_to_branch&event_id=<?php echo $sub['event_id']; ?>" 
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all">
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                        Hantar Ke Pengerusi
+                                    </a>
                                     <?php endif; ?>
                                 </div>
                             </td>
