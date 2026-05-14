@@ -61,6 +61,22 @@ if (in_array($current_role, [33, 55, 66])) {
 
 $all_events = EventsHelper::getAllEvents($view_mode, $current_user_id, $current_cawangan_id);
 
+// Search & Filter
+$search = trim($_GET['search'] ?? '');
+$filter_status = trim($_GET['status'] ?? '');
+
+if ($search) {
+    $all_events = array_filter($all_events, function($e) use ($search) {
+        return stripos($e['event_title'], $search) !== false || stripos($e['venue'], $search) !== false;
+    });
+}
+
+if ($filter_status) {
+    $all_events = array_filter($all_events, function($e) use ($filter_status) {
+        return strcasecmp($e['status'] ?? '', $filter_status) === 0;
+    });
+}
+
 // Organize into Hierarchy
 $master_events = [];
 $orphan_subs = [];
@@ -89,22 +105,6 @@ foreach ($orphan_subs as $sub) {
 $total_events = count($all_events);
 $upcoming = DashboardHelper::getUpcomingEventsCount();
 $past = DashboardHelper::getPastEventsCount();
-
-// Search & Filter
-$search = trim($_GET['search'] ?? '');
-$filter_status = trim($_GET['status'] ?? '');
-
-if ($search) {
-    $all_events = array_filter($all_events, function($e) use ($search) {
-        return stripos($e['event_title'], $search) !== false || stripos($e['venue'], $search) !== false;
-    });
-}
-
-if ($filter_status) {
-    $all_events = array_filter($all_events, function($e) use ($filter_status) {
-        return strcasecmp($e['status'] ?? '', $filter_status) === 0;
-    });
-}
 
 $page_title = 'PENGURUSAN ACARA';
 ?>

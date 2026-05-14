@@ -190,24 +190,49 @@
             const resultsContainerId = 'live-search-results';
 
             function attachLiveSearch() {
+                // Handle Search Inputs
                 const searchInputs = document.querySelectorAll('input[name="search"], .live-search');
                 searchInputs.forEach(input => {
-                    // Remove existing listener to avoid duplicates if re-attached
                     input.removeEventListener('input', handleSearchInput);
                     input.addEventListener('input', handleSearchInput);
+                    
+                    // Prevent form submission refresh
+                    const form = input.closest('form');
+                    if (form) {
+                        form.removeEventListener('submit', handleFormSubmit);
+                        form.addEventListener('submit', handleFormSubmit);
+                    }
                 });
 
-                // Also intercept pagination and filter links within the results container
-                const resultsContainer = document.getElementById(resultsContainerId);
-                if (resultsContainer) {
-                    resultsContainer.querySelectorAll('a').forEach(link => {
-                        if (link.href && link.href.includes(window.location.pathname)) {
-                            link.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                fetchResults(this.href);
-                            });
-                        }
-                    });
+                // Intercept links (Pagination, Filters, Clear buttons)
+                document.querySelectorAll('a').forEach(link => {
+                    const isLocal = link.href && link.href.includes(window.location.pathname) && !link.href.includes('#');
+                    const isAction = link.href && (link.href.includes('?search=') || link.href.includes('?page=') || link.href.includes('?status=') || link.href.includes('?type=') || link.href.endsWith(window.location.pathname));
+                    
+                    if (isLocal && isAction) {
+                        link.removeEventListener('click', handleLinkClick);
+                        link.addEventListener('click', handleLinkClick);
+                    }
+                });
+            }
+
+            function handleFormSubmit(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const params = new URLSearchParams(formData);
+                const url = new URL(window.location.href);
+                params.forEach((value, key) => url.searchParams.set(key, value));
+                fetchResults(url.toString());
+            }
+
+            function handleLinkClick(e) {
+                // Only intercept if it doesn't have other actions like 'delete' or 'toggle'
+                const url = new URL(e.currentTarget.href);
+                const hasAction = url.searchParams.has('action') || url.searchParams.has('delete') || url.searchParams.has('toggle');
+                
+                if (!hasAction) {
+                    e.preventDefault();
+                    fetchResults(e.currentTarget.href);
                 }
             }
 
@@ -216,7 +241,6 @@
                 const query = e.target.value;
                 const url = new URL(window.location.href);
                 url.searchParams.set('search', query);
-                // Reset page to 1 when searching
                 if (url.searchParams.has('page')) url.searchParams.set('page', '1');
 
                 searchTimeout = setTimeout(() => {
@@ -226,9 +250,12 @@
 
             function fetchResults(url) {
                 const container = document.getElementById(resultsContainerId);
-                if (!container) return;
+                if (!container) {
+                    // Fallback to full page refresh if container missing
+                    window.location.href = url;
+                    return;
+                }
 
-                // Add loading state
                 container.style.opacity = '0.5';
                 container.style.pointerEvents = 'none';
 
@@ -243,22 +270,18 @@
                             container.innerHTML = newContent.innerHTML;
                             container.style.opacity = '1';
                             container.style.pointerEvents = 'auto';
-                            
-                            // Re-attach listeners to new links
                             attachLiveSearch();
-                            
-                            // Update URL
                             window.history.pushState({}, '', url);
+                        } else {
+                            window.location.href = url;
                         }
                     })
                     .catch(err => {
                         console.error('Live Search Error:', err);
-                        container.style.opacity = '1';
-                        container.style.pointerEvents = 'auto';
+                        window.location.href = url;
                     });
             }
 
-            // Initial attachment
             attachLiveSearch();
         });
     </script>
