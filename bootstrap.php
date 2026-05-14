@@ -12,6 +12,9 @@ define('APP_ROOT', __DIR__);
 define('URL_ROOT', '/kebana-digital');
 $base_path = URL_ROOT . '/';
 
+define('LOGO_ICON', URL_ROOT . '/public/assets/img/kebana-logo-icon.png');
+
+
 // Simple Autoloader
 spl_autoload_register(function ($class) {
     $prefix = 'App\\';

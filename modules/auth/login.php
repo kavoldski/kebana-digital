@@ -49,6 +49,9 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
             <section class="relative flex flex-col justify-between bg-white px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12">
                 <div>
                     <div class="mb-10">
+                        <div class="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-kebana-blue/5 p-2.5">
+                            <img src="<?php echo LOGO_ICON; ?>" alt="KEBANA Logo" class="h-full w-full object-contain">
+                        </div>
                         <p class="text-[10px] font-black uppercase tracking-[0.45em] text-kebana-blue/60">Kebana Digital</p>
                         <h1 class="mt-4 text-4xl font-black uppercase tracking-[-0.06em] text-kebana-blue sm:text-5xl">Log Masuk</h1>
                         <p class="mt-4 max-w-sm text-sm font-medium leading-6 text-slate-500">
