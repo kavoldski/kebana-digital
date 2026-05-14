@@ -38,6 +38,11 @@ switch ($action) {
         $success = NotificationHelper::markAllAsRead($userId);
         echo json_encode(['success' => $success]);
         break;
+    
+    case 'clear_all':
+        $success = NotificationHelper::deleteAll($userId);
+        echo json_encode(['success' => $success]);
+        break;
 
     case 'get_unread_count':
         $count = NotificationHelper::countUnread($userId);

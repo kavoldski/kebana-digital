@@ -153,6 +153,28 @@
                 });
             };
 
+            window.clearAllNotifications = function() {
+                if (!confirm('Are you sure you want to clear all notifications?')) return;
+                
+                fetch(`<?php echo URL_ROOT; ?>/modules/api/notifications.php?action=clear_all`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'clear_all' })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        notificationBadge.classList.add('hidden');
+                        notificationList.innerHTML = `
+                            <div class="p-8 text-center text-slate-300">
+                                <i class="fa-regular fa-bell-slash text-2xl mb-2 block"></i>
+                                <p class="text-[10px] font-bold uppercase">No new notifications</p>
+                            </div>
+                        `;
+                    }
+                });
+            };
+
             function fetchInitial() {
                 fetch(`<?php echo URL_ROOT; ?>/modules/api/notifications.php?action=get_latest`)
                     .then(res => res.json())
@@ -169,7 +191,7 @@
                 const isToday = date.toDateString() === now.toDateString();
                 
                 if (isToday) {
-                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
                 } else {
                     return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
                 }

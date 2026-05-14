@@ -30,8 +30,8 @@ $page_title = (in_array($session_role, $CAWANGAN_ROLES)) ? "RINGKASAN KEWANGAN C
 
 require_once APP_ROOT . '/includes/header.php';
 
-// Access Control
-if (!hasRole([888, 6, 55, 7, 66])) {
+// Access Control: Admin/Executives/Secretaries/Treasurers
+if (!hasRole([888, 1, 2, 3, 4, 11, 22, 33, 6, 55, 7, 66])) {
     echo "<div class='p-12 text-center'><h1 class='text-2xl font-black text-red-600 uppercase tracking-widest'>AKSES DISEKAT</h1></div>";
     require_once APP_ROOT . '/includes/footer.php';
     exit;

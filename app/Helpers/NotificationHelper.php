@@ -64,6 +64,42 @@ class NotificationHelper {
     }
 
     /**
+     * Get all notifications for a user (paginated)
+     */
+    public static function getAll($userId, $limit = 20, $offset = 0) {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT * FROM tbl_notification WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        $notifications = [];
+        if ($stmt) {
+            $stmt->bind_param("iii", $userId, $limit, $offset);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $notifications[] = $row;
+            }
+            $stmt->close();
+        }
+        return $notifications;
+    }
+
+    /**
+     * Count all notifications for a user
+     */
+    public static function countAll($userId) {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT COUNT(*) as total FROM tbl_notification WHERE user_id = ?");
+        if ($stmt) {
+            $stmt->bind_param("i", $userId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            $stmt->close();
+            return (int)$row['total'];
+        }
+        return 0;
+    }
+
+    /**
      * Mark a notification as read
      */
     public static function markAsRead($notificationId) {
@@ -130,5 +166,20 @@ class NotificationHelper {
             }
             $stmt->close();
         }
+    }
+
+    /**
+     * Delete all notifications for a user
+     */
+    public static function deleteAll($userId) {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("DELETE FROM tbl_notification WHERE user_id = ?");
+        if ($stmt) {
+            $stmt->bind_param("i", $userId);
+            $success = $stmt->execute();
+            $stmt->close();
+            return $success;
+        }
+        return false;
     }
 }
