@@ -24,9 +24,28 @@ if (isset($_GET['delete_id']) && hasRole([888, 4])) {
     }
 }
 
+// Handle Download Tracking
+if (isset($_GET['track_id'])) {
+    $track_id = (int)$_GET['track_id'];
+    DocumentsHelper::incrementDownloadCount($track_id);
+    if (isset($_GET['file'])) {
+        header("Location: /kebana-digital/" . $_GET['file']);
+        exit;
+    }
+}
+
+$current_role = (int)($_SESSION['role'] ?? 0);
+$current_cawangan = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
+$is_pusat = in_array($current_role, [888, 1, 2, 3, 4, 5, 6, 7]);
+
+$scope_cawangan = $is_pusat ? null : $current_cawangan;
+
 $filters = [
     'tag' => $_GET['tag'] ?? '',
-    'search' => $_GET['search'] ?? ''
+    'search' => $_GET['search'] ?? '',
+    'sort' => $_GET['sort'] ?? 'newest',
+    'ext' => $_GET['ext'] ?? '',
+    'cawangan_id' => $scope_cawangan
 ];
 
 // Pagination Logic
@@ -39,8 +58,16 @@ $total_docs = DocumentsHelper::countAllDocuments($filters);
 $total_pages = ceil($total_docs / $limit);
 $all_tags = DocumentsHelper::getUniqueTags();
 
+// Stats Data
+$stats = DocumentsHelper::getArchiveStats($scope_cawangan);
+$distribution = DocumentsHelper::getFileTypeDistribution($scope_cawangan);
+$trend = DocumentsHelper::getMonthlyUploadTrend($scope_cawangan);
+
 $page_title = 'ARKIB FAIL & DOKUMEN';
 ?>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <div class="space-y-12 pb-24">
     <!-- Top Action Bar -->
@@ -49,39 +76,123 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Pusat Arkib Digital</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Pengurusan Dokumen Berpusat dengan Sistem Tagging Automatik.</p>
         </div>
-        <a href="/kebana-digital/documents/upload" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
-            <i class="fa-solid fa-cloud-arrow-up mr-4 text-lg"></i>
-            MUAT NAIK FAIL
-        </a>
-    </div>
-
-    <!-- Filter Bar -->
-    <div class="bg-white p-8 border border-slate-100 shadow-sm">
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-            <div>
-                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Tapis mengikut Tag</label>
-                <select name="tag" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
-                    <option value="">Semua Tag</option>
-                    <?php foreach ($all_tags as $tag): ?>
-                    <option value="<?php echo htmlspecialchars($tag); ?>" <?php echo $filters['tag'] === $tag ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($tag); ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div>
-                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Cari Fail</label>
-                <input type="text" name="search" value="<?php echo htmlspecialchars($filters['search']); ?>" placeholder="Masukkan kata kunci atau tag..."
-                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
-            </div>
-            <button type="submit" class="bg-kebana-dark text-white py-4 text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
-                CARI FAIL
+        <div class="flex gap-4">
+            <button onclick="toggleManagementView()" class="bg-slate-100 text-slate-600 px-6 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center">
+                <i class="fa-solid fa-chart-pie mr-3"></i>
+                INSIGHTS
             </button>
-        </form>
+            <a href="/kebana-digital/documents/upload" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
+                <i class="fa-solid fa-cloud-arrow-up mr-4 text-lg"></i>
+                MUAT NAIK FAIL
+            </a>
+        </div>
     </div>
 
-    <!-- Documents Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    <!-- KPI Stats Bar -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-0 border border-slate-100 bg-white shadow-sm overflow-hidden">
+        <div class="p-8 border-r border-slate-50 flex flex-col justify-center bg-slate-50/30">
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Jumlah Fail</p>
+            <p class="text-2xl font-black text-kebana-blue"><?php echo number_format($stats['total_files']); ?></p>
+        </div>
+        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Saiz Arkib</p>
+            <p class="text-2xl font-black text-kebana-blue"><?php echo DocumentsHelper::formatBytes($stats['total_size'] ?? 0); ?></p>
+        </div>
+        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Fail Paling Popular</p>
+            <p class="text-xs font-black text-kebana-blue truncate" title="<?php echo htmlspecialchars($stats['popular_doc'] ?? 'N/A'); ?>">
+                <?php echo htmlspecialchars($stats['popular_doc'] ?? 'N/A'); ?>
+            </p>
+        </div>
+        <div class="p-8 flex flex-col justify-center bg-kebana-yellow/5">
+            <p class="text-[9px] font-black text-kebana-blue/60 uppercase tracking-widest mb-2">Status Capaian</p>
+            <p class="text-[10px] font-black text-kebana-blue uppercase italic">
+                <i class="fa-solid fa-shield-halved mr-2"></i>
+                <?php echo $is_pusat ? 'Akses Global (Pusat)' : 'Akses Cawangan'; ?>
+            </p>
+        </div>
+    </div>
+
+    <!-- Management Insights (Charts) -->
+    <div id="management-view" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div class="lg:col-span-1 bg-white p-8 border border-slate-100 shadow-sm">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center">
+                <i class="fa-solid fa-file-invoice mr-2 text-kebana-blue"></i>
+                Pecahan Jenis Fail
+            </h3>
+            <div style="height: 200px;">
+                <canvas id="typeChart"></canvas>
+            </div>
+        </div>
+        <div class="lg:col-span-2 bg-white p-8 border border-slate-100 shadow-sm">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center">
+                <i class="fa-solid fa-chart-line mr-2 text-kebana-blue"></i>
+                Trend Muat Naik (6 Bulan)
+            </h3>
+            <div style="height: 200px;">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & View Control Bar -->
+    <div class="flex flex-col xl:flex-row gap-6">
+        <div class="flex-1 bg-white p-8 border border-slate-100 shadow-sm">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Tapis Tag</label>
+                    <select name="tag" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-[10px] font-bold uppercase transition-all rounded-none appearance-none">
+                        <option value="">Semua Tag</option>
+                        <?php foreach ($all_tags as $tag): ?>
+                        <option value="<?php echo htmlspecialchars($tag); ?>" <?php echo $filters['tag'] === $tag ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($tag); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Jenis Fail</label>
+                    <select name="ext" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-[10px] font-bold uppercase transition-all rounded-none appearance-none">
+                        <option value="">Semua Format</option>
+                        <option value="pdf" <?php echo $filters['ext'] === 'pdf' ? 'selected' : ''; ?>>PDF Document</option>
+                        <option value="docx" <?php echo $filters['ext'] === 'docx' ? 'selected' : ''; ?>>Word Document</option>
+                        <option value="xlsx" <?php echo $filters['ext'] === 'xlsx' ? 'selected' : ''; ?>>Excel Spreadsheet</option>
+                        <option value="png" <?php echo $filters['ext'] === 'png' ? 'selected' : ''; ?>>Image (PNG/JPG)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Susun Ikut</label>
+                    <select name="sort" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-[10px] font-bold uppercase transition-all rounded-none appearance-none">
+                        <option value="newest" <?php echo $filters['sort'] === 'newest' ? 'selected' : ''; ?>>Terbaru</option>
+                        <option value="popular" <?php echo $filters['sort'] === 'popular' ? 'selected' : ''; ?>>Paling Popular</option>
+                        <option value="size" <?php echo $filters['sort'] === 'size' ? 'selected' : ''; ?>>Saiz Terbesar</option>
+                        <option value="name" <?php echo $filters['sort'] === 'name' ? 'selected' : ''; ?>>Nama (A-Z)</option>
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <input type="text" name="search" value="<?php echo htmlspecialchars($filters['search']); ?>" placeholder="Cari fail..."
+                               class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-[10px] font-bold uppercase transition-all">
+                    </div>
+                    <button type="submit" class="bg-kebana-dark text-white px-6 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
+                        CARI
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="bg-white p-8 border border-slate-100 shadow-sm flex items-center justify-center gap-4">
+            <button onclick="setViewMode('grid')" id="btn-grid" class="w-12 h-12 flex items-center justify-center border-2 border-kebana-blue bg-kebana-blue text-white transition-all">
+                <i class="fa-solid fa-grip"></i>
+            </button>
+            <button onclick="setViewMode('list')" id="btn-list" class="w-12 h-12 flex items-center justify-center border-2 border-slate-100 text-slate-300 hover:border-kebana-blue hover:text-kebana-blue transition-all">
+                <i class="fa-solid fa-list-ul"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Documents Display -->
+    <div id="grid-view" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         <?php if (empty($docs)): ?>
             <div class="col-span-full py-20 text-center bg-white border border-slate-100">
                 <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Tiada fail dijumpai dalam arkib.</p>
@@ -97,20 +208,12 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                 elseif ($ext === 'xlsx') { $icon = 'fa-file-excel'; $icon_color = 'text-green-600'; }
                 
                 $size_str = isset($d['doc_size']) ? DocumentsHelper::formatBytes($d['doc_size']) : 'N/A';
+                $dl_link = "?track_id=" . $d['doc_id'] . "&file=" . urlencode($d['file_path']);
             ?>
             <div class="bg-white border border-slate-100 hover:border-kebana-blue transition-all group relative overflow-hidden flex flex-col h-full shadow-sm">
                 <!-- Status Strip -->
                 <div class="h-1 <?php echo $d['status'] === 'Approved' ? 'bg-green-500' : ($d['status'] === 'Rejected' ? 'bg-red-500' : 'bg-kebana-yellow'); ?>"></div>
                 
-                <!-- Delete Button Overlay (For Admin) -->
-                <?php if (hasRole([888, 4])): ?>
-                <a href="?delete_id=<?php echo $d['doc_id']; ?>" 
-                   onclick="return confirm('Adakah anda pasti ingin memadam dokumen ini? Fail akan dipadamkan secara kekal dari pelayan.')"
-                   class="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur border border-slate-100 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-10 shadow-sm">
-                    <i class="fa-solid fa-trash-can text-[10px]"></i>
-                </a>
-                <?php endif; ?>
-
                 <div class="p-6 flex-1">
                     <div class="flex items-start justify-between mb-4">
                         <i class="fa-solid <?php echo $icon; ?> <?php echo $icon_color; ?> text-4xl opacity-50 group-hover:opacity-100 transition-opacity"></i>
@@ -136,31 +239,109 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                     </div>
 
                     <div class="mt-auto pt-4 border-t border-slate-50 space-y-2">
-                        <p class="text-[8px] font-black text-slate-300 uppercase tracking-tighter">
-                            DIUPLOAD PADA: <span class="text-slate-500"><?php echo date('d M Y', strtotime($d['uploaded_at'])); ?></span>
-                        </p>
+                        <div class="flex justify-between items-center">
+                            <p class="text-[8px] font-black text-slate-300 uppercase tracking-tighter">
+                                <i class="fa-solid fa-download mr-1"></i> <?php echo number_format($d['download_count']); ?>
+                            </p>
+                            <p class="text-[8px] font-black text-slate-300 uppercase tracking-tighter">
+                                <?php echo date('d M Y', strtotime($d['uploaded_at'])); ?>
+                            </p>
+                        </div>
                         <p class="text-[8px] font-black text-slate-300 uppercase tracking-tighter">
                             OLEH: <span class="text-slate-500"><?php echo htmlspecialchars($d['uploader_name'] ?? 'SISTEM'); ?></span>
                         </p>
-                        <?php if ($d['event_title']): ?>
-                        <p class="text-[8px] font-black text-kebana-blue/40 uppercase tracking-tighter italic">
-                            PROJEK: <span class="text-kebana-blue/60"><?php echo htmlspecialchars($d['event_title']); ?></span>
-                        </p>
-                        <?php endif; ?>
                     </div>
                 </div>
 
                 <div class="flex border-t border-slate-50">
-                    <a href="/kebana-digital/<?php echo htmlspecialchars($d['file_path']); ?>" target="_blank" class="flex-1 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-kebana-blue hover:text-white transition-all border-r border-slate-50">
+                    <a href="<?php echo $dl_link; ?>" target="_blank" class="flex-1 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-kebana-blue hover:text-white transition-all border-r border-slate-50">
                         <i class="fa-solid fa-eye mr-2"></i> LIHAT
                     </a>
-                    <a href="/kebana-digital/<?php echo htmlspecialchars($d['file_path']); ?>" download class="flex-1 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-kebana-yellow hover:text-kebana-blue transition-all">
+                    <a href="<?php echo $dl_link; ?>" download class="flex-1 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-kebana-yellow hover:text-kebana-blue transition-all">
                         <i class="fa-solid fa-download mr-2"></i> UNDUH
                     </a>
                 </div>
             </div>
             <?php endforeach; ?>
         <?php endif; ?>
+    </div>
+
+    <!-- List View (Table) -->
+    <div id="list-view" class="hidden bg-white border border-slate-100 shadow-sm overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-slate-100 bg-slate-50/50">
+                    <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Fail</th>
+                    <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Tag</th>
+                    <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Info</th>
+                    <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Populariti</th>
+                    <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Tindakan</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                <?php if (empty($docs)): ?>
+                    <tr><td colspan="5" class="py-20 text-center text-[10px] font-black text-slate-300 uppercase">Tiada fail dijumpai.</td></tr>
+                <?php else: ?>
+                    <?php foreach ($docs as $d): 
+                        $ext = strtolower(pathinfo($d['file_path'], PATHINFO_EXTENSION));
+                        $icon = 'fa-file-lines';
+                        if ($ext === 'pdf') $icon = 'fa-file-pdf';
+                        elseif (in_array($ext, ['jpg', 'jpeg', 'png'])) $icon = 'fa-file-image';
+                        elseif ($ext === 'docx') $icon = 'fa-file-word';
+                        elseif ($ext === 'xlsx') $icon = 'fa-file-excel';
+                        $dl_link = "?track_id=" . $d['doc_id'] . "&file=" . urlencode($d['file_path']);
+                    ?>
+                    <tr class="hover:bg-slate-50 transition-colors group">
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-4">
+                                <i class="fa-solid <?php echo $icon; ?> text-xl text-slate-200 group-hover:text-kebana-blue transition-colors"></i>
+                                <div>
+                                    <p class="text-xs font-black text-kebana-blue uppercase truncate max-w-[300px]" title="<?php echo htmlspecialchars($d['doc_name']); ?>">
+                                        <?php echo htmlspecialchars($d['doc_name']); ?>
+                                    </p>
+                                    <p class="text-[8px] font-bold text-slate-300 uppercase mt-1"><?php echo strtoupper($ext); ?> • <?php echo DocumentsHelper::formatBytes($d['doc_size']); ?></p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex flex-wrap gap-1">
+                                <?php 
+                                $tags = explode(',', $d['doc_tags'] ?? '');
+                                foreach ($tags as $tag): 
+                                    $trimmed = trim($tag);
+                                    if ($trimmed):
+                                ?>
+                                    <span class="px-2 py-0.5 bg-slate-50 text-[7px] font-bold text-slate-400 border border-slate-100 uppercase"><?php echo htmlspecialchars($trimmed); ?></span>
+                                <?php endif; endforeach; ?>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-tighter"><?php echo date('d M Y', strtotime($d['uploaded_at'])); ?></p>
+                            <p class="text-[7px] font-bold text-slate-300 uppercase mt-0.5">Oleh: <?php echo htmlspecialchars($d['uploader_name'] ?? 'Sistem'); ?></p>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
+                                    <?php $pct = min(100, ($d['download_count'] / 50) * 100); ?>
+                                    <div class="h-full bg-kebana-yellow transition-all" style="width: <?php echo $pct; ?>%"></div>
+                                </div>
+                                <span class="text-[9px] font-black text-slate-400"><?php echo number_format($d['download_count']); ?></span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6 text-right space-x-3">
+                            <a href="<?php echo $dl_link; ?>" target="_blank" class="text-[9px] font-black text-slate-400 uppercase hover:text-kebana-blue transition-colors">Lihat</a>
+                            <a href="<?php echo $dl_link; ?>" download class="text-[9px] font-black text-slate-400 uppercase hover:text-kebana-yellow transition-colors">Unduh</a>
+                            <?php if (hasRole([888, 4])): ?>
+                            <a href="?delete_id=<?php echo $d['doc_id']; ?>" onclick="return confirm('Padam fail?')" class="text-red-200 hover:text-red-500 transition-colors">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 
     <!-- Pagination -->
@@ -180,5 +361,140 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
     </div>
     <?php endif; ?>
 </div>
+
+<script>
+function toggleManagementView() {
+    const view = document.getElementById('management-view');
+    view.classList.toggle('hidden');
+    
+    if (!view.classList.contains('hidden')) {
+        renderCharts();
+    }
+}
+
+function setViewMode(mode) {
+    const grid = document.getElementById('grid-view');
+    const list = document.getElementById('list-view');
+    const btnGrid = document.getElementById('btn-grid');
+    const btnList = document.getElementById('btn-list');
+    
+    if (mode === 'grid') {
+        grid.classList.remove('hidden');
+        list.classList.add('hidden');
+        btnGrid.classList.add('bg-kebana-blue', 'text-white');
+        btnGrid.classList.remove('border-slate-100', 'text-slate-300');
+        btnList.classList.add('border-slate-100', 'text-slate-300');
+        btnList.classList.remove('bg-kebana-blue', 'text-white');
+    } else {
+        grid.classList.add('hidden');
+        list.classList.remove('hidden');
+        btnList.classList.add('bg-kebana-blue', 'text-white');
+        btnList.classList.remove('border-slate-100', 'text-slate-300');
+        btnGrid.classList.add('border-slate-100', 'text-slate-300');
+        btnGrid.classList.remove('bg-kebana-blue', 'text-white');
+    }
+    
+    localStorage.setItem('archive_view_mode', mode);
+}
+
+// Load preference
+const savedMode = localStorage.getItem('archive_view_mode') || 'grid';
+setViewMode(savedMode);
+
+let typeChart = null;
+let trendChart = null;
+
+function renderCharts() {
+    if (typeChart) return;
+    
+    // Type Distribution Chart
+    const ctxType = document.getElementById('typeChart').getContext('2d');
+    const typeData = <?php echo json_encode($distribution); ?>;
+    
+    typeChart = new Chart(ctxType, {
+        type: 'doughnut',
+        data: {
+            labels: typeData.map(d => d.ext.toUpperCase()),
+            datasets: [{
+                data: typeData.map(d => d.count),
+                backgroundColor: ['#003366', '#FFCC00', '#1e293b', '#94a3b8', '#ef4444', '#22c55e'],
+                borderWidth: 0,
+                spacing: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: 'rectRounded',
+                        padding: 20,
+                        font: { size: 9, weight: '900', family: 'Inter' }
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Monthly Trend Chart
+    const ctxTrend = document.getElementById('trendChart').getContext('2d');
+    const trendData = <?php echo json_encode($trend); ?>;
+    
+    trendChart = new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+            labels: trendData.map(d => d.month_year),
+            datasets: [{
+                label: 'Muat Naik',
+                data: trendData.map(d => d.count),
+                borderColor: '#003366',
+                backgroundColor: 'rgba(0, 51, 102, 0.05)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#FFCC00',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        font: { size: 9, weight: '700' }
+                    },
+                    grid: { display: false }
+                },
+                x: {
+                    ticks: {
+                        font: { size: 9, weight: '700' }
+                    },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+</script>
+
+<style>
+.animate-in {
+    animation: animate-in 0.3s ease-out;
+}
+@keyframes animate-in {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
 
 <?php require_once APP_ROOT . '/includes/footer.php'; ?>
