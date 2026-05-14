@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Event Attendance (MYDS Inspired)
+ * KEBANA Digital Management System - Event Attendance (MYDS Inspired)
  * File: modules/events/attendance.php
  */
 

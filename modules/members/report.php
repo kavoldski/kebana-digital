@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Member Reports & Analytics (MYDS Inspired)
+ * KEBANA Digital Management System - Member Reports & Analytics (MYDS Inspired)
  * File: modules/members/report.php
  */
 

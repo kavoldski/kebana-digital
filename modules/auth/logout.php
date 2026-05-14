@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Logout Handler
+ * KEBANA Digital Management System - Logout Handler
  * File: modules/auth/logout.php
  * 
  * Handles user logout

@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Login Authentication Handler
+ * KEBANA Digital Management System - Login Authentication Handler
  * File: modules/auth/authenticate.php
  * 
  * Handles user login authentication with new schema

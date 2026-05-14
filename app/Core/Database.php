@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Database Core
+ * KEBANA Digital Management System - Database Core
  * File: app/Core/Database.php
  */
 

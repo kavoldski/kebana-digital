@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Member Helper Functions
+ * KEBANA Digital Management System - Member Helper Functions
  * File: includes/members_helper.php
  * 
  * Helper functions for member management operations with new schema

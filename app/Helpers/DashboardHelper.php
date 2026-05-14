@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Dashboard Helper
+ * KEBANA Digital Management System - Dashboard Helper
  * File: app/Helpers/DashboardHelper.php
  */
 

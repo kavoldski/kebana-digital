@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Finance Helper
+ * KEBANA Digital Management System - Finance Helper
  * File: app/Helpers/FinanceHelper.php
  */
 

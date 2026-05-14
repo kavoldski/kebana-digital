@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Events List (MYDS Inspired)
+ * KEBANA Digital Management System - Events List (MYDS Inspired)
  * File: modules/events/list.php
  */
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - File Archive (MYDS Inspired)
+ * KEBANA Digital Management System - File Archive (MYDS Inspired)
  * File: modules/documents/index.php
  */
 

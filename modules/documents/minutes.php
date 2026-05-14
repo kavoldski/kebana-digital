@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Documents: Minutes
+ * KEBANA Digital Management System - Documents: Minutes
  * File: modules/documents/minutes.php
  */
 

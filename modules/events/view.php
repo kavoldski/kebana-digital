@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Event Detail View (Premium Editorial Design)
+ * KEBANA Digital Management System - Event Detail View (Premium Editorial Design)
  * File: modules/events/view.php
  */
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Event Financial Drilldown (Phase B)
+ * KEBANA Digital Management System - Event Financial Drilldown (Phase B)
  * File: modules/finance/event.php
  * Route: /kebana-digital/finance/event/{id}
  */

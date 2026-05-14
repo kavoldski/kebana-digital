@@ -1,4 +1,4 @@
-# KEBANA Management System - Database Schema Update
+# KEBANA Digital Management System - Database Schema Update
 
 ## Overview
 The database schema has been completely rewritten to align with the FYP report requirements. The system now uses simplified, focused tables optimized for core functionality.

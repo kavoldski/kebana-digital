@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Delete Transaction
+ * KEBANA Digital Management System - Delete Transaction
  * File: modules/finance/transactions/delete.php
  */
 

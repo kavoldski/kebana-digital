@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Header Component (MYDS Inspired)
+ * KEBANA Digital Management System - Header Component (MYDS Inspired)
  * File: includes/header.php
  * 
  * Clean, sharp design based on MYDS without official government branding.
@@ -86,6 +86,9 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="<?php echo LOGO_ICON; ?>">
+
     <script>
         tailwind.config = {
             theme: {
@@ -120,8 +123,8 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
 
             <div class="h-24 flex items-center px-8 relative z-10 border-b border-white/5">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-kebana-yellow flex items-center justify-center shadow-lg shadow-kebana-yellow/10">
-                        <span class="text-kebana-blue font-black text-xl">K</span>
+                    <div class="w-10 h-10 flex items-center justify-center">
+                        <img src="<?php echo LOGO_ICON; ?>" alt="KEBANA Logo" class="w-full h-full object-contain">
                     </div>
                     <span class="text-2xl font-black tracking-tighter italic uppercase">KEBANA<span class="text-kebana-yellow">.</span></span>
                 </div>
@@ -196,7 +199,9 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     <button id="mobileToggle" class="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-50">
                         <i class="fa-solid fa-bars-staggered text-xl"></i>
                     </button>
-                    <div class="h-8 w-8 lg:hidden ml-2 flex items-center justify-center bg-kebana-blue text-white font-black text-xs">K</div>
+                    <div class="h-8 w-8 lg:hidden ml-2 flex items-center justify-center">
+                        <img src="<?php echo LOGO_ICON; ?>" alt="K" class="w-full h-full object-contain">
+                    </div>
                 </div>
 
                 <div class="flex items-center space-x-6">
@@ -243,6 +248,6 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-8 border-b-2 border-slate-50">
                         <div>
                             <h1 class="text-4xl font-black text-kebana-blue tracking-tighter uppercase italic"><?php echo htmlspecialchars($page_title ?? ''); ?></h1>
-                            <p class="text-sm text-slate-400 mt-2 font-bold uppercase tracking-tight">Kebana Digital Management Suite</p>
+                            <p class="text-sm text-slate-400 mt-2 font-bold uppercase tracking-tight">Kebana Digital Management System</p>
                         </div>
                     </div>

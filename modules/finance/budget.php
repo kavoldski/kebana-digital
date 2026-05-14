@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Budget vs Actual (Phase A Enhanced)
+ * KEBANA Digital Management System - Budget vs Actual (Phase A Enhanced)
  * File: modules/finance/budget.php
  */
 

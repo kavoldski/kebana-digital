@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Direct File Upload (MYDS Inspired)
+ * KEBANA Digital Management System - Direct File Upload (MYDS Inspired)
  * File: modules/documents/upload.php
  */
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Events Helper
+ * KEBANA Digital Management System - Events Helper
  * File: app/Helpers/EventsHelper.php
  */
 

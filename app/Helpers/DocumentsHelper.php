@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Documents Helper
+ * KEBANA Digital Management System - Documents Helper
  * File: app/Helpers/DocumentsHelper.php
  */
 

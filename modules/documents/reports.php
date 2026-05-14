@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Documents: Reports
+ * KEBANA Digital Management System - Documents: Reports
  * File: modules/documents/reports.php
  */
 

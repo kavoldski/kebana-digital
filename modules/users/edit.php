@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Edit User
+ * KEBANA Digital Management System - Edit User
  * File: modules/users/edit.php
  */
 

@@ -1,5 +1,5 @@
 -- =====================================================
--- KEBANA Management System - Master Event Schema Updates
+-- KEBANA Digital Management System - Master Event Schema Updates
 -- File: sql_updates/master_event_schema.sql
 -- =====================================================
 

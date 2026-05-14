@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Notification Helper
+ * KEBANA Digital Management System - Notification Helper
  * File: app/Helpers/NotificationHelper.php
  */
 

@@ -1,5 +1,5 @@
 -- =====================================================
--- KEBANA Management System - Notification Table
+-- KEBANA Digital Management System - Notification Table
 -- File: sql_updates/create_notification_table.sql
 -- =====================================================
 

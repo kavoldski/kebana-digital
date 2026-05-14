@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Cawangan Helper
+ * KEBANA Digital Management System - Cawangan Helper
  * File: app/Helpers/CawanganHelper.php
  */
 

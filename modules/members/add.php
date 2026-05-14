@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Add Member Form (MYDS Inspired)
+ * KEBANA Digital Management System - Add Member Form (MYDS Inspired)
  * File: modules/members/add.php
  */
 

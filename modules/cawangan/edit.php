@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Edit Cawangan
+ * KEBANA Digital Management System - Edit Cawangan
  * File: modules/cawangan/edit.php
  */
 

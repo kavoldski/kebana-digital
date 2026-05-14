@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Sign Up
+ * KEBANA Digital Management System - Sign Up
  * File: modules/auth/sign_up.php
  */
 

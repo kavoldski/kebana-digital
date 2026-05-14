@@ -1,6 +1,6 @@
 <?php
 /**
- * KEBANA Management System - Member Helper
+ * KEBANA Digital Management System - Member Helper
  * File: app/Helpers/MembersHelper.php
  */
 
