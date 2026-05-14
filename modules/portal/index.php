@@ -72,7 +72,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
         }
     </style>
 </head>
-<body class="h-full flex flex-col font-sans antialiased text-slate-900">
+<body class="min-h-full flex flex-col font-sans antialiased text-slate-900">
 
     <!-- Header / Nav -->
     <nav class="sticky top-0 z-50 glass-nav border-b border-white/10">

@@ -169,6 +169,28 @@ class ChatHelper {
     }
 
     /**
+     * Get conversation state (count and last message ID)
+     */
+    public static function getConversationState($user1, $user2) {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("
+            SELECT COUNT(*) as msg_count, MAX(chat_id) as last_id 
+            FROM tbl_chat 
+            WHERE (sender_id = ? AND receiver_id = ?) 
+               OR (sender_id = ? AND receiver_id = ?)
+        ");
+        if ($stmt) {
+            $stmt->bind_param("iiii", $user1, $user2, $user2, $user1);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $data = $result->fetch_assoc();
+            $stmt->close();
+            return $data;
+        }
+        return ['msg_count' => 0, 'last_id' => 0];
+    }
+
+    /**
      * Get total unread count for a user
      */
     public static function getTotalUnreadCount($userId) {

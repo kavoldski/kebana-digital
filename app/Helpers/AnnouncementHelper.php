@@ -22,6 +22,9 @@ class AnnouncementHelper {
         
         if ($status !== null) {
             $sql .= " WHERE a.status = '" . $db->real_escape_string($status) . "'";
+            $sql .= " AND (a.expires_at IS NULL OR a.expires_at > NOW())";
+        } else {
+            $sql .= " WHERE (a.expires_at IS NULL OR a.expires_at > NOW())";
         }
         
         $sql .= " ORDER BY a.created_at DESC";
@@ -62,10 +65,11 @@ class AnnouncementHelper {
         $title = $data['title'] ?? '';
         $content = $data['content'] ?? '';
         $status = $data['status'] ?? 'Active';
+        $expires_at = !empty($data['expires_at']) ? $data['expires_at'] : null;
         
-        $stmt = $db->prepare("INSERT INTO tbl_announcement (title, content, status, created_by) VALUES (?, ?, ?, ?)");
+        $stmt = $db->prepare("INSERT INTO tbl_announcement (title, content, status, created_by, expires_at) VALUES (?, ?, ?, ?, ?)");
         if ($stmt) {
-            $stmt->bind_param("sssi", $title, $content, $status, $userId);
+            $stmt->bind_param("sssis", $title, $content, $status, $userId, $expires_at);
             $success = $stmt->execute();
             $stmt->close();
             
@@ -86,10 +90,11 @@ class AnnouncementHelper {
         $title = $data['title'] ?? '';
         $content = $data['content'] ?? '';
         $status = $data['status'] ?? 'Active';
+        $expires_at = !empty($data['expires_at']) ? $data['expires_at'] : null;
         
-        $stmt = $db->prepare("UPDATE tbl_announcement SET title = ?, content = ?, status = ? WHERE announcement_id = ?");
+        $stmt = $db->prepare("UPDATE tbl_announcement SET title = ?, content = ?, status = ?, expires_at = ? WHERE announcement_id = ?");
         if ($stmt) {
-            $stmt->bind_param("sssi", $title, $content, $status, $id);
+            $stmt->bind_param("ssssi", $title, $content, $status, $expires_at, $id);
             $success = $stmt->execute();
             $stmt->close();
             

@@ -214,7 +214,7 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     </a>
                     <div class="hidden sm:flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest space-x-2">
                         <i class="fa-solid fa-clock text-kebana-blue/30"></i>
-                        <span><?php echo date('d F Y • h:i A'); ?></span>
+                        <span id="realtime-clock"><?php echo date('d F Y • h:i A'); ?></span>
                     </div>
                     <div class="h-6 w-[1px] bg-slate-100 hidden sm:block"></div>
                     <div class="relative inline-block text-left" id="notificationDropdown">

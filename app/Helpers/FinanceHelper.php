@@ -202,6 +202,8 @@ class FinanceHelper {
             if ($success) {
                 $formattedAmount = number_format($amount, 2);
                 NotificationHelper::notifyRoles([888, 6, 55], 'transaction_added', 'Transaksi Kewangan Baru', "Satu transaksi $type berjumlah RM$formattedAmount (Kategori: $category) telah direkodkan.", "finance");
+                
+                \App\Helpers\AuditHelper::log($userId, "Transaksi baru direkod: RM$formattedAmount ($type)", 'FINANCE', "Kategori: $category");
             }
 
             return $success;
@@ -503,6 +505,12 @@ class FinanceHelper {
             $stmt->bind_param("sdsssisi", $type, $amount, $category, $date, $payment_mode, $event_id, $month_label, $transId);
             $success = $stmt->execute();
             $stmt->close();
+            
+            if ($success) {
+                $userId = $_SESSION['user_id'] ?? 0;
+                \App\Helpers\AuditHelper::log($userId, "Transaksi dikemaskini: ID $transId", 'FINANCE', "Kategori: $category, RM$amount");
+            }
+            
             return $success;
         }
         return false;
@@ -535,6 +543,12 @@ class FinanceHelper {
             $stmt->bind_param("i", $transId);
             $success = $stmt->execute();
             $stmt->close();
+            
+            if ($success) {
+                $userId = $_SESSION['user_id'] ?? 0;
+                \App\Helpers\AuditHelper::log($userId, "Transaksi dipadam: ID $transId", 'FINANCE');
+            }
+            
             return $success;
         }
         return false;

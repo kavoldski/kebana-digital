@@ -13,60 +13,74 @@ $activeChatId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
 // Handle AJAX chat list fetching
 if (isset($_GET['fetch_list'])) {
     $chatList = ChatHelper::getChatList($userId);
+    $html = '';
     foreach ($chatList as $u) {
         $isActive = $u['user_id'] == $activeChatId;
         $roleNames = [888 => 'Super Admin', 1 => 'Presiden', 4 => 'Setiausaha Pusat', 11 => 'Pengerusi Cawangan', 33 => 'Setiausaha Cawangan'];
         $roleName = $roleNames[$u['role']] ?? 'Pegawai';
         
-        echo '<a href="/kebana-digital/chat?user_id=' . $u['user_id'] . '" class="chat-item flex items-center p-6 border-b border-slate-50 transition-all hover:bg-white group ' . ($isActive ? 'bg-white border-l-4 border-l-kebana-blue shadow-inner' : '') . '">';
-        echo '  <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-400 font-black text-xs relative group-hover:bg-kebana-blue group-hover:text-white transition-all">';
-        echo '    ' . strtoupper(substr($u['username'], 0, 2));
+        $html .= '<a href="/kebana-digital/chat?user_id=' . $u['user_id'] . '" class="chat-item flex items-center p-5 border-b border-slate-50 transition-all hover:bg-white group ' . ($isActive ? 'bg-white border-l-4 border-l-kebana-blue' : '') . '">';
+        $html .= '  <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 font-bold text-[10px] relative group-hover:bg-kebana-blue group-hover:text-white transition-all">';
+        $html .= '    ' . strtoupper(substr($u['username'], 0, 2));
         if ($u['unread_count'] > 0) {
-            echo '    <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-bounce">' . $u['unread_count'] . '</span>';
+            $html .= '    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">' . $u['unread_count'] . '</span>';
         }
-        echo '  </div>';
-        echo '  <div class="ml-4 flex-1 overflow-hidden">';
-        echo '    <div class="flex justify-between items-start">';
-        echo '      <p class="text-xs font-black text-kebana-blue uppercase tracking-tight truncate">' . htmlspecialchars($u['username']) . '</p>';
-        echo '      <p class="text-[8px] font-bold text-slate-300 uppercase">' . ($u['last_time'] ? date('H:i', strtotime($u['last_time'])) : '') . '</p>';
-        echo '    </div>';
-        echo '    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">' . $roleName . '</p>';
-        echo '    <p class="text-[10px] text-slate-500 truncate mt-2 ' . ($u['unread_count'] > 0 ? 'font-bold text-slate-800' : '') . '">';
-        echo '      ' . ($u['last_message'] ? htmlspecialchars($u['last_message']) : '<span class="italic opacity-50">Mula sembang...</span>');
-        echo '    </p>';
-        echo '  </div>';
-        echo '</a>';
+        $html .= '  </div>';
+        $html .= '  <div class="ml-4 flex-1 overflow-hidden">';
+        $html .= '    <div class="flex justify-between items-start">';
+        $html .= '      <p class="text-[10px] font-bold text-kebana-blue uppercase tracking-tight truncate">' . htmlspecialchars($u['username']) . '</p>';
+        $html .= '      <p class="text-[8px] font-medium text-slate-300 uppercase">' . ($u['last_time'] ? date('H:i', strtotime($u['last_time'])) : '') . '</p>';
+        $html .= '    </div>';
+        $html .= '    <p class="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">' . $roleName . '</p>';
+        $html .= '    <p class="text-[10px] text-slate-500 truncate mt-1 ' . ($u['unread_count'] > 0 ? 'font-bold text-slate-800' : 'opacity-70') . '">';
+        $html .= '      ' . ($u['last_message'] ? htmlspecialchars($u['last_message']) : '<span class="italic opacity-30 text-[9px]">Tiada mesej</span>');
+        $html .= '    </p>';
+        $html .= '  </div>';
+        $html .= '</a>';
     }
+    echo json_encode(['html' => $html, 'unread_total' => ChatHelper::getTotalUnreadCount($userId)]);
     exit;
 }
 
-// Handle AJAX message fetching - MUST BE BEFORE HEADER
+// Handle AJAX state check
+if (isset($_GET['check_update']) && $activeChatId) {
+    echo json_encode(ChatHelper::getConversationState($userId, $activeChatId));
+    exit;
+}
+
+// Handle AJAX message fetching
 if (isset($_GET['fetch']) && $activeChatId) {
     $messages = ChatHelper::getConversation($userId, $activeChatId);
+    $html = '';
     if (empty($messages)) {
-        echo '<div class="flex justify-center items-center h-full opacity-20"><i class="fa-solid fa-comments text-8xl"></i></div>';
+        $html = '<div class="flex flex-col justify-center items-center h-full opacity-10 space-y-4">
+                    <i class="fa-solid fa-comments text-7xl"></i>
+                    <p class="text-[10px] font-bold uppercase tracking-widest">Tiada sejarah sembang</p>
+                 </div>';
     } else {
         foreach ($messages as $m) {
             $isMe = $m['sender_id'] == $userId;
             $align = $isMe ? 'justify-end' : 'justify-start';
-            $bg = $isMe ? 'bg-kebana-blue text-white' : 'bg-white text-slate-800';
-            $radius = $isMe ? 'rounded-l-2xl rounded-tr-2xl' : 'rounded-r-2xl rounded-tl-2xl';
-            echo '<div class="flex ' . $align . ' mb-6 animate-fade-in">';
-            echo '  <div class="max-w-[75%]">';
-            echo '    <div class="' . $bg . ' ' . $radius . ' p-4 shadow-sm border border-slate-100">';
-            echo '      <p class="text-xs font-medium leading-relaxed">' . nl2br(htmlspecialchars($m['message'])) . '</p>';
-            echo '    </div>';
-            echo '    <div class="flex items-center mt-2 ' . ($isMe ? 'justify-end' : 'justify-start') . ' space-x-2">';
-            echo '      <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">' . date('H:i', strtotime($m['created_at'])) . '</p>';
+            $bg = $isMe ? 'bg-kebana-blue text-white' : 'bg-white text-slate-700';
+            $radius = $isMe ? 'rounded-2xl rounded-tr-none' : 'rounded-2xl rounded-tl-none';
+            $shadow = $isMe ? 'shadow-blue-900/10' : 'shadow-slate-200/50';
+            $html .= '<div class="flex ' . $align . ' mb-4 group" data-msg-id="' . $m['chat_id'] . '">';
+            $html .= '  <div class="max-w-[80%]">';
+            $html .= '    <div class="' . $bg . ' ' . $radius . ' p-4 shadow-sm border border-slate-100/50 ' . $shadow . '">';
+            $html .= '      <p class="text-[11px] font-medium leading-relaxed">' . nl2br(htmlspecialchars($m['message'])) . '</p>';
+            $html .= '    </div>';
+            $html .= '    <div class="flex items-center mt-1.5 ' . ($isMe ? 'justify-end' : 'justify-start') . ' space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">';
+            $html .= '      <p class="text-[8px] font-bold text-slate-300 uppercase tracking-widest">' . date('H:i', strtotime($m['created_at'])) . '</p>';
             if ($isMe) {
-                $tickColor = $m['is_read'] ? 'text-blue-500' : 'text-slate-300';
-                echo '      <i class="fa-solid fa-check-double text-[10px] ' . $tickColor . '"></i>';
+                $tickColor = $m['is_read'] ? 'text-blue-400' : 'text-slate-200';
+                $html .= '      <i class="fa-solid fa-check-double text-[8px] ' . $tickColor . '"></i>';
             }
-            echo '    </div>';
-            echo '  </div>';
-            echo '</div>';
+            $html .= '    </div>';
+            $html .= '  </div>';
+            $html .= '</div>';
         }
     }
+    echo json_encode(['html' => $html, 'msg_count' => count($messages), 'last_id' => end($messages)['chat_id'] ?? 0]);
     exit;
 }
 
@@ -107,21 +121,21 @@ if ($activeChatId) {
 $page_title = 'PUSAT KOMUNIKASI';
 ?>
 
-<div class="h-[calc(100vh-180px)] flex flex-col md:flex-row bg-white border border-slate-100 shadow-2xl overflow-hidden">
+<div class="h-[calc(100vh-180px)] flex flex-col md:flex-row bg-white border border-slate-100 shadow-xl overflow-hidden rounded-2xl">
     <!-- Sidebar: User List -->
-    <div class="w-full md:w-96 border-r border-slate-100 flex flex-col bg-slate-50/30">
-        <div class="p-8 border-b border-slate-100 bg-white">
-            <div class="flex justify-between items-center mb-6">
+    <div class="w-full md:w-80 border-r border-slate-100 flex flex-col bg-slate-50/20">
+        <div class="p-6 border-b border-slate-100 bg-white">
+            <div class="flex justify-between items-center mb-4">
                 <div>
-                    <h2 class="text-sm font-black text-kebana-blue uppercase tracking-[0.3em] italic">Mesej Terus</h2>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Komunikasi Dalaman</p>
+                    <h2 class="text-[10px] font-black text-kebana-blue uppercase tracking-[0.2em]">Sembang</h2>
+                    <p class="text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">Komunikasi Pasukan</p>
                 </div>
             </div>
             <!-- Sidebar Search -->
             <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-[10px]"></i>
-                <input type="text" id="sidebarSearch" placeholder="Cari pengguna..." 
-                       class="w-full bg-slate-50 border border-slate-100 pl-10 pr-4 py-3 text-[10px] font-bold uppercase tracking-widest outline-none focus:border-kebana-blue focus:bg-white transition-all rounded-lg"
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-[9px]"></i>
+                <input type="text" id="sidebarSearch" placeholder="CARI NAMA..." 
+                       class="w-full bg-slate-50 border border-slate-100 pl-10 pr-4 py-2.5 text-[9px] font-bold uppercase tracking-widest outline-none focus:border-kebana-blue/30 focus:bg-white transition-all rounded-lg"
                        onkeyup="filterSidebarUsers()">
             </div>
         </div>
@@ -129,30 +143,27 @@ $page_title = 'PUSAT KOMUNIKASI';
         <div id="chat-list" class="flex-1 overflow-y-auto custom-scrollbar">
             <?php foreach ($chatList as $u): 
                 $isActive = $u['user_id'] == $activeChatId;
-                $roleNames = [
-                    888 => 'Super Admin', 1 => 'Presiden', 4 => 'Setiausaha Pusat', 
-                    11 => 'Pengerusi Cawangan', 33 => 'Setiausaha Cawangan'
-                ];
+                $roleNames = [888 => 'Super Admin', 1 => 'Presiden', 4 => 'Setiausaha Pusat', 11 => 'Pengerusi Cawangan', 33 => 'Setiausaha Cawangan'];
                 $roleName = $roleNames[$u['role']] ?? 'Pegawai';
             ?>
             <a href="/kebana-digital/chat?user_id=<?php echo $u['user_id']; ?>" 
-               class="chat-item flex items-center p-6 border-b border-slate-50 transition-all hover:bg-white group <?php echo $isActive ? 'bg-white border-l-4 border-l-kebana-blue shadow-inner' : ''; ?>">
-                <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-400 font-black text-xs relative group-hover:bg-kebana-blue group-hover:text-white transition-all">
+               class="chat-item flex items-center p-5 border-b border-slate-50 transition-all hover:bg-white group <?php echo $isActive ? 'bg-white border-l-4 border-l-kebana-blue' : ''; ?>">
+                <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 font-bold text-[10px] relative group-hover:bg-kebana-blue group-hover:text-white transition-all">
                     <?php echo strtoupper(substr($u['username'], 0, 2)); ?>
                     <?php if ($u['unread_count'] > 0): ?>
-                        <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">
                             <?php echo $u['unread_count']; ?>
                         </span>
                     <?php endif; ?>
                 </div>
                 <div class="ml-4 flex-1 overflow-hidden">
                     <div class="flex justify-between items-start">
-                        <p class="text-xs font-black text-kebana-blue uppercase tracking-tight truncate"><?php echo htmlspecialchars($u['username']); ?></p>
-                        <p class="text-[8px] font-bold text-slate-300 uppercase"><?php echo $u['last_time'] ? date('H:i', strtotime($u['last_time'])) : ''; ?></p>
+                        <p class="text-[10px] font-bold text-kebana-blue uppercase tracking-tight truncate"><?php echo htmlspecialchars($u['username']); ?></p>
+                        <p class="text-[8px] font-medium text-slate-300 uppercase"><?php echo $u['last_time'] ? date('H:i', strtotime($u['last_time'])) : ''; ?></p>
                     </div>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5"><?php echo $roleName; ?></p>
-                    <p class="text-[10px] text-slate-500 truncate mt-2 <?php echo ($u['unread_count'] > 0) ? 'font-bold text-slate-800' : ''; ?>">
-                        <?php echo $u['last_message'] ? htmlspecialchars($u['last_message']) : '<span class="italic opacity-50">Mula sembang...</span>'; ?>
+                    <p class="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5"><?php echo $roleName; ?></p>
+                    <p class="text-[10px] text-slate-500 truncate mt-1 <?php echo ($u['unread_count'] > 0) ? 'font-bold text-slate-800' : 'opacity-70'; ?>">
+                        <?php echo $u['last_message'] ? htmlspecialchars($u['last_message']) : '<span class="italic opacity-30 text-[9px]">Tiada mesej</span>'; ?>
                     </p>
                 </div>
             </a>
@@ -161,51 +172,48 @@ $page_title = 'PUSAT KOMUNIKASI';
     </div>
 
     <!-- Main Chat Window -->
-    <div class="flex-1 flex flex-col bg-slate-50/50">
+    <div class="flex-1 flex flex-col bg-slate-50/30">
         <?php if ($activeUser): ?>
             <!-- Chat Header -->
-            <div class="p-6 bg-white border-b border-slate-100 flex items-center justify-between shadow-sm relative z-10">
+            <div class="px-8 py-5 bg-white border-b border-slate-100 flex items-center justify-between shadow-sm relative z-10">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 bg-kebana-blue text-white rounded-full flex items-center justify-center text-[10px] font-black">
+                    <div class="w-9 h-9 bg-kebana-blue text-white rounded-full flex items-center justify-center text-[10px] font-bold">
                         <?php echo strtoupper(substr($activeUser['username'], 0, 2)); ?>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest"><?php echo htmlspecialchars($activeUser['username']); ?></h3>
-                        <p class="text-[8px] font-bold text-green-500 uppercase tracking-widest flex items-center">
-                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 animate-pulse"></span> Dalam Talian
+                        <h3 class="text-[10px] font-bold text-kebana-blue uppercase tracking-widest"><?php echo htmlspecialchars($activeUser['username']); ?></h3>
+                        <p class="text-[8px] font-bold text-green-500/60 uppercase tracking-widest flex items-center mt-0.5">
+                            <span class="w-1 h-1 bg-green-500 rounded-full mr-2"></span> Aktif
                         </p>
                     </div>
                 </div>
                 <div class="flex gap-4">
-                    <a href="?user_id=<?php echo $activeChatId; ?>&action=clear" onclick="return confirm('Kosongkan semua sejarah sembang dengan pengguna ini?')" class="text-[9px] font-black text-red-500 uppercase tracking-widest hover:bg-red-50 px-4 py-2 border border-red-100 transition-all">
-                        <i class="fa-solid fa-trash-can mr-2"></i> Kosongkan Sembang
+                    <a href="?user_id=<?php echo $activeChatId; ?>&action=clear" onclick="return confirm('Kosongkan semua sejarah sembang dengan pengguna ini?')" 
+                       class="text-[8px] font-bold text-slate-300 uppercase tracking-widest hover:text-red-500 px-3 py-1.5 border border-slate-100 hover:border-red-100 transition-all rounded">
+                        <i class="fa-solid fa-trash-can mr-2"></i> Padam Sembang
                     </a>
                 </div>
             </div>
 
             <!-- Messages Area -->
-            <div id="chat-box" class="flex-1 overflow-y-auto p-10 custom-scrollbar scroll-smooth">
-                <!-- Messages will be loaded here via AJAX -->
-                <div class="flex justify-center items-center h-full opacity-20">
-                    <i class="fa-solid fa-comments text-8xl"></i>
+            <div id="chat-box" class="flex-1 overflow-y-auto p-8 custom-scrollbar scroll-smooth">
+                <div class="flex justify-center items-center h-full opacity-5">
+                    <i class="fa-solid fa-comments text-6xl"></i>
                 </div>
             </div>
 
             <!-- Input Area -->
-            <div class="p-8 bg-white border-t border-slate-100">
-                <form id="chat-form" class="relative">
+            <div class="p-6 bg-white border-t border-slate-100">
+                <form id="chat-form" class="relative flex items-end gap-4">
                     <input type="hidden" name="receiver_id" value="<?php echo $activeChatId; ?>">
-                    <textarea id="message-input" name="message" rows="1" placeholder="Tulis mesej anda di sini..." 
-                              class="w-full bg-slate-50 border-2 border-slate-100 focus:border-kebana-blue focus:bg-white p-5 pr-32 outline-none text-xs font-medium rounded-xl transition-all resize-none overflow-hidden"
-                              oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
-                    <div class="absolute right-4 top-1/2 -translate-y-1/2 flex gap-4">
-                        <button type="button" class="text-slate-300 hover:text-kebana-blue transition-colors">
-                            <i class="fa-solid fa-paperclip text-lg"></i>
-                        </button>
-                        <button type="submit" class="bg-kebana-blue text-white px-8 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-xl">
-                            HANTAR
-                        </button>
+                    <div class="flex-1 relative">
+                        <textarea id="message-input" name="message" rows="1" placeholder="Mesej anda..." 
+                                  class="w-full bg-slate-50 border border-slate-200 focus:border-kebana-blue/30 focus:bg-white p-4 pr-12 outline-none text-[11px] font-medium rounded-xl transition-all resize-none overflow-hidden"
+                                  oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
                     </div>
+                    <button type="submit" class="bg-kebana-blue text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-kebana-accent transition-all shadow-lg shadow-blue-900/10">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
                 </form>
             </div>
         <?php else: ?>
@@ -237,35 +245,75 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatForm = document.getElementById('chat-form');
     const messageInput = document.getElementById('message-input');
     const activeUserId = <?php echo $activeChatId; ?>;
+    
+    let lastMsgId = 0;
+    let msgCount = 0;
+    let isFetching = false;
 
-    function fetchMessages() {
-        if (!activeUserId) return;
+    function fetchMessages(force = false) {
+        if (!activeUserId || isFetching) return;
+        
+        // If not forced, check for updates first
+        if (!force) {
+            fetch(`/kebana-digital/chat?user_id=${activeUserId}&check_update=1`)
+                .then(res => res.json())
+                .then(state => {
+                    if (state.last_id != lastMsgId || state.msg_count != msgCount) {
+                        performFetch();
+                    }
+                });
+        } else {
+            performFetch();
+        }
+    }
+
+    function performFetch(force = false) {
+        isFetching = true;
         fetch(`/kebana-digital/chat?user_id=${activeUserId}&fetch=1`)
-            .then(response => response.text())
-            .then(html => {
-                if (chatBox.innerHTML !== html) {
-                    const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 100;
-                    chatBox.innerHTML = html;
-                    if (isAtBottom) {
+            .then(response => response.json())
+            .then(data => {
+                const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 100;
+                
+                // If it's a completely new content (e.g. first load) or different message count
+                if (chatBox.innerHTML.length < 500 || data.msg_count !== msgCount || force) {
+                    chatBox.innerHTML = data.html;
+                    if (isAtBottom || force) {
                         chatBox.scrollTop = chatBox.scrollHeight;
                     }
                 }
-            });
+                
+                lastMsgId = data.last_id;
+                msgCount = data.msg_count;
+                isFetching = false;
+            })
+            .catch(() => isFetching = false);
     }
 
     function fetchChatList() {
         fetch(`/kebana-digital/chat?user_id=${activeUserId}&fetch_list=1`)
-            .then(response => response.text())
-            .then(html => {
-                if (chatList.innerHTML !== html) {
-                    chatList.innerHTML = html;
-                    filterSidebarUsers(); // Re-apply filter after update
+            .then(response => response.json())
+            .then(data => {
+                if (chatList.innerHTML !== data.html) {
+                    chatList.innerHTML = data.html;
+                    filterSidebarUsers(); 
+                }
+                
+                // Update global badge if exists
+                const mainBadge = document.querySelector('a[href*="chat"] .bg-red-500');
+                if (mainBadge) {
+                    if (data.unread_total > 0) {
+                        mainBadge.textContent = data.unread_total;
+                        mainBadge.classList.remove('hidden');
+                    } else {
+                        mainBadge.classList.add('hidden');
+                    }
                 }
             });
     }
 
     window.filterSidebarUsers = function() {
         const input = document.getElementById('sidebarSearch');
+        if (!input) return;
         const filter = input.value.toUpperCase();
         const items = chatList.getElementsByClassName('chat-item');
         
@@ -280,13 +328,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initial fetch
-    fetchMessages();
+    if (activeUserId) performFetch();
     fetchChatList();
-    // Poll every 3 seconds
+
+    // Poll
     setInterval(() => {
         fetchMessages();
         fetchChatList();
-    }, 3000);
+    }, 4000);
 
     if (chatForm) {
         chatForm.addEventListener('submit', function(e) {
@@ -304,12 +353,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     messageInput.value = '';
                     messageInput.style.height = 'auto';
-                    fetchMessages();
+                    performFetch();
                 }
             });
         });
 
-        // Enter to send
         messageInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -322,25 +370,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
 .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
+    width: 3px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
+    background: #f1f5f9;
     border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #cbd5e1;
+    background: #e2e8f0;
 }
 
-@keyframes fade-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes msg-slide-up {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
-.animate-fade-in {
-    animation: fade-in 0.3s ease-out forwards;
+
+.message-new {
+    animation: msg-slide-up 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Glassmorphism for the input area if desired, but keeping it light for now */
+#chat-box {
+    scroll-behavior: smooth;
 }
 </style>
 

@@ -32,6 +32,29 @@
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
             const mobileToggle = document.getElementById('mobileToggle');
+            const clockElement = document.getElementById('realtime-clock');
+
+            function updateClock() {
+                if (!clockElement) return;
+                const now = new Date();
+                const day = now.getDate().toString().padStart(2, '0');
+                const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+                const month = months[now.getMonth()];
+                const year = now.getFullYear();
+                
+                let hours = now.getHours();
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                
+                clockElement.innerText = `${day} ${month} ${year} • ${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+            }
+
+            if (clockElement) {
+                setInterval(updateClock, 1000);
+                updateClock();
+            }
             
             function toggleSidebar() {
                 sidebar.classList.toggle('-translate-x-full');
@@ -147,37 +170,54 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'mark_all_read' })
                 })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error('Network response was not ok');
+                    return res.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        notificationBadge.classList.add('hidden');
+                        if (notificationBadge) notificationBadge.classList.add('hidden');
                         // Optimistic UI: Mark all notifications in the list as read
                         document.querySelectorAll('#notificationList > div').forEach(el => {
                             el.classList.remove('bg-blue-50/30');
                         });
+                    } else {
+                        console.error('Failed to mark all as read:', data.message);
                     }
-                });
+                })
+                .catch(err => console.error('Error marking all as read:', err));
             };
 
             window.clearAllNotifications = function() {
-                if (!confirm('Are you sure you want to clear all notifications?')) return;
+                if (!confirm('Adakah anda pasti ingin memadam semua notifikasi?')) return;
                 
                 fetch(`<?php echo URL_ROOT; ?>/modules/api/notifications.php?action=clear_all`, { 
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'clear_all' })
                 })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error('Network response was not ok');
+                    return res.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        notificationBadge.classList.add('hidden');
-                        notificationList.innerHTML = `
-                            <div class="p-8 text-center text-slate-300">
-                                <i class="fa-regular fa-bell-slash text-2xl mb-2 block"></i>
-                                <p class="text-[10px] font-bold uppercase">No new notifications</p>
-                            </div>
-                        `;
+                        if (notificationBadge) notificationBadge.classList.add('hidden');
+                        if (notificationList) {
+                            notificationList.innerHTML = `
+                                <div class="p-8 text-center text-slate-300">
+                                    <i class="fa-regular fa-bell-slash text-2xl mb-2 block"></i>
+                                    <p class="text-[10px] font-bold uppercase">Tiada Notifikasi Baru</p>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        alert('Gagal membersihkan notifikasi: ' + (data.message || 'Ralat tidak diketahui'));
                     }
+                })
+                .catch(err => {
+                    console.error('Error clearing notifications:', err);
+                    alert('Ralat sistem berlaku semasa membersihkan notifikasi.');
                 });
             };
 

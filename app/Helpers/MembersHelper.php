@@ -138,6 +138,8 @@ class MembersHelper {
         $member_id = $stmt->insert_id;
         $stmt->close();
 
+        $userId = $_SESSION['user_id'] ?? 0;
+        \App\Helpers\AuditHelper::log($userId, "Ahli baru didaftarkan: $full_name", 'MEMBERS', "IC: $ic_number");
         NotificationHelper::notifyRoles([888, 4], 'member_added', 'Ahli Baru Didaftarkan', "Ahli baru \"$full_name\" ($ic_number) telah berjaya didaftarkan.", "members/view/$member_id");
 
         return [
@@ -159,6 +161,10 @@ class MembersHelper {
         }
 
         $stmt->close();
+        
+        $userId = $_SESSION['user_id'] ?? 0;
+        \App\Helpers\AuditHelper::log($userId, "Profil ahli dipadam: ID $member_id", 'MEMBERS');
+        
         return ['status' => true, 'message' => 'Member profile deleted successfully'];
     }
 

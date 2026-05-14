@@ -62,7 +62,7 @@ $page_title = 'PENGURUSAN HEBAHAN';
                         <th class="py-5 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tajuk Hebahan</th>
                         <th class="py-5 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
                         <th class="py-5 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Dicipta Oleh</th>
-                        <th class="py-5 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tarikh Kemaskini</th>
+                        <th class="py-5 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tarikh Luput</th>
                         <th class="py-5 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Tindakan</th>
                     </tr>
                 </thead>
@@ -97,8 +97,8 @@ $page_title = 'PENGURUSAN HEBAHAN';
                                 </span>
                             </td>
                             <td class="py-5 px-6">
-                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                    <?php echo date('d M Y, h:i A', strtotime($ann['updated_at'])); ?>
+                                <span class="text-[10px] font-bold <?php echo ($ann['expires_at'] && strtotime($ann['expires_at']) < time()) ? 'text-red-500' : 'text-slate-500'; ?> uppercase tracking-widest">
+                                    <?php echo $ann['expires_at'] ? date('d M Y, h:i A', strtotime($ann['expires_at'])) : '-'; ?>
                                 </span>
                             </td>
                             <td class="py-5 px-6 text-right">

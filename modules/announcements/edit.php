@@ -81,6 +81,14 @@ $page_title = 'KEMASKINI HEBAHAN';
                 </select>
             </div>
 
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh & Masa Luput (Opsional)</label>
+                <input type="datetime-local" name="expires_at" 
+                       value="<?php echo $announcement['expires_at'] ? date('Y-m-d\TH:i', strtotime($announcement['expires_at'])) : ''; ?>"
+                       class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
+                <p class="text-[9px] text-slate-400 mt-2 italic">* Biarkan kosong jika tiada had masa.</p>
+            </div>
+
             <div class="pt-10">
                 <button type="submit" class="w-full bg-kebana-blue text-white py-6 text-xs font-black uppercase tracking-[0.3em] hover:bg-kebana-accent transition-all shadow-2xl">
                     KEMASKINI HEBAHAN

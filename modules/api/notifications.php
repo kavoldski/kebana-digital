@@ -17,10 +17,17 @@ if (!isset($_SESSION['user_id'])) {
 
 $action = $_GET['action'] ?? '';
 $userId = $_SESSION['user_id'];
+$input = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = json_decode(file_get_contents('php://input'), true);
-    $action = $input['action'] ?? $action;
+    $rawInput = file_get_contents('php://input');
+    if (!empty($rawInput)) {
+        $decoded = json_decode($rawInput, true);
+        if (is_array($decoded)) {
+            $input = $decoded;
+            $action = $input['action'] ?? $action;
+        }
+    }
 }
 
 switch ($action) {

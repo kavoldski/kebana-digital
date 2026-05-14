@@ -80,7 +80,7 @@ if ($search) {
         </form>
     </div>
 
-    <div id="live-search-results">
+    <div id="live-search-results" class="space-y-12">
 
     <!-- Table -->
     <div class="bg-white border border-slate-100 overflow-hidden shadow-sm">
@@ -151,8 +151,6 @@ if ($search) {
             </table>
         </div>
     </div>
-</div>
-
     </div>
 </div>
 

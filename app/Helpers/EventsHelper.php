@@ -171,6 +171,7 @@ class EventsHelper {
                 $stmt->close();
 
                 if ($success) {
+                    \App\Helpers\AuditHelper::log($userId, "Aktiviti Master dicipta: $title", 'EVENTS', "Venue: $venue");
                     // Notify: SU Cawangan (33), Pengerusi Cawangan (11) (President only on Submit)
                     NotificationHelper::notifyRoles([33, 11], 'master_event_created', 'Aktiviti Master Baru Dicipta', "Aktiviti Master \"$title\" telah dicipta oleh HQ. Sila rujuk guideline yang disertakan.", "events/view/$insert_id");
                     NotificationHelper::notifyRoles([888, 4], 'event_created', 'Aktiviti Baru Dicipta (HQ)', "Aktiviti \"$title\" telah dicipta oleh HQ.", "events/view/$insert_id");
@@ -192,6 +193,7 @@ class EventsHelper {
                 $stmt->close();
 
                 if ($success) {
+                    \App\Helpers\AuditHelper::log($userId, "Aktiviti Sub dicipta: $title", 'EVENTS', "Venue: $venue");
                     // For sub-events, initially it's a draft.
                     NotificationHelper::notifyRoles([888, 4], 'event_created', 'Aktiviti Baru Dicipta (Cawangan)', "Aktiviti \"$title\" telah dicipta oleh cawangan.", "events/view/$insert_id");
                 }
@@ -343,6 +345,8 @@ class EventsHelper {
         $stmt->close();
 
         if ($success) {
+            $userId = $_SESSION['user_id'] ?? 0;
+            \App\Helpers\AuditHelper::log($userId, "Aktiviti dihantar untuk kelulusan: $title", 'EVENTS', "ID: $id");
             $level = $event['event_level'] ?? 'MASTER';
             if ($level === 'MASTER') {
                 NotificationHelper::notifyRoles([1, 888], 'event_submission', 'Permohonan Kelulusan Aktiviti Master', "Aktiviti Master \"$title\" memerlukan kelulusan Presiden.", "events/view/$id");
@@ -368,6 +372,8 @@ class EventsHelper {
         $stmt->close();
 
         if ($success) {
+            $userId = $_SESSION['user_id'] ?? 0;
+            \App\Helpers\AuditHelper::log($userId, "Kertas kerja dihantar ke Cawangan: $title", 'EVENTS', "ID: $id");
             // Notify Pengerusi Cawangan (11)
             NotificationHelper::notifyRoles([11], 'branch_approval_required', 'Pengesahan Kertas Kerja Diperlukan', "SU Cawangan telah menghantar Kertas Kerja \"$title\" untuk tujuan pengesahan anda.", "events/view/$id");
         }
@@ -396,6 +402,8 @@ class EventsHelper {
         $stmt->close();
 
         if ($success && $creatorId) {
+            $userId = $_SESSION['user_id'] ?? 0;
+            \App\Helpers\AuditHelper::log($userId, "Kertas kerja disahkan oleh Cawangan: $title", 'EVENTS', "ID: $id");
             NotificationHelper::create($creatorId, 'branch_approved', 'Kertas Kerja Disahkan', "Pengerusi Cawangan telah meluluskan Kertas Kerja \"$title\". Anda kini boleh menghantar ke peringkat Pusat.", "events/view/$id");
         }
         return $success;
@@ -415,6 +423,8 @@ class EventsHelper {
         $stmt->close();
 
         if ($success && $creatorId) {
+            $userId = $_SESSION['user_id'] ?? 0;
+            \App\Helpers\AuditHelper::log($userId, "Aktiviti diluluskan oleh Presiden: $title", 'EVENTS', "ID: $id");
             NotificationHelper::create($creatorId, 'event_approved', 'Aktiviti Diluluskan', "Tahniah! Aktiviti \"$title\" telah diluluskan.", "events/view/$id");
         }
 
@@ -438,6 +448,8 @@ class EventsHelper {
         $stmt->close();
 
         if ($success && $creatorId) {
+            $userId = $_SESSION['user_id'] ?? 0;
+            \App\Helpers\AuditHelper::log($userId, "Aktiviti ditolak oleh Presiden: $title", 'EVENTS', "ID: $id");
             NotificationHelper::create($creatorId, 'event_rejected', 'Aktiviti Ditolak', "Maaf, aktiviti \"$title\" telah ditolak oleh Presiden.", "events/view/$id");
         }
 
@@ -451,6 +463,10 @@ class EventsHelper {
         $stmt->bind_param("i", $id);
         $success = $stmt->execute();
         $stmt->close();
+        if ($success) {
+            $userId = $_SESSION['user_id'] ?? 0;
+            \App\Helpers\AuditHelper::log($userId, "Aktiviti dipadam: ID $id", 'EVENTS');
+        }
         return $success;
     }
 
