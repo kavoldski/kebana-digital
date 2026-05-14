@@ -54,9 +54,14 @@ class FinanceHelper {
         return $rows;
     }
 
-    public static function getCategories() {
+    public static function getCategories($type = null) {
         $db = Database::getInstance()->getConnection();
-        $result = $db->query("SELECT DISTINCT category FROM tbl_transaction ORDER BY category");
+        $sql = "SELECT DISTINCT category FROM tbl_transaction";
+        if ($type) {
+            $sql .= " WHERE trans_type = '" . $db->real_escape_string($type) . "'";
+        }
+        $sql .= " ORDER BY category";
+        $result = $db->query($sql);
         $cats = [];
         if ($result) {
             while ($row = $result->fetch_assoc()) {
@@ -66,7 +71,7 @@ class FinanceHelper {
         return $cats;
     }
 
-    public static function addTransaction($data, $userId, $cawanganId = null) {
+    public static function addTransaction($data, $userId, $cawanganId = null, $receiptFile = null) {
         $db = Database::getInstance()->getConnection();
         $type = $data['trans_type'];
         $amount = (float)$data['amount'];
@@ -75,6 +80,7 @@ class FinanceHelper {
         $payment_mode = $data['payment_mode'] ?? 'Cash';
         $event_id = !empty($data['event_id']) ? (int)$data['event_id'] : null;
         $month_label = strtoupper(date('M', strtotime($date)));
+        $receipt_path = null;
 
         // Security check for Branch Finance roles
         if ($event_id !== null && $cawanganId !== null) {
@@ -88,11 +94,16 @@ class FinanceHelper {
             $stmt_check->close();
         }
 
-        $sql = "INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, payment_mode, event_id, month_label, recorded_by) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        // Handle Receipt Upload
+        if ($receiptFile && $receiptFile['error'] === UPLOAD_ERR_OK) {
+            $receipt_path = self::handleReceiptUpload($receiptFile);
+        }
+
+        $sql = "INSERT INTO tbl_transaction (trans_type, amount, category, trans_date, payment_mode, receipt_path, event_id, month_label, recorded_by) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $db->prepare($sql);
         if ($stmt) {
-            $stmt->bind_param("sdssisss", $type, $amount, $category, $date, $payment_mode, $event_id, $month_label, $userId);
+            $stmt->bind_param("sdsssssis", $type, $amount, $category, $date, $payment_mode, $receipt_path, $event_id, $month_label, $userId);
             $success = $stmt->execute();
             $stmt->close();
 
@@ -104,6 +115,110 @@ class FinanceHelper {
             return $success;
         }
         return false;
+    }
+
+    public static function handleReceiptUpload($file) {
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $allowed = ['pdf', 'jpg', 'jpeg', 'png'];
+        if (!in_array($ext, $allowed)) return null;
+
+        $uploadDir = APP_ROOT . '/uploads/receipts/';
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+        $newName = 'receipt_' . time() . '_' . uniqid() . '.' . $ext;
+        $target = $uploadDir . $newName;
+
+        if (move_uploaded_file($file['tmp_name'], $target)) {
+            return 'uploads/receipts/' . $newName;
+        }
+        return null;
+    }
+
+    /**
+     * Monthly Income vs Expense for the current year (for bar chart).
+     * Returns array with 12 entries Jan–Dec.
+     */
+    public static function getMonthlyChartData($year = null) {
+        $db = Database::getInstance()->getConnection();
+        $year = $year ?? date('Y');
+        $sql = "SELECT 
+                    MONTH(trans_date) as month_num,
+                    SUM(CASE WHEN trans_type = 'Income'  THEN amount ELSE 0 END) as income,
+                    SUM(CASE WHEN trans_type = 'Expense' THEN amount ELSE 0 END) as expense
+                FROM tbl_transaction
+                WHERE YEAR(trans_date) = ?
+                GROUP BY MONTH(trans_date)
+                ORDER BY MONTH(trans_date)";
+        $stmt = $db->prepare($sql);
+        $months = array_fill(1, 12, ['income' => 0, 'expense' => 0]);
+        if ($stmt) {
+            $stmt->bind_param("i", $year);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $months[(int)$row['month_num']] = [
+                    'income'  => (float)$row['income'],
+                    'expense' => (float)$row['expense'],
+                ];
+            }
+            $stmt->close();
+        }
+        return $months;
+    }
+
+    /**
+     * Chronological transactions for the running balance line chart.
+     */
+    public static function getRunningBalanceData($year = null) {
+        $db = Database::getInstance()->getConnection();
+        $year = $year ?? date('Y');
+        $sql = "SELECT trans_date, trans_type, amount
+                FROM tbl_transaction
+                WHERE YEAR(trans_date) = ?
+                ORDER BY trans_date ASC, trans_id ASC";
+        $stmt = $db->prepare($sql);
+        $rows = [];
+        if ($stmt) {
+            $stmt->bind_param("i", $year);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $running = 0;
+            while ($row = $result->fetch_assoc()) {
+                $running += ($row['trans_type'] === 'Income') ? $row['amount'] : -$row['amount'];
+                $rows[] = [
+                    'date'    => $row['trans_date'],
+                    'balance' => round($running, 2),
+                ];
+            }
+            $stmt->close();
+        }
+        return $rows;
+    }
+
+    /**
+     * Expense breakdown by category for the donut chart (top 8 + Others).
+     */
+    public static function getCategoryBreakdown($year = null) {
+        $db = Database::getInstance()->getConnection();
+        $year = $year ?? date('Y');
+        $sql = "SELECT category, SUM(amount) as total
+                FROM tbl_transaction
+                WHERE trans_type = 'Expense' AND YEAR(trans_date) = ?
+                GROUP BY category
+                ORDER BY total DESC
+                LIMIT 8";
+        $stmt = $db->prepare($sql);
+        $rows = [];
+        if ($stmt) {
+            $stmt->bind_param("i", $year);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = ['label' => $row['category'], 'total' => (float)$row['total']];
+            }
+            $stmt->close();
+        }
+        return $rows;
     }
 
     public static function getBudgetSummary($filters = []) {

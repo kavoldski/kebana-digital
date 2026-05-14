@@ -73,10 +73,16 @@ $page_title = 'SENARAI TRANSAKSI';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Senarai Transaksi</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Rekod Terperinci Aliran Masuk dan Keluar Dana.</p>
         </div>
-        <a href="/kebana-digital/finance/transactions/create" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
-            <i class="fa-solid fa-plus-circle mr-4 text-lg"></i>
-            REKOD BARU
-        </a>
+        <div class="flex flex-wrap gap-3">
+            <a href="/kebana-digital/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
+                <i class="fa-solid fa-arrow-trend-up mr-3 text-base"></i>
+                REKOD MASUK
+            </a>
+            <a href="/kebana-digital/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center">
+                <i class="fa-solid fa-arrow-trend-down mr-3 text-base"></i>
+                REKOD KELUAR
+            </a>
+        </div>
     </div>
 
     <!-- Filter Bar -->
@@ -131,6 +137,7 @@ $page_title = 'SENARAI TRANSAKSI';
                         <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Tarikh</th>
                         <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Kategori & Projek</th>
                         <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Mod</th>
+                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Resit</th>
                         <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Amaun</th>
                     </tr>
                 </thead>
@@ -157,6 +164,15 @@ $page_title = 'SENARAI TRANSAKSI';
                                 <span class="px-3 py-1 text-[8px] font-black uppercase tracking-widest bg-slate-100 text-slate-500">
                                     <?php echo (!empty($t['payment_mode']) && $t['payment_mode'] !== '0') ? htmlspecialchars($t['payment_mode']) : 'Cash'; ?>
                                 </span>
+                            </td>
+                            <td class="px-8 py-6 text-center">
+                                <?php if (!empty($t['receipt_path'])): ?>
+                                <a href="/kebana-digital/<?php echo $t['receipt_path']; ?>" target="_blank" class="text-kebana-blue hover:text-kebana-accent transition-colors" title="Lihat Resit">
+                                    <i class="fa-solid fa-file-invoice-dollar text-lg"></i>
+                                </a>
+                                <?php else: ?>
+                                <span class="text-slate-200 text-[10px] uppercase font-black tracking-tighter">N/A</span>
+                                <?php endif; ?>
                             </td>
                             <td class="px-8 py-6 text-right">
                                 <p class="text-sm font-black <?php echo $is_income ? 'text-green-600' : 'text-red-600'; ?>">

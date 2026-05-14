@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS tbl_transaction (
     category VARCHAR(100) NOT NULL,
     trans_date DATE NOT NULL,
     payment_mode VARCHAR(50) DEFAULT 'Cash',
+    receipt_path VARCHAR(255) DEFAULT NULL,
     event_id INT DEFAULT NULL,
     month_label VARCHAR(10) DEFAULT NULL,
     recorded_by INT,

@@ -105,10 +105,12 @@ $page_title = 'PENGURUSAN ACARA';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Senarai Aktiviti & Program</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Kalendar dan Pengurusan Program Organisasi.</p>
         </div>
+        <?php if (hasRole([888, 4, 33])): ?>
         <a href="/kebana-digital/events/create" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
             <i class="fa-solid fa-calendar-plus mr-4 text-lg"></i>
             DAFTAR ACARA BARU
         </a>
+        <?php endif; ?>
     </div>
 
     <?php if ($message): ?>
