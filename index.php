@@ -35,6 +35,8 @@ $routes = [
     'documents/upload' => 'modules/documents/upload.php',
     'chat' => 'modules/chat/index.php',
     'audit' => 'modules/audit/list.php',
+    'users' => 'modules/users/list.php',
+    'users/add' => 'modules/users/add.php',
 ];
 
 // Clean up route (remove .php extension if present)
@@ -64,6 +66,12 @@ if (preg_match('/^events\/(view|edit|attendance)\/(\d+)$/', $route, $matches)) {
 if (preg_match('/^finance\/event\/(\d+)$/', $route, $matches)) {
     $_GET['id'] = $matches[1];
     require_once "modules/finance/event.php";
+    exit();
+}
+
+if (preg_match('/^users\/edit\/(\d+)$/', $route, $matches)) {
+    $_GET['id'] = $matches[1];
+    require_once "modules/users/edit.php";
     exit();
 }
 
