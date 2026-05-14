@@ -6,6 +6,16 @@
 
 use App\Helpers\DocumentsHelper;
 
+// Handle Download Tracking - MUST BE BEFORE HEADER.PHP TO AVOID "HEADERS ALREADY SENT" ERROR
+if (isset($_GET['track_id']) && isset($_GET['file'])) {
+    if (hasRole([888, 1, 2, 3, 11, 22, 4, 33, 6, 55, 7, 66])) {
+        $track_id = (int)$_GET['track_id'];
+        DocumentsHelper::incrementDownloadCount($track_id);
+        header("Location: /kebana-digital/" . $_GET['file']);
+        exit;
+    }
+}
+
 require_once APP_ROOT . '/includes/header.php';
 
 // Access Control: Admin/Executives/Secretaries/Treasurers
@@ -24,15 +34,6 @@ if (isset($_GET['delete_id']) && hasRole([888, 4])) {
     }
 }
 
-// Handle Download Tracking
-if (isset($_GET['track_id'])) {
-    $track_id = (int)$_GET['track_id'];
-    DocumentsHelper::incrementDownloadCount($track_id);
-    if (isset($_GET['file'])) {
-        header("Location: /kebana-digital/" . $_GET['file']);
-        exit;
-    }
-}
 
 $current_role = (int)($_SESSION['role'] ?? 0);
 $current_cawangan = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
