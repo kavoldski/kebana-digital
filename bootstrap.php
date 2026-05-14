@@ -8,6 +8,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Load Composer Autoloader
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
+
 define('APP_ROOT', __DIR__);
 define('URL_ROOT', '/kebana-digital');
 $base_path = URL_ROOT . '/';

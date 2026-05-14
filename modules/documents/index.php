@@ -78,6 +78,10 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Pengurusan Dokumen Berpusat dengan Sistem Tagging Automatik.</p>
         </div>
         <div class="flex gap-4">
+            <button onclick="toggleAISearch()" class="bg-indigo-600 text-white px-6 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center shadow-lg">
+                <i class="fa-solid fa-robot mr-3"></i>
+                AI SEARCH
+            </button>
             <button onclick="toggleManagementView()" class="bg-slate-100 text-slate-600 px-6 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center">
                 <i class="fa-solid fa-chart-pie mr-3"></i>
                 INSIGHTS
@@ -90,7 +94,7 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
     </div>
 
     <!-- KPI Stats Bar -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-0 border border-slate-100 bg-white shadow-sm overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-0 border border-slate-100 bg-white shadow-sm overflow-hidden">
         <div class="p-8 border-r border-slate-50 flex flex-col justify-center bg-slate-50/30">
             <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Jumlah Fail</p>
             <p class="text-2xl font-black text-kebana-blue"><?php echo number_format($stats['total_files']); ?></p>
@@ -105,12 +109,129 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                 <?php echo htmlspecialchars($stats['popular_doc'] ?? 'N/A'); ?>
             </p>
         </div>
+        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Indeks RAG</p>
+            <?php 
+                $db = \App\Core\Database::getInstance()->getConnection();
+                $rag_count = $db->query("SELECT COUNT(DISTINCT doc_id) as count FROM tbl_document_chunks")->fetch_assoc()['count'];
+                $rag_pct = $stats['total_files'] > 0 ? ($rag_count / $stats['total_files']) * 100 : 0;
+            ?>
+            <div class="flex items-center gap-3">
+                <p class="text-2xl font-black text-indigo-600"><?php echo number_format($rag_count); ?></p>
+                <span class="text-[8px] font-bold text-slate-300 uppercase"><?php echo round($rag_pct); ?>% SIAP</span>
+            </div>
+        </div>
         <div class="p-8 flex flex-col justify-center bg-kebana-yellow/5">
-            <p class="text-[9px] font-black text-kebana-blue/60 uppercase tracking-widest mb-2">Status Capaian</p>
-            <p class="text-[10px] font-black text-kebana-blue uppercase italic">
-                <i class="fa-solid fa-shield-halved mr-2"></i>
-                <?php echo $is_pusat ? 'Akses Global (Pusat)' : 'Akses Cawangan'; ?>
-            </p>
+            <?php if (in_array($current_role, [888, 4])): ?>
+                <button onclick="reindexAll()" id="reindex-btn" class="w-full text-left group">
+                    <p class="text-[9px] font-black text-kebana-blue/60 uppercase tracking-widest mb-2 group-hover:text-kebana-blue transition-colors">Tindakan Admin</p>
+                    <p class="text-[10px] font-black text-kebana-blue uppercase italic flex items-center">
+                        <i class="fa-solid fa-arrows-rotate mr-2 group-hover:rotate-180 transition-all duration-500"></i>
+                        KEMASKINI INDEKS
+                    </p>
+                </button>
+            <?php else: ?>
+                <p class="text-[9px] font-black text-kebana-blue/60 uppercase tracking-widest mb-2">Status Capaian</p>
+                <p class="text-[10px] font-black text-kebana-blue uppercase italic">
+                    <i class="fa-solid fa-shield-halved mr-2"></i>
+                    <?php echo $is_pusat ? 'Akses Global (Pusat)' : 'Akses Cawangan'; ?>
+                </p>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- AI Search Panel -->
+    <div id="ai-search-panel" class="hidden animate-in fade-in slide-in-from-top-4 duration-500">
+        <!-- Context Preview Modal (Nested) -->
+        <div id="context-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 bg-indigo-950/90 backdrop-blur-xl">
+            <div class="bg-white text-slate-900 w-full max-w-4xl shadow-2xl border-t-8 border-indigo-600 animate-in zoom-in duration-300">
+                <div class="p-8 border-b border-slate-100 flex justify-between items-center">
+                    <div>
+                        <h4 id="context-title" class="text-sm font-black text-indigo-600 uppercase tracking-widest">Tajuk Dokumen</h4>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mt-1">Petikan Teks Yang Dijumpai Oleh AI</p>
+                    </div>
+                    <button onclick="closeContextModal()" class="text-slate-300 hover:text-red-500 transition-colors">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-12 max-h-[60vh] overflow-y-auto">
+                    <div class="bg-slate-50 p-10 border-l-4 border-indigo-200 italic text-lg leading-relaxed text-slate-700 font-medium" id="context-body">
+                        <!-- Chunk text here -->
+                    </div>
+                </div>
+                <div class="p-8 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rujukan Pintar RAG</span>
+                    <a id="context-link" href="#" target="_blank" class="bg-indigo-600 text-white px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center shadow-lg">
+                        <i class="fa-solid fa-file-pdf mr-2"></i>
+                        BUKA FAIL PENUH
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-indigo-900 text-white p-12 border-b-8 border-indigo-400 shadow-2xl relative overflow-hidden">
+            <!-- Decorative Elements -->
+            <div class="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
+                <i class="fa-solid fa-robot text-9xl"></i>
+            </div>
+
+            <div class="max-w-4xl mx-auto relative z-10">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="text-2xl font-black uppercase tracking-tight italic">Carian Pintar AI</h3>
+                        <p class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mt-2">Tanya apa sahaja tentang dokumen dalam arkib anda.</p>
+                    </div>
+                    <button onclick="toggleAISearch()" class="text-indigo-300 hover:text-white transition-colors">
+                        <i class="fa-solid fa-xmark text-2xl"></i>
+                    </button>
+                </div>
+
+                <div class="flex gap-4 mb-8">
+                    <input type="text" id="ai-query" placeholder="Cth: Berapakah bajet Festival Belia 2026?" 
+                           class="flex-1 bg-indigo-950/50 border-2 border-indigo-700 p-6 text-sm font-bold placeholder:text-indigo-400 outline-none focus:border-indigo-400 transition-all"
+                           onkeypress="if(event.key === 'Enter') performAISearch()">
+                    <button onclick="performAISearch()" id="ai-search-btn" class="bg-indigo-500 hover:bg-indigo-400 px-10 text-xs font-black uppercase tracking-widest transition-all shadow-lg flex items-center">
+                        <i class="fa-solid fa-paper-plane mr-3"></i>
+                        TANYA
+                    </button>
+                </div>
+
+                <!-- AI Response Area -->
+                <div id="ai-response-area" class="hidden space-y-8 animate-in fade-in duration-700">
+                    <div class="bg-white/10 backdrop-blur-md p-8 border border-white/10">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-[10px]">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <span class="text-[10px] font-black uppercase tracking-widest">Jawapan AI</span>
+                        </div>
+                        <div id="ai-answer" class="text-sm leading-relaxed font-medium text-indigo-50 prose prose-invert max-w-none">
+                            <!-- Answer will be injected here -->
+                        </div>
+                        <div class="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
+                            <span id="ai-time" class="text-[8px] font-black text-indigo-400 uppercase tracking-widest">PROSES: 0ms</span>
+                            <span class="text-[8px] font-black text-indigo-400 uppercase tracking-widest">DIJANAKAN OLEH OLLAMA</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-4">Sumber Rujukan</h4>
+                        <div id="ai-sources" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Sources will be injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="ai-loading" class="hidden py-12 text-center">
+                    <div class="inline-flex gap-2">
+                        <div class="w-3 h-3 bg-indigo-400 rounded-full animate-bounce"></div>
+                        <div class="w-3 h-3 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div class="w-3 h-3 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    </div>
+                    <p class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mt-6 animate-pulse">AI sedang menganalisis dokumen anda...</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -487,6 +608,119 @@ function renderCharts() {
             }
         }
     });
+}
+
+async function performAISearch() {
+    const queryInput = document.getElementById('ai-query');
+    const query = queryInput.value.trim();
+    if (!query) return;
+
+    const loading = document.getElementById('ai-loading');
+    const results = document.getElementById('ai-response-area');
+    const searchBtn = document.getElementById('ai-search-btn');
+
+    loading.classList.remove('hidden');
+    results.classList.add('hidden');
+    searchBtn.disabled = true;
+    searchBtn.classList.add('opacity-50');
+
+    try {
+        const response = await fetch('/kebana-digital/modules/documents/ajax_rag_search.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById('ai-answer').innerHTML = data.answer.replace(/\n/g, '<br>');
+            document.getElementById('ai-time').textContent = `PROSES: ${data.time}ms`;
+
+            const sourcesContainer = document.getElementById('ai-sources');
+            sourcesContainer.innerHTML = '';
+
+            data.sources.forEach(source => {
+                const score = Math.round(source.score * 100);
+                const ext = source.file_path.split('.').pop().toLowerCase();
+                const searchParam = ext === 'pdf' ? `#search="${encodeURIComponent(source.chunk_text.substring(0, 40))}"` : '';
+                const fullUrl = `/kebana-digital/${source.file_path}${searchParam}`;
+
+                const card = document.createElement('div');
+                card.className = "bg-white/5 border border-white/10 p-4 hover:bg-white/10 transition-all cursor-pointer group";
+                card.onclick = () => openContextModal(source.doc_name, source.chunk_text, fullUrl);
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[7px] font-black text-indigo-400 uppercase tracking-widest">Relevansi: ${score}%</span>
+                        <i class="fa-solid fa-file-${ext === 'pdf' ? 'pdf' : 'lines'} text-xs text-indigo-300"></i>
+                    </div>
+                    <p class="text-[9px] font-black text-white uppercase truncate mb-2">${source.doc_name}</p>
+                    <p class="text-[8px] text-indigo-200 line-clamp-2 opacity-50 group-hover:opacity-100 transition-opacity italic">"${source.chunk_text.substring(0, 80)}..."</p>
+                    <div class="mt-3 flex gap-2">
+                        <span class="text-[7px] font-black text-indigo-400 uppercase group-hover:text-white transition-colors">Lihat Konteks <i class="fa-solid fa-arrow-right ml-1"></i></span>
+                    </div>
+                `;
+                sourcesContainer.appendChild(card);
+            });
+
+            results.classList.remove('hidden');
+        } else {
+            alert("Ralat: " + data.message);
+        }
+    } catch (error) {
+        console.error("AI Search Error:", error);
+        alert("Ralat sistem semasa memproses carian AI.");
+    } finally {
+        loading.classList.add('hidden');
+        searchBtn.disabled = false;
+        searchBtn.classList.remove('opacity-50');
+    }
+}
+
+function openContextModal(title, text, url) {
+    document.getElementById('context-title').textContent = title;
+    document.getElementById('context-body').innerHTML = `"${text}"`;
+    document.getElementById('context-link').href = url;
+    document.getElementById('context-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent scroll
+}
+
+function closeContextModal() {
+    document.getElementById('context-modal').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+function toggleAISearch() {
+    const panel = document.getElementById('ai-search-panel');
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) {
+        document.getElementById('ai-query').focus();
+    }
+}
+
+async function reindexAll() {
+    if (!confirm('Adakah anda ingin mengindeks semula semua dokumen dalam arkib? Ini mungkin mengambil masa beberapa minit.')) return;
+
+    const btn = document.getElementById('reindex-btn');
+    const originalContent = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<p class="text-[10px] font-black text-kebana-blue uppercase italic flex items-center animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i> MEMPROSES...</p>`;
+
+    try {
+        const response = await fetch('/kebana-digital/modules/documents/ajax_reindex.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ all: true })
+        });
+        const data = await response.json();
+        alert(data.message);
+        location.reload();
+    } catch (error) {
+        console.error("Re-index Error:", error);
+        alert("Ralat sistem semasa mengindeks semula.");
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    }
 }
 </script>
 

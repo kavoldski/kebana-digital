@@ -133,7 +133,11 @@ class DocumentsHelper {
                 $stmt->close();
                 
                 if ($success) {
+                    $newDocId = $db->insert_id;
                     NotificationHelper::notifyRoles([888, 4], 'document_uploaded', 'Dokumen Baru Dimuatnaik', "Fail \"$name\" telah dimuatnaik ke pusat arkib.", "documents");
+                    
+                    // Trigger RAG Indexing
+                    \App\Services\RAGService::indexDocument($newDocId);
                 }
 
                 return $success;
