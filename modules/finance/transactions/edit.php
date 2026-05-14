@@ -11,6 +11,11 @@ use App\Core\Database;
 require_once __DIR__ . '/../../../includes/auth.php';
 require_once __DIR__ . '/../../../includes/dbconnect.php';
 
+if (!hasRole([888, 1, 2, 3, 6, 7, 55, 66])) {
+    header("Location: /kebana-digital/finance/transactions/list?msg=denied");
+    exit;
+}
+
 $transId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $current_role = (int)($_SESSION['role'] ?? 0);
 $current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
