@@ -127,6 +127,18 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                 </div>
             </div>
 
+            <div class="p-6 relative z-10 border-b border-white/5 bg-black/20">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-kebana-yellow text-kebana-blue flex items-center justify-center font-black text-lg">
+                        <?php echo strtoupper(substr($username, 0, 1)); ?>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[10px] font-black text-white truncate uppercase tracking-tighter"><?php echo htmlspecialchars($username); ?></p>
+                        <p class="text-[8px] text-slate-500 truncate font-black uppercase tracking-[0.2em]"><?php echo htmlspecialchars((string)$role_name); ?></p>
+                    </div>
+                </div>
+            </div>
+
             <nav class="flex-1 overflow-y-auto py-8 px-4 space-y-1 relative z-10">
                 <!-- Dashboard Link -->
                 <?php $is_dash = ($page_title == 'PAPARAN UTAMA'); ?>
@@ -145,6 +157,7 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     ['link' => 'finance', 'icon' => 'fa-wallet', 'label' => 'Laporan Kewangan', 'visible' => $can_view_finance],
                     ['link' => 'documents', 'icon' => 'fa-box-archive', 'label' => 'Pusat Arkib Fail', 'visible' => $can_view_documents],
                     ['link' => 'users', 'icon' => 'fa-user-gear', 'label' => 'Pengurusan Pengguna', 'visible' => ($current_role === 888)],
+                    ['link' => 'cawangan', 'icon' => 'fa-building-shield', 'label' => 'Pengurusan Cawangan', 'visible' => ($current_role === 888)],
                     ['link' => 'chat', 'icon' => 'fa-comments', 'label' => 'Pusat Komunikasi', 'visible' => true, 'badge' => $unreadChatCount],
                 ];
 
@@ -169,17 +182,7 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                 </a>
             </nav>
 
-            <div class="p-6 relative z-10 border-t border-white/5 bg-black/20">
-                <div class="flex items-center space-x-4">
-                    <div class="w-10 h-10 bg-kebana-yellow text-kebana-blue flex items-center justify-center font-black text-lg">
-                        <?php echo strtoupper(substr($username, 0, 1)); ?>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-[10px] font-black text-white truncate uppercase tracking-tighter"><?php echo htmlspecialchars($username); ?></p>
-                        <p class="text-[8px] text-slate-500 truncate font-black uppercase tracking-[0.2em]"><?php echo htmlspecialchars((string)$role_name); ?></p>
-                    </div>
-                </div>
-            </div>
+
         </aside>
 
         <!-- Overlay -->

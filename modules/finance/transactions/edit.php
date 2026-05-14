@@ -122,14 +122,14 @@ require_once APP_ROOT . '/includes/header.php';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh Transaksi <span class="text-red-500">*</span></label>
                     <input type="date" name="trans_date" value="<?php echo $transaction['trans_date']; ?>" required
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
                 </div>
             </div>
 
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Kategori <span class="text-red-500">*</span></label>
                 <input type="text" name="category" id="category-input" list="cat-list" value="<?php echo htmlspecialchars($transaction['category']); ?>" required
-                       class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all">
+                       class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
                 <datalist id="cat-list">
                     <?php foreach ($categories as $cat): ?>
                     <option value="<?php echo htmlspecialchars($cat); ?>">
@@ -140,7 +140,7 @@ require_once APP_ROOT . '/includes/header.php';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Pautkan ke Projek (Opsional)</label>
-                    <select name="event_id" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                    <select name="event_id" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all rounded-none appearance-none">
                         <option value="">-- Dana Am Persatuan --</option>
                         <?php foreach ($events as $ev): ?>
                         <option value="<?php echo $ev['event_id']; ?>" <?php echo $transaction['event_id'] == $ev['event_id'] ? 'selected' : ''; ?>>
@@ -151,7 +151,7 @@ require_once APP_ROOT . '/includes/header.php';
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Mod Pembayaran</label>
-                    <select name="payment_mode" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                    <select name="payment_mode" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all rounded-none appearance-none">
                         <option value="Cash" <?php echo $transaction['payment_mode'] === 'Cash' ? 'selected' : ''; ?>>Tunai (Cash)</option>
                         <option value="Bank" <?php echo $transaction['payment_mode'] === 'Bank' ? 'selected' : ''; ?>>Pindahan Bank / Cek</option>
                     </select>

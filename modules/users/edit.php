@@ -119,7 +119,7 @@ $role_names = [
                 <div class="grid grid-cols-1 gap-8">
                     <div class="space-y-2">
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Username</label>
-                        <input type="text" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all">
+                        <input type="text" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
                     </div>
 
                     <div class="space-y-2">
@@ -130,7 +130,7 @@ $role_names = [
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Peranan (Role)</label>
-                            <select name="role" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all">
+                            <select name="role" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
                                 <?php foreach ($role_names as $r_id => $r_name): ?>
                                     <option value="<?php echo $r_id; ?>" <?php echo $user['role'] == $r_id ? 'selected' : ''; ?>><?php echo $r_name; ?></option>
                                 <?php endforeach; ?>
@@ -139,7 +139,7 @@ $role_names = [
 
                         <div class="space-y-2">
                             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cawangan</label>
-                            <select name="cawangan_id" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all">
+                            <select name="cawangan_id" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
                                 <option value="">PUSAT</option>
                                 <?php foreach ($cawangans as $c): ?>
                                     <option value="<?php echo $c['cawangan_id']; ?>" <?php echo $user['cawangan_id'] == $c['cawangan_id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($c['cawangan_name']); ?></option>

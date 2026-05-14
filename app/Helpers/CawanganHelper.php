@@ -9,9 +9,20 @@ namespace App\Helpers;
 use App\Core\Database;
 
 class CawanganHelper {
-    public static function getAllCawangan() {
+    /**
+     * Get all cawangan
+     * @param bool $activeOnly Only return active cawangans
+     * @return array
+     */
+    public static function getAllCawangan($activeOnly = false) {
         $db = Database::getInstance()->getConnection();
-        $result = $db->query("SELECT * FROM tbl_cawangan ORDER BY cawangan_name ASC");
+        $sql = "SELECT * FROM tbl_cawangan";
+        if ($activeOnly) {
+            $sql .= " WHERE is_active = 1";
+        }
+        $sql .= " ORDER BY cawangan_name ASC";
+        
+        $result = $db->query($sql);
         $cawangan = [];
         if ($result) {
             while ($row = $result->fetch_assoc()) {
@@ -21,11 +32,108 @@ class CawanganHelper {
         return $cawangan;
     }
 
+    /**
+     * Get cawangan by ID
+     * @param int $id
+     * @return array|false
+     */
     public static function getCawanganById($id) {
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare("SELECT * FROM tbl_cawangan WHERE cawangan_id = ?");
+        if (!$stmt) return false;
+        
         $stmt->bind_param("i", $id);
         $stmt->execute();
-        return $stmt->get_result()->fetch_assoc();
+        $result = $stmt->get_result();
+        $data = $result->fetch_assoc();
+        $stmt->close();
+        
+        return $data;
+    }
+
+    /**
+     * Add new cawangan
+     * @param array $data
+     * @return array
+     */
+    public static function addCawangan($data) {
+        $db = Database::getInstance()->getConnection();
+        
+        $stmt = $db->prepare("INSERT INTO tbl_cawangan (cawangan_name, cawangan_code, is_active) VALUES (?, ?, ?)");
+        if (!$stmt) return ['status' => false, 'message' => 'Ralat sistem: ' . $db->error];
+        
+        $name = trim($data['cawangan_name']);
+        $code = strtoupper(trim($data['cawangan_code']));
+        $active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+        
+        $stmt->bind_param("ssi", $name, $code, $active);
+        
+        if ($stmt->execute()) {
+            $stmt->close();
+            return ['status' => true, 'message' => 'Cawangan berjaya didaftarkan.'];
+        } else {
+            $error = $stmt->error;
+            $stmt->close();
+            if (strpos($error, 'Duplicate entry') !== false) {
+                return ['status' => false, 'message' => 'Kod cawangan sudah wujud.'];
+            }
+            return ['status' => false, 'message' => 'Gagal mendaftar cawangan: ' . $error];
+        }
+    }
+
+    /**
+     * Update cawangan
+     * @param int $id
+     * @param array $data
+     * @return array
+     */
+    public static function updateCawangan($id, $data) {
+        $db = Database::getInstance()->getConnection();
+        
+        $stmt = $db->prepare("UPDATE tbl_cawangan SET cawangan_name = ?, cawangan_code = ?, is_active = ? WHERE cawangan_id = ?");
+        if (!$stmt) return ['status' => false, 'message' => 'Ralat sistem: ' . $db->error];
+        
+        $name = trim($data['cawangan_name']);
+        $code = strtoupper(trim($data['cawangan_code']));
+        $active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
+        
+        $stmt->bind_param("ssii", $name, $code, $active, $id);
+        
+        if ($stmt->execute()) {
+            $stmt->close();
+            return ['status' => true, 'message' => 'Maklumat cawangan berjaya dikemaskini.'];
+        } else {
+            $error = $stmt->error;
+            $stmt->close();
+            if (strpos($error, 'Duplicate entry') !== false) {
+                return ['status' => false, 'message' => 'Kod cawangan sudah wujud.'];
+            }
+            return ['status' => false, 'message' => 'Gagal mengemaskini cawangan: ' . $error];
+        }
+    }
+
+    /**
+     * Toggle cawangan status (Flag disable)
+     * @param int $id
+     * @return array
+     */
+    public static function toggleStatus($id) {
+        $db = Database::getInstance()->getConnection();
+        
+        $cawangan = self::getCawanganById($id);
+        if (!$cawangan) return ['status' => false, 'message' => 'Cawangan tidak ditemui.'];
+        
+        $new_status = $cawangan['is_active'] ? 0 : 1;
+        
+        $stmt = $db->prepare("UPDATE tbl_cawangan SET is_active = ? WHERE cawangan_id = ?");
+        $stmt->bind_param("ii", $new_status, $id);
+        
+        if ($stmt->execute()) {
+            $stmt->close();
+            $status_text = $new_status ? 'diaktifkan' : 'dinyahaktifkan';
+            return ['status' => true, 'message' => "Cawangan berjaya $status_text."];
+        }
+        
+        return ['status' => false, 'message' => 'Gagal menukar status cawangan.'];
     }
 }

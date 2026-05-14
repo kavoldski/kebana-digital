@@ -104,7 +104,7 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh Transaksi <span class="text-red-500">*</span></label>
                     <input type="date" name="trans_date" value="<?php echo date('Y-m-d'); ?>" required
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
                 </div>
             </div>
 
@@ -112,7 +112,7 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Kategori <span class="text-red-500">*</span></label>
                     <input type="text" name="category" id="category-input" list="cat-list" required
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
                            placeholder="Cth: Yuran Ahli, Sewa Dewan, dsb.">
                     <datalist id="cat-list">
                         <?php foreach ($categories as $cat): ?>
@@ -141,7 +141,7 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Pautkan ke Projek (Opsional)</label>
-                    <select name="event_id" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                    <select name="event_id" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all rounded-none appearance-none">
                         <option value="">-- Dana Am Persatuan --</option>
                         <?php foreach ($events as $ev): ?>
                         <option value="<?php echo $ev['event_id']; ?>"><?php echo htmlspecialchars($ev['event_title']); ?></option>
@@ -150,7 +150,7 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Mod Pembayaran</label>
-                    <select name="payment_mode" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                    <select name="payment_mode" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all rounded-none appearance-none">
                         <option value="Cash">Tunai (Cash)</option>
                         <option value="Bank">Pindahan Bank / Cek</option>
                     </select>
@@ -161,7 +161,7 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Muat Naik Resit / Bukti Pembayaran (PDF/Imej)</label>
                     <input type="file" name="receipt" accept=".pdf,.jpg,.jpeg,.png"
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all">
                 </div>
             </div>
 

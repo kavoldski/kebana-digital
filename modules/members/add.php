@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="md:col-span-2">
                         <label for="full_name" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">NAMA PENUH (SEPERTI DALAM IC)</label>
                         <input type="text" id="full_name" name="full_name" required 
-                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase tracking-tight transition-all rounded-none"
+                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold tracking-tight transition-all rounded-none"
                                placeholder="Contoh: AHMAD BIN ABDULLAH"
                                value="<?php echo isset($_POST['full_name']) ? htmlspecialchars($_POST['full_name']) : ''; ?>">
                     </div>
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div>
                         <label for="gender" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">JANTINA</label>
                         <select id="gender" name="gender" required 
-                                class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all rounded-none appearance-none">
+                                class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none appearance-none">
                             <option value="" disabled <?php echo !isset($_POST['gender']) ? 'selected' : ''; ?>>PILIH JANTINA</option>
                             <option value="Lelaki" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Lelaki') ? 'selected' : ''; ?>>LELAKI</option>
                             <option value="Perempuan" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Perempuan') ? 'selected' : ''; ?>>PEREMPUAN</option>
@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div>
                         <label for="village" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">KAWASAN / KAMPUNG</label>
                         <input type="text" id="village" name="village" required 
-                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase tracking-tight transition-all rounded-none"
+                               class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold tracking-tight transition-all rounded-none"
                                placeholder="Contoh: KAMPUNG DATA KAKUS"
                                value="<?php echo isset($_POST['village']) ? htmlspecialchars($_POST['village']) : ''; ?>">
                     </div>
@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div>
                         <label for="status" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">STATUS KEAHLIAN</label>
                         <select id="status" name="status" required 
-                                class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all rounded-none appearance-none">
+                                class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none appearance-none">
                             <option value="Active" <?php echo (isset($_POST['status']) && $_POST['status'] === 'Active') ? 'selected' : ''; ?>>AKTIF</option>
                             <option value="Inactive" <?php echo (isset($_POST['status']) && $_POST['status'] === 'Inactive') ? 'selected' : ''; ?>>TIDAK AKTIF</option>
                             <option value="Pending" <?php echo (isset($_POST['status']) && $_POST['status'] === 'Pending') ? 'selected' : ''; ?>>MENUNGGU</option>

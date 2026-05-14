@@ -75,6 +75,22 @@ if (preg_match('/^users\/edit\/(\d+)$/', $route, $matches)) {
     exit();
 }
 
+if ($route === 'cawangan') {
+    require_once 'modules/cawangan/list.php';
+    exit();
+}
+
+if ($route === 'cawangan/add') {
+    require_once 'modules/cawangan/add.php';
+    exit();
+}
+
+if (preg_match('/^cawangan\/edit\/(\d+)$/', $route, $matches)) {
+    $_GET['id'] = $matches[1];
+    require_once 'modules/cawangan/edit.php';
+    exit();
+}
+
 // Fallback logic
 if (file_exists($route . '.php')) {
     require_once $route . '.php';

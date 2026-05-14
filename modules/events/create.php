@@ -95,7 +95,7 @@ $page_title = 'DAFTAR ACARA';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tajuk Acara <span class="text-red-500">*</span></label>
                     <input type="text" name="event_title" required
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
                            placeholder="Cth: Mesyuarat Agung Tahunan 2024">
                 </div>
             </div>
@@ -105,7 +105,7 @@ $page_title = 'DAFTAR ACARA';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tugaskan ke Cawangan <span class="text-red-500">*</span></label>
                     <select name="assigned_cawangan_id" required
-                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all rounded-none appearance-none">
+                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none appearance-none">
                         <option value="">-- Pilih Cawangan --</option>
                         <?php foreach ($cawangan_options as $caw): ?>
                         <option value="<?php echo $caw['cawangan_id']; ?>"><?php echo htmlspecialchars($caw['cawangan_name']); ?></option>
@@ -116,7 +116,7 @@ $page_title = 'DAFTAR ACARA';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Pilih Acara Induk (Master) <span class="text-red-500">*</span></label>
                     <select name="parent_master_event_id" required
-                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all rounded-none appearance-none">
+                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none appearance-none">
                         <option value="">-- Pilih Acara Master --</option>
                         <?php foreach ($master_event_options as $master): ?>
                         <option value="<?php echo $master['event_id']; ?>" <?php echo ($preselected_parent_id == $master['event_id']) ? 'selected' : ''; ?>>
@@ -130,7 +130,7 @@ $page_title = 'DAFTAR ACARA';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Kawasan / Daerah <span class="text-red-500">*</span></label>
                     <input type="text" name="kawasan" required list="kawasan_list"
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
                            placeholder="Cth: Samalaju / Kidurong">
                     <datalist id="kawasan_list">
                         <?php foreach ($suggestions['kawasan'] as $kaw): ?>
@@ -144,7 +144,7 @@ $page_title = 'DAFTAR ACARA';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Lokasi / Venue <span class="text-red-500">*</span></label>
                     <input type="text" name="venue" required list="venue_list"
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
                            placeholder="Cth: Dewan Komuniti Bintulu">
                     <datalist id="venue_list">
                         <?php foreach ($suggestions['venues'] as $ven): ?>
@@ -156,7 +156,7 @@ $page_title = 'DAFTAR ACARA';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Anggaran Bajet (RM)</label>
                     <input type="number" step="0.01" name="budget_est"
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
                            placeholder="0.00">
                 </div>
             </div>
@@ -165,25 +165,25 @@ $page_title = 'DAFTAR ACARA';
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh Mula <span class="text-red-500">*</span></label>
                     <input type="date" name="event_date" required
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh Tamat (Opsional)</label>
                     <input type="date" name="event_end_date"
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
                 </div>
             </div>
 
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3"><?php echo $is_pusat_creator ? 'Muat Naik Guideline (PDF)' : 'Muat Naik Kertas Kerja (PDF/Imej)'; ?></label>
                 <input type="file" name="proposal_file" accept=".pdf,.jpg,.jpeg,.png"
-                       class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                       class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all">
             </div>
 
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Objektif & Keterangan</label>
                 <textarea name="objective" rows="4"
-                          class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                          class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
                           placeholder="Sila nyatakan objektif program, kumpulan sasaran, atau keterangan ringkas..."></textarea>
             </div>
 
