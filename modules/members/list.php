@@ -33,7 +33,8 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $per_page = 20;
 
 // Get members
-$members_data = MembersHelper::getMembersPaginated($page, $per_page);
+$search = $_GET['search'] ?? '';
+$members_data = MembersHelper::getMembersPaginated($page, $per_page, $search);
 $members = $members_data['members'];
 $total_members = $members_data['total'];
 $total_pages = ceil($total_members / $per_page);
@@ -102,15 +103,24 @@ $inactive_members = count(MembersHelper::getMembersByStatus('Inactive'));
     </div>
 
     <!-- Search Bar -->
-    <div class="bg-white p-6 border border-slate-100 flex flex-col md:flex-row gap-4">
-        <div class="relative flex-1">
-            <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
-            <input type="text" placeholder="CARI AHLI (NAMA, NO. IC, ID)..." class="w-full pl-14 pr-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase tracking-tight transition-all rounded-none">
-        </div>
-        <button class="px-10 py-4 bg-kebana-dark text-white text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
-            TAPISAN
-        </button>
+    <div class="bg-white p-6 border border-slate-100">
+        <form method="GET" class="flex flex-col md:flex-row gap-4">
+            <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="CARI AHLI (NAMA, NO. IC, ID)..." class="w-full pl-14 pr-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase tracking-tight transition-all rounded-none">
+            </div>
+            <button type="submit" class="px-10 py-4 bg-kebana-dark text-white text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
+                TAPISAN
+            </button>
+            <?php if ($search): ?>
+            <a href="/kebana-digital/members" class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center hover:text-red-500">
+                KOSONGKAN
+            </a>
+            <?php endif; ?>
+        </form>
     </div>
+
+    <div id="live-search-results" class="space-y-12">
 
     <!-- Table -->
     <div class="bg-white border border-slate-100 overflow-hidden shadow-sm">
@@ -182,14 +192,17 @@ $inactive_members = count(MembersHelper::getMembersByStatus('Inactive'));
                 JUMLAH REKOD: <?php echo $total_members; ?> • PAPARAN: <?php echo count($members); ?>
             </p>
             <div class="flex space-x-2">
-                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                <a href="?page=<?php echo $i; ?>" class="w-10 h-10 flex items-center justify-center text-[10px] font-black <?php echo $i === $page ? 'bg-kebana-blue text-white shadow-xl shadow-kebana-blue/20' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-100'; ?> transition-all">
+                <?php for ($i = 1; $i <= $total_pages; $i++): 
+                    $page_url = "?page=$i" . ($search ? "&search=" . urlencode($search) : "");
+                ?>
+                <a href="<?php echo $page_url; ?>" class="w-10 h-10 flex items-center justify-center text-[10px] font-black <?php echo $i === $page ? 'bg-kebana-blue text-white shadow-xl shadow-kebana-blue/20' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-100'; ?> transition-all">
                     <?php echo $i; ?>
                 </a>
                 <?php endfor; ?>
             </div>
         </div>
         <?php endif; ?>
+    </div>
     </div>
 </div>
 

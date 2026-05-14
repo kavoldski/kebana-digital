@@ -28,6 +28,7 @@ $page_title = 'LOG AKTIVITI SISTEM';
 ?>
 
 <div class="space-y-8">
+    <div id="live-search-results" class="space-y-8">
     <!-- Filters -->
     <div class="bg-white p-6 border border-slate-100 flex flex-wrap gap-4 items-center justify-between shadow-sm">
         <div class="flex gap-2">
@@ -103,6 +104,7 @@ $page_title = 'LOG AKTIVITI SISTEM';
             <?php endfor; ?>
         </div>
         <?php endif; ?>
+    </div>
     </div>
 </div>
 

@@ -40,8 +40,28 @@ if (isset($_POST['update_objective'])) {
     }
 }
 
+// Handle sub-event creation
+if (isset($_POST['add_sub_event'])) {
+    $current_user_id = (int)($_SESSION['user_id'] ?? 0);
+    $current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
+    
+    // Sub-event specific data
+    $_POST['parent_master_event_id'] = $eventId;
+    
+    $new_id = EventsHelper::addEvent($_POST, $current_user_id, false, $current_cawangan_id);
+    
+    if ($new_id) {
+        if (isset($_FILES['proposal_file']) && $_FILES['proposal_file']['error'] === UPLOAD_ERR_OK) {
+            EventsHelper::handleDocumentUpload($new_id, $_FILES['proposal_file'], $current_user_id);
+        }
+        header("Location: /kebana-digital/events/view/$eventId?msg=sub_added");
+        exit;
+    }
+}
+
 require_once APP_ROOT . '/includes/header.php';
 
+$suggestions = EventsHelper::getUniqueLocations();
 $event = EventsHelper::getEventById($eventId);
 
 if (!$event) {
@@ -238,9 +258,11 @@ $page_title = 'PERINCIAN ACARA';
                         <h3 class="text-xs font-black text-kebana-blue uppercase tracking-[0.3em]">Sub Aktiviti / Program</h3>
                         <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-widest">Senarai pelaksanaan mengikut cawangan</p>
                     </div>
-                    <a href="/kebana-digital/events/create?parent_id=<?php echo $eventId; ?>" class="bg-kebana-blue text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all">
+                    <?php if (hasRole([4, 33, 888])): ?>
+                    <button onclick="openSubEventDrawer()" class="bg-kebana-blue text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all">
                         + Tambah Sub Acara
-                    </a>
+                    </button>
+                    <?php endif; ?>
                 </div>
                 
                 <div class="overflow-x-auto">
@@ -438,3 +460,117 @@ $page_title = 'PERINCIAN ACARA';
 </div>
 
 <?php require_once APP_ROOT . '/includes/footer.php'; ?>
+
+<!-- Right-Pane Drawer for Sub-Event -->
+<div id="subEventOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] opacity-0 pointer-events-none transition-opacity duration-300"></div>
+<div id="subEventDrawer" class="fixed top-0 right-0 h-full w-full max-w-[500px] bg-white z-[101] translate-x-full transition-transform duration-500 ease-in-out shadow-2xl overflow-y-auto">
+    <div class="p-10 space-y-10">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-6">
+            <div>
+                <h3 class="text-lg font-black text-kebana-blue uppercase tracking-tight italic">Daftar Sub-Acara</h3>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Tambah aktiviti baru di bawah program ini.</p>
+            </div>
+            <button onclick="closeSubEventDrawer()" class="w-10 h-10 flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-8">
+            <input type="hidden" name="add_sub_event" value="1">
+            
+            <div>
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Tajuk Sub-Acara <span class="text-red-500">*</span></label>
+                <input type="text" name="event_title" required
+                       class="w-full px-5 py-3 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all"
+                       placeholder="Cth: Bengkel Kemahiran Digital">
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Kawasan <span class="text-red-500">*</span></label>
+                    <input type="text" name="kawasan" required list="kawasan_list"
+                           class="w-full px-5 py-3 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all"
+                           placeholder="Cth: Samalaju">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Anggaran Bajet</label>
+                    <input type="number" step="0.01" name="budget_est"
+                           class="w-full px-5 py-3 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all"
+                           placeholder="0.00">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Lokasi / Venue <span class="text-red-500">*</span></label>
+                <input type="text" name="venue" required list="venue_list"
+                       class="w-full px-5 py-3 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all"
+                       placeholder="Cth: Pusat Komuniti">
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Tarikh Mula <span class="text-red-500">*</span></label>
+                    <input type="date" name="event_date" required
+                           class="w-full px-5 py-3 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Tarikh Tamat</label>
+                    <input type="date" name="event_end_date"
+                           class="w-full px-5 py-3 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Kertas Kerja (PDF/Imej)</label>
+                <input type="file" name="proposal_file" accept=".pdf,.jpg,.jpeg,.png"
+                       class="w-full px-5 py-3 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-[10px] font-bold transition-all">
+            </div>
+
+            <div>
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Objektif & Keterangan</label>
+                <textarea name="objective" rows="4"
+                          class="w-full px-5 py-3 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all"
+                          placeholder="Ringkasan objektif program..."></textarea>
+            </div>
+
+            <div class="pt-6">
+                <button type="submit" class="w-full bg-kebana-blue text-white py-4 text-[11px] font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl">
+                    DAFTAR SUB-ACARA SEKARANG
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<datalist id="kawasan_list">
+    <?php foreach ($suggestions['kawasan'] as $kaw): ?>
+    <option value="<?php echo htmlspecialchars($kaw); ?>">
+    <?php endforeach; ?>
+</datalist>
+
+<datalist id="venue_list">
+    <?php foreach ($suggestions['venues'] as $ven): ?>
+    <option value="<?php echo htmlspecialchars($ven); ?>">
+    <?php endforeach; ?>
+</datalist>
+
+<script>
+function openSubEventDrawer() {
+    const overlay = document.getElementById('subEventOverlay');
+    const drawer = document.getElementById('subEventDrawer');
+    overlay.classList.remove('opacity-0', 'pointer-events-none');
+    overlay.classList.add('opacity-100');
+    drawer.classList.remove('translate-x-full');
+}
+
+function closeSubEventDrawer() {
+    const overlay = document.getElementById('subEventOverlay');
+    const drawer = document.getElementById('subEventDrawer');
+    overlay.classList.add('opacity-0', 'pointer-events-none');
+    overlay.classList.remove('opacity-100');
+    drawer.classList.add('translate-x-full');
+}
+
+// Close drawer on overlay click
+document.getElementById('subEventOverlay').addEventListener('click', closeSubEventDrawer);
+</script>

@@ -10,9 +10,26 @@ use App\Core\Database;
 use App\Helpers\NotificationHelper;
 
 class MembersHelper {
-    public static function getMemberCount() {
+    public static function getMemberCount($search = '') {
         $db = Database::getInstance()->getConnection();
-        $result = $db->query("SELECT COUNT(*) as total FROM tbl_member");
+        $where = "1=1";
+        $params = [];
+        $types = "";
+
+        if ($search) {
+            $where .= " AND (full_name LIKE ? OR ic_number LIKE ? OR member_id LIKE ?)";
+            $searchTerm = "%$search%";
+            $params = [$searchTerm, $searchTerm, $searchTerm];
+            $types = "sss";
+        }
+
+        $sql = "SELECT COUNT(*) as total FROM tbl_member WHERE $where";
+        $stmt = $db->prepare($sql);
+        if ($search) {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
         return $result->fetch_assoc()['total'] ?? 0;
     }
 
@@ -41,12 +58,30 @@ class MembersHelper {
         return $members;
     }
 
-    public static function getMembersPaginated($page = 1, $per_page = 20) {
+    public static function getMembersPaginated($page = 1, $per_page = 20, $search = '') {
         $db = Database::getInstance()->getConnection();
         $offset = ($page - 1) * $per_page;
 
-        $sql = "SELECT * FROM tbl_member ORDER BY member_id DESC LIMIT " . (int)$per_page . " OFFSET " . (int)$offset;
-        $result = $db->query($sql);
+        $where = "1=1";
+        $params = [];
+        $types = "";
+
+        if ($search) {
+            $where .= " AND (full_name LIKE ? OR ic_number LIKE ? OR member_id LIKE ?)";
+            $searchTerm = "%$search%";
+            $params = [$searchTerm, $searchTerm, $searchTerm];
+            $types = "sss";
+        }
+
+        $sql = "SELECT * FROM tbl_member WHERE $where ORDER BY member_id DESC LIMIT ? OFFSET ?";
+        $params[] = (int)$per_page;
+        $params[] = (int)$offset;
+        $types .= "ii";
+
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
         $members = [];
         if ($result) {
@@ -55,7 +90,7 @@ class MembersHelper {
             }
         }
 
-        $total = self::getMemberCount();
+        $total = self::getMemberCount($search);
 
         return ['members' => $members, 'total' => $total];
     }

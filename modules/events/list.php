@@ -166,8 +166,9 @@ $page_title = 'PENGURUSAN ACARA';
                 KOSONGKAN
             </a>
             <?php endif; ?>
-        </form>
     </div>
+
+    <div id="live-search-results" class="space-y-12">
 
     <!-- Events Table -->
     <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
@@ -244,6 +245,11 @@ $page_title = 'PENGURUSAN ACARA';
                                     
                                     <a href="/kebana-digital/events/attendance?event_id=<?php echo $event['event_id']; ?>" 
                                        class="text-[9px] font-black text-kebana-blue uppercase border-b border-kebana-blue/20 hover:border-kebana-blue pb-0.5 transition-all">Kehadiran</a>
+                                       
+                                    <?php if ($is_master): ?>
+                                    <a href="/kebana-digital/events/gantt?event_id=<?php echo $event['event_id']; ?>" 
+                                       class="text-[9px] font-black text-purple-600 uppercase border-b border-purple-600/20 hover:border-purple-600 pb-0.5 transition-all">Gantt Chart</a>
+                                    <?php endif; ?>
                                     
                                     <?php if ($status === 'Draft'): ?>
                                         <?php if ($level === 'MASTER' && hasRole([888, 4, 33])): ?>
@@ -325,6 +331,7 @@ $page_title = 'PENGURUSAN ACARA';
                 </tbody>
             </table>
         </div>
+    </div>
     </div>
 </div>
 

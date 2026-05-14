@@ -33,7 +33,13 @@ if (isset($_GET['delete'])) {
 $page_title = 'PENGURUSAN PENGGUNA';
 require_once APP_ROOT . '/includes/header.php';
 
+$search = $_GET['search'] ?? '';
 $users = UserHelper::getAllUsers();
+if ($search) {
+    $users = array_filter($users, function($u) use ($search) {
+        return stripos($u['username'], $search) !== false || stripos($u['email'], $search) !== false;
+    });
+}
 $cawangans = CawanganHelper::getAllCawangan();
 
 // Role mapping for display
@@ -81,6 +87,28 @@ $role_names = [
         </div>
     </div>
     <?php endif; ?>
+
+    <!-- Search Bar -->
+    <div class="bg-white p-8 border border-slate-100 shadow-sm">
+        <form method="GET" class="flex flex-col md:flex-row gap-6">
+            <div class="flex-1 relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" 
+                       class="w-full pl-14 pr-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all"
+                       placeholder="Cari mengikut nama atau emel...">
+            </div>
+            <button type="submit" class="bg-kebana-dark text-white px-10 py-4 text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
+                CARI
+            </button>
+            <?php if ($search): ?>
+            <a href="/kebana-digital/users" class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center hover:text-red-500">
+                KOSONGKAN
+            </a>
+            <?php endif; ?>
+        </form>
+    </div>
+
+    <div id="live-search-results">
 
     <!-- Table -->
     <div class="bg-white border border-slate-100 overflow-hidden shadow-sm">
@@ -153,6 +181,9 @@ $role_names = [
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
     </div>
 </div>
 

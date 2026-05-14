@@ -22,6 +22,7 @@ $from_date = $_GET['from'] ?? '';
 $to_date = $_GET['to'] ?? '';
 $type_filter = $_GET['type'] ?? '';
 $category_filter = $_GET['category'] ?? '';
+$search = $_GET['search'] ?? '';
 
 // Build dynamic query
 $where = "1=1";
@@ -32,6 +33,7 @@ if ($from_date) { $where .= " AND t.trans_date >= ?"; $params[] = $from_date; $t
 if ($to_date) { $where .= " AND t.trans_date <= ?"; $params[] = $to_date; $types .= "s"; }
 if ($type_filter) { $where .= " AND t.trans_type = ?"; $params[] = $type_filter; $types .= "s"; }
 if ($category_filter) { $where .= " AND t.category LIKE ?"; $params[] = "%$category_filter%"; $types .= "s"; }
+if ($search) { $where .= " AND (t.category LIKE ? OR e.event_title LIKE ? OR t.description LIKE ?)"; $params[] = "%$search%"; $params[] = "%$search%"; $params[] = "%$search%"; $types .= "sss"; }
 
 // Scoping based on role
 if (in_array($current_role, $CAWANGAN_ROLES)) {
@@ -113,11 +115,23 @@ $page_title = 'SENARAI TRANSAKSI';
                     <option value="Expense" <?php echo $type_filter === 'Expense' ? 'selected' : ''; ?>>Perbelanjaan</option>
                 </select>
             </div>
-            <button type="submit" class="bg-kebana-dark text-white py-4 text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
-                TAPIS REKOD
-            </button>
+            <div class="md:col-span-2">
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Carian Kata Kunci</label>
+                <div class="flex gap-2">
+                    <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Cari kategori, projek atau butiran..."
+                           class="flex-1 px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                    <button type="submit" class="bg-kebana-dark text-white px-8 py-4 text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
+                        CARI
+                    </button>
+                    <?php if ($search || $from_date || $to_date || $type_filter): ?>
+                    <a href="/kebana-digital/finance/transactions" class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase flex items-center hover:text-red-500">KOSONGKAN</a>
+                    <?php endif; ?>
+                </div>
+            </div>
         </form>
     </div>
+
+    <div id="live-search-results" class="space-y-12">
 
     <!-- Filtered Summary -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100 bg-white shadow-sm">
@@ -221,6 +235,9 @@ $page_title = 'SENARAI TRANSAKSI';
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
     </div>
 </div>
 

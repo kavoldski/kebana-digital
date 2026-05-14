@@ -192,6 +192,7 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
         </div>
     </div>
 
+    <div id="live-search-results" class="space-y-12">
     <!-- Documents Display -->
     <div id="grid-view" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         <?php if (empty($docs)): ?>
@@ -361,6 +362,7 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
         </div>
     </div>
     <?php endif; ?>
+    </div>
 </div>
 
 <script>

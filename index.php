@@ -22,6 +22,7 @@ $routes = [
     'events' => 'modules/events/list.php',
     'events/create' => 'modules/events/create.php',
     'events/attendance' => 'modules/events/attendance.php',
+    'events/gantt' => 'modules/events/gantt.php',
     'members' => 'modules/members/list.php',
     'members/add' => 'modules/members/add.php',
     'members/report' => 'modules/members/report.php',

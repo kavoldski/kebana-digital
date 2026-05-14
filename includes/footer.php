@@ -185,17 +185,81 @@
                     });
             }
 
-            function formatTime(dateStr) {
-                const date = new Date(dateStr);
-                const now = new Date();
-                const isToday = date.toDateString() === now.toDateString();
-                
-                if (isToday) {
-                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-                } else {
-                    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            // Live Search Implementation
+            let searchTimeout;
+            const resultsContainerId = 'live-search-results';
+
+            function attachLiveSearch() {
+                const searchInputs = document.querySelectorAll('input[name="search"], .live-search');
+                searchInputs.forEach(input => {
+                    // Remove existing listener to avoid duplicates if re-attached
+                    input.removeEventListener('input', handleSearchInput);
+                    input.addEventListener('input', handleSearchInput);
+                });
+
+                // Also intercept pagination and filter links within the results container
+                const resultsContainer = document.getElementById(resultsContainerId);
+                if (resultsContainer) {
+                    resultsContainer.querySelectorAll('a').forEach(link => {
+                        if (link.href && link.href.includes(window.location.pathname)) {
+                            link.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                fetchResults(this.href);
+                            });
+                        }
+                    });
                 }
             }
+
+            function handleSearchInput(e) {
+                clearTimeout(searchTimeout);
+                const query = e.target.value;
+                const url = new URL(window.location.href);
+                url.searchParams.set('search', query);
+                // Reset page to 1 when searching
+                if (url.searchParams.has('page')) url.searchParams.set('page', '1');
+
+                searchTimeout = setTimeout(() => {
+                    fetchResults(url.toString());
+                }, 300);
+            }
+
+            function fetchResults(url) {
+                const container = document.getElementById(resultsContainerId);
+                if (!container) return;
+
+                // Add loading state
+                container.style.opacity = '0.5';
+                container.style.pointerEvents = 'none';
+
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newContent = doc.getElementById(resultsContainerId);
+
+                        if (newContent) {
+                            container.innerHTML = newContent.innerHTML;
+                            container.style.opacity = '1';
+                            container.style.pointerEvents = 'auto';
+                            
+                            // Re-attach listeners to new links
+                            attachLiveSearch();
+                            
+                            // Update URL
+                            window.history.pushState({}, '', url);
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Live Search Error:', err);
+                        container.style.opacity = '1';
+                        container.style.pointerEvents = 'auto';
+                    });
+            }
+
+            // Initial attachment
+            attachLiveSearch();
         });
     </script>
 </body>
