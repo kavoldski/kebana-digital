@@ -40,12 +40,9 @@ $categories = FinanceHelper::getCategories($preselected_type);
 // Filter events based on role
 $current_role = (int)($_SESSION['role'] ?? 0);
 $current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
+$scope_cawangan = in_array($current_role, $CAWANGAN_ROLES) ? $current_cawangan_id : null;
 
-if (in_array($current_role, [55, 66]) && $current_cawangan_id !== null) {
-    $events = EventsHelper::getAllEvents('cawangan_only', null, $current_cawangan_id);
-} else {
-    $events = EventsHelper::getAllEvents();
-}
+$events = EventsHelper::getAllEvents('finance_selection', null, $scope_cawangan);
 
 $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
 ?>

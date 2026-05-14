@@ -6,6 +6,28 @@
 
 use App\Helpers\FinanceHelper;
 
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/dbconnect.php';
+
+$session_role = (int)($_SESSION['role'] ?? 0);
+$session_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
+$CAWANGAN_ROLES = [11, 22, 33, 44, 55, 66];
+
+$cawangan_name = '';
+if (in_array($session_role, $CAWANGAN_ROLES) && $session_cawangan_id) {
+    $db = \App\Core\Database::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT cawangan_name FROM tbl_cawangan WHERE cawangan_id = ?");
+    $stmt->bind_param("i", $session_cawangan_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($row = $res->fetch_assoc()) {
+        $cawangan_name = $row['cawangan_name'];
+    }
+    $stmt->close();
+}
+
+$page_title = (in_array($session_role, $CAWANGAN_ROLES)) ? "RINGKASAN KEWANGAN CAWANGAN $cawangan_name" : "RINGKASAN KEWANGAN KEBANA PUSAT";
+
 require_once APP_ROOT . '/includes/header.php';
 
 // Access Control
@@ -17,11 +39,17 @@ if (!hasRole([888, 6, 55, 7, 66])) {
 
 $chart_year = isset($_GET['year']) && is_numeric($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
 
-$totals       = FinanceHelper::getTotals();
-$recent       = FinanceHelper::getRecentTransactions(8);
-$monthly      = FinanceHelper::getMonthlyChartData($chart_year);
-$runningBal   = FinanceHelper::getRunningBalanceData($chart_year);
-$catBreakdown = FinanceHelper::getCategoryBreakdown($chart_year);
+// Scoping based on role
+$scope_cawangan = in_array($current_role, $CAWANGAN_ROLES) ? $current_cawangan_id : null;
+
+$totals       = FinanceHelper::getTotals($scope_cawangan);
+$recent       = FinanceHelper::getRecentTransactions(8, $scope_cawangan);
+$monthly      = FinanceHelper::getMonthlyChartData($chart_year, $scope_cawangan);
+$runningBal   = FinanceHelper::getRunningBalanceData($chart_year, $scope_cawangan);
+$catBreakdown = FinanceHelper::getCategoryBreakdown($chart_year, $scope_cawangan);
+
+// Branch breakdown for Pusat roles
+$branchTotals = ($scope_cawangan === null) ? FinanceHelper::getBranchTotals() : [];
 
 // Prepare JS-safe JSON
 $month_labels   = json_encode(['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogos','Sep','Okt','Nov','Dis']);
@@ -69,13 +97,15 @@ $page_title = 'PENGURUSAN KEWANGAN';
 
     <!-- KPI Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100 bg-white">
-        <div class="p-10 border-r border-slate-50 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
-            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">DANA TERSEDIA (NET)</p>
-            <p class="text-4xl font-black text-kebana-blue mt-4">RM <?php echo number_format($totals['balance'], 2); ?></p>
-            <p class="text-[9px] font-black mt-3 uppercase tracking-widest <?php echo $totals['balance'] >= 0 ? 'text-green-500' : 'text-red-500'; ?>">
+        <div class="p-10 border-r border-slate-50 flex flex-col justify-center bg-kebana-blue group relative overflow-hidden transition-all duration-500">
+            <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <p class="text-[10px] font-black text-white/60 uppercase tracking-widest relative z-10">DANA TERSEDIA (NET)</p>
+            <p class="text-4xl font-black text-white mt-4 relative z-10 tracking-tighter">RM <?php echo number_format($totals['balance'], 2); ?></p>
+            <p class="text-[9px] font-black mt-3 uppercase tracking-widest relative z-10 <?php echo $totals['balance'] >= 0 ? 'text-green-400' : 'text-red-400'; ?>">
                 <i class="fa-solid fa-circle-dot mr-1"></i>
                 <?php echo $totals['balance'] >= 0 ? 'Positif' : 'Defisit'; ?>
             </p>
+            <i class="fa-solid fa-wallet absolute -right-4 -bottom-4 text-7xl text-white/5 group-hover:text-white/10 group-hover:scale-110 transition-all duration-700"></i>
         </div>
         <div class="p-10 border-r border-slate-50 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
             <p class="text-[10px] font-black text-green-600/50 uppercase tracking-widest">JUMLAH PENDAPATAN</p>
@@ -88,7 +118,7 @@ $page_title = 'PENGURUSAN KEWANGAN';
                 <div class="h-full bg-green-500 transition-all duration-1000" style="width:<?php echo $income_pct; ?>%"></div>
             </div>
         </div>
-        <div class="p-10 flex flex-col justify-center hover:bg-slate-50 transition-colors group border-b-8 border-kebana-yellow">
+        <div class="p-10 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
             <p class="text-[10px] font-black text-red-600/50 uppercase tracking-widest">JUMLAH PERBELANJAAN</p>
             <p class="text-4xl font-black text-red-600 mt-4">RM <?php echo number_format($totals['expense'], 2); ?></p>
             <?php $expense_pct = 100 - $income_pct; ?>
@@ -97,6 +127,38 @@ $page_title = 'PENGURUSAN KEWANGAN';
             </div>
         </div>
     </div>
+    
+    <!-- Branch Fund Breakdown (Pusat Role Only) -->
+    <?php if (!empty($branchTotals)): ?>
+    <div class="space-y-6">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xs font-black text-kebana-blue uppercase tracking-[0.3em] flex items-center gap-3">
+                <i class="fa-solid fa-building-columns text-kebana-yellow"></i>
+                Pecahan Dana Mengikut Cawangan
+            </h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <?php foreach ($branchTotals as $bt): ?>
+            <div class="bg-white p-6 border border-slate-100 shadow-sm hover:border-kebana-blue/30 transition-all group">
+                <p class="text-[8px] font-black text-slate-300 uppercase tracking-widest mb-2"><?php echo htmlspecialchars($bt['name']); ?></p>
+                <div class="flex items-end justify-between">
+                    <p class="text-lg font-black text-kebana-blue">RM <?php echo number_format($bt['balance'], 2); ?></p>
+                    <div class="text-right">
+                        <p class="text-[7px] font-bold text-green-500 uppercase">+ RM <?php echo number_format($bt['income'], 2); ?></p>
+                        <p class="text-[7px] font-bold text-red-400 uppercase">- RM <?php echo number_format($bt['expense'], 2); ?></p>
+                    </div>
+                </div>
+                <div class="mt-4 h-1 w-full bg-slate-50 rounded-full overflow-hidden">
+                    <?php 
+                        $b_pct = ($bt['income'] + $bt['expense'] > 0) ? round(($bt['income'] / ($bt['income'] + $bt['expense'])) * 100) : 0;
+                    ?>
+                    <div class="h-full bg-green-500" style="width: <?php echo $b_pct; ?>%"></div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- ========== CHARTS SECTION ========== -->
     <!-- Year Selector -->

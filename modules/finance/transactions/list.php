@@ -33,7 +33,14 @@ if ($to_date) { $where .= " AND t.trans_date <= ?"; $params[] = $to_date; $types
 if ($type_filter) { $where .= " AND t.trans_type = ?"; $params[] = $type_filter; $types .= "s"; }
 if ($category_filter) { $where .= " AND t.category LIKE ?"; $params[] = "%$category_filter%"; $types .= "s"; }
 
-$sql = "SELECT t.*, e.event_title, u.username as recorder_name 
+// Scoping based on role
+if (in_array($current_role, $CAWANGAN_ROLES)) {
+    $where .= " AND COALESCE(e.cawangan_id, u.cawangan_id) = ?";
+    $params[] = $current_cawangan_id;
+    $types .= "i";
+}
+
+$sql = "SELECT t.*, e.event_title, u.username as recorder_name, u.role as recorder_role 
         FROM tbl_transaction t 
         LEFT JOIN tbl_event e ON t.event_id = e.event_id 
         LEFT JOIN tbl_user u ON t.recorded_by = u.user_id 
@@ -151,6 +158,15 @@ $page_title = 'SENARAI TRANSAKSI';
                     <?php else: ?>
                         <?php foreach ($transactions as $t): 
                             $is_income = $t['trans_type'] === 'Income';
+                            
+                            // Edit/Delete Permissions Check
+                            $can_edit_delete = true;
+                            if (in_array($current_role, $CAWANGAN_ROLES)) {
+                                $rec_role = (int)($t['recorder_role'] ?? 0);
+                                if (in_array($rec_role, [888, 1, 2, 3, 4, 5, 6, 7])) {
+                                    $can_edit_delete = false; // Branch cannot edit HQ transactions
+                                }
+                            }
                         ?>
                         <tr class="hover:bg-slate-50/50 transition-colors group">
                             <td class="px-8 py-6">
@@ -179,6 +195,25 @@ $page_title = 'SENARAI TRANSAKSI';
                                     <?php echo $is_income ? '+' : '-'; ?> RM <?php echo number_format($t['amount'], 2); ?>
                                 </p>
                                 <p class="text-[8px] font-bold text-slate-300 uppercase mt-1">Oleh: <?php echo htmlspecialchars($t['recorder_name'] ?? 'Sistem'); ?></p>
+                            </td>
+                            <td class="px-8 py-6 text-right">
+                                <div class="flex justify-end gap-2">
+                                    <?php if ($can_edit_delete): ?>
+                                        <a href="/kebana-digital/finance/transactions/edit?id=<?php echo $t['trans_id']; ?>" 
+                                           class="p-2 text-slate-300 hover:text-kebana-blue transition-colors" title="Kemaskini">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <a href="/kebana-digital/finance/transactions/delete?id=<?php echo $t['trans_id']; ?>" 
+                                           onclick="return confirm('Adakah anda pasti mahu memadam transaksi ini?')"
+                                           class="p-2 text-slate-300 hover:text-red-600 transition-colors" title="Padam">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="p-2 text-slate-200 cursor-not-allowed" title="Direkod oleh Ibu Pejabat Pusat">
+                                            <i class="fa-solid fa-lock"></i>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>

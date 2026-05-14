@@ -16,8 +16,12 @@ if (!hasRole([888, 6, 55, 7, 66])) {
 
 $filters = [
     'year'   => isset($_GET['year'])   && is_numeric($_GET['year']) ? (int)$_GET['year'] : (int)date('Y'),
-    'search' => trim($_GET['search'] ?? '')
+    'search' => trim($_GET['search'] ?? ''),
+    'cawangan_id' => in_array($current_role, $CAWANGAN_ROLES) ? $current_cawangan_id : null
 ];
+
+// Fetch current total funds for the cawangan (Option A)
+$actual_totals = FinanceHelper::getTotals($filters['cawangan_id']);
 
 $budgets_raw = FinanceHelper::getBudgetSummary($filters);
 
@@ -137,28 +141,73 @@ $page_title = 'ANALISIS BAJET';
         </form>
     </div>
 
-    <!-- KPI Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-0 border border-slate-100 bg-white">
-        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
-            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">BAJET DIRANCANG</p>
-            <p class="text-2xl font-black text-kebana-blue mt-3">RM <?php echo number_format($total_planned, 2); ?></p>
+    <!-- Actual Fund Summary (Option A - Premium Glass Style) -->
+    <div class="relative overflow-hidden bg-slate-900 p-10 shadow-2xl">
+        <!-- Abstract Background Shapes -->
+        <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-kebana-blue/20 blur-3xl"></div>
+        <div class="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-kebana-yellow/10 blur-3xl"></div>
+        
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-6">
+                <div class="w-16 h-16 bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10">
+                    <i class="fa-solid fa-vault text-2xl text-kebana-yellow animate-pulse"></i>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-kebana-yellow uppercase tracking-[0.4em] mb-2">Kedudukan Kewangan Semasa</p>
+                    <h3 class="text-4xl font-black text-white tracking-tighter uppercase italic">Dana Tersedia</h3>
+                </div>
+            </div>
+            
+            <div class="text-center md:text-right">
+                <div class="inline-block px-8 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-sm">
+                    <p class="text-4xl font-black text-kebana-yellow tracking-tighter drop-shadow-2xl">
+                        <span class="text-xl mr-1 font-bold">RM</span><?php echo number_format($actual_totals['balance'], 2); ?>
+                    </p>
+                </div>
+                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-4">
+                    <i class="fa-solid fa-shield-check mr-2 text-green-500"></i> Baki tunai bersih dalam sistem
+                </p>
+            </div>
         </div>
-        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
-            <p class="text-[9px] font-black text-red-400/70 uppercase tracking-widest">BELANJA SEBENAR</p>
-            <p class="text-2xl font-black text-red-600 mt-3">RM <?php echo number_format($total_expense, 2); ?></p>
+    </div>
+
+    <!-- KPI Stats (Option B - Premium Minimalist) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-0 border border-slate-100 bg-white shadow-lg">
+        <div class="p-10 border-r border-slate-50 flex flex-col justify-center hover:bg-slate-50/50 transition-colors">
+            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">JUMLAH BAJET PROGRAM</p>
+            <p class="text-3xl font-black text-kebana-blue tracking-tighter">RM <?php echo number_format($total_planned, 2); ?></p>
+            <div class="mt-4 flex items-center gap-2">
+                <span class="h-1 w-8 bg-kebana-blue/20"></span>
+                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Anggaran peruntukan</span>
+            </div>
         </div>
-        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
-            <p class="text-[9px] font-black text-green-400/70 uppercase tracking-widest">PENDAPATAN TERKUMPUL</p>
-            <p class="text-2xl font-black text-green-600 mt-3">RM <?php echo number_format($total_income, 2); ?></p>
+        <div class="p-10 border-r border-slate-50 flex flex-col justify-center hover:bg-slate-50/50 transition-colors">
+            <p class="text-[9px] font-black text-red-600/40 uppercase tracking-widest mb-1">PERBELANJAAN PROGRAM</p>
+            <p class="text-3xl font-black text-red-600 tracking-tighter">RM <?php echo number_format($total_expense, 2); ?></p>
+            <div class="mt-4 flex items-center gap-2">
+                <span class="h-1 w-8 bg-red-600/20"></span>
+                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Wang keluar (Program)</span>
+            </div>
         </div>
-        <div class="p-8 flex flex-col justify-center border-b-8 <?php echo $total_net_pl >= 0 ? 'border-green-500' : 'border-red-500'; ?>">
-            <p class="text-[9px] font-black uppercase tracking-widest <?php echo $total_net_pl >= 0 ? 'text-green-400/70' : 'text-red-400/70'; ?>">UNTUNG / RUGI BERSIH</p>
-            <p class="text-2xl font-black mt-3 <?php echo $total_net_pl >= 0 ? 'text-green-600' : 'text-red-600'; ?>">
-                <?php echo $total_net_pl >= 0 ? '+' : ''; ?>RM <?php echo number_format($total_net_pl, 2); ?>
+        <div class="p-10 border-r border-slate-50 flex flex-col justify-center hover:bg-slate-50/50 transition-colors">
+            <p class="text-[9px] font-black text-green-600/40 uppercase tracking-widest mb-1">HASIL / SUMBANGAN</p>
+            <p class="text-3xl font-black text-green-600 tracking-tighter">RM <?php echo number_format($total_income, 2); ?></p>
+            <div class="mt-4 flex items-center gap-2">
+                <span class="h-1 w-8 bg-green-600/20"></span>
+                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Wang masuk (Program)</span>
+            </div>
+        </div>
+        <div class="p-10 flex flex-col justify-center border-b-8 <?php echo $total_net_pl >= 0 ? 'border-green-500' : 'border-red-500'; ?> bg-slate-50/30">
+            <p class="text-[9px] font-black uppercase tracking-widest mb-1 <?php echo $total_net_pl >= 0 ? 'text-green-600/50' : 'text-red-600/50'; ?>">SURPLUS / DEFISIT PROGRAM</p>
+            <p class="text-3xl font-black tracking-tighter <?php echo $total_net_pl >= 0 ? 'text-green-600' : 'text-red-600'; ?>">
+                <?php echo ($total_net_pl >= 0 ? '+' : ''); ?>RM <?php echo number_format($total_net_pl, 2); ?>
             </p>
-            <p class="text-[8px] font-black mt-2 uppercase tracking-wider <?php echo $total_net_pl >= 0 ? 'text-green-400' : 'text-red-400'; ?>">
-                <?php echo $total_net_pl >= 0 ? '✓ Surplus' : '⚠ Defisit'; ?>
-            </p>
+            <div class="mt-4 flex items-center gap-2">
+                <i class="fa-solid <?php echo $total_net_pl >= 0 ? 'fa-check-double text-green-500' : 'fa-triangle-exclamation text-red-500'; ?> text-xs"></i>
+                <span class="text-[8px] font-black uppercase tracking-wider <?php echo $total_net_pl >= 0 ? 'text-green-500' : 'text-red-500'; ?>">
+                    <?php echo $total_net_pl >= 0 ? 'Prestasi Baik' : 'Semak Perbelanjaan'; ?>
+                </span>
+            </div>
         </div>
     </div>
 
@@ -268,10 +317,12 @@ $page_title = 'ANALISIS BAJET';
                                         <span><?php echo $utilPct; ?>% digunakan</span>
                                         <?php if ($isOver): ?><span class="text-red-500">MELEBIHI</span><?php endif; ?>
                                     </div>
-                                    <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                                        <div class="h-full <?php echo $barColor; ?> rounded-full transition-all duration-700"
-                                             style="width: <?php echo $barWidth; ?>%"></div>
-                                    </div>
+                                    <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                                         <div class="h-full <?php echo $barColor; ?> rounded-full transition-all duration-1000 relative overflow-hidden"
+                                              style="width: <?php echo $barWidth; ?>%">
+                                              <div class="absolute inset-0 bg-white/20 skew-x-[-20deg] translate-x-[-100%] animate-[shimmer_2s_infinite]"></div>
+                                         </div>
+                                     </div>
                                 </div>
                                 <?php else: ?>
                                 <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Tiada bajet ditetapkan</span>
@@ -386,6 +437,15 @@ $page_title = 'ANALISIS BAJET';
     const ctx = document.getElementById('budgetChart');
     if (!ctx) return;
 
+    // Create Gradients
+    const budgetGradient = ctx.getContext('2d').createLinearGradient(0, 0, 400, 0);
+    budgetGradient.addColorStop(0, 'rgba(0, 51, 102, 0.9)');
+    budgetGradient.addColorStop(1, 'rgba(0, 74, 153, 0.7)');
+
+    const expenseGradient = ctx.getContext('2d').createLinearGradient(0, 0, 400, 0);
+    expenseGradient.addColorStop(0, 'rgba(239, 68, 68, 0.9)');
+    expenseGradient.addColorStop(1, 'rgba(239, 68, 68, 0.6)');
+
     new Chart(ctx, {
         type: 'bar',
         data: {
@@ -394,18 +454,20 @@ $page_title = 'ANALISIS BAJET';
                 {
                     label: 'Bajet Dirancang',
                     data: <?php echo $js_budget; ?>,
-                    backgroundColor: 'rgba(0,51,102,0.75)',
+                    backgroundColor: budgetGradient,
                     borderColor: '#003366',
-                    borderWidth: 1.5,
-                    borderRadius: 3,
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barThickness: 16,
                 },
                 {
                     label: 'Belanja Sebenar',
                     data: <?php echo $js_expense; ?>,
-                    backgroundColor: 'rgba(239,68,68,0.70)',
+                    backgroundColor: expenseGradient,
                     borderColor: '#ef4444',
-                    borderWidth: 1.5,
-                    borderRadius: 3,
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barThickness: 16,
                 }
             ]
         },
@@ -413,12 +475,26 @@ $page_title = 'ANALISIS BAJET';
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
+            categoryPercentage: 0.8,
+            barPercentage: 0.9,
             interaction: { mode: 'index', intersect: false },
             plugins: {
                 legend: {
-                    labels: { font: { weight: '700', size: 11 }, padding: 20 }
+                    position: 'top',
+                    align: 'end',
+                    labels: { 
+                        font: { weight: '800', size: 10 }, 
+                        padding: 25, 
+                        usePointStyle: true,
+                        pointStyle: 'rectRounded'
+                    }
                 },
                 tooltip: {
+                    backgroundColor: '#0f172a',
+                    titleFont: { weight: '800', size: 11 },
+                    bodyFont: { weight: '600' },
+                    padding: 12,
+                    cornerRadius: 0,
                     callbacks: {
                         label: ctx => ' RM ' + ctx.parsed.x.toLocaleString('ms-MY', { minimumFractionDigits: 2 })
                     }
@@ -426,19 +502,22 @@ $page_title = 'ANALISIS BAJET';
             },
             scales: {
                 x: {
-                    grid: { color: '#f1f5f9' },
+                    grid: { color: 'rgba(241, 245, 249, 0.8)', drawBorder: false },
                     ticks: {
-                        font: { weight: '700' },
+                        font: { weight: '800', size: 10 },
+                        padding: 10,
                         callback: v => 'RM ' + v.toLocaleString('ms-MY')
                     }
                 },
                 y: {
                     grid: { display: false },
                     ticks: {
-                        font: { weight: '700' },
+                        font: { weight: '800', size: 10 },
+                        color: '#003366',
+                        padding: 15,
                         callback: function(val) {
                             const label = this.getLabelForValue(val);
-                            return label.length > 28 ? label.substring(0, 28) + '…' : label;
+                            return label.length > 25 ? label.substring(0, 25) + '…' : label;
                         }
                     }
                 }

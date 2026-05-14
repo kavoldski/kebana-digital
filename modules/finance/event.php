@@ -30,6 +30,13 @@ if (!$event) {
     exit;
 }
 
+// Access Control - Branch restriction
+if (in_array($current_role, $CAWANGAN_ROLES) && (int)$event['cawangan_id'] !== (int)$current_cawangan_id) {
+    echo "<div class='p-12 text-center'><h1 class='text-2xl font-black text-red-600 uppercase tracking-widest'>AKSES DISEKAT</h1><p class='text-slate-400 mt-4 uppercase font-bold text-xs'>Anda tidak mempunyai kebenaran untuk melihat laporan kewangan cawangan lain.</p></div>";
+    require_once APP_ROOT . '/includes/footer.php';
+    exit;
+}
+
 // ── Financial data ────────────────────────────────────────────────────────────
 $transactions    = FinanceHelper::getTransactionsByEvent($event_id);
 $cat_breakdown   = FinanceHelper::getEventCategoryBreakdown($event_id);

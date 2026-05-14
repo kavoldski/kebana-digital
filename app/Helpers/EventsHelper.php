@@ -84,6 +84,31 @@ class EventsHelper {
             return $events;
         }
 
+        if ($viewMode === 'finance_selection') {
+            // If no cawanganId provided, return all (Pusat roles)
+            if ($cawanganId === null) return self::getAllEvents('all');
+
+            // For cawangan roles: Their own events OR Global Master events
+            $stmt = $db->prepare("
+                SELECT e.*, c.cawangan_name, COALESCE(e.event_level, 'MASTER') as event_level
+                FROM tbl_event e
+                LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
+                WHERE e.cawangan_id = ? 
+                   OR (COALESCE(e.event_level, 'MASTER') = 'MASTER' AND e.cawangan_id IS NULL)
+                ORDER BY e.event_date DESC
+            ");
+            if ($stmt) {
+                $stmt->bind_param("i", $cawanganId);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                while ($row = $result->fetch_assoc()) {
+                    $events[] = $row;
+                }
+                $stmt->close();
+            }
+            return $events;
+        }
+
         return $events;
     }
 
