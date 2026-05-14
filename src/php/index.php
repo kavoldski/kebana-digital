@@ -36,21 +36,75 @@ $fund_balance = DashboardHelper::getFundBalance();
 $finance_totals = FinanceHelper::getFinanceTotals();
 
 $pending_approvals = DashboardHelper::getPendingApprovalsCount($current_role, $current_cawangan_id);
-
+$branch_finance = in_array($current_role, [888, 1, 2, 3]) ? FinanceHelper::getBranchTotals() : [];
 $recent_activities = AuditHelper::getRecentLogs(5);
 
 // Participation Rate
 $participation_rate = $total_members > 0 ? round(($active_members / $total_members) * 100, 1) : 0;
 ?>
 
+<?php
+$is_presiden = ($current_role === 1);
+if ($is_presiden) {
+    $total_branches = DashboardHelper::getBranchCount();
+    $submitted_events = DashboardHelper::getRecentSubmittedEvents(3);
+}
+
+$org_health_index = DashboardHelper::calculateCompositeHealthScore(
+    ['income' => $finance_totals['total_income'], 'expense' => $finance_totals['total_expense']],
+    ['active' => $active_members, 'total' => $total_members],
+    ['upcoming' => $upcoming_events, 'past' => $total_events - $upcoming_events]
+);
+?>
+
 <div class="space-y-12">
+    <?php if ($is_presiden): ?>
+    <!-- Executive Header Banner -->
+    <div class="bg-[#0f172a] text-white p-12 relative overflow-hidden shadow-2xl border-b-8 border-kebana-yellow">
+        <!-- Abstract Background Pattern -->
+        <div class="absolute right-0 top-0 w-1/2 h-full opacity-10 pointer-events-none">
+            <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full scale-150 rotate-12">
+                <circle cx="200" cy="200" r="150" stroke="white" stroke-width="2" stroke-dasharray="20 20"/>
+                <circle cx="200" cy="200" r="100" stroke="white" stroke-width="1" stroke-dasharray="10 10"/>
+                <path d="M200 50V350M50 200H350" stroke="white" stroke-width="0.5" opacity="0.3"/>
+            </svg>
+        </div>
+
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-12">
+            <div class="space-y-4 max-w-2xl text-center md:text-left">
+                <span class="text-[10px] font-black text-kebana-yellow uppercase tracking-[0.5em] block mb-2">Portal Eksekutif Tertinggi</span>
+                <h1 class="text-5xl font-black tracking-tighter uppercase italic leading-none">
+                    Selamat Datang, <br/>
+                    <span class="text-kebana-yellow">Tuan Presiden.</span>
+                </h1>
+                <p class="text-slate-400 text-xs font-medium uppercase tracking-widest leading-relaxed mt-4">
+                    Pantau prestasi organisasi dan berikan kelulusan strategik dengan pantas. 
+                    Semua data disinkronisasi dalam masa nyata (real-time).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-8 bg-white/5 p-8 backdrop-blur-sm border border-white/10">
+                <div class="text-center px-4">
+                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2">Jumlah Cawangan</span>
+                    <span class="text-4xl font-black text-white italic"><?php echo str_pad($total_branches, 2, '0', STR_PAD_LEFT); ?></span>
+                </div>
+                <div class="text-center px-4 border-l border-white/10">
+                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-2">Prestasi Org</span>
+                    <span class="text-4xl font-black text-green-400 italic"><?php echo $org_health_index; ?>%</span>
+                    <p class="text-[7px] text-slate-500 uppercase font-black mt-2 tracking-tighter">Indeks Komposit Ahli, Kewangan & Aktiviti</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Stat Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border border-slate-100">
         <!-- Members -->
         <div class="bg-white p-8 border-r border-slate-50 last:border-r-0 hover:bg-slate-50 transition-colors group">
             <div class="flex items-center justify-between mb-4">
                 <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">JUMLAH AHLI</span>
-                <i class="fa-solid fa-users text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity"></i>
+                <i class="fa-solid fa-users text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity text-xl"></i>
             </div>
             <h3 class="text-5xl font-black text-kebana-blue tracking-tighter"><?php echo number_format($total_members); ?></h3>
             <div class="mt-6 flex items-center text-[10px] font-black text-slate-400">
@@ -63,7 +117,7 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
         <div class="bg-white p-8 border-r border-slate-50 last:border-r-0 hover:bg-slate-50 transition-colors group">
             <div class="flex items-center justify-between mb-4">
                 <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">PROGRAM AKTIF</span>
-                <i class="fa-solid fa-calendar-star text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity"></i>
+                <i class="fa-solid fa-calendar-star text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity text-xl"></i>
             </div>
             <h3 class="text-5xl font-black text-kebana-blue tracking-tighter"><?php echo number_format($upcoming_events); ?></h3>
             <div class="mt-6 flex items-center text-[10px] font-black text-slate-400">
@@ -76,7 +130,7 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
         <div class="bg-white p-8 border-r border-slate-50 last:border-r-0 hover:bg-slate-50 transition-colors group">
             <div class="flex items-center justify-between mb-4">
                 <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">BAKI TABUNG</span>
-                <i class="fa-solid fa-wallet text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity"></i>
+                <i class="fa-solid fa-wallet text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity text-xl"></i>
             </div>
             <h3 class="text-5xl font-black text-kebana-blue tracking-tighter"><?php echo DashboardHelper::formatFundBalance($fund_balance); ?></h3>
             <div class="mt-6 flex items-center text-[10px] font-black <?php echo $fund_balance >= 0 ? 'text-green-600' : 'text-red-500'; ?>">
@@ -85,18 +139,25 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
         </div>
         <?php endif; ?>
 
-        <?php if (in_array($current_role, [888, 1, 2, 3, 11, 22])): ?>
+        <?php if (in_array($current_role, [888, 1, 2, 3, 11, 22])): 
+            $action_link = "/kebana-digital/events";
+            if (in_array($current_role, [1, 888, 2, 3])) {
+                $action_link .= "?status=Submitted";
+            } elseif ($current_role == 11) {
+                $action_link .= "?status=Pending+Branch+Approval";
+            }
+        ?>
         <!-- Approvals -->
-        <div class="bg-white p-8 hover:bg-slate-50 transition-colors group border-b-4 border-kebana-yellow">
+        <a href="<?php echo $action_link; ?>" class="bg-white p-8 hover:bg-slate-50 transition-colors group border-b-4 border-kebana-yellow block">
             <div class="flex items-center justify-between mb-4">
                 <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">TINDAKAN</span>
-                <i class="fa-solid fa-bell-exclamation text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity"></i>
+                <i class="fa-solid fa-bell-exclamation text-kebana-blue opacity-10 group-hover:opacity-100 transition-opacity text-xl"></i>
             </div>
             <h3 class="text-5xl font-black text-kebana-blue tracking-tighter"><?php echo str_pad($pending_approvals + $pending_docs, 2, '0', STR_PAD_LEFT); ?></h3>
             <div class="mt-6 flex items-center text-[10px] font-black text-amber-500 uppercase tracking-widest">
                 <span>Perlu Kelulusan / Semakan</span>
             </div>
-        </div>
+        </a>
         <?php endif; ?>
     </div>
 
@@ -104,39 +165,125 @@ $participation_rate = $total_members > 0 ? round(($active_members / $total_membe
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
         <!-- Left Column -->
         <div class="lg:col-span-2 space-y-12">
+            <?php if ($is_presiden && !empty($submitted_events)): ?>
+            <!-- Presidential Immediate Action Center -->
+            <div class="bg-white border-t-8 border-amber-500 shadow-sm p-10 space-y-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-black text-kebana-blue tracking-tight uppercase italic">Tindakan Segera</h2>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Aktiviti yang menunggu kelulusan anda.</p>
+                    </div>
+                    <a href="/kebana-digital/events?status=Submitted" class="text-[10px] font-black text-kebana-blue uppercase border-b-2 border-kebana-blue/20 hover:border-kebana-blue pb-1 transition-all">Lihat Semua</a>
+                </div>
+
+                <div class="space-y-4">
+                    <?php foreach ($submitted_events as $event): ?>
+                    <div class="flex items-center justify-between p-6 bg-slate-50 hover:bg-slate-100 transition-colors group">
+                        <div class="flex items-center space-x-6">
+                            <div class="w-12 h-12 bg-white flex items-center justify-center text-kebana-blue shadow-sm">
+                                <i class="fa-solid fa-file-signature text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($event['event_title']); ?></p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-1">Dihantar Oleh: <?php echo htmlspecialchars($event['cawangan_name'] ?? 'Pusat'); ?> • <?php echo date('d M Y', strtotime($event['event_date'])); ?></p>
+                            </div>
+                        </div>
+                        <a href="/kebana-digital/events/view/<?php echo $event['event_id']; ?>" class="bg-kebana-blue text-white px-6 py-3 text-[9px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-lg opacity-0 group-hover:opacity-100">Semak & Lulus</a>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- Member Analysis Section -->
             <div class="bg-white border-t-8 border-kebana-blue shadow-sm p-10 space-y-10">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-black text-kebana-blue tracking-tight uppercase italic">Statistik Organisasi</h2>
+                    <div>
+                        <h2 class="text-2xl font-black text-kebana-blue tracking-tight uppercase italic">Keaktifan & Analisis Ahli</h2>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Status penglibatan ahli dalam organisasi.</p>
+                    </div>
                     <?php if (in_array($current_role, [888, 1, 2, 3])): ?>
-                    <a href="/kebana-digital/members/report" class="bg-kebana-blue text-white px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all">Analisis Data</a>
+                    <a href="/kebana-digital/members/report" class="bg-kebana-blue text-white px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-lg">Analisis Data</a>
                     <?php endif; ?>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="flex justify-between items-baseline">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kadar Keaktifan Ahli</span>
+                        <span class="text-2xl font-black text-kebana-blue italic"><?php echo $participation_rate; ?>%</span>
+                    </div>
+                    <div class="h-3 w-full bg-slate-50 border border-slate-100">
+                        <div class="h-full bg-kebana-blue shadow-lg shadow-kebana-blue/20 transition-all duration-1000" style="width: <?php echo $participation_rate; ?>%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <?php if ($can_view_finance): ?>
+            <!-- Finance Overview Section -->
+            <div class="bg-white border-t-8 border-slate-800 shadow-sm p-10 space-y-10">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800 tracking-tight uppercase italic">Aliran Tunai Organisasi</h2>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Ringkasan kewangan pusat dan cawangan.</p>
+                    </div>
+                    <i class="fa-solid fa-chart-line text-slate-100 text-4xl"></i>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    <div class="space-y-6">
-                        <div class="flex justify-between items-baseline">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kadar Keaktifan Ahli</span>
-                            <span class="text-2xl font-black text-kebana-blue italic"><?php echo $participation_rate; ?>%</span>
-                        </div>
-                        <div class="h-3 w-full bg-slate-50 border border-slate-100">
-                            <div class="h-full bg-kebana-blue shadow-lg shadow-kebana-blue/20 transition-all duration-1000" style="width: <?php echo $participation_rate; ?>%"></div>
-                        </div>
+                    <div class="bg-slate-50 p-6 border-l-4 border-kebana-blue">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Dana Masuk</span>
+                        <span class="text-2xl font-black text-kebana-blue">RM <?php echo number_format($finance_totals['total_income'], 2); ?></span>
                     </div>
-
-                    <?php if ($can_view_finance): ?>
-                    <div class="space-y-6 border-l border-slate-50 pl-8 hidden md:block">
-                        <div class="flex items-center justify-between py-2">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dana Masuk</span>
-                            <span class="text-sm font-black text-kebana-blue">RM <?php echo number_format($finance_totals['total_income'], 2); ?></span>
-                        </div>
-                        <div class="flex items-center justify-between py-2">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dana Keluar</span>
-                            <span class="text-sm font-black text-red-500">RM <?php echo number_format($finance_totals['total_expense'], 2); ?></span>
-                        </div>
+                    <div class="bg-slate-50 p-6 border-l-4 border-red-500">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Dana Keluar</span>
+                        <span class="text-2xl font-black text-red-500">RM <?php echo number_format($finance_totals['total_expense'], 2); ?></span>
                     </div>
-                    <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
+            
+            <?php if (!empty($branch_finance)): ?>
+            <!-- Branch Finance Overview -->
+            <div class="bg-white border-t-8 border-green-600 shadow-sm p-10 space-y-8">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-black text-kebana-blue tracking-tight uppercase italic">Ringkasan Kewangan Cawangan</h2>
+                    <i class="fa-solid fa-building-columns text-slate-100 text-4xl"></i>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100">
+                                <th class="py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Cawangan</th>
+                                <th class="py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Dana Masuk</th>
+                                <th class="py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Dana Keluar</th>
+                                <th class="py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Baki Semasa</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            <?php foreach ($branch_finance as $branch): ?>
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="py-4">
+                                    <span class="text-xs font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($branch['name']); ?></span>
+                                </td>
+                                <td class="py-4 text-right">
+                                    <span class="text-[11px] font-bold text-slate-600">RM <?php echo number_format($branch['income'], 2); ?></span>
+                                </td>
+                                <td class="py-4 text-right">
+                                    <span class="text-[11px] font-bold text-red-400">RM <?php echo number_format($branch['expense'], 2); ?></span>
+                                </td>
+                                <td class="py-4 text-right">
+                                    <span class="text-xs font-black <?php echo $branch['balance'] >= 0 ? 'text-green-600' : 'text-red-600'; ?>">
+                                        RM <?php echo number_format($branch['balance'], 2); ?>
+                                    </span>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- Quick Access -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -7,6 +7,7 @@
 namespace App\Helpers;
 
 use App\Core\Database;
+use App\Helpers\AuditHelper;
 
 class CawanganHelper {
     /**
@@ -69,7 +70,13 @@ class CawanganHelper {
         $stmt->bind_param("ssi", $name, $code, $active);
         
         if ($stmt->execute()) {
+            $newId = $db->insert_id;
             $stmt->close();
+            
+            // Audit Log
+            $userId = $_SESSION['user_id'] ?? 0;
+            AuditHelper::log($userId, 'Cawangan Didaftarkan', 'CAWANGAN', "Nama: $name, Kod: $code");
+            
             return ['status' => true, 'message' => 'Cawangan berjaya didaftarkan.'];
         } else {
             $error = $stmt->error;
@@ -87,20 +94,27 @@ class CawanganHelper {
      * @param array $data
      * @return array
      */
-    public static function updateCawangan($id, $data) {
-        $db = Database::getInstance()->getConnection();
-        
-        $stmt = $db->prepare("UPDATE tbl_cawangan SET cawangan_name = ?, cawangan_code = ?, is_active = ? WHERE cawangan_id = ?");
-        if (!$stmt) return ['status' => false, 'message' => 'Ralat sistem: ' . $db->error];
-        
-        $name = trim($data['cawangan_name']);
-        $code = strtoupper(trim($data['cawangan_code']));
-        $active = isset($data['is_active']) ? (int)$data['is_active'] : 1;
-        
+        // Check if anything changed
+        $current = self::getCawanganById($id);
+        if ($current && $current['cawangan_name'] === $name && $current['cawangan_code'] === $code && (int)$current['is_active'] === $active) {
+            return ['status' => true, 'message' => 'Tiada perubahan dikesan.'];
+        }
+
         $stmt->bind_param("ssii", $name, $code, $active, $id);
         
         if ($stmt->execute()) {
             $stmt->close();
+            
+            // Audit Log
+            $userId = $_SESSION['user_id'] ?? 0;
+            $details = "ID: $id";
+            if ($current) {
+                if ($current['cawangan_name'] !== $name) $details .= " | Nama: " . $current['cawangan_name'] . " -> $name";
+                if ($current['cawangan_code'] !== $code) $details .= " | Kod: " . $current['cawangan_code'] . " -> $code";
+                if ((int)$current['is_active'] !== $active) $details .= " | Status: " . ($current['is_active'] ? 'Aktif' : 'Tidak Aktif') . " -> " . ($active ? 'Aktif' : 'Tidak Aktif');
+            }
+            AuditHelper::log($userId, 'Cawangan Dikemaskini', 'CAWANGAN', $details);
+            
             return ['status' => true, 'message' => 'Maklumat cawangan berjaya dikemaskini.'];
         } else {
             $error = $stmt->error;
@@ -131,6 +145,11 @@ class CawanganHelper {
         if ($stmt->execute()) {
             $stmt->close();
             $status_text = $new_status ? 'diaktifkan' : 'dinyahaktifkan';
+            
+            // Audit Log
+            $userId = $_SESSION['user_id'] ?? 0;
+            AuditHelper::log($userId, "Status Cawangan Tukar ($status_text)", 'CAWANGAN', "Cawangan: " . $cawangan['cawangan_name'] . " (ID: $id)");
+            
             return ['status' => true, 'message' => "Cawangan berjaya $status_text."];
         }
         

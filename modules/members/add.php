@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none appearance-none">
                             <option value="" disabled <?php echo !isset($_POST['gender']) ? 'selected' : ''; ?>>PILIH JANTINA</option>
                             <option value="Lelaki" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Lelaki') ? 'selected' : ''; ?>>LELAKI</option>
-                            <option value="Perempuan" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Perempuan') ? 'selected' : ''; ?>>PEREMPUAN</option>
+                            <option value="Wanita" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Wanita') ? 'selected' : ''; ?>>WANITA</option>
                         </select>
                     </div>
 

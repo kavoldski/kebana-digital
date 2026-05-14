@@ -44,7 +44,7 @@ $is_known_role = in_array($current_role, $PUSAT_ROLES, true) || in_array($curren
 $can_view_members = true;
 $can_view_events = true;
 $can_view_documents = true;
-$can_view_finance = ($is_known_role && (in_array($current_role, $FINANCE_ROLES, true) || $current_role === $ROLE_SUPER_ADMIN));
+$can_view_finance = ($is_known_role && (in_array($current_role, $FINANCE_ROLES, true) || in_array($current_role, [888, 1, 2, 3], true)));
 $can_view_projects = in_array($current_role, $PUSAT_ROLES, true);
 
 // Role Name Mapping

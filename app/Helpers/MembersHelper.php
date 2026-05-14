@@ -138,6 +138,38 @@ class MembersHelper {
         return $member;
     }
 
+    public static function extractICInfo($ic) {
+        $ic = preg_replace('/[^0-9]/', '', $ic);
+        if (strlen($ic) !== 12) return null;
+        
+        $year = substr($ic, 0, 2);
+        $month = substr($ic, 2, 2);
+        $day = substr($ic, 4, 2);
+        $last_digit = substr($ic, -1);
+        
+        $current_year = date('Y');
+        $birth_year = ($year > date('y')) ? "19$year" : "20$year";
+        $age = $current_year - $birth_year;
+        $gender = ($last_digit % 2 === 0) ? 'Wanita' : 'Lelaki';
+        
+        return ['age' => $age, 'gender' => $gender];
+    }
+
+    public static function getGenderLabel($member) {
+        $gender = $member['gender'] ?? '';
+        
+        // Normalize "Perempuan" to "Wanita"
+        if ($gender === 'Perempuan') $gender = 'Wanita';
+        
+        if (!empty($gender)) {
+            return $gender;
+        }
+        
+        // Fallback to IC detection
+        $info = self::extractICInfo($member['ic_number'] ?? '');
+        return $info ? $info['gender'] : 'TIDAK DINYATAKAN';
+    }
+
     public static function getGrowthRate() {
         $db = Database::getInstance()->getConnection();
         

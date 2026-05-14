@@ -39,6 +39,18 @@ class DashboardHelper {
         $sql .= "JOIN tbl_event e ON d.event_id = e.event_id ";
         $sql .= "WHERE d.status = 'Pending'";
 
+        // Role-based status filtering to align with workflow
+        if (in_array($role, [1, 888, 2, 3])) {
+            // President/Super Admin/VP: Only see documents for items submitted to HQ
+            $sql .= " AND e.status = 'Submitted'";
+        } elseif ($role === 11) {
+            // Pengerusi Cawangan: Only see documents for items pending branch approval
+            $sql .= " AND e.status = 'Pending Branch Approval'";
+        } else {
+            // For others, at least exclude Drafts to prevent clutter
+            $sql .= " AND e.status != 'Draft'";
+        }
+
         // Filter by branch if not Pusat role
         $pusat_roles = [888, 1, 2, 3, 4, 5, 6, 7];
         if (!in_array($role, $pusat_roles) && $cawanganId !== null) {
@@ -187,6 +199,58 @@ class DashboardHelper {
         });
 
         return array_slice($activities, 0, $limit);
+    }
+
+    public static function getBranchCount() {
+        $db = Database::getInstance()->getConnection();
+        $result = $db->query("SELECT COUNT(*) as total FROM tbl_cawangan");
+        return $result ? (int)$result->fetch_assoc()['total'] : 0;
+    }
+
+    public static function getRecentSubmittedEvents($limit = 5) {
+        $db = Database::getInstance()->getConnection();
+        $sql = "SELECT e.*, c.cawangan_name 
+                FROM tbl_event e 
+                LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id 
+                WHERE e.status = 'Submitted' 
+                ORDER BY e.event_date DESC 
+                LIMIT " . (int)$limit;
+        $result = $db->query($sql);
+        $rows = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $rows[] = $row;
+            }
+        }
+        return $rows;
+    }
+
+    public static function calculateCompositeHealthScore($finance, $members, $events) {
+        // 1. Financial Health (40%) - Sustainability
+        $finScore = 0;
+        if ($finance['income'] > 0) {
+            // Surplus ratio: (Income - Expense) / Income
+            // A healthy org should have at least 10% surplus/reserve ratio
+            $surplus = $finance['income'] - $finance['expense'];
+            $ratio = $surplus / $finance['income'];
+            // Normalize: 15% surplus or more = 100 points
+            $finScore = max(0, min(100, ($ratio + 0.1) * 400)); 
+        }
+
+        // 2. Member Engagement (30%) - Active Rate
+        $memScore = ($members['total'] > 0) ? ($members['active'] / $members['total']) * 100 : 0;
+
+        // 3. Activity Momentum (30%) - Future vs Past
+        // Reward having upcoming programs
+        $eventScore = 0;
+        if ($events['upcoming'] > 0) {
+            $eventScore = 100; // Active momentum
+        } elseif ($events['past'] > 0) {
+            $eventScore = 30; // Legacy only
+        }
+
+        $totalScore = ($finScore * 0.4) + ($memScore * 0.3) + ($eventScore * 0.3);
+        return round($totalScore, 1);
     }
 
     public static function formatRelativeTime($datetime) {

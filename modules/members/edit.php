@@ -101,7 +101,7 @@ $page_title = 'KEMASKINI AHLI';
                         <select id="gender" name="gender" required 
                                 class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none appearance-none">
                             <option value="Lelaki" <?php echo $member['gender'] === 'Lelaki' ? 'selected' : ''; ?>>LELAKI</option>
-                            <option value="Perempuan" <?php echo $member['gender'] === 'Perempuan' ? 'selected' : ''; ?>>PEREMPUAN</option>
+                            <option value="Wanita" <?php echo ($member['gender'] === 'Wanita' || $member['gender'] === 'Perempuan') ? 'selected' : ''; ?>>WANITA</option>
                         </select>
                     </div>
 

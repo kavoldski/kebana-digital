@@ -11,13 +11,16 @@ if (!isAdmin()) {
     exit();
 }
 
-$id = $_GET['id'] ?? null;
+$id = isset($_GET['id']) ? (int)$_GET['id'] : null;
+
 if (!$id) {
     header('Location: /kebana-digital/cawangan');
     exit();
 }
 
+// Initial fetch
 $cawangan = CawanganHelper::getCawanganById($id);
+
 if (!$cawangan) {
     header('Location: /kebana-digital/cawangan');
     exit();
@@ -31,7 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = $result['message'];
     $message_type = $result['status'] ? 'success' : 'error';
     
-    if ($result['status']) {
+    // Only re-fetch if there was a real change to reflect in the form
+    if ($result['status'] && $result['message'] !== 'Tiada perubahan dikesan.') {
         $cawangan = CawanganHelper::getCawanganById($id);
     }
 }

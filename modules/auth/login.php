@@ -117,7 +117,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 
             <aside class="relative hidden min-h-[760px] overflow-hidden bg-slate-900 lg:block">
                 <img
-                    src="/kebana-digital/public/assets/img/login-hero.svg"
+                    src="/kebana-digital/public/assets/img/login-hero.jpg"
                     alt="KEBANA Digital visual"
                     class="absolute inset-0 h-full w-full object-cover"
                 >

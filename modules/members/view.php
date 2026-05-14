@@ -62,7 +62,7 @@ $page_title = 'PROFIL AHLI';
                         </div>
                         <div>
                             <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Jantina</p>
-                            <p class="text-sm font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($member['gender'] ?? 'TIDAK DINYATAKAN'); ?></p>
+                            <p class="text-sm font-black text-kebana-blue uppercase"><?php echo htmlspecialchars(MembersHelper::getGenderLabel($member)); ?></p>
                         </div>
                         <div>
                             <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">No. Kad Pengenalan</p>

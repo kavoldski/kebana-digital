@@ -71,23 +71,6 @@ if (!hasRole([1, 2, 3, 4, 33, 888])) {
     exit;
 }
 
-// Helper: Extract info from Malaysia IC
-function extractICInfo($ic) {
-    $ic = preg_replace('/[^0-9]/', '', $ic);
-    if (strlen($ic) !== 12) return null;
-    
-    $year = substr($ic, 0, 2);
-    $month = substr($ic, 2, 2);
-    $day = substr($ic, 4, 2);
-    $last_digit = substr($ic, -1);
-    
-    $current_year = date('Y');
-    $birth_year = ($year > date('y')) ? "19$year" : "20$year";
-    $age = $current_year - $birth_year;
-    $gender = ($last_digit % 2 === 0) ? 'Wanita' : 'Lelaki';
-    
-    return ['age' => $age, 'gender' => $gender];
-}
 
 // Summary stats
 $total_members = MembersHelper::getMemberCount();
@@ -107,16 +90,11 @@ while ($m = $all_members_res->fetch_assoc()) {
     $v = strtoupper($m['village']);
     $villages[$v] = ($villages[$v] ?? 0) + 1;
     
-    // Gender logic: Use column if available, else IC
-    $gender = $m['gender'];
-    if ($gender === 'Perempuan') $gender = 'Wanita'; // Sync with report labels
+    // Gender logic: Use helper for consistent labeling and fallback
+    $gender = MembersHelper::getGenderLabel($m);
     
-    // IC Info for Age (and Gender fallback)
-    $info = extractICInfo($m['ic_number']);
-    
-    if (!$gender && $info) {
-        $gender = $info['gender'];
-    }
+    // IC Info for Age
+    $info = MembersHelper::extractICInfo($m['ic_number']);
     
     if ($gender) {
         $genders[$gender] = ($genders[$gender] ?? 0) + 1;
@@ -366,14 +344,14 @@ $page_title = 'LAPORAN & ANALISIS';
                         <tr><td colspan="5" class="px-8 py-20 text-center text-[10px] font-black text-slate-200 uppercase tracking-[0.3em]">Tiada Rekod Dijumpai</td></tr>
                     <?php else: ?>
                         <?php foreach ($filtered_members as $m): 
-                            $info = extractICInfo($m['ic_number']);
+                            $info = MembersHelper::extractICInfo($m['ic_number']);
                         ?>
                             <tr class="hover:bg-slate-50/50 transition-colors">
                                 <td class="px-8 py-5 text-xs font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($m['full_name']); ?></td>
                                 <td class="px-8 py-5 text-xs font-bold text-slate-600 italic"><?php echo htmlspecialchars($m['ic_number']); ?></td>
                                 <td class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest"><?php echo htmlspecialchars($m['village']); ?></td>
                                 <td class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                    <?php echo $info ? $info['gender'] : 'N/A'; ?>
+                                    <?php echo MembersHelper::getGenderLabel($m); ?>
                                 </td>
                                 <td class="px-8 py-5 text-right">
                                     <a href="/kebana-digital/members/view/<?php echo $m['member_id']; ?>" class="text-[9px] font-black text-kebana-blue uppercase border-b border-kebana-blue pb-0.5 hover:text-kebana-accent transition-colors">Lihat Profil</a>
