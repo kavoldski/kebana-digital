@@ -27,6 +27,8 @@ if (!$is_pusat_creator && $current_cawangan_id !== null) {
     $master_event_options = EventsHelper::getMasterEventsByCawangan($current_cawangan_id);
 }
 
+$suggestions = EventsHelper::getUniqueLocations();
+
 $message = '';
 $message_type = '';
 $preselected_parent_id = isset($_GET['parent_id']) ? (int)$_GET['parent_id'] : 0;
@@ -126,10 +128,36 @@ $page_title = 'DAFTAR ACARA';
                 <?php endif; ?>
 
                 <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Kawasan / Daerah <span class="text-red-500">*</span></label>
+                    <input type="text" name="kawasan" required list="kawasan_list"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                           placeholder="Cth: Samalaju / Kidurong">
+                    <datalist id="kawasan_list">
+                        <?php foreach ($suggestions['kawasan'] as $kaw): ?>
+                        <option value="<?php echo htmlspecialchars($kaw); ?>">
+                        <?php endforeach; ?>
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Lokasi / Venue <span class="text-red-500">*</span></label>
-                    <input type="text" name="venue" required
+                    <input type="text" name="venue" required list="venue_list"
                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
                            placeholder="Cth: Dewan Komuniti Bintulu">
+                    <datalist id="venue_list">
+                        <?php foreach ($suggestions['venues'] as $ven): ?>
+                        <option value="<?php echo htmlspecialchars($ven); ?>">
+                        <?php endforeach; ?>
+                    </datalist>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Anggaran Bajet (RM)</label>
+                    <input type="number" step="0.01" name="budget_est"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
+                           placeholder="0.00">
                 </div>
             </div>
 
@@ -146,18 +174,10 @@ $page_title = 'DAFTAR ACARA';
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Anggaran Bajet (RM)</label>
-                    <input type="number" step="0.01" name="budget_est"
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
-                           placeholder="0.00">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3"><?php echo $is_pusat_creator ? 'Muat Naik Guideline (PDF)' : 'Muat Naik Kertas Kerja (PDF/Imej)'; ?></label>
-                    <input type="file" name="proposal_file" accept=".pdf,.jpg,.jpeg,.png"
-                           class="w-full px-6 py-3 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
-                </div>
+            <div>
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3"><?php echo $is_pusat_creator ? 'Muat Naik Guideline (PDF)' : 'Muat Naik Kertas Kerja (PDF/Imej)'; ?></label>
+                <input type="file" name="proposal_file" accept=".pdf,.jpg,.jpeg,.png"
+                       class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
             </div>
 
             <div class="pt-10">

@@ -207,7 +207,13 @@ $page_title = 'PENGURUSAN ACARA';
                                 </p>
                                 <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 truncate max-w-[200px]">
                                     <i class="fa-solid fa-location-dot mr-2 text-kebana-blue/30"></i>
-                                    <?php echo (!empty($event['venue']) && $event['venue'] !== '0') ? htmlspecialchars($event['venue']) : 'Lokasi TBA'; ?>
+                                    <?php 
+                                        $loc_display = (!empty($event['venue']) && $event['venue'] !== '0') ? htmlspecialchars($event['venue']) : 'Lokasi TBA';
+                                        if (!empty($event['kawasan']) && $loc_display !== 'Lokasi TBA') {
+                                            $loc_display .= ' (' . htmlspecialchars($event['kawasan']) . ')';
+                                        }
+                                        echo $loc_display;
+                                    ?>
                                 </p>
                             </td>
                             <td class="px-8 py-6">

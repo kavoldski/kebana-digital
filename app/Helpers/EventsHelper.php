@@ -19,7 +19,7 @@ class EventsHelper {
                 SELECT e.*, u.username as creator_name,
                        c.cawangan_name,
                        COALESCE(e.event_level, 'MASTER') as event_level,
-                       e.parent_event_id
+                       e.parent_event_id, e.kawasan
                 FROM tbl_event e
                 LEFT JOIN tbl_user u ON e.created_by = u.user_id
                 LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
@@ -40,7 +40,7 @@ class EventsHelper {
                 SELECT e.*, u.username as creator_name,
                        c.cawangan_name,
                        COALESCE(e.event_level, 'MASTER') as event_level,
-                       e.parent_event_id
+                       e.parent_event_id, e.kawasan
                 FROM tbl_event e
                 LEFT JOIN tbl_user u ON e.created_by = u.user_id
                 LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
@@ -65,7 +65,7 @@ class EventsHelper {
                 SELECT e.*, u.username as creator_name,
                        c.cawangan_name,
                        COALESCE(e.event_level, 'MASTER') as event_level,
-                       e.parent_event_id
+                       e.parent_event_id, e.kawasan
                 FROM tbl_event e
                 LEFT JOIN tbl_user u ON e.created_by = u.user_id
                 LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
@@ -126,17 +126,20 @@ class EventsHelper {
         $date = $data['event_date'] ?? '';
         $end_date = !empty($data['event_end_date']) ? $data['event_end_date'] : null;
         $venue = $data['venue'] ?? '';
+        $kawasan = $data['kawasan'] ?? '';
         $budget = !empty($data['budget_est']) ? (float)$data['budget_est'] : null;
         $status = 'Draft';
+        $approval_status = 'Pending Submission';
 
         if ($isPusatCreator) {
             $assigned_cawangan_id = !empty($data['assigned_cawangan_id']) ? (int)$data['assigned_cawangan_id'] : null;
+            $level = 'MASTER';
             $stmt = $db->prepare("
-                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, budget_est, created_by, status, approval_status, cawangan_id, event_level)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending Submission', ?, 'MASTER')
+                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, kawasan, budget_est, created_by, status, approval_status, cawangan_id, event_level)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             if ($stmt) {
-                $stmt->bind_param("sssdisis", $title, $date, $end_date, $venue, $budget, $userId, $status, $assigned_cawangan_id);
+                $stmt->bind_param("ssssdisisss", $title, $date, $end_date, $venue, $kawasan, $budget, $userId, $status, $approval_status, $assigned_cawangan_id, $level);
                 $success = $stmt->execute();
                 $insert_id = $stmt->insert_id;
                 $stmt->close();
@@ -151,12 +154,13 @@ class EventsHelper {
             }
         } else {
             $parent_master_id = !empty($data['parent_master_event_id']) ? (int)$data['parent_master_event_id'] : null;
+            $level = 'SUB';
             $stmt = $db->prepare("
-                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, budget_est, created_by, status, approval_status, cawangan_id, event_level, parent_event_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending Submission', ?, 'SUB', ?)
+                INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, kawasan, budget_est, created_by, status, approval_status, cawangan_id, event_level, parent_event_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             if ($stmt) {
-                $stmt->bind_param("sssdisiii", $title, $date, $end_date, $venue, $budget, $userId, $status, $cawanganId, $parent_master_id);
+                $stmt->bind_param("ssssdisisssi", $title, $date, $end_date, $venue, $kawasan, $budget, $userId, $status, $approval_status, $cawanganId, $level, $parent_master_id);
                 $success = $stmt->execute();
                 $insert_id = $stmt->insert_id;
                 $stmt->close();
@@ -480,5 +484,29 @@ class EventsHelper {
             $stmt->close();
         }
         return $rows;
+    }
+
+    /**
+     * Get unique venues and kawasan for suggestions.
+     */
+    public static function getUniqueLocations() {
+        $db = Database::getInstance()->getConnection();
+        $locations = ['venues' => [], 'kawasan' => []];
+        
+        $res = $db->query("SELECT DISTINCT venue FROM tbl_event WHERE venue != '' AND venue != '0' ORDER BY venue ASC LIMIT 50");
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $locations['venues'][] = $row['venue'];
+            }
+        }
+        
+        $res = $db->query("SELECT DISTINCT kawasan FROM tbl_event WHERE kawasan != '' AND kawasan != '0' ORDER BY kawasan ASC LIMIT 50");
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $locations['kawasan'][] = $row['kawasan'];
+            }
+        }
+        
+        return $locations;
     }
 }

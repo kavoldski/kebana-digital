@@ -90,7 +90,12 @@ $page_title = 'PERINCIAN ACARA';
                         </div>
                         <div>
                             <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">LOKASI / VENUE</p>
-                            <p class="text-sm font-black text-kebana-blue"><?php echo htmlspecialchars($event['venue']); ?></p>
+                            <p class="text-sm font-black text-kebana-blue">
+                                <?php echo htmlspecialchars($event['venue']); ?>
+                                <?php if (!empty($event['kawasan'])): ?>
+                                    <span class="text-slate-400 font-bold ml-1">· <?php echo htmlspecialchars($event['kawasan']); ?></span>
+                                <?php endif; ?>
+                            </p>
                         </div>
                     </div>
                 </div>
