@@ -162,9 +162,9 @@ $page_title = 'PERINCIAN ACARA';
                         <a href="?id=<?php echo $eventId; ?>&action=submit_to_pusat" class="bg-amber-500 text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-amber-600 transition-all text-center shadow-xl">
                             HANTAR KE PRESIDEN
                         </a>
-                    <?php elseif (hasRole(888)): ?>
+                    <?php elseif (hasRole([1, 888])): ?>
                         <a href="?id=<?php echo $eventId; ?>&action=approve" class="bg-green-600 text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-green-700 transition-all text-center shadow-xl">
-                            SAHKAN (SUPER ADMIN)
+                            <?php echo hasRole(1) ? 'LULUSKAN TERUS' : 'SAHKAN (SUPER ADMIN)'; ?>
                         </a>
                     <?php endif; ?>
                 <?php endif; ?>

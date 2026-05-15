@@ -52,7 +52,7 @@ $inactive_members = count(MembersHelper::getMembersByStatus('Inactive'));
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Pangkalan Data Komuniti KEBANA Digital.</p>
         </div>
         <div class="flex gap-4">
-            <?php if (in_array($current_role, [888, 4, 33])): ?>
+            <?php if (in_array($current_role, [888, 1, 4, 33])): ?>
             <a href="/kebana-digital/members/report" class="bg-slate-100 text-kebana-blue px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all shadow-sm inline-flex items-center">
                 <i class="fa-solid fa-chart-mixed mr-4 text-lg"></i>
                 LAPORAN & ANALISIS

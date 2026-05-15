@@ -165,7 +165,7 @@ class EventsHelper {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             if ($stmt) {
-                $stmt->bind_param("ssssssdiissi", $title, $date, $end_date, $venue, $kawasan, $objective, $budget, $userId, $status, $approval_status, $assigned_cawangan_id, $level);
+                $stmt->bind_param("ssssssdisiss", $title, $date, $end_date, $venue, $kawasan, $objective, $budget, $userId, $status, $approval_status, $assigned_cawangan_id, $level);
                 $success = $stmt->execute();
                 $insert_id = $stmt->insert_id;
                 $stmt->close();
@@ -187,7 +187,7 @@ class EventsHelper {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             if ($stmt) {
-                $stmt->bind_param("ssssssdiissii", $title, $date, $end_date, $venue, $kawasan, $objective, $budget, $userId, $status, $approval_status, $cawanganId, $level, $parent_master_id);
+                $stmt->bind_param("ssssssdisissi", $title, $date, $end_date, $venue, $kawasan, $objective, $budget, $userId, $status, $approval_status, $cawanganId, $level, $parent_master_id);
                 $success = $stmt->execute();
                 $insert_id = $stmt->insert_id;
                 $stmt->close();

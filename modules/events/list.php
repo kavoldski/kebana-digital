@@ -21,7 +21,7 @@ if (isset($_GET['action']) && isset($_GET['event_id'])) {
     $action = $_GET['action'];
     $success = false;
 
-    if ($action === 'submit' && hasRole([888, 4, 33, 6, 7])) {
+    if ($action === 'submit' && hasRole([888, 1, 4, 33, 6, 7])) {
         $success = EventsHelper::submitEvent($event_id);
         $message = $success ? 'Projek berjaya dihantar untuk semakan.' : 'Gagal menghantar projek.';
     } elseif ($action === 'submit_to_branch' && hasRole(33)) {
@@ -116,7 +116,7 @@ $page_title = 'PENGURUSAN ACARA';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Senarai Aktiviti & Program</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Kalendar dan Pengurusan Program Organisasi.</p>
         </div>
-        <?php if (hasRole([888, 4, 33])): ?>
+        <?php if (hasRole([888, 1, 4, 33])): ?>
         <a href="/kebana-digital/events/create" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
             <i class="fa-solid fa-calendar-plus mr-4 text-lg"></i>
             DAFTAR ACARA BARU
@@ -262,12 +262,20 @@ $page_title = 'PENGURUSAN ACARA';
                                     <?php endif; ?>
                                     
                                     <?php if ($status === 'Draft'): ?>
-                                        <?php if ($level === 'MASTER' && hasRole([888, 4, 33])): ?>
-                                            <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" 
-                                               class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all shadow-sm">
-                                                <i class="fa-solid fa-paper-plane text-xs"></i>
-                                                Hantar
-                                            </a>
+                                        <?php if ($level === 'MASTER' && hasRole([888, 1, 4, 33])): ?>
+                                            <?php if (hasRole(1)): ?>
+                                                <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" 
+                                                   class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-green-600 hover:bg-green-700 uppercase tracking-widest transition-all shadow-sm">
+                                                    <i class="fa-solid fa-check-double text-xs"></i>
+                                                    Lulus Terus
+                                                </a>
+                                            <?php else: ?>
+                                                <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" 
+                                                   class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all shadow-sm">
+                                                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                                                    Hantar Ke Presiden
+                                                </a>
+                                            <?php endif; ?>
                                         <?php elseif ($level === 'SUB' && hasRole(33)): ?>
                                             <a href="?action=submit_to_branch&event_id=<?php echo $event['event_id']; ?>" 
                                                class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all shadow-sm">
@@ -277,7 +285,7 @@ $page_title = 'PENGURUSAN ACARA';
                                         <?php endif; ?>
                                     <?php endif; ?>
 
-                                    <?php if ($status === 'Submitted' && hasRole([1, 888])): ?>
+                                    <?php if ($check_status === 'SUBMITTED' && hasRole([1, 888])): ?>
                                     <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" 
                                        class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-green-600 hover:bg-green-700 uppercase tracking-widest transition-all shadow-sm">
                                         <i class="fa-solid fa-check-double text-xs"></i>
@@ -354,6 +362,19 @@ $page_title = 'PENGURUSAN ACARA';
                                        class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all">
                                         <i class="fa-solid fa-paper-plane"></i>
                                         Hantar Ke Pengerusi
+                                    </a>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($s_check === 'SUBMITTED' && hasRole([1, 888])): ?>
+                                    <a href="?action=approve&event_id=<?php echo $sub['event_id']; ?>" 
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-white bg-green-600 hover:bg-green-700 uppercase tracking-widest transition-all">
+                                        <i class="fa-solid fa-check-double text-xs"></i>
+                                        Lulus
+                                    </a>
+                                    <a href="?action=reject&event_id=<?php echo $sub['event_id']; ?>" 
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-white bg-red-600 hover:bg-red-700 uppercase tracking-widest transition-all">
+                                        <i class="fa-solid fa-xmark text-xs"></i>
+                                        Tolak
                                     </a>
                                     <?php endif; ?>
                                 </div>

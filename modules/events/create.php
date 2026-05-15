@@ -8,7 +8,7 @@ use App\Helpers\EventsHelper;
 
 require_once APP_ROOT . '/includes/header.php';
 
-if (!hasRole([4, 33, 888])) {
+if (!hasRole([1, 4, 33, 888])) {
     echo "<div class='p-12 text-center'><h1 class='text-2xl font-black text-red-600 uppercase tracking-widest'>AKSES DISEKAT</h1></div>";
     require_once APP_ROOT . '/includes/footer.php';
     exit;
@@ -19,7 +19,7 @@ $current_user_id = (int)($_SESSION['user_id'] ?? 0);
 $current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
 
 // Determine if creator is Pusat (can create Master Events)
-$is_pusat_creator = in_array($current_role, [888, 4]) && $current_cawangan_id === null;
+$is_pusat_creator = in_array($current_role, [888, 1, 4]) && $current_cawangan_id === null;
 
 $cawangan_options = EventsHelper::getAllCawangan();
 $master_event_options = [];
