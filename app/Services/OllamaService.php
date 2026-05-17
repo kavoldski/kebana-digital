@@ -8,7 +8,7 @@ namespace App\Services;
 
 class OllamaService {
     private static $model = 'gemma4:31b-cloud';
-    private static $apiUrl = 'http://localhost:11434/api/generate';
+    private static $apiUrl = 'http://127.0.0.1:11434/api/generate';
 
     /**
      * Extract data from a receipt image using Ollama.

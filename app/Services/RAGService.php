@@ -11,7 +11,7 @@ use Exception;
 
 class RAGService {
     private static $synthesisModel = 'gemma4:31b-cloud';
-    private static $synthesisUrl = 'http://localhost:11434/api/generate';
+    private static $synthesisUrl = 'http://127.0.0.1:11434/api/generate';
 
     /**
      * Index a document: Extract -> Chunk -> Embed -> Store.

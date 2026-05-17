@@ -3,7 +3,7 @@ require_once 'bootstrap.php';
 
 function test_ollama($endpoint, $data) {
     echo "Testing $endpoint...\n";
-    $ch = curl_init('http://localhost:11434' . $endpoint);
+    $ch = curl_init('http://127.0.0.1:11434' . $endpoint);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));

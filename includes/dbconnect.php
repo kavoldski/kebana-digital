@@ -8,7 +8,7 @@
  */
 
 // Database Configuration
-define('DB_HOST', 'localhost');      // MySQL Host
+define('DB_HOST', '127.0.0.1');      // MySQL Host
 define('DB_USER', 'root');           // MySQL Username
 define('DB_PASS', '');               // MySQL Password (empty for XAMPP default)
 define('DB_NAME', 'kebana_db');      // Database Name

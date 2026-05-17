@@ -1,6 +1,6 @@
 <?php
 echo "Listing Ollama models via GET /api/tags...\n";
-$ch = curl_init('http://localhost:11434/api/tags');
+$ch = curl_init('http://127.0.0.1:11434/api/tags');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $response = curl_exec($ch);
 curl_close($ch);

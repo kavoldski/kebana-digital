@@ -8,7 +8,7 @@ namespace App\Services;
 
 class EmbeddingService {
     private static $model = 'nomic-embed-text';
-    private static $apiUrl = 'http://localhost:11434/api/embed';
+    private static $apiUrl = 'http://127.0.0.1:11434/api/embed';
 
     /**
      * Generate embedding for a single text.
@@ -46,7 +46,7 @@ class EmbeddingService {
      * Helper to call Ollama API.
      */
     private static function callOllama($endpoint, $data) {
-        $ch = curl_init('http://localhost:11434' . $endpoint);
+        $ch = curl_init('http://127.0.0.1:11434' . $endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
