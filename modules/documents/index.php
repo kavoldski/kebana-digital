@@ -210,7 +210,7 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                         </div>
                         <div class="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
                             <span id="ai-time" class="text-[8px] font-black text-indigo-400 uppercase tracking-widest">PROSES: 0ms</span>
-                            <span class="text-[8px] font-black text-indigo-400 uppercase tracking-widest">DIJANAKAN OLEH OLLAMA</span>
+                            <span class="text-[8px] font-black text-indigo-400 uppercase tracking-widest">DIJANAKAN OLEH GEMINI FLASH</span>
                         </div>
                     </div>
 

@@ -10,8 +10,6 @@ use App\Core\Database;
 use Exception;
 
 class RAGService {
-    private static $synthesisModel = 'gemma4:31b-cloud';
-    private static $synthesisUrl = 'http://127.0.0.1:11434/api/generate';
 
     /**
      * Index a document: Extract -> Chunk -> Embed -> Store.
@@ -48,12 +46,17 @@ class RAGService {
         $successCount = 0;
         $stmt = $db->prepare("INSERT INTO tbl_document_chunks (doc_id, chunk_index, chunk_text, embedding) VALUES (?, ?, ?, ?)");
 
+        $docName = $doc['doc_name'] ?? 'Dokumen';
+        $docTags = $doc['doc_tags'] ?? 'Tiada Tag';
+        $metaPrefix = "[Dokumen: {$docName} | Tag: {$docTags}]\n";
+
         foreach ($chunks as $index => $chunkText) {
-            $embedding = EmbeddingService::embed($chunkText);
+            $chunkWithMeta = $metaPrefix . $chunkText;
+            $embedding = EmbeddingService::embed($chunkWithMeta);
             
             if ($embedding) {
                 $serialized = serialize($embedding);
-                $stmt->bind_param("iiss", $docId, $index, $chunkText, $serialized);
+                $stmt->bind_param("iiss", $docId, $index, $chunkWithMeta, $serialized);
                 if ($stmt->execute()) {
                     $successCount++;
                 }
@@ -67,15 +70,26 @@ class RAGService {
     /**
      * Perform semantic search.
      */
-    public static function search($query, $topK = 5) {
+    public static function search($query, $topK = 3) {
         $db = Database::getInstance()->getConnection();
         
         // 1. Embed query
         $queryVector = EmbeddingService::embed($query);
         if (!$queryVector) return [];
 
-        // 2. Retrieve all chunks (for simplicity in small-scale, we calculate similarity in PHP)
-        // In a production environment with millions of docs, we'd use a vector DB or MySQL vector extension
+        // 2. Extract key terms for lexical boosting
+        $keywords = [];
+        $cleanQuery = preg_replace('/[^\w\s]/u', ' ', mb_strtolower($query));
+        $words = preg_split('/\s+/', $cleanQuery, -1, PREG_SPLIT_NO_EMPTY);
+        
+        $stopwords = ['yang', 'dan', 'untuk', 'dengan', 'pada', 'dari', 'bagi', 'atau', 'ini', 'itu', 'adalah', 'the', 'and', 'for', 'with', 'this', 'that', 'does', 'what', 'how', 'who', 'where', 'why'];
+        foreach ($words as $w) {
+            if (mb_strlen($w) >= 3 && !in_array($w, $stopwords)) {
+                $keywords[] = $w;
+            }
+        }
+
+        // 3. Retrieve all chunks and compute similarity
         $results = [];
         $res = $db->query("SELECT c.*, d.doc_name, d.file_path 
                           FROM tbl_document_chunks c
@@ -85,18 +99,68 @@ class RAGService {
             $chunkVector = unserialize($row['embedding']);
             $similarity = EmbeddingService::cosineSimilarity($queryVector, $chunkVector);
             
-            if ($similarity > 0.3) { // Threshold
-                $row['score'] = $similarity;
+            // Raise threshold to 0.50 to filter out noise
+            if ($similarity > 0.50) {
+                // Apply lexical keyword boost
+                $boost = 0.0;
+                if (!empty($keywords)) {
+                    $chunkTextLower = mb_strtolower($row['chunk_text']);
+                    $matchedCount = 0;
+                    foreach ($keywords as $kw) {
+                        if (mb_strpos($chunkTextLower, $kw) !== false) {
+                            $matchedCount++;
+                        }
+                    }
+                    if ($matchedCount > 0) {
+                        $boost = min(0.20, $matchedCount * 0.05); // Boost up to +0.20
+                    }
+                }
+                
+                $row['score'] = $similarity + $boost;
                 $results[] = $row;
             }
         }
 
-        // 3. Sort by score
+        // 4. Sort by score
         usort($results, function($a, $b) {
             return $b['score'] <=> $a['score'];
         });
 
-        return array_slice($results, 0, $topK);
+        // 5. Deduplicate by document to show unique source files (max 3 documents)
+        $bestChunksByDoc = [];
+        foreach ($results as $row) {
+            $docId = $row['doc_id'];
+            if (!isset($bestChunksByDoc[$docId])) {
+                $bestChunksByDoc[$docId] = $row;
+            }
+        }
+
+        return array_slice(array_values($bestChunksByDoc), 0, $topK);
+    }
+
+    /**
+     * Get adjacent chunks for a document to expand context.
+     */
+    private static function getExpandedContext($docId, $chunkIndex) {
+        $db = Database::getInstance()->getConnection();
+        
+        // Query chunk_index - 1, chunk_index, chunk_index + 1
+        $stmt = $db->prepare("SELECT chunk_text FROM tbl_document_chunks 
+                              WHERE doc_id = ? AND chunk_index BETWEEN ? AND ? 
+                              ORDER BY chunk_index ASC");
+        $startIdx = max(0, $chunkIndex - 1);
+        $endIdx = $chunkIndex + 1;
+        $stmt->bind_param("iii", $docId, $startIdx, $endIdx);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        
+        $texts = [];
+        while ($row = $res->fetch_assoc()) {
+            $texts[] = $row['chunk_text'];
+        }
+        $stmt->close();
+        
+        return implode("\n...\n", $texts);
     }
 
     /**
@@ -106,12 +170,12 @@ class RAGService {
         $startTime = microtime(true);
         
         // 1. Retrieve relevant context
-        $chunks = self::search($question, 5);
+        $chunks = self::search($question, 3);
         
         if (empty($chunks)) {
             return [
                 'success' => true,
-                'answer' => "Maaf, saya tidak menjumpai sebarang maklumat berkaitan soalan anda dalam arkib dokumen.",
+                'answer' => "Maaf, saya tidak menjumpai sebarang maklumat berkaitan soalan anda dalam arkib dokumen. / Sorry, I could not find any information related to your question in the document archive.",
                 'sources' => [],
                 'time' => round((microtime(true) - $startTime) * 1000)
             ];
@@ -120,13 +184,19 @@ class RAGService {
         // 2. Construct prompt
         $context = "";
         foreach ($chunks as $i => $chunk) {
-            $context .= "[" . ($i + 1) . "] Dokumen: " . $chunk['doc_name'] . "\nKandungan: " . $chunk['chunk_text'] . "\n\n";
+            // Expand context by fetching adjacent chunks (±1 index)
+            $expandedText = self::getExpandedContext($chunk['doc_id'], $chunk['chunk_index']);
+            $context .= "[" . ($i + 1) . "] Dokumen: " . $chunk['doc_name'] . "\nKandungan:\n" . $expandedText . "\n\n";
         }
 
         $prompt = "Anda adalah pembantu AI pintar untuk Sistem Pengurusan Digital KEBANA.
-Gunakan petikan dokumen di bawah untuk menjawab soalan pengguna. 
-Jika jawapan tiada dalam petikan, katakan 'Maklumat tidak dijumpai dalam arkib.'
-Sila jawab dalam Bahasa Melayu. Nyatakan rujukan [1], [2] dsb jika berkaitan.
+Gunakan petikan dokumen di bawah untuk menjawab soalan pengguna secara ringkas, tepat dan profesional.
+
+--- SYARAT UTAMA ---
+1. Kenalpasti bahasa soalan. Jika soalan dalam Bahasa Melayu, jawab dalam Bahasa Melayu. Jika soalan dalam Bahasa Inggeris, jawab dalam Bahasa Inggeris.
+2. Nyatakan rujukan [1], [2], atau [3] jika maklumat tersebut diambil dari dokumen berkenaan.
+3. Rujuk HANYA pada kandungan dokumen yang diberikan. JANGAN buat andaian atau menambah maklumat luar.
+4. Jika jawapan tiada dalam petikan dokumen, sila nyatakan dengan jelas: 'Maklumat tidak dijumpai dalam arkib dokumen.'
 
 --- PETIKAN DOKUMEN ---
 $context
@@ -135,28 +205,56 @@ $context
 Soalan: $question
 Jawapan:";
 
-        // 3. Call LLM for synthesis
+        // 3. Call Google Gemini API for synthesis
+        $config = require APP_ROOT . '/config/ai.php';
+        $apiKey = $config['api_key'] ?? '';
+        $model = $config['synthesis_model'] ?? 'gemini-1.5-flash';
+        $verifySsl = $config['verify_ssl'] ?? true;
+
+        if (empty($apiKey)) {
+            return [
+                'success' => false,
+                'answer' => "Google Gemini API Key is not configured. Sila semak config/ai.local.php.",
+                'sources' => [],
+                'time' => round((microtime(true) - $startTime) * 1000)
+            ];
+        }
+
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
+
         $data = [
-            'model' => self::$synthesisModel,
-            'prompt' => $prompt,
-            'stream' => false
+            'contents' => [
+                [
+                    'parts' => [
+                        ['text' => $prompt]
+                    ]
+                ]
+            ]
         ];
 
-        $ch = curl_init(self::$synthesisUrl);
+        $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifySsl);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifySsl ? 2 : 0);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $error = curl_error($ch);
         curl_close($ch);
 
         $answer = "Ralat semasa menjana jawapan.";
-        if ($httpCode === 200) {
+        if ($error) {
+            $answer = "Ralat cURL: " . $error;
+        } elseif ($httpCode === 200 && $response) {
             $decoded = json_decode($response, true);
-            $answer = $decoded['response'] ?? "Tiada jawapan diterima.";
+            $answer = $decoded['candidates'][0]['content']['parts'][0]['text'] ?? "Tiada jawapan diterima.";
+        } else {
+            error_log("Google Gemini API Synthesis Error: HTTP $httpCode, Response: $response");
+            $answer = "Ralat menjana jawapan daripada Google Gemini API (HTTP $httpCode).";
         }
 
         return [

@@ -1,0 +1,16 @@
+<?php
+/**
+ * KEBANA Digital Management System - Local AI Configuration (EXAMPLE)
+ * File: config/ai.local.php.example
+ * 
+ * Copy this file to config/ai.local.php and insert your actual API keys.
+ * Do NOT commit the active config/ai.local.php file to Git!
+ */
+
+return [
+    // Your Google Gemini API Key from Google AI Studio (https://aistudio.google.com/)
+    'api_key' => 'YOUR_GEMINI_API_KEY_HERE',
+
+    // Set to false if you get curl certificate verification issues locally
+    'verify_ssl' => true,
+];

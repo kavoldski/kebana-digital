@@ -80,7 +80,7 @@ class TextExtractorService {
      * @param int $overlap Character overlap between chunks
      * @return array Array of text chunks
      */
-    public static function chunkText($text, $chunkSize = 500, $overlap = 100) {
+    public static function chunkText($text, $chunkSize = 900, $overlap = 200) {
         // Increase memory limit for processing large files
         ini_set('memory_limit', '1024M');
         

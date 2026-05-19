@@ -7,11 +7,8 @@
 namespace App\Services;
 
 class EmbeddingService {
-    private static $model = 'nomic-embed-text';
-    private static $apiUrl = 'http://127.0.0.1:11434/api/embed';
-
     /**
-     * Generate embedding for a single text.
+     * Generate embedding for a single text using Google Gemini API.
      * 
      * @param string $text
      * @return array|null Vector embedding (array of floats)
@@ -19,54 +16,59 @@ class EmbeddingService {
     public static function embed($text) {
         if (empty($text)) return null;
 
-        // Try new /api/embed endpoint first
-        $result = self::callOllama('/api/embed', [
-            'model' => self::$model,
-            'input' => $text
-        ]);
+        // Load AI configuration
+        $config = require APP_ROOT . '/config/ai.php';
+        $apiKey = $config['api_key'] ?? '';
+        $model = $config['embedding_model'] ?? 'text-embedding-004';
+        $verifySsl = $config['verify_ssl'] ?? true;
 
-        if ($result && isset($result['embeddings'][0])) {
-            return $result['embeddings'][0];
+        if (empty($apiKey)) {
+            error_log("Google Gemini API Error: API Key is not configured in config/ai.local.php");
+            return null;
         }
 
-        // Fallback to legacy /api/embeddings endpoint
-        $result = self::callOllama('/api/embeddings', [
-            'model' => self::$model,
-            'prompt' => $text
-        ]);
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:embedContent?key={$apiKey}";
+        
+        $data = [
+            'model' => "models/{$model}",
+            'content' => [
+                'parts' => [
+                    ['text' => $text]
+                ]
+            ],
+            'output_dimensionality' => 768
+        ];
 
-        if ($result && isset($result['embedding'])) {
-            return $result['embedding'];
-        }
-
-        return null;
-    }
-
-    /**
-     * Helper to call Ollama API.
-     */
-    private static function callOllama($endpoint, $data) {
-        $ch = curl_init('http://127.0.0.1:11434' . $endpoint);
+        $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifySsl);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifySsl ? 2 : 0);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $error = curl_error($ch);
         curl_close($ch);
 
+        if ($error) {
+            error_log("Google Gemini API Curl Error: " . $error);
+            return null;
+        }
+
         if ($httpCode === 200 && $response) {
-            return json_decode($response, true);
+            $result = json_decode($response, true);
+            if (isset($result['embedding']['values'])) {
+                return $result['embedding']['values'];
+            }
         }
-        
-        if ($httpCode !== 404) {
-            error_log("Ollama API $endpoint Error: HTTP $httpCode");
-        }
-        
+
+        error_log("Google Gemini API Embed Error: HTTP Code $httpCode, Response: " . $response);
         return null;
     }
+
 
     /**
      * Compute cosine similarity between two vectors.
