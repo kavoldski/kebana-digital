@@ -83,16 +83,21 @@ try {
     $recent_activities = \App\Helpers\AuditHelper::getRecentLogs(5);
     echo "SUCCESS: " . count($recent_activities) . " logs\n";
     
+    echo "12. ChatHelper::getTotalUnreadCount... ";
+    $unread_chats = \App\Helpers\ChatHelper::getTotalUnreadCount($current_user_id);
+    echo "SUCCESS: $unread_chats unread chats\n";
+    
     $is_presiden = ($current_role === 1);
     if ($is_presiden) {
-        echo "12. DashboardHelper::getBranchCount()... ";
+        echo "13. DashboardHelper::getBranchCount()... ";
         $total_branches = \App\Helpers\DashboardHelper::getBranchCount();
         echo "SUCCESS: $total_branches\n";
         
-        echo "13. DashboardHelper::getRecentSubmittedEvents(3)... ";
+        echo "14. DashboardHelper::getRecentSubmittedEvents(3)... ";
         $submitted_events = \App\Helpers\DashboardHelper::getRecentSubmittedEvents(3);
         echo "SUCCESS: " . count($submitted_events) . " events\n";
     }
+
     
     echo "ALL DIAGNOSTICS COMPLETED PERFECTLY! NO QUERY FAILED.\n";
 
