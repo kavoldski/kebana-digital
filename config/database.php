@@ -5,7 +5,16 @@
  */
 
 $localConfig = [];
-if (file_exists(__DIR__ . '/database.local.php')) {
+// Check one level above public_html (Hostinger Git deploy safety)
+$secretsFile = dirname(__DIR__, 2) . '/kebana_secrets.php';
+if (file_exists($secretsFile)) {
+    $secrets = require $secretsFile;
+    if (isset($secrets['db'])) {
+        $localConfig = $secrets['db'];
+    }
+}
+// Fallback to local config file (local dev)
+elseif (file_exists(__DIR__ . '/database.local.php')) {
     $localConfig = require __DIR__ . '/database.local.php';
 }
 
