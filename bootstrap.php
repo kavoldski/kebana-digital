@@ -13,6 +13,9 @@ if (isset($_GET['debug']) && $_GET['debug'] === 'kebana_debug') {
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
+    if (function_exists('opcache_reset')) {
+        opcache_reset();
+    }
 }
 
 // Set Timezone to Malaysia
