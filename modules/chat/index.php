@@ -19,7 +19,7 @@ if (isset($_GET['fetch_list'])) {
         $roleNames = [888 => 'Super Admin', 1 => 'Presiden', 4 => 'Setiausaha Pusat', 11 => 'Pengerusi Cawangan', 33 => 'Setiausaha Cawangan'];
         $roleName = $roleNames[$u['role']] ?? 'Pegawai';
         
-        $html .= '<a href="/kebana-digital/chat?user_id=' . $u['user_id'] . '" class="chat-item flex items-center p-5 border-b border-slate-50 transition-all hover:bg-white group ' . ($isActive ? 'bg-white border-l-4 border-l-kebana-blue' : '') . '">';
+        $html .= '<a href="' . URL_ROOT . '/chat?user_id=' . $u['user_id'] . '" class="chat-item flex items-center p-5 border-b border-slate-50 transition-all hover:bg-white group ' . ($isActive ? 'bg-white border-l-4 border-l-kebana-blue' : '') . '">';
         $html .= '  <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 font-bold text-[10px] relative group-hover:bg-kebana-blue group-hover:text-white transition-all">';
         $html .= '    ' . strtoupper(substr($u['username'], 0, 2));
         if ($u['unread_count'] > 0) {
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     if ($msg && $to) {
         ChatHelper::sendMessage($userId, $to, $msg);
         if (!isset($_GET['ajax'])) {
-            header("Location: /kebana-digital/chat?user_id=$to");
+            header("Location: " . URL_ROOT . "/chat?user_id=$to");
             exit;
         }
         echo json_encode(['success' => true]);
@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
 // Handle Clear Chat
 if (isset($_GET['action']) && $_GET['action'] === 'clear' && $activeChatId) {
     ChatHelper::clearChat($userId, $activeChatId);
-    header("Location: /kebana-digital/chat?user_id=$activeChatId");
+    header("Location: " . URL_ROOT . "/chat?user_id=$activeChatId");
     exit;
 }
 
@@ -146,7 +146,7 @@ $page_title = 'PUSAT KOMUNIKASI';
                 $roleNames = [888 => 'Super Admin', 1 => 'Presiden', 4 => 'Setiausaha Pusat', 11 => 'Pengerusi Cawangan', 33 => 'Setiausaha Cawangan'];
                 $roleName = $roleNames[$u['role']] ?? 'Pegawai';
             ?>
-            <a href="/kebana-digital/chat?user_id=<?php echo $u['user_id']; ?>" 
+            <a href="<?= URL_ROOT ?>/chat?user_id=<?php echo $u['user_id']; ?>" 
                class="chat-item flex items-center p-5 border-b border-slate-50 transition-all hover:bg-white group <?php echo $isActive ? 'bg-white border-l-4 border-l-kebana-blue' : ''; ?>">
                 <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 font-bold text-[10px] relative group-hover:bg-kebana-blue group-hover:text-white transition-all">
                     <?php echo strtoupper(substr($u['username'], 0, 2)); ?>
@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // If not forced, check for updates first
         if (!force) {
-            fetch(`/kebana-digital/chat?user_id=${activeUserId}&check_update=1`)
+            fetch(`<?= URL_ROOT ?>/chat?user_id=${activeUserId}&check_update=1`)
                 .then(res => res.json())
                 .then(state => {
                     if (state.last_id != lastMsgId || state.msg_count != msgCount) {
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function performFetch(force = false) {
         isFetching = true;
-        fetch(`/kebana-digital/chat?user_id=${activeUserId}&fetch=1`)
+        fetch(`<?= URL_ROOT ?>/chat?user_id=${activeUserId}&fetch=1`)
             .then(response => response.json())
             .then(data => {
                 const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 100;
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function fetchChatList() {
-        fetch(`/kebana-digital/chat?user_id=${activeUserId}&fetch_list=1`)
+        fetch(`<?= URL_ROOT ?>/chat?user_id=${activeUserId}&fetch_list=1`)
             .then(response => response.json())
             .then(data => {
                 if (chatList.innerHTML !== data.html) {
@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!message) return;
 
             const formData = new FormData(chatForm);
-            fetch(`/kebana-digital/chat?ajax=1`, {
+            fetch(`<?= URL_ROOT ?>/chat?ajax=1`, {
                 method: 'POST',
                 body: formData
             })

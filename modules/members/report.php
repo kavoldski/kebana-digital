@@ -156,7 +156,7 @@ $page_title = 'LAPORAN & ANALISIS';
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Data Demografi dan Statistik Komuniti.</p>
         </div>
         <div class="flex gap-4">
-            <a href="/kebana-digital/members" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+            <a href="<?= URL_ROOT ?>/members" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
                 <i class="fa-solid fa-arrow-left mr-3"></i>
                 KEMBALI
             </a>
@@ -306,7 +306,7 @@ $page_title = 'LAPORAN & ANALISIS';
                 </button>
             </div>
             <div class="flex items-end">
-                <a href="/kebana-digital/members/report" class="w-full bg-slate-100 text-slate-400 py-4 text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all text-center">
+                <a href="<?= URL_ROOT ?>/members/report" class="w-full bg-slate-100 text-slate-400 py-4 text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all text-center">
                     KOSONGKAN
                 </a>
             </div>
@@ -354,7 +354,7 @@ $page_title = 'LAPORAN & ANALISIS';
                                     <?php echo MembersHelper::getGenderLabel($m); ?>
                                 </td>
                                 <td class="px-8 py-5 text-right">
-                                    <a href="/kebana-digital/members/view/<?php echo $m['member_id']; ?>" class="text-[9px] font-black text-kebana-blue uppercase border-b border-kebana-blue pb-0.5 hover:text-kebana-accent transition-colors">Lihat Profil</a>
+                                    <a href="<?= URL_ROOT ?>/members/view/<?php echo $m['member_id']; ?>" class="text-[9px] font-black text-kebana-blue uppercase border-b border-kebana-blue pb-0.5 hover:text-kebana-accent transition-colors">Lihat Profil</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

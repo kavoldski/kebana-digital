@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (DocumentsHelper::uploadDocument($_FILES['doc_file'], $userId, $eventId, $tags)) {
                 $message = 'Fail berjaya dimuat naik dan diarkibkan.';
                 $message_type = 'success';
-                echo '<script>setTimeout(function(){ window.location.href = "/kebana-digital/documents"; }, 1500);</script>';
+                echo '<script>setTimeout(function(){ window.location.href = "' . URL_ROOT . '/documents"; }, 1500);</script>';
             } else {
                 $message = 'Gagal memuat naik fail. Sila pastikan format fail dibenarkan (PDF, JPG, PNG, DOCX, XLSX).';
                 $message_type = 'error';
@@ -67,7 +67,7 @@ $page_title = 'MUAT NAIK FAIL';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Muat Naik Dokumen</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Simpan fail ke dalam arkib berpusat dengan sistem tagging.</p>
         </div>
-        <a href="/kebana-digital/documents" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+        <a href="<?= URL_ROOT ?>/documents" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i>
             KEMBALI KE ARKIB
         </a>

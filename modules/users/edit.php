@@ -9,19 +9,19 @@ use App\Helpers\UserHelper;
 use App\Helpers\CawanganHelper;
 
 if (!isAdmin()) {
-    header('Location: /kebana-digital/dashboard');
+    header('Location: ' . URL_ROOT . '/dashboard');
     exit();
 }
 
 $user_id = $_GET['id'] ?? null;
 if (!$user_id) {
-    header('Location: /kebana-digital/users');
+    header('Location: ' . URL_ROOT . '/users');
     exit();
 }
 
 $user = UserHelper::getUserById($user_id);
 if (!$user) {
-    header('Location: /kebana-digital/users?error=User not found');
+    header('Location: ' . URL_ROOT . '/users?error=User not found');
     exit();
 }
 
@@ -92,7 +92,7 @@ $role_names = [
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Urus maklumat akaun dan akses pengguna.</p>
         </div>
         <div>
-            <a href="/kebana-digital/users" class="bg-slate-100 text-slate-600 px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/users" class="bg-slate-100 text-slate-600 px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all inline-flex items-center">
                 <i class="fa-solid fa-arrow-left mr-4"></i>
                 KEMBALI KE SENARAI
             </a>

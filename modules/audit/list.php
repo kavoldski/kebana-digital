@@ -32,12 +32,12 @@ $page_title = 'LOG AKTIVITI SISTEM';
     <!-- Filters -->
     <div class="bg-white p-6 border border-slate-100 flex flex-wrap gap-4 items-center justify-between shadow-sm">
         <div class="flex gap-2">
-            <a href="/kebana-digital/audit" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo !$module ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Semua</a>
-            <a href="/kebana-digital/audit?module=AUTH" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo $module == 'AUTH' ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Auth</a>
-            <a href="/kebana-digital/audit?module=EVENTS" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo $module == 'EVENTS' ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Events</a>
-            <a href="/kebana-digital/audit?module=MEMBERS" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo $module == 'MEMBERS' ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Members</a>
-            <a href="/kebana-digital/audit?module=FINANCE" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo $module == 'FINANCE' ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Finance</a>
-            <a href="/kebana-digital/audit?module=CHAT" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo $module == 'CHAT' ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Chat</a>
+            <a href="<?= URL_ROOT ?>/audit" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo !$module ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Semua</a>
+            <a href="<?= URL_ROOT ?>/audit?module=AUTH" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo $module == 'AUTH' ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Auth</a>
+            <a href="<?= URL_ROOT ?>/audit?module=EVENTS" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo $module == 'EVENTS' ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Events</a>
+            <a href="<?= URL_ROOT ?>/audit?module=MEMBERS" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo $module == 'MEMBERS' ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Members</a>
+            <a href="<?= URL_ROOT ?>/audit?module=FINANCE" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo $module == 'FINANCE' ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Finance</a>
+            <a href="<?= URL_ROOT ?>/audit?module=CHAT" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest border <?php echo $module == 'CHAT' ? 'bg-kebana-blue text-white border-kebana-blue' : 'text-slate-400 border-slate-100 hover:bg-slate-50'; ?>">Chat</a>
         </div>
         <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic"><?php echo number_format($totalLogs); ?> rekod dijumpai</p>
     </div>
@@ -97,7 +97,7 @@ $page_title = 'LOG AKTIVITI SISTEM';
         <?php if ($totalPages > 1): ?>
         <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-center gap-2">
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <a href="/kebana-digital/audit?page=<?php echo $i; ?><?php echo $module ? '&module='.$module : ''; ?>" 
+                <a href="<?= URL_ROOT ?>/audit?page=<?php echo $i; ?><?php echo $module ? '&module='.$module : ''; ?>" 
                    class="w-10 h-10 flex items-center justify-center text-[10px] font-black border transition-all <?php echo $page == $i ? 'bg-kebana-blue text-white border-kebana-blue shadow-lg shadow-kebana-blue/20' : 'bg-white text-slate-400 border-slate-200 hover:border-kebana-blue hover:text-kebana-blue'; ?>">
                     <?php echo $i; ?>
                 </a>

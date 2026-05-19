@@ -139,7 +139,7 @@ try {
         <?php endif; ?>
 
         <?php if (in_array($current_role, [888, 1, 2, 3, 11, 22])): 
-            $action_link = "/kebana-digital/events";
+            $action_link = URL_ROOT . "/events";
             if (in_array($current_role, [1, 888, 2, 3])) {
                 $action_link .= "?status=Submitted";
             } elseif ($current_role == 11) {
@@ -172,7 +172,7 @@ try {
                         <h2 class="text-2xl font-black text-kebana-blue tracking-tight uppercase italic">Tindakan Segera</h2>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Aktiviti yang menunggu kelulusan anda.</p>
                     </div>
-                    <a href="/kebana-digital/events?status=Submitted" class="text-[10px] font-black text-kebana-blue uppercase border-b-2 border-kebana-blue/20 hover:border-kebana-blue pb-1 transition-all">Lihat Semua</a>
+                    <a href="<?= URL_ROOT ?>/events?status=Submitted" class="text-[10px] font-black text-kebana-blue uppercase border-b-2 border-kebana-blue/20 hover:border-kebana-blue pb-1 transition-all">Lihat Semua</a>
                 </div>
 
                 <div class="space-y-4">
@@ -187,7 +187,7 @@ try {
                                 <p class="text-[9px] font-bold text-slate-400 uppercase mt-1">Dihantar Oleh: <?php echo htmlspecialchars($event['cawangan_name'] ?? 'Pusat'); ?> • <?php echo date('d M Y', strtotime($event['event_date'])); ?></p>
                             </div>
                         </div>
-                        <a href="/kebana-digital/events/view/<?php echo $event['event_id']; ?>" class="bg-kebana-blue text-white px-6 py-3 text-[9px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-lg opacity-0 group-hover:opacity-100">Semak & Lulus</a>
+                        <a href="<?= URL_ROOT ?>/events/view/<?php echo $event['event_id']; ?>" class="bg-kebana-blue text-white px-6 py-3 text-[9px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-lg opacity-0 group-hover:opacity-100">Semak & Lulus</a>
                     </div>
                     <?php endforeach; ?>
                 </div>
@@ -202,7 +202,7 @@ try {
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Status penglibatan ahli dalam organisasi.</p>
                     </div>
                     <?php if (in_array($current_role, [888, 1, 2, 3])): ?>
-                    <a href="/kebana-digital/members/report" class="bg-kebana-blue text-white px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-lg">Analisis Data</a>
+                    <a href="<?= URL_ROOT ?>/members/report" class="bg-kebana-blue text-white px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-lg">Analisis Data</a>
                     <?php endif; ?>
                 </div>
 
@@ -286,20 +286,20 @@ try {
 
             <!-- Quick Access -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <a href="/kebana-digital/members/add" class="p-8 bg-kebana-blue text-white flex flex-col items-center justify-center space-y-4 hover:bg-kebana-accent transition-all group">
+                <a href="<?= URL_ROOT ?>/members/add" class="p-8 bg-kebana-blue text-white flex flex-col items-center justify-center space-y-4 hover:bg-kebana-accent transition-all group">
                     <i class="fa-solid fa-user-plus text-3xl group-hover:scale-110 transition-transform"></i>
                     <span class="text-[10px] font-black uppercase tracking-widest">Daftar Ahli</span>
                 </a>
-                <a href="/kebana-digital/documents" class="p-8 bg-white border border-slate-100 text-kebana-blue flex flex-col items-center justify-center space-y-4 hover:bg-slate-50 transition-all group border-b-4 border-kebana-yellow">
+                <a href="<?= URL_ROOT ?>/documents" class="p-8 bg-white border border-slate-100 text-kebana-blue flex flex-col items-center justify-center space-y-4 hover:bg-slate-50 transition-all group border-b-4 border-kebana-yellow">
                     <i class="fa-solid fa-cloud-arrow-up text-3xl group-hover:scale-110 transition-transform"></i>
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Pusat Fail</span>
                 </a>
-                <a href="/kebana-digital/events/create" class="p-8 bg-white border border-slate-100 text-kebana-blue flex flex-col items-center justify-center space-y-4 hover:bg-slate-50 transition-all group">
+                <a href="<?= URL_ROOT ?>/events/create" class="p-8 bg-white border border-slate-100 text-kebana-blue flex flex-col items-center justify-center space-y-4 hover:bg-slate-50 transition-all group">
                     <i class="fa-solid fa-calendar-plus text-3xl group-hover:scale-110 transition-transform"></i>
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Acara Baru</span>
                 </a>
                 <?php if ($can_view_finance): ?>
-                <a href="/kebana-digital/finance" class="p-8 bg-white border border-slate-100 text-kebana-blue flex flex-col items-center justify-center space-y-4 hover:bg-slate-50 transition-all group">
+                <a href="<?= URL_ROOT ?>/finance" class="p-8 bg-white border border-slate-100 text-kebana-blue flex flex-col items-center justify-center space-y-4 hover:bg-slate-50 transition-all group">
                     <i class="fa-solid fa-chart-line-up text-3xl group-hover:scale-110 transition-transform"></i>
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Kewangan</span>
                 </a>
@@ -342,7 +342,7 @@ try {
                     <?php endif; ?>
                 </div>
                 <?php if (in_array($current_role, [888, 1, 4, 6])): ?>
-                <a href="/kebana-digital/audit" class="block w-full mt-12 py-4 text-[10px] font-black text-slate-400 border border-slate-100 uppercase tracking-widest hover:bg-slate-50 hover:text-kebana-blue transition-all text-center">Lihat Semua Aktiviti</a>
+                <a href="<?= URL_ROOT ?>/audit" class="block w-full mt-12 py-4 text-[10px] font-black text-slate-400 border border-slate-100 uppercase tracking-widest hover:bg-slate-50 hover:text-kebana-blue transition-all text-center">Lihat Semua Aktiviti</a>
                 <?php endif; ?>
             </div>
 

@@ -27,7 +27,7 @@ if (isset($_GET['action'])) {
     }
     
     if ($success) {
-        header("Location: /kebana-digital/events/view/$eventId?msg=success");
+        header("Location: " . URL_ROOT . "/events/view/$eventId?msg=success");
         exit;
     }
 }
@@ -35,7 +35,7 @@ if (isset($_GET['action'])) {
 // Handle objective update
 if (isset($_POST['update_objective'])) {
     if (EventsHelper::updateEventObjective($eventId, $_POST['objective'])) {
-        echo '<script>window.location.href = "/kebana-digital/events/view/' . $eventId . '?msg=updated";</script>';
+        echo '<script>window.location.href = "' . URL_ROOT . '/events/view/' . $eventId . '?msg=updated";</script>';
         exit;
     }
 }
@@ -54,7 +54,7 @@ if (isset($_POST['add_sub_event'])) {
         if (isset($_FILES['proposal_file']) && $_FILES['proposal_file']['error'] === UPLOAD_ERR_OK) {
             EventsHelper::handleDocumentUpload($new_id, $_FILES['proposal_file'], $current_user_id);
         }
-        header("Location: /kebana-digital/events/view/$eventId?msg=sub_added");
+        header("Location: " . URL_ROOT . "/events/view/$eventId?msg=sub_added");
         exit;
     }
 }
@@ -169,11 +169,11 @@ $page_title = 'PERINCIAN ACARA';
                     <?php endif; ?>
                 <?php endif; ?>
 
-                <a href="/kebana-digital/events/attendance?event_id=<?php echo $eventId; ?>" class="bg-slate-800 text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-black transition-all text-center shadow-xl">
+                <a href="<?= URL_ROOT ?>/events/attendance?event_id=<?php echo $eventId; ?>" class="bg-slate-800 text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-black transition-all text-center shadow-xl">
                     PENGURUSAN KEHADIRAN
                 </a>
                 <div class="grid grid-cols-2 gap-3">
-                    <a href="/kebana-digital/events" class="bg-slate-100 text-slate-600 px-6 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all text-center">
+                    <a href="<?= URL_ROOT ?>/events" class="bg-slate-100 text-slate-600 px-6 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all text-center">
                         KEMBALI
                     </a>
                     <button onclick="window.print()" class="bg-kebana-yellow text-kebana-blue px-6 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 transition-all text-center">
@@ -193,7 +193,7 @@ $page_title = 'PERINCIAN ACARA';
                     <?php if ($level === 'SUB' && !empty($event['parent_event_id'])): ?>
                         <?php $parent = EventsHelper::getParentEvent($event['parent_event_id']); ?>
                         <?php if ($parent): ?>
-                        <a href="/kebana-digital/events/view/<?php echo $parent['event_id']; ?>" class="text-[9px] font-black bg-slate-100 text-slate-500 px-3 py-1 uppercase tracking-widest hover:bg-kebana-blue hover:text-white transition-all">
+                        <a href="<?= URL_ROOT ?>/events/view/<?php echo $parent['event_id']; ?>" class="text-[9px] font-black bg-slate-100 text-slate-500 px-3 py-1 uppercase tracking-widest hover:bg-kebana-blue hover:text-white transition-all">
                             Master: <?php echo htmlspecialchars($parent['event_title']); ?>
                         </a>
                         <?php endif; ?>
@@ -326,7 +326,7 @@ $page_title = 'PERINCIAN ACARA';
             <div class="bg-white p-10 border border-slate-100 shadow-sm space-y-8">
                 <div class="flex justify-between items-center border-b border-slate-100 pb-6">
                     <h3 class="text-xs font-black text-kebana-blue uppercase tracking-[0.3em]">Dokumen & Kertas Kerja</h3>
-                    <a href="/kebana-digital/documents/upload?event_id=<?php echo $eventId; ?>" class="text-[10px] font-black text-kebana-blue uppercase hover:underline">+ Tambah Fail</a>
+                    <a href="<?= URL_ROOT ?>/documents/upload?event_id=<?php echo $eventId; ?>" class="text-[10px] font-black text-kebana-blue uppercase hover:underline">+ Tambah Fail</a>
                 </div>
                 
                 <div class="space-y-4">
@@ -372,7 +372,7 @@ $page_title = 'PERINCIAN ACARA';
                                     </p>
                                 </div>
                             </div>
-                            <a href="/kebana-digital/<?php echo $doc['file_path']; ?>" target="_blank" class="text-kebana-blue opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a href="<?= URL_ROOT ?>/<?php echo $doc['file_path']; ?>" target="_blank" class="text-kebana-blue opacity-0 group-hover:opacity-100 transition-opacity">
                                 <i class="fa-solid fa-download"></i>
                             </a>
                         </div>
@@ -587,7 +587,7 @@ async function viewSubEvent(id) {
     drawer.classList.remove('translate-x-full');
 
     try {
-        const response = await fetch(`/kebana-digital/modules/api/events.php?id=${id}`);
+        const response = await fetch(`<?= URL_ROOT ?>/modules/api/events.php?id=${id}`);
         const data = await response.json();
 
         if (data.error) {
@@ -631,7 +631,7 @@ async function viewSubEvent(id) {
                 </div>
 
                 <div class="pt-10 flex gap-4">
-                    <a href="/kebana-digital/events/view/${data.event_id}" class="flex-1 bg-kebana-dark text-white text-center py-4 text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
+                    <a href="<?= URL_ROOT ?>/events/view/${data.event_id}" class="flex-1 bg-kebana-dark text-white text-center py-4 text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
                         LIHAT PROFIL PENUH
                     </a>
                     <button onclick="closeViewSubEventDrawer()" class="px-8 py-4 border border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 transition-all">

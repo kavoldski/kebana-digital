@@ -20,14 +20,14 @@ $member = null;
 $member_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($member_id <= 0) {
-    header('Location: /kebana-digital/members');
+    header('Location: ' . URL_ROOT . '/members');
     exit;
 }
 
 $member = MembersHelper::getMemberById($member_id);
 
 if (empty($member)) {
-    header('Location: /kebana-digital/members');
+    header('Location: ' . URL_ROOT . '/members');
     exit;
 }
 
@@ -67,7 +67,7 @@ $page_title = 'KEMASKINI AHLI';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Kemaskini Maklumat</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">ID AHLI: #<?php echo str_pad($member['member_id'], 4, '0', STR_PAD_LEFT); ?></p>
         </div>
-        <a href="/kebana-digital/members/view/<?php echo $member['member_id']; ?>" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+        <a href="<?= URL_ROOT ?>/members/view/<?php echo $member['member_id']; ?>" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i>
             KEMBALI KE PROFIL
         </a>
@@ -145,7 +145,7 @@ $page_title = 'KEMASKINI AHLI';
                     <button type="submit" class="flex-1 bg-kebana-blue text-white py-6 text-xs font-black uppercase tracking-[0.3em] hover:bg-kebana-accent transition-all shadow-xl">
                         KEMASKINI MAKLUMAT
                     </button>
-                    <a href="/kebana-digital/members/view/<?php echo $member['member_id']; ?>" class="px-10 py-6 border-2 border-slate-100 text-slate-400 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all text-center">
+                    <a href="<?= URL_ROOT ?>/members/view/<?php echo $member['member_id']; ?>" class="px-10 py-6 border-2 border-slate-100 text-slate-400 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all text-center">
                         BATALKAN
                     </a>
                 </div>

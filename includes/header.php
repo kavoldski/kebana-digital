@@ -206,7 +206,7 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                 </div>
 
                 <div class="flex items-center space-x-6">
-                    <a href="/kebana-digital/chat" class="relative p-2 text-slate-400 hover:text-kebana-blue transition-colors focus:outline-none">
+                    <a href="<?= URL_ROOT ?>/chat" class="relative p-2 text-slate-400 hover:text-kebana-blue transition-colors focus:outline-none">
                         <i class="fa-regular fa-comments text-xl"></i>
                         <?php if (isset($unreadChatCount) && $unreadChatCount > 0): ?>
                             <span class="absolute top-1.5 right-1.5 h-4 w-4 bg-red-500 ring-2 ring-white rounded-full text-[10px] text-white flex items-center justify-center font-bold animate-bounce"><?php echo $unreadChatCount; ?></span>
@@ -239,7 +239,7 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                                 </div>
                             </div>
                             <div class="p-3 border-t border-slate-100 text-center">
-                                <a href="/kebana-digital/notifications" class="text-[10px] font-black text-kebana-blue uppercase tracking-tighter hover:underline">Papar Semua Notifikasi</a>
+                                <a href="<?= URL_ROOT ?>/notifications" class="text-[10px] font-black text-kebana-blue uppercase tracking-tighter hover:underline">Papar Semua Notifikasi</a>
                             </div>
                         </div>
                     </div>

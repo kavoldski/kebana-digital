@@ -8,7 +8,7 @@ use App\Core\Database;
 use App\Helpers\CawanganHelper;
 
 if (!isAdmin()) {
-    header('Location: /kebana-digital/dashboard');
+    header('Location: ' . URL_ROOT . '/dashboard');
     exit();
 }
 
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($stmt->execute()) {
             $stmt->close();
-            header('Location: /kebana-digital/users?message=Pengguna berjaya didaftarkan&type=success');
+            header('Location: ' . URL_ROOT . '/users?message=Pengguna berjaya didaftarkan&type=success');
             exit();
         } else {
             $error = $stmt->error;
@@ -83,7 +83,7 @@ $role_names = [
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Cipta akaun akses baru untuk warga KEBANA Digital.</p>
         </div>
         <div>
-            <a href="/kebana-digital/users" class="bg-slate-100 text-slate-600 px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/users" class="bg-slate-100 text-slate-600 px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all inline-flex items-center">
                 <i class="fa-solid fa-arrow-left mr-4"></i>
                 KEMBALI KE SENARAI
             </a>

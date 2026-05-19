@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = $result['message'];
         $message_type = 'success';
         // Success alert with redirect hint
-        echo "<script>setTimeout(() => { window.location.href = '/kebana-digital/members'; }, 2000);</script>";
+        echo "<script>setTimeout(() => { window.location.href = '" . URL_ROOT . "/members'; }, 2000);</script>";
     } else {
         $message = $result['message'];
         $message_type = 'error';
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Pendaftaran Ahli</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Sila masukkan maklumat lengkap ahli baru.</p>
         </div>
-        <a href="/kebana-digital/members" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+        <a href="<?= URL_ROOT ?>/members" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i>
             KEMBALI KE SENARAI
         </a>

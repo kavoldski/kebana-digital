@@ -11,7 +11,7 @@ if (isset($_GET['track_id']) && isset($_GET['file'])) {
     if (hasRole([888, 1, 2, 3, 11, 22, 4, 33, 6, 55, 7, 66])) {
         $track_id = (int)$_GET['track_id'];
         DocumentsHelper::incrementDownloadCount($track_id);
-        header("Location: /kebana-digital/" . $_GET['file']);
+        header("Location: " . URL_ROOT . "/" . $_GET['file']);
         exit;
     }
 }
@@ -29,7 +29,7 @@ if (!hasRole([888, 1, 2, 3, 11, 22, 4, 33, 6, 55, 7, 66])) {
 if (isset($_GET['delete_id']) && hasRole([888, 4])) {
     $delete_id = (int)$_GET['delete_id'];
     if (DocumentsHelper::deleteDocument($delete_id)) {
-        echo "<script>window.location.href = '/kebana-digital/documents?deleted=1';</script>";
+        echo "<script>window.location.href = '" . URL_ROOT . "/documents?deleted=1';</script>";
         exit;
     }
 }
@@ -86,7 +86,7 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                 <i class="fa-solid fa-chart-pie mr-3"></i>
                 INSIGHTS
             </button>
-            <a href="/kebana-digital/documents/upload" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/documents/upload" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
                 <i class="fa-solid fa-cloud-arrow-up mr-4 text-lg"></i>
                 MUAT NAIK FAIL
             </a>

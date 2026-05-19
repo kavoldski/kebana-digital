@@ -117,7 +117,7 @@ $page_title = 'PENGURUSAN ACARA';
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Kalendar dan Pengurusan Program Organisasi.</p>
         </div>
         <?php if (hasRole([888, 1, 4, 33])): ?>
-        <a href="/kebana-digital/events/create" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
+        <a href="<?= URL_ROOT ?>/events/create" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
             <i class="fa-solid fa-calendar-plus mr-4 text-lg"></i>
             DAFTAR ACARA BARU
         </a>
@@ -162,7 +162,7 @@ $page_title = 'PENGURUSAN ACARA';
                 TAPIS DATA
             </button>
             <?php if ($search): ?>
-            <a href="/kebana-digital/events" class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center hover:text-red-500">
+            <a href="<?= URL_ROOT ?>/events" class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center hover:text-red-500">
                 KOSONGKAN
             </a>
             <?php endif; ?>
@@ -241,20 +241,20 @@ $page_title = 'PENGURUSAN ACARA';
                             </td>
                             <td class="px-8 py-6 text-right">
                                 <div class="flex justify-end gap-2 flex-wrap">
-                                    <a href="/kebana-digital/events/view/<?php echo $event['event_id']; ?>" 
+                                    <a href="<?= URL_ROOT ?>/events/view/<?php echo $event['event_id']; ?>" 
                                        class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-slate-800 hover:bg-black uppercase tracking-widest transition-all shadow-sm">
                                         <i class="fa-solid fa-eye text-xs"></i>
                                         Papar
                                     </a>
                                     
-                                    <a href="/kebana-digital/events/attendance?event_id=<?php echo $event['event_id']; ?>" 
+                                    <a href="<?= URL_ROOT ?>/events/attendance?event_id=<?php echo $event['event_id']; ?>" 
                                        class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-kebana-blue hover:bg-kebana-accent uppercase tracking-widest transition-all shadow-sm">
                                         <i class="fa-solid fa-users-check text-xs"></i>
                                         Kehadiran
                                     </a>
                                        
                                     <?php if ($is_master): ?>
-                                    <a href="/kebana-digital/events/gantt?event_id=<?php echo $event['event_id']; ?>" 
+                                    <a href="<?= URL_ROOT ?>/events/gantt?event_id=<?php echo $event['event_id']; ?>" 
                                        class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-purple-600 hover:bg-purple-700 uppercase tracking-widest transition-all shadow-sm">
                                         <i class="fa-solid fa-chart-gantt text-xs"></i>
                                         Gantt Chart
@@ -347,12 +347,12 @@ $page_title = 'PENGURUSAN ACARA';
                             </td>
                             <td class="px-8 py-4 text-right">
                                 <div class="flex justify-end gap-2">
-                                    <a href="/kebana-digital/events/view/<?php echo $sub['event_id']; ?>" 
+                                    <a href="<?= URL_ROOT ?>/events/view/<?php echo $sub['event_id']; ?>" 
                                        class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-slate-600 bg-slate-100 hover:bg-slate-200 uppercase tracking-widest transition-all">
                                         <i class="fa-solid fa-eye"></i>
                                         Lihat
                                     </a>
-                                    <a href="/kebana-digital/events/attendance?event_id=<?php echo $sub['event_id']; ?>" 
+                                    <a href="<?= URL_ROOT ?>/events/attendance?event_id=<?php echo $sub['event_id']; ?>" 
                                        class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-kebana-blue bg-blue-50 hover:bg-blue-100 uppercase tracking-widest transition-all">
                                         <i class="fa-solid fa-users-check"></i>
                                         Hadir

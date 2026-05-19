@@ -7,7 +7,7 @@
 use App\Helpers\CawanganHelper;
 
 if (!isAdmin()) {
-    header('Location: /kebana-digital/dashboard');
+    header('Location: ' . URL_ROOT . '/dashboard');
     exit();
 }
 
@@ -41,7 +41,7 @@ if ($search) {
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Urus dan daftar cawangan KEBANA di seluruh Sarawak.</p>
         </div>
         <div class="flex gap-4">
-            <a href="/kebana-digital/cawangan/add" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/cawangan/add" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
                 <i class="fa-solid fa-plus mr-4 text-lg"></i>
                 TAMBAH CAWANGAN
             </a>
@@ -55,7 +55,7 @@ if ($search) {
                 <i class="fa-solid <?php echo $message_type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'; ?> mr-4 text-lg"></i>
                 <span><?php echo htmlspecialchars($message); ?></span>
             </div>
-            <a href="/kebana-digital/cawangan" class="text-[10px] font-black underline">TUTUP</a>
+            <a href="<?= URL_ROOT ?>/cawangan" class="text-[10px] font-black underline">TUTUP</a>
         </div>
     </div>
     <?php endif; ?>
@@ -73,7 +73,7 @@ if ($search) {
                 CARI
             </button>
             <?php if ($search): ?>
-            <a href="/kebana-digital/cawangan" class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center hover:text-red-500">
+            <a href="<?= URL_ROOT ?>/cawangan" class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center hover:text-red-500">
                 KOSONGKAN
             </a>
             <?php endif; ?>
@@ -137,7 +137,7 @@ if ($search) {
                             ?>
                         </td>
                         <td class="px-8 py-6 text-right space-x-3">
-                            <a href="/kebana-digital/cawangan/edit/<?php echo $c['cawangan_id']; ?>" class="inline-flex items-center justify-center w-10 h-10 bg-slate-50 text-slate-300 hover:bg-kebana-blue hover:text-white transition-all shadow-sm" title="Kemaskini">
+                            <a href="<?= URL_ROOT ?>/cawangan/edit/<?php echo $c['cawangan_id']; ?>" class="inline-flex items-center justify-center w-10 h-10 bg-slate-50 text-slate-300 hover:bg-kebana-blue hover:text-white transition-all shadow-sm" title="Kemaskini">
                                 <i class="fa-solid fa-pen-to-square text-xs"></i>
                             </a>
                             <a href="?toggle=<?php echo $c['cawangan_id']; ?>" class="inline-flex items-center justify-center w-10 h-10 bg-slate-50 text-slate-300 <?php echo $c['is_active'] ? 'hover:bg-red-600' : 'hover:bg-green-600'; ?> hover:text-white transition-all shadow-sm" title="<?php echo $c['is_active'] ? 'Nyahaktifkan' : 'Aktifkan'; ?>" onclick="return confirm('Adakah anda pasti mahu menukar status cawangan ini?')">

@@ -18,7 +18,7 @@ if (!hasRole([888, 1, 2, 3, 6, 7, 55, 66])) {
 
 $event_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($event_id <= 0) {
-    header('Location: /kebana-digital/finance/budget');
+    header('Location: ' . URL_ROOT . '/finance/budget');
     exit;
 }
 
@@ -86,9 +86,9 @@ $page_title = 'LAPORAN KEWANGAN ACARA';
         <div class="min-w-0">
             <!-- Breadcrumb -->
             <div class="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">
-                <a href="/kebana-digital/finance" class="hover:text-kebana-blue transition-colors">Kewangan</a>
+                <a href="<?= URL_ROOT ?>/finance" class="hover:text-kebana-blue transition-colors">Kewangan</a>
                 <i class="fa-solid fa-chevron-right text-slate-200"></i>
-                <a href="/kebana-digital/finance/budget" class="hover:text-kebana-blue transition-colors">Analisis Bajet</a>
+                <a href="<?= URL_ROOT ?>/finance/budget" class="hover:text-kebana-blue transition-colors">Analisis Bajet</a>
                 <i class="fa-solid fa-chevron-right text-slate-200"></i>
                 <span class="text-kebana-blue truncate max-w-xs"><?php echo htmlspecialchars($event['event_title']); ?></span>
             </div>
@@ -129,17 +129,17 @@ $page_title = 'LAPORAN KEWANGAN ACARA';
             </div>
         </div>
         <div class="flex flex-col sm:flex-row gap-3 shrink-0">
-            <a href="/kebana-digital/finance/transactions/create?type=Expense&event_id=<?php echo $event_id; ?>" 
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Expense&event_id=<?php echo $event_id; ?>" 
                class="bg-red-600 text-white px-7 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center justify-center">
                 <i class="fa-solid fa-arrow-trend-down mr-3"></i>
                 REKOD KELUAR
             </a>
-            <a href="/kebana-digital/finance/transactions/create?type=Income&event_id=<?php echo $event_id; ?>"
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Income&event_id=<?php echo $event_id; ?>"
                class="bg-green-600 text-white px-7 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center justify-center">
                 <i class="fa-solid fa-arrow-trend-up mr-3"></i>
                 REKOD MASUK
             </a>
-            <a href="/kebana-digital/events/view/<?php echo $event_id; ?>"
+            <a href="<?= URL_ROOT ?>/events/view/<?php echo $event_id; ?>"
                class="bg-white text-kebana-blue border-2 border-slate-200 px-7 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all inline-flex items-center justify-center">
                 <i class="fa-solid fa-calendar-star mr-3"></i>
                 LIHAT ACARA
@@ -284,7 +284,7 @@ $page_title = 'LAPORAN KEWANGAN ACARA';
                             </td>
                             <td class="px-8 py-5 text-center">
                                 <?php if (!empty($t['receipt_path'])): ?>
-                                <a href="/kebana-digital/<?php echo htmlspecialchars($t['receipt_path']); ?>" target="_blank"
+                                <a href="<?= URL_ROOT ?>/<?php echo htmlspecialchars($t['receipt_path']); ?>" target="_blank"
                                    class="text-kebana-blue hover:text-kebana-accent transition-colors" title="Lihat Resit">
                                     <i class="fa-solid fa-file-invoice-dollar text-lg"></i>
                                 </a>
@@ -336,7 +336,7 @@ $page_title = 'LAPORAN KEWANGAN ACARA';
         </div>
         <div class="divide-y divide-slate-50">
             <?php foreach ($sub_events as $sub): ?>
-            <a href="/kebana-digital/finance/event/<?php echo $sub['event_id']; ?>"
+            <a href="<?= URL_ROOT ?>/finance/event/<?php echo $sub['event_id']; ?>"
                class="flex items-center justify-between px-8 py-5 hover:bg-slate-50 transition-colors group">
                 <div>
                     <p class="text-xs font-black text-slate-600 uppercase group-hover:text-kebana-blue transition-colors"><?php echo htmlspecialchars($sub['event_title']); ?></p>

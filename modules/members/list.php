@@ -53,12 +53,12 @@ $inactive_members = count(MembersHelper::getMembersByStatus('Inactive'));
         </div>
         <div class="flex gap-4">
             <?php if (in_array($current_role, [888, 1, 4, 33])): ?>
-            <a href="/kebana-digital/members/report" class="bg-slate-100 text-kebana-blue px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all shadow-sm inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/members/report" class="bg-slate-100 text-kebana-blue px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all shadow-sm inline-flex items-center">
                 <i class="fa-solid fa-chart-mixed mr-4 text-lg"></i>
                 LAPORAN & ANALISIS
             </a>
             <?php endif; ?>
-            <a href="/kebana-digital/members/add" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/members/add" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
                 <i class="fa-solid fa-user-plus mr-4 text-lg"></i>
                 DAFTAR AHLI BARU
             </a>
@@ -72,7 +72,7 @@ $inactive_members = count(MembersHelper::getMembersByStatus('Inactive'));
                 <i class="fa-solid <?php echo $message_type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'; ?> mr-4 text-lg"></i>
                 <span><?php echo htmlspecialchars($message); ?></span>
             </div>
-            <a href="/kebana-digital/members" class="text-[10px] font-black underline">TUTUP</a>
+            <a href="<?= URL_ROOT ?>/members" class="text-[10px] font-black underline">TUTUP</a>
         </div>
     </div>
     <?php endif; ?>
@@ -113,7 +113,7 @@ $inactive_members = count(MembersHelper::getMembersByStatus('Inactive'));
                 TAPISAN
             </button>
             <?php if ($search): ?>
-            <a href="/kebana-digital/members" class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center hover:text-red-500">
+            <a href="<?= URL_ROOT ?>/members" class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center hover:text-red-500">
                 KOSONGKAN
             </a>
             <?php endif; ?>
@@ -171,10 +171,10 @@ $inactive_members = count(MembersHelper::getMembersByStatus('Inactive'));
                             </span>
                         </td>
                         <td class="px-8 py-6 text-right space-x-3">
-                            <a href="/kebana-digital/members/view/<?php echo $member['member_id']; ?>" class="inline-flex items-center justify-center w-10 h-10 bg-slate-50 text-slate-300 hover:bg-kebana-blue hover:text-white transition-all shadow-sm" title="Lihat">
+                            <a href="<?= URL_ROOT ?>/members/view/<?php echo $member['member_id']; ?>" class="inline-flex items-center justify-center w-10 h-10 bg-slate-50 text-slate-300 hover:bg-kebana-blue hover:text-white transition-all shadow-sm" title="Lihat">
                                 <i class="fa-solid fa-eye text-xs"></i>
                             </a>
-                            <a href="/kebana-digital/members/edit/<?php echo $member['member_id']; ?>" class="inline-flex items-center justify-center w-10 h-10 bg-slate-50 text-slate-300 hover:bg-kebana-blue hover:text-white transition-all shadow-sm" title="Kemaskini">
+                            <a href="<?= URL_ROOT ?>/members/edit/<?php echo $member['member_id']; ?>" class="inline-flex items-center justify-center w-10 h-10 bg-slate-50 text-slate-300 hover:bg-kebana-blue hover:text-white transition-all shadow-sm" title="Kemaskini">
                                 <i class="fa-solid fa-pen-to-square text-xs"></i>
                             </a>
                         </td>

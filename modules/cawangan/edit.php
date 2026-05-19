@@ -7,14 +7,14 @@
 use App\Helpers\CawanganHelper;
 
 if (!isAdmin()) {
-    header('Location: /kebana-digital/dashboard');
+    header('Location: ' . URL_ROOT . '/dashboard');
     exit();
 }
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
 if (!$id) {
-    header('Location: /kebana-digital/cawangan');
+    header('Location: ' . URL_ROOT . '/cawangan');
     exit();
 }
 
@@ -22,7 +22,7 @@ if (!$id) {
 $cawangan = CawanganHelper::getCawanganById($id);
 
 if (!$cawangan) {
-    header('Location: /kebana-digital/cawangan');
+    header('Location: ' . URL_ROOT . '/cawangan');
     exit();
 }
 
@@ -51,7 +51,7 @@ require_once APP_ROOT . '/includes/header.php';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Kemaskini: <?php echo htmlspecialchars($cawangan['cawangan_name']); ?></h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Urus maklumat dan status cawangan.</p>
         </div>
-        <a href="/kebana-digital/cawangan" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+        <a href="<?= URL_ROOT ?>/cawangan" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i>
             KEMBALI KE SENARAI
         </a>

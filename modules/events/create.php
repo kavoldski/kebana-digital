@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             EventsHelper::handleDocumentUpload($event_id, $_FILES['proposal_file'], $current_user_id);
         }
 
-        echo '<script>setTimeout(function(){ window.location.href = "/kebana-digital/events"; }, 1500);</script>';
+        echo '<script>setTimeout(function(){ window.location.href = "' . URL_ROOT . '/events"; }, 1500);</script>';
     } else {
         $message = 'Gagal mendaftar acara. Sila pastikan semua maklumat wajib diisi.';
         $message_type = 'error';
@@ -76,7 +76,7 @@ $page_title = 'DAFTAR ACARA';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Daftar Acara Baru</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Sila lengkapkan butiran program di bawah.</p>
         </div>
-        <a href="/kebana-digital/events" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+        <a href="<?= URL_ROOT ?>/events" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i>
             KEMBALI
         </a>

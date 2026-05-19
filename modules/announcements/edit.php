@@ -29,7 +29,7 @@ $message_type = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (AnnouncementHelper::updateAnnouncement($ann_id, $_POST, $current_user_id)) {
-        echo '<script>window.location.href = "/kebana-digital/announcements?msg=success";</script>';
+        echo '<script>window.location.href = "' . URL_ROOT . '/announcements?msg=success";</script>';
         exit;
     } else {
         $message = 'Gagal mengemaskini hebahan. Sila cuba lagi.';
@@ -47,7 +47,7 @@ $page_title = 'KEMASKINI HEBAHAN';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Kemaskini Hebahan</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Ubah maklumat untuk hebahan yang dipilih</p>
         </div>
-        <a href="/kebana-digital/announcements" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+        <a href="<?= URL_ROOT ?>/announcements" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i> KEMBALI
         </a>
     </div>

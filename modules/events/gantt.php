@@ -90,7 +90,7 @@ while ($current_time <= $chart_end) {
                 Pemerhatian Jadual: <?php echo htmlspecialchars($master_event['event_title']); ?>
             </p>
         </div>
-        <a href="/kebana-digital/events" class="bg-slate-100 text-slate-500 px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all shadow-sm inline-flex items-center">
+        <a href="<?= URL_ROOT ?>/events" class="bg-slate-100 text-slate-500 px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all shadow-sm inline-flex items-center">
             <i class="fa-solid fa-arrow-left mr-4 text-lg"></i>
             KEMBALI KEPADA SENARAI
         </a>

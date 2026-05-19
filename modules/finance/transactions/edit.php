@@ -12,7 +12,7 @@ require_once __DIR__ . '/../../../includes/auth.php';
 require_once __DIR__ . '/../../../includes/dbconnect.php';
 
 if (!hasRole([888, 1, 2, 3, 6, 7, 55, 66])) {
-    header("Location: /kebana-digital/finance/transactions/list?msg=denied");
+    header("Location: " . URL_ROOT . "/finance/transactions/list?msg=denied");
     exit;
 }
 
@@ -47,7 +47,7 @@ $transaction = $res->fetch_assoc();
 $stmt->close();
 
 if (!$transaction) {
-    header("Location: /kebana-digital/finance/transactions/list?msg=notfound");
+    header("Location: " . URL_ROOT . "/finance/transactions/list?msg=notfound");
     exit;
 }
 
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (FinanceHelper::updateTransaction($transId, $_POST, $scope_cawangan)) {
         $message = 'Transaksi berjaya dikemaskini.';
         $message_type = 'success';
-        echo '<script>setTimeout(function(){ window.location.href = "/kebana-digital/finance/transactions/list"; }, 1500);</script>';
+        echo '<script>setTimeout(function(){ window.location.href = "' . URL_ROOT . '/finance/transactions/list"; }, 1500);</script>';
         $transaction = array_merge($transaction, $_POST); // Update local copy for display
     } else {
         $message = 'Gagal mengemaskini transaksi. Sila semak input atau kebenaran anda.';
@@ -80,7 +80,7 @@ require_once APP_ROOT . '/includes/header.php';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Kemaskini Transaksi</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">ID Transaksi: #<?php echo $transId; ?></p>
         </div>
-        <a href="/kebana-digital/finance/transactions/list" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+        <a href="<?= URL_ROOT ?>/finance/transactions/list" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i>
             KEMBALI
         </a>

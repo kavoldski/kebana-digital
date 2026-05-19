@@ -88,11 +88,11 @@ $filtered_balance = $filtered_income - $filtered_expense;
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Rekod Terperinci Aliran Masuk dan Keluar Dana.</p>
         </div>
         <div class="flex flex-wrap gap-3">
-            <a href="/kebana-digital/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-arrow-trend-up mr-3 text-base"></i>
                 REKOD MASUK
             </a>
-            <a href="/kebana-digital/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-arrow-trend-down mr-3 text-base"></i>
                 REKOD KELUAR
             </a>
@@ -129,7 +129,7 @@ $filtered_balance = $filtered_income - $filtered_expense;
                         CARI
                     </button>
                     <?php if ($search || $from_date || $to_date || $type_filter): ?>
-                    <a href="/kebana-digital/finance/transactions" class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase flex items-center hover:text-red-500">KOSONGKAN</a>
+                    <a href="<?= URL_ROOT ?>/finance/transactions" class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase flex items-center hover:text-red-500">KOSONGKAN</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -203,7 +203,7 @@ $filtered_balance = $filtered_income - $filtered_expense;
                             </td>
                             <td class="px-8 py-6 text-center">
                                 <?php if (!empty($t['receipt_path'])): ?>
-                                <a href="/kebana-digital/<?php echo $t['receipt_path']; ?>" target="_blank" class="text-kebana-blue hover:text-kebana-accent transition-colors" title="Lihat Resit">
+                                <a href="<?= URL_ROOT ?>/<?php echo $t['receipt_path']; ?>" target="_blank" class="text-kebana-blue hover:text-kebana-accent transition-colors" title="Lihat Resit">
                                     <i class="fa-solid fa-file-invoice-dollar text-lg"></i>
                                 </a>
                                 <?php else: ?>
@@ -219,11 +219,11 @@ $filtered_balance = $filtered_income - $filtered_expense;
                             <td class="px-8 py-6 text-right">
                                 <div class="flex justify-end gap-2">
                                     <?php if ($can_edit_delete): ?>
-                                        <a href="/kebana-digital/finance/transactions/edit?id=<?php echo $t['trans_id']; ?>" 
+                                        <a href="<?= URL_ROOT ?>/finance/transactions/edit?id=<?php echo $t['trans_id']; ?>" 
                                            class="p-2 text-slate-300 hover:text-kebana-blue transition-colors" title="Kemaskini">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
-                                        <a href="/kebana-digital/finance/transactions/delete?id=<?php echo $t['trans_id']; ?>" 
+                                        <a href="<?= URL_ROOT ?>/finance/transactions/delete?id=<?php echo $t['trans_id']; ?>" 
                                            onclick="return confirm('Adakah anda pasti mahu memadam transaksi ini?')"
                                            class="p-2 text-slate-300 hover:text-red-600 transition-colors" title="Padam">
                                             <i class="fa-solid fa-trash-can"></i>

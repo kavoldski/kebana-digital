@@ -109,7 +109,7 @@ $page_title = 'ANALISIS BAJET';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Analisis Bajet vs Sebenar</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Semakan Penggunaan Dana dan Prestasi Kewangan Setiap Program.</p>
         </div>
-        <a href="/kebana-digital/finance" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+        <a href="<?= URL_ROOT ?>/finance" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i>
             KEMBALI KE DASHBOARD
         </a>
@@ -338,7 +338,7 @@ $page_title = 'ANALISIS BAJET';
                                 <?php endif; ?>
                             </td>
                             <td class="px-6 py-5 text-center">
-                                <a href="/kebana-digital/finance/event/<?php echo $b['event_id']; ?>"
+                                <a href="<?= URL_ROOT ?>/finance/event/<?php echo $b['event_id']; ?>"
                                    class="text-[9px] font-black text-kebana-blue hover:text-white hover:bg-kebana-blue border border-kebana-blue/30 hover:border-kebana-blue px-4 py-2 transition-all uppercase tracking-widest inline-flex items-center gap-2">
                                     <i class="fa-solid fa-magnifying-glass-chart"></i> Lihat
                                 </a>
@@ -410,7 +410,7 @@ $page_title = 'ANALISIS BAJET';
                                 <?php endif; ?>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <a href="/kebana-digital/finance/event/<?php echo $s['event_id']; ?>"
+                                <a href="<?= URL_ROOT ?>/finance/event/<?php echo $s['event_id']; ?>"
                                    class="text-[8px] font-black text-slate-400 hover:text-white hover:bg-kebana-blue border border-slate-200 hover:border-kebana-blue px-3 py-1.5 transition-all uppercase tracking-widest inline-flex items-center gap-2">
                                     <i class="fa-solid fa-magnifying-glass-chart"></i> Lihat
                                 </a>

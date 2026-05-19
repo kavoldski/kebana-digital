@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (FinanceHelper::addTransaction($_POST, $current_user_id, $current_cawangan_id, $receiptFile)) {
         $message = 'Transaksi berjaya direkodkan.';
         $message_type = 'success';
-        echo '<script>setTimeout(function(){ window.location.href = "/kebana-digital/finance"; }, 1500);</script>';
+        echo '<script>setTimeout(function(){ window.location.href = "' . URL_ROOT . '/finance"; }, 1500);</script>';
     } else {
         $message = 'Gagal merekod transaksi. Sila semak input anda.';
         $message_type = 'error';
@@ -56,7 +56,7 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
             </h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Sila isi butiran <?php echo $preselected_type === 'Income' ? 'pendapatan / penerimaan' : 'perbelanjaan / pembayaran'; ?> di bawah.</p>
         </div>
-        <a href="/kebana-digital/finance" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+        <a href="<?= URL_ROOT ?>/finance" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i>
             KEMBALI
         </a>
@@ -214,7 +214,7 @@ document.getElementById('receipt-input').addEventListener('change', function(e) 
     formData.append('receipt', file);
 
     // Use a more robust path detection
-    const scanUrl = window.location.origin + '/kebana-digital/modules/finance/transactions/ajax_scan.php';
+    const scanUrl = window.location.origin + '<?= URL_ROOT ?>/modules/finance/transactions/ajax_scan.php';
 
     fetch(scanUrl, {
         method: 'POST',

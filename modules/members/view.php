@@ -12,7 +12,7 @@ require_once APP_ROOT . '/includes/header.php';
 $member_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($member_id <= 0) {
-    header('Location: /kebana-digital/members');
+    header('Location: ' . URL_ROOT . '/members');
     exit;
 }
 
@@ -20,7 +20,7 @@ if ($member_id <= 0) {
 $member = MembersHelper::getMemberById($member_id);
 
 if (empty($member)) {
-    header('Location: /kebana-digital/members');
+    header('Location: ' . URL_ROOT . '/members');
     exit;
 }
 
@@ -35,11 +35,11 @@ $page_title = 'PROFIL AHLI';
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">ID AHLI: #<?php echo str_pad($member['member_id'], 4, '0', STR_PAD_LEFT); ?></p>
         </div>
         <div class="flex gap-4">
-            <a href="/kebana-digital/members" class="bg-slate-100 text-slate-600 px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center">
+            <a href="<?= URL_ROOT ?>/members" class="bg-slate-100 text-slate-600 px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center">
                 <i class="fa-solid fa-arrow-left mr-3"></i>
                 SENARAI
             </a>
-            <a href="/kebana-digital/members/edit/<?php echo $member['member_id']; ?>" class="bg-kebana-blue text-white px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-xl flex items-center">
+            <a href="<?= URL_ROOT ?>/members/edit/<?php echo $member['member_id']; ?>" class="bg-kebana-blue text-white px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-xl flex items-center">
                 <i class="fa-solid fa-pen-to-square mr-3"></i>
                 KEMASKINI
             </a>
@@ -133,7 +133,7 @@ $page_title = 'PROFIL AHLI';
                 <p class="text-[9px] text-red-600/70 font-bold uppercase leading-relaxed tracking-tight">
                     Tindakan ini akan memadam rekod ahli secara kekal dari pangkalan data sistem.
                 </p>
-                <a href="/kebana-digital/members?delete=<?php echo $member['member_id']; ?>" class="block w-full py-4 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest text-center hover:bg-red-700 transition-all shadow-lg shadow-red-600/20">
+                <a href="<?= URL_ROOT ?>/members?delete=<?php echo $member['member_id']; ?>" class="block w-full py-4 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest text-center hover:bg-red-700 transition-all shadow-lg shadow-red-600/20">
                     PADAM REKOD AHLI
                 </a>
             </div>

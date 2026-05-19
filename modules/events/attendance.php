@@ -15,7 +15,7 @@ $village_filter = $_GET['village'] ?? '';
 // Handle Token Generation - MUST BE BEFORE ANY HTML OUTPUT (including header.php)
 if (isset($_GET['generate_token']) && $event_id > 0) {
     if (EventsHelper::generateCheckinToken($event_id)) {
-        header("Location: /kebana-digital/events/attendance?event_id=$event_id&msg=token_generated");
+        header("Location: " . URL_ROOT . "/events/attendance?event_id=$event_id&msg=token_generated");
         exit;
     }
 }
@@ -67,7 +67,7 @@ $page_title = 'PENGURUSAN KEHADIRAN DIGITAL';
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Sistem Imbasan QR & Kemaskini Pukal Ahli.</p>
         </div>
         <div class="flex gap-4">
-            <a href="/kebana-digital/events" class="bg-slate-100 text-slate-500 px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center">
+            <a href="<?= URL_ROOT ?>/events" class="bg-slate-100 text-slate-500 px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center">
                 <i class="fa-solid fa-arrow-left mr-3"></i>
                 SENARAI ACARA
             </a>
@@ -152,7 +152,7 @@ $page_title = 'PENGURUSAN KEHADIRAN DIGITAL';
                         <div class="p-3 bg-slate-50 border border-slate-100 rounded text-[9px] font-mono break-all text-slate-400 mb-4 select-all" id="checkin-url">
                             <?php 
                                 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-                                $url = $protocol . "://" . $_SERVER['HTTP_HOST'] . "/kebana-digital/events/checkin?event_id=" . $event_id . "&token=" . $event['checkin_token'];
+                                $url = $protocol . "://" . $_SERVER['HTTP_HOST'] . URL_ROOT . "/events/checkin?event_id=" . $event_id . "&token=" . $event['checkin_token'];
                                 echo $url;
                             ?>
                         </div>
@@ -344,7 +344,7 @@ $page_title = 'PENGURUSAN KEHADIRAN DIGITAL';
     // Live Dashboard Updates (Polling)
     async function updateLiveDashboard() {
         try {
-            const response = await fetch(`/kebana-digital/modules/api/checkin_api.php?event_id=<?php echo $event_id; ?>`);
+            const response = await fetch(`<?= URL_ROOT ?>/modules/api/checkin_api.php?event_id=<?php echo $event_id; ?>`);
             const data = await response.json();
             
             if (data.error) return;

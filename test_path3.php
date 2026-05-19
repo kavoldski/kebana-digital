@@ -1,6 +1,6 @@
 <?php
 $includes_dir = 'C:\XAMPP\htdocs\digital-kebana\kebana-digital\includes';
-$script = 'c:/XAMPP/htdocs/digital-kebana/kebana-digital/src/php/index.php'; // Simulation
+$script = 'c:/XAMPP/htdocs/digital-kebana' . URL_ROOT . '/src/php/index.php'; // Simulation
 
 $script_dir = str_replace('\\', '/', dirname($script));
 $base_dir = str_replace('\\', '/', dirname($includes_dir));

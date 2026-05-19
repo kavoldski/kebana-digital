@@ -14,7 +14,7 @@ if ($event_id <= 0 || empty($token) || !EventsHelper::validateCheckinToken($even
     die('<div style="padding: 50px; text-align: center; font-family: sans-serif;">
             <h2 style="color: #e11d48;">Pautan Tidak Sah</h2>
             <p>Maaf, kod QR ini telah tamat tempoh atau tidak sah. Sila hubungi urus setia acara.</p>
-            <a href="/kebana-digital/portal" style="color: #2563eb; text-decoration: none; font-weight: bold;">Kembali ke Portal</a>
+            <a href="' . URL_ROOT . '/portal" style="color: #2563eb; text-decoration: none; font-weight: bold;">Kembali ke Portal</a>
          </div>');
 }
 
@@ -135,7 +135,7 @@ $event = EventsHelper::getEventById($event_id);
             const formData = new FormData(form);
             
             try {
-                const response = await fetch('/kebana-digital/modules/api/checkin_api.php', {
+                const response = await fetch('<?= URL_ROOT ?>/modules/api/checkin_api.php', {
                     method: 'POST',
                     body: formData
                 });

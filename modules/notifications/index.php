@@ -18,11 +18,11 @@ $page_title = 'NOTIFIKASI SAYA';
 if (isset($_GET['action'])) {
     if ($_GET['action'] === 'clear_all') {
         NotificationHelper::deleteAll($userId);
-        echo "<script>window.location.href = '/kebana-digital/notifications';</script>";
+        echo "<script>window.location.href = '" . URL_ROOT . "/notifications';</script>";
         exit;
     } elseif ($_GET['action'] === 'mark_all_read') {
         NotificationHelper::markAllAsRead($userId);
-        echo "<script>window.location.href = '/kebana-digital/notifications';</script>";
+        echo "<script>window.location.href = '" . URL_ROOT . "/notifications';</script>";
         exit;
     }
 }

@@ -76,19 +76,19 @@ $page_title = 'PENGURUSAN KEWANGAN';
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Pemantauan Aliran Tunai dan Perbelanjaan Persatuan.</p>
         </div>
         <div class="flex flex-wrap gap-3">
-            <a href="/kebana-digital/finance/transactions/list" class="bg-white text-kebana-blue border-2 border-kebana-blue px-7 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/list" class="bg-white text-kebana-blue border-2 border-kebana-blue px-7 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
                 <i class="fa-solid fa-list-check mr-3"></i>
                 LIHAT SEMUA
             </a>
-            <a href="/kebana-digital/finance/budget" class="bg-white text-kebana-blue border-2 border-slate-200 px-7 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/budget" class="bg-white text-kebana-blue border-2 border-slate-200 px-7 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
                 <i class="fa-solid fa-chart-bar mr-3"></i>
                 ANALISIS BAJET
             </a>
-            <a href="/kebana-digital/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-arrow-trend-up mr-3 text-base"></i>
                 REKOD MASUK
             </a>
-            <a href="/kebana-digital/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-arrow-trend-down mr-3 text-base"></i>
                 REKOD KELUAR
             </a>
@@ -273,7 +273,7 @@ $page_title = 'PENGURUSAN KEWANGAN';
                             </td>
                             <td class="px-8 py-6 text-center">
                                 <?php if (!empty($t['receipt_path'])): ?>
-                                <a href="/kebana-digital/<?php echo $t['receipt_path']; ?>" target="_blank" class="text-kebana-blue hover:text-kebana-accent transition-colors" title="Lihat Resit">
+                                <a href="<?= URL_ROOT ?>/<?php echo $t['receipt_path']; ?>" target="_blank" class="text-kebana-blue hover:text-kebana-accent transition-colors" title="Lihat Resit">
                                     <i class="fa-solid fa-file-invoice-dollar text-lg"></i>
                                 </a>
                                 <?php endif; ?>
@@ -293,7 +293,7 @@ $page_title = 'PENGURUSAN KEWANGAN';
             </table>
         </div>
         <div class="p-8 bg-slate-50 border-t border-slate-100 text-center">
-            <a href="/kebana-digital/finance/transactions/list" class="text-[10px] font-black text-kebana-blue uppercase tracking-widest hover:text-kebana-accent transition-colors">
+            <a href="<?= URL_ROOT ?>/finance/transactions/list" class="text-[10px] font-black text-kebana-blue uppercase tracking-widest hover:text-kebana-accent transition-colors">
                 LIHAT SEMUA TRANSAKSI <i class="fa-solid fa-arrow-right ml-2"></i>
             </a>
         </div>

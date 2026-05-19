@@ -19,7 +19,7 @@ function testPath($script) {
     echo "  CSS Path: $css_base_path\n\n";
 }
 
-testPath('c:/XAMPP/htdocs/digital-kebana/kebana-digital/src/php/index.php'); // depth 2
-testPath('c:/XAMPP/htdocs/digital-kebana/kebana-digital/modules/finance/transactions/list.php'); // depth 3
-testPath('c:/XAMPP/htdocs/digital-kebana/kebana-digital/index.php'); // depth 0
+testPath('c:/XAMPP/htdocs/digital-kebana' . URL_ROOT . '/src/php/index.php'); // depth 2
+testPath('c:/XAMPP/htdocs/digital-kebana' . URL_ROOT . '/modules/finance/transactions/list.php'); // depth 3
+testPath('c:/XAMPP/htdocs/digital-kebana' . URL_ROOT . '/index.php'); // depth 0
 ?>

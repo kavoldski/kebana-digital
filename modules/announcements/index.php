@@ -21,7 +21,7 @@ $message = $_GET['msg'] ?? '';
 if (isset($_GET['delete_id'])) {
     $delete_id = (int)$_GET['delete_id'];
     if (AnnouncementHelper::deleteAnnouncement($delete_id, $current_user_id)) {
-        echo '<script>window.location.href = "/kebana-digital/announcements?msg=deleted";</script>';
+        echo '<script>window.location.href = "' . URL_ROOT . '/announcements?msg=deleted";</script>';
         exit;
     }
 }
@@ -38,7 +38,7 @@ $page_title = 'PENGURUSAN HEBAHAN';
             <h2 class="text-2xl font-black text-kebana-blue tracking-tight uppercase italic">Senarai Hebahan / Pengumuman</h2>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Urus maklumat yang akan dipaparkan di portal awam</p>
         </div>
-        <a href="/kebana-digital/announcements/create" class="bg-kebana-blue text-white px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-xl flex items-center">
+        <a href="<?= URL_ROOT ?>/announcements/create" class="bg-kebana-blue text-white px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-xl flex items-center">
             <i class="fa-solid fa-plus mr-3"></i> Tambah Hebahan
         </a>
     </div>
@@ -103,10 +103,10 @@ $page_title = 'PENGURUSAN HEBAHAN';
                             </td>
                             <td class="py-5 px-6 text-right">
                                 <div class="flex items-center justify-end space-x-3 opacity-50 group-hover:opacity-100 transition-opacity">
-                                    <a href="/kebana-digital/announcements/edit/<?php echo $ann['announcement_id']; ?>" class="w-8 h-8 bg-slate-100 text-slate-600 hover:bg-kebana-blue hover:text-white rounded flex items-center justify-center transition-colors" title="Kemaskini">
+                                    <a href="<?= URL_ROOT ?>/announcements/edit/<?php echo $ann['announcement_id']; ?>" class="w-8 h-8 bg-slate-100 text-slate-600 hover:bg-kebana-blue hover:text-white rounded flex items-center justify-center transition-colors" title="Kemaskini">
                                         <i class="fa-solid fa-pen-to-square text-[10px]"></i>
                                     </a>
-                                    <a href="/kebana-digital/announcements?delete_id=<?php echo $ann['announcement_id']; ?>" onclick="return confirm('Adakah anda pasti untuk memadam hebahan ini?');" class="w-8 h-8 bg-slate-100 text-slate-600 hover:bg-red-500 hover:text-white rounded flex items-center justify-center transition-colors" title="Padam">
+                                    <a href="<?= URL_ROOT ?>/announcements?delete_id=<?php echo $ann['announcement_id']; ?>" onclick="return confirm('Adakah anda pasti untuk memadam hebahan ini?');" class="w-8 h-8 bg-slate-100 text-slate-600 hover:bg-red-500 hover:text-white rounded flex items-center justify-center transition-colors" title="Padam">
                                         <i class="fa-solid fa-trash-can text-[10px]"></i>
                                     </a>
                                 </div>
