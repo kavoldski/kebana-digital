@@ -11,7 +11,7 @@ if (!defined('APP_ROOT')) {
 require_once APP_ROOT . '/includes/dbconnect.php';
 
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
-    header('Location: /kebana-digital/dashboard');
+    header('Location: ' . URL_ROOT . '/dashboard');
     exit();
 }
 
@@ -77,7 +77,7 @@ if ($table_check && $table_check->num_rows > 0) {
                         </div>
                     <?php endif; ?>
 
-                    <form action="/kebana-digital/register" method="POST" class="space-y-8">
+                    <form action="<?php echo URL_ROOT; ?>/register" method="POST" class="space-y-8">
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div>
                                 <label for="username" class="mb-3 block text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">ID Pengguna</label>
@@ -191,7 +191,7 @@ if ($table_check && $table_check->num_rows > 0) {
 
                 <div class="mt-10 border-t border-slate-100 pt-8">
                     <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Sudah mempunyai akaun?</p>
-                    <a href="/kebana-digital/login" class="mt-5 inline-flex rounded-full border border-kebana-blue px-6 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-kebana-blue transition hover:bg-kebana-blue hover:text-white">
+                    <a href="<?php echo URL_ROOT; ?>/login" class="mt-5 inline-flex rounded-full border border-kebana-blue px-6 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-kebana-blue transition hover:bg-kebana-blue hover:text-white">
                         Log Masuk
                     </a>
                     <p class="mt-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300">
@@ -202,7 +202,7 @@ if ($table_check && $table_check->num_rows > 0) {
 
             <aside class="relative hidden min-h-[860px] overflow-hidden bg-slate-900 lg:block">
                 <img
-                    src="/kebana-digital/public/assets/img/login-hero.svg"
+                    src="<?php echo URL_ROOT; ?>/public/assets/img/login-hero.svg"
                     alt="KEBANA Digital visual"
                     class="absolute inset-0 h-full w-full object-cover"
                 >

@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Basic validation
     if (empty($username) || empty($password)) {
-        header('Location: /kebana-digital/login?error=All fields are required');
+        header('Location: ' . URL_ROOT . '/login?error=All fields are required');
         exit();
     }
 
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Check if user exists
         if ($result->num_rows === 0) {
-            header('Location: /kebana-digital/login?error=Invalid username or password');
+            header('Location: ' . URL_ROOT . '/login?error=Invalid username or password');
             exit();
         }
 
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Verify password using bcrypt
         if (!password_verify($password, $user['password_hash'])) {
-            header('Location: /kebana-digital/login?error=Invalid username or password');
+            header('Location: ' . URL_ROOT . '/login?error=Invalid username or password');
             exit();
         }
 
@@ -93,17 +93,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
 
         // Redirect to dashboard
-        header('Location: /kebana-digital/dashboard');
+        header('Location: ' . URL_ROOT . '/dashboard');
         exit();
 
     } catch (Exception $e) {
         error_log("Login error: " . $e->getMessage());
-        header('Location: /kebana-digital/login?error=An error occurred. Please try again.');
+        header('Location: ' . URL_ROOT . '/login?error=An error occurred. Please try again.');
         exit();
     }
 } else {
     // If accessed directly without POST, redirect to login
-    header('Location: /kebana-digital/login');
+    header('Location: ' . URL_ROOT . '/login');
     exit();
 }
 ?>

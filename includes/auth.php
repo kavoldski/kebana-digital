@@ -13,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Check if user is logged in
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     // If not logged in, redirect to login page
-    header('Location: /kebana-digital/login');
+    header('Location: ' . URL_ROOT . '/login');
     exit();
 }
 
@@ -30,7 +30,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['username']) || !isset($_SE
 if (isset($_SESSION['last_activity']) && (time() - (int)$_SESSION['last_activity']) > INACTIVITY_TIMEOUT_SECONDS) {
     session_unset();
     session_destroy();
-    header('Location: /kebana-digital/login?error=Logged out due to inactivity');
+    header('Location: ' . URL_ROOT . '/login?error=Logged out due to inactivity');
     exit();
 }
 
@@ -80,7 +80,7 @@ function isAdmin() {
  */
 function logout() {
     session_destroy();
-    header('Location: /kebana-digital/login?logout=true');
+    header('Location: ' . URL_ROOT . '/login?logout=true');
     exit();
 }
 

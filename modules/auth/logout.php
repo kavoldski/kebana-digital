@@ -19,6 +19,6 @@ if (isset($_COOKIE['kebana_remember'])) {
 }
 
 // Redirect to login page
-header('Location: /kebana-digital/login?logout=true');
+header('Location: ' . URL_ROOT . '/login?logout=true');
 exit();
 ?>

@@ -7,7 +7,7 @@
  */
 
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
-    header('Location: /kebana-digital/dashboard');
+    header('Location: ' . URL_ROOT . '/dashboard');
     exit();
 }
 ?>
@@ -65,7 +65,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
                         </div>
                     <?php endif; ?>
 
-                    <form action="/kebana-digital/authenticate" method="POST" class="space-y-6">
+                    <form action="<?php echo URL_ROOT; ?>/authenticate" method="POST" class="space-y-6">
                         <div>
                             <label for="username" class="mb-3 block text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">ID Pengguna</label>
                             <input
@@ -106,7 +106,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 
                 <div class="mt-10 border-t border-slate-100 pt-8">
                     <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Tiada akaun sistem?</p>
-                    <a href="/kebana-digital/sign_up" class="mt-5 inline-flex rounded-full border border-kebana-blue px-6 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-kebana-blue transition hover:bg-kebana-blue hover:text-white">
+                    <a href="<?php echo URL_ROOT; ?>/sign_up" class="mt-5 inline-flex rounded-full border border-kebana-blue px-6 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-kebana-blue transition hover:bg-kebana-blue hover:text-white">
                         Daftar Akaun
                     </a>
                     <p class="mt-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300">
@@ -117,7 +117,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 
             <aside class="relative hidden min-h-[760px] overflow-hidden bg-slate-900 lg:block">
                 <img
-                    src="/kebana-digital/public/assets/img/login-hero.jpg"
+                    src="<?php echo URL_ROOT; ?>/public/assets/img/login-hero.jpg"
                     alt="KEBANA Digital visual"
                     class="absolute inset-0 h-full w-full object-cover"
                 >

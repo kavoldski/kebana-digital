@@ -56,7 +56,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
             -webkit-backdrop-filter: blur(12px);
         }
         .hero-gradient {
-            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.8)), url('/kebana-digital/public/assets/img/portal-hero.png');
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.8)), url('<?php echo URL_ROOT; ?>/public/assets/img/portal-hero.png');
             background-size: cover;
             background-position: center;
         }
@@ -79,7 +79,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
         <div class="max-w-7xl mx-auto px-6 h-20 lg:h-24 flex items-center justify-between">
             <div class="flex items-center space-x-3 lg:space-x-4">
                 <div class="p-1.5 lg:p-2 bg-white rounded-xl shadow-sm">
-                    <img src="/kebana-digital/public/assets/img/kebana-logo-icon.png" alt="Logo" class="h-8 lg:h-10 w-auto">
+                    <img src="<?php echo URL_ROOT; ?>/public/assets/img/kebana-logo-icon.png" alt="Logo" class="h-8 lg:h-10 w-auto">
                 </div>
                 <div class="flex flex-col">
                     <span class="text-xl lg:text-2xl font-black tracking-tighter uppercase text-kebana-blue leading-none">KEBANA<span class="text-kebana-gold">.</span></span>
@@ -89,7 +89,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
             
             <div class="flex items-center space-x-3 lg:space-x-6">
                 <?php if ($isLoggedIn): ?>
-                    <a href="/kebana-digital/dashboard" class="px-5 lg:px-8 py-2.5 lg:py-3.5 bg-kebana-blue text-white text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl shadow-kebana-blue/20 rounded-full">
+                    <a href="<?php echo URL_ROOT; ?>/dashboard" class="px-5 lg:px-8 py-2.5 lg:py-3.5 bg-kebana-blue text-white text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl shadow-kebana-blue/20 rounded-full">
                         DASHBOARD
                     </a>
                 <?php endif; ?>
@@ -186,7 +186,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
         <div class="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row justify-between items-center gap-12">
             <div class="flex items-center space-x-4">
                 <div class="p-2 bg-slate-50 rounded-xl">
-                    <img src="/kebana-digital/public/assets/img/kebana-logo-icon.png" alt="Logo" class="h-6 w-auto grayscale">
+                    <img src="<?php echo URL_ROOT; ?>/public/assets/img/kebana-logo-icon.png" alt="Logo" class="h-6 w-auto grayscale">
                 </div>
                 <div class="flex flex-col">
                     <span class="text-lg font-black tracking-tighter uppercase text-slate-400">KEBANA<span class="text-kebana-gold">.</span></span>
