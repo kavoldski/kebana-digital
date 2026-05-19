@@ -19,7 +19,7 @@ class EmbeddingService {
         // Load AI configuration
         $config = require APP_ROOT . '/config/ai.php';
         $apiKey = $config['api_key'] ?? '';
-        $model = $config['embedding_model'] ?? 'text-embedding-004';
+        $model = $config['embedding_model'] ?? 'gemini-embedding-001';
         $verifySsl = $config['verify_ssl'] ?? true;
 
         if (empty($apiKey)) {

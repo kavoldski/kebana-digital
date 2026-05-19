@@ -208,7 +208,7 @@ Jawapan:";
         // 3. Call Google Gemini API for synthesis
         $config = require APP_ROOT . '/config/ai.php';
         $apiKey = $config['api_key'] ?? '';
-        $model = $config['synthesis_model'] ?? 'gemini-1.5-flash';
+        $model = $config['synthesis_model'] ?? 'gemini-2.5-flash';
         $verifySsl = $config['verify_ssl'] ?? true;
 
         if (empty($apiKey)) {
