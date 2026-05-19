@@ -4,6 +4,10 @@
  */
 require_once __DIR__ . '/../../bootstrap.php';
 
+// Prevent timeout and memory limits for document reindexing
+set_time_limit(0);
+ini_set('memory_limit', '1024M');
+
 use App\Services\RAGService;
 use App\Core\Database;
 
