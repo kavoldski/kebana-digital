@@ -11,8 +11,8 @@ if (file_exists(__DIR__ . '/database.local.php')) {
 
 return array_merge([
     'host' => 'localhost',
-    'user' => 'u123456789_kebana', // Fill this with your Hostinger DB User
-    'pass' => 'YOUR_HOSTINGER_DB_PASSWORD', // Fill this with your Hostinger DB Pass
-    'name' => 'u123456789_kebana_db', // Fill this with your Hostinger DB Name
+    'user' => 'u350551567_kebana_db', // Hostinger DB User
+    'pass' => 'K3b@n@_data123**',     // Hostinger DB Password
+    'name' => 'u350551567_kebana_db', // Hostinger DB Name
     'charset' => 'utf8mb4'
 ], $localConfig);
