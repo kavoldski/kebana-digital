@@ -7,22 +7,9 @@
  * Configure your database credentials below
  */
 
-// Database Configuration
-define('DB_HOST', '127.0.0.1');      // MySQL Host
-define('DB_USER', 'root');           // MySQL Username
-define('DB_PASS', '');               // MySQL Password (empty for XAMPP default)
-define('DB_NAME', 'kebana_db');      // Database Name
-
-// Create connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Set charset to UTF-8
-$conn->set_charset("utf8mb4");
+// Dynamic connection from core Database wrapper
+require_once __DIR__ . '/../bootstrap.php';
+$conn = \App\Core\Database::getInstance()->getConnection();
 
 // Optional: Display connection status in development
 // echo "Connected successfully to database: " . DB_NAME;
