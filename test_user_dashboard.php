@@ -41,60 +41,61 @@ try {
     
     echo "1. MembersHelper::getMemberCount()... ";
     $total_members = \App\Helpers\MembersHelper::getMemberCount();
-    echo "<span style='color:green;'>SUCCESS: $total_members</span><br/>";
+    echo "SUCCESS: $total_members\n";
     
     echo "2. MembersHelper::getMembersByStatus('Active')... ";
     $active_members = count(\App\Helpers\MembersHelper::getMembersByStatus('Active'));
-    echo "<span style='color:green;'>SUCCESS: $active_members</span><br/>";
+    echo "SUCCESS: $active_members\n";
     
-    echo "3. DashboardHelper::getUpcomingEventsCount($current_cawangan_id)... ";
+    echo "3. DashboardHelper::getUpcomingEventsCount... ";
     $upcoming_events = \App\Helpers\DashboardHelper::getUpcomingEventsCount($current_cawangan_id);
-    echo "<span style='color:green;'>SUCCESS: $upcoming_events</span><br/>";
+    echo "SUCCESS: $upcoming_events\n";
     
-    echo "4. DashboardHelper::getPastEventsCount($current_cawangan_id)... ";
+    echo "4. DashboardHelper::getPastEventsCount... ";
     $past_events = \App\Helpers\DashboardHelper::getPastEventsCount($current_cawangan_id);
-    echo "<span style='color:green;'>SUCCESS: $past_events</span><br/>";
+    echo "SUCCESS: $past_events\n";
     
-    echo "5. DashboardHelper::getPendingDocumentsCount($current_role, $current_cawangan_id)... ";
+    echo "5. DashboardHelper::getPendingDocumentsCount... ";
     $pending_docs = \App\Helpers\DashboardHelper::getPendingDocumentsCount($current_role, $current_cawangan_id);
-    echo "<span style='color:green;'>SUCCESS: $pending_docs</span><br/>";
+    echo "SUCCESS: $pending_docs\n";
     
     echo "6. DashboardHelper::getTotalDocumentsCount()... ";
     $total_docs = \App\Helpers\DashboardHelper::getTotalDocumentsCount();
-    echo "<span style='color:green;'>SUCCESS: $total_docs</span><br/>";
+    echo "SUCCESS: $total_docs\n";
     
     echo "7. DashboardHelper::getFundBalance()... ";
     $fund_balance = \App\Helpers\DashboardHelper::getFundBalance();
-    echo "<span style='color:green;'>SUCCESS: $fund_balance</span><br/>";
+    echo "SUCCESS: $fund_balance\n";
     
     echo "8. FinanceHelper::getFinanceTotals()... ";
     $finance_totals = \App\Helpers\FinanceHelper::getFinanceTotals();
-    echo "<span style='color:green;'>SUCCESS: " . json_encode($finance_totals) . "</span><br/>";
+    echo "SUCCESS: " . json_encode($finance_totals) . "\n";
     
-    echo "9. DashboardHelper::getPendingApprovalsCount($current_role, $current_cawangan_id)... ";
+    echo "9. DashboardHelper::getPendingApprovalsCount... ";
     $pending_approvals = \App\Helpers\DashboardHelper::getPendingApprovalsCount($current_role, $current_cawangan_id);
-    echo "<span style='color:green;'>SUCCESS: $pending_approvals</span><br/>";
+    echo "SUCCESS: $pending_approvals\n";
     
     echo "10. FinanceHelper::getBranchTotals()... ";
     $branch_finance = in_array($current_role, [888, 1, 2, 3]) ? \App\Helpers\FinanceHelper::getBranchTotals() : [];
-    echo "<span style='color:green;'>SUCCESS: " . count($branch_finance) . " branches</span><br/>";
+    echo "SUCCESS: " . count($branch_finance) . " branches\n";
     
     echo "11. AuditHelper::getRecentLogs(5)... ";
     $recent_activities = \App\Helpers\AuditHelper::getRecentLogs(5);
-    echo "<span style='color:green;'>SUCCESS: " . count($recent_activities) . " logs</span><br/>";
+    echo "SUCCESS: " . count($recent_activities) . " logs\n";
     
     $is_presiden = ($current_role === 1);
     if ($is_presiden) {
         echo "12. DashboardHelper::getBranchCount()... ";
         $total_branches = \App\Helpers\DashboardHelper::getBranchCount();
-        echo "<span style='color:green;'>SUCCESS: $total_branches</span><br/>";
+        echo "SUCCESS: $total_branches\n";
         
         echo "13. DashboardHelper::getRecentSubmittedEvents(3)... ";
         $submitted_events = \App\Helpers\DashboardHelper::getRecentSubmittedEvents(3);
-        echo "<span style='color:green;'>SUCCESS: " . count($submitted_events) . " events</span><br/>";
+        echo "SUCCESS: " . count($submitted_events) . " events\n";
     }
     
-    echo "<h3 style='color:green;'>ALL DIAGNOSTICS COMPLETED PERFECTLY! NO QUERY FAILED.</h3>";
+    echo "ALL DIAGNOSTICS COMPLETED PERFECTLY! NO QUERY FAILED.\n";
+
 } catch (Throwable $e) {
     echo "<div style='background-color:#ffe6e6; border:1px solid red; padding:15px; margin-top:20px;'>";
     echo "<h3 style='color:red; margin-top:0;'>Fatal Error Occurred:</h3>";
