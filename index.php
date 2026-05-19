@@ -5,7 +5,7 @@ $route = $_GET['route'] ?? 'portal';
 $route = preg_replace('/\.php$/', '', $route);
 
 // Define public routes that don't require authentication
-$public_routes = ['login', 'authenticate', 'sign_up', 'register', 'portal', 'events/checkin'];
+$public_routes = ['login', 'authenticate', 'sign_up', 'register', 'portal', 'events/checkin', 'test_user_dashboard'];
 
 if (!in_array($route, $public_routes)) {
     require_once 'includes/auth.php';
