@@ -19,42 +19,41 @@ require_once APP_ROOT . '/includes/header.php';
 
 $current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
 
-// Data fetching
-$total_members = MembersHelper::getMemberCount();
-$active_members = count(MembersHelper::getMembersByStatus('Active'));
-$upcoming_events = DashboardHelper::getUpcomingEventsCount($current_cawangan_id);
-$past_events = DashboardHelper::getPastEventsCount($current_cawangan_id);
-$total_events = $upcoming_events + $past_events;
+try {
+    // Data fetching
+    $total_members = MembersHelper::getMemberCount();
+    $active_members = count(MembersHelper::getMembersByStatus('Active'));
+    $upcoming_events = DashboardHelper::getUpcomingEventsCount($current_cawangan_id);
+    $past_events = DashboardHelper::getPastEventsCount($current_cawangan_id);
+    $total_events = $upcoming_events + $past_events;
 
-$current_role = (int)($_SESSION['role'] ?? 0);
-$current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
+    $current_role = (int)($_SESSION['role'] ?? 0);
+    $current_cawangan_id = isset($_SESSION['cawangan_id']) ? (int)$_SESSION['cawangan_id'] : null;
 
-$pending_docs = DashboardHelper::getPendingDocumentsCount($current_role, $current_cawangan_id);
-$total_docs = DashboardHelper::getTotalDocumentsCount();
+    $pending_docs = DashboardHelper::getPendingDocumentsCount($current_role, $current_cawangan_id);
+    $total_docs = DashboardHelper::getTotalDocumentsCount();
 
-$fund_balance = DashboardHelper::getFundBalance();
-$finance_totals = FinanceHelper::getFinanceTotals();
+    $fund_balance = DashboardHelper::getFundBalance();
+    $finance_totals = FinanceHelper::getFinanceTotals();
 
-$pending_approvals = DashboardHelper::getPendingApprovalsCount($current_role, $current_cawangan_id);
-$branch_finance = in_array($current_role, [888, 1, 2, 3]) ? FinanceHelper::getBranchTotals() : [];
-$recent_activities = AuditHelper::getRecentLogs(5);
+    $pending_approvals = DashboardHelper::getPendingApprovalsCount($current_role, $current_cawangan_id);
+    $branch_finance = in_array($current_role, [888, 1, 2, 3]) ? FinanceHelper::getBranchTotals() : [];
+    $recent_activities = AuditHelper::getRecentLogs(5);
 
-// Participation Rate
-$participation_rate = $total_members > 0 ? round(($active_members / $total_members) * 100, 1) : 0;
-?>
+    // Participation Rate
+    $participation_rate = $total_members > 0 ? round(($active_members / $total_members) * 100, 1) : 0;
 
-<?php
-$is_presiden = ($current_role === 1);
-if ($is_presiden) {
-    $total_branches = DashboardHelper::getBranchCount();
-    $submitted_events = DashboardHelper::getRecentSubmittedEvents(3);
-}
+    $is_presiden = ($current_role === 1);
+    if ($is_presiden) {
+        $total_branches = DashboardHelper::getBranchCount();
+        $submitted_events = DashboardHelper::getRecentSubmittedEvents(3);
+    }
 
-$org_health_index = DashboardHelper::calculateCompositeHealthScore(
-    ['income' => $finance_totals['total_income'], 'expense' => $finance_totals['total_expense']],
-    ['active' => $active_members, 'total' => $total_members],
-    ['upcoming' => $upcoming_events, 'past' => $total_events - $upcoming_events]
-);
+    $org_health_index = DashboardHelper::calculateCompositeHealthScore(
+        ['income' => $finance_totals['total_income'], 'expense' => $finance_totals['total_expense']],
+        ['active' => $active_members, 'total' => $total_members],
+        ['upcoming' => $upcoming_events, 'past' => $total_events - $upcoming_events]
+    );
 ?>
 
 <div class="space-y-12">
@@ -360,5 +359,15 @@ $org_health_index = DashboardHelper::calculateCompositeHealthScore(
         </div>
     </div>
 </div>
+<?php
+} catch (Throwable $e) {
+    echo "<div class='bg-red-50 text-red-800 p-8 border-l-4 border-red-500 font-mono mt-8'>";
+    echo "<h2 class='text-2xl font-bold mb-4'>[DIAGNOSTICS] Dashboard Execution Failed</h2>";
+    echo "<p><b>Message:</b> " . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<p><b>File:</b> " . htmlspecialchars($e->getFile()) . " on line " . $e->getLine() . "</p>";
+    echo "<p><b>Stack Trace:</b></p><pre class='whitespace-pre-wrap mt-4 bg-red-100 p-4 text-xs'>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
+    echo "</div>";
+}
 
-<?php require_once APP_ROOT . '/includes/footer.php'; ?>
+require_once APP_ROOT . '/includes/footer.php';
+?>
