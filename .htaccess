@@ -1,5 +1,5 @@
 RewriteEngine On
-RewriteBase /kebana-digital/
+# RewriteBase /kebana-digital/
 
 # Static files - allow them to be served directly
 RewriteCond %{REQUEST_FILENAME} -f [OR]
