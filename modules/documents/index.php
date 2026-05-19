@@ -625,7 +625,7 @@ async function performAISearch() {
     searchBtn.classList.add('opacity-50');
 
     try {
-        const response = await fetch('/kebana-digital/modules/documents/ajax_rag_search.php', {
+        const response = await fetch('<?= URL_ROOT ?>/modules/documents/ajax_rag_search.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query })
@@ -643,7 +643,7 @@ async function performAISearch() {
                 const score = Math.round(source.score * 100);
                 const ext = source.file_path.split('.').pop().toLowerCase();
                 const searchParam = ext === 'pdf' ? `#search="${encodeURIComponent(source.chunk_text.substring(0, 40))}"` : '';
-                const fullUrl = `/kebana-digital/${source.file_path}${searchParam}`;
+                const fullUrl = `<?= URL_ROOT ?>/${source.file_path}${searchParam}`;
 
                 const card = document.createElement('div');
                 card.className = "bg-white/5 border border-white/10 p-4 hover:bg-white/10 transition-all cursor-pointer group";
@@ -707,7 +707,7 @@ async function reindexAll() {
     btn.innerHTML = `<p class="text-[10px] font-black text-kebana-blue uppercase italic flex items-center animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i> MEMPROSES...</p>`;
 
     try {
-        const response = await fetch('/kebana-digital/modules/documents/ajax_reindex.php', {
+        const response = await fetch('<?= URL_ROOT ?>/modules/documents/ajax_reindex.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ all: true })
