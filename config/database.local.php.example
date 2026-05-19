@@ -1,0 +1,14 @@
+<?php
+/**
+ * KEBANA Digital Management System - Local Database Overrides (EXAMPLE)
+ * File: config/database.local.php.example
+ * 
+ * Copy this file to config/database.local.php for local development.
+ */
+
+return [
+    'host' => '127.0.0.1',
+    'user' => 'root',
+    'pass' => '',
+    'name' => 'kebana_db',
+];

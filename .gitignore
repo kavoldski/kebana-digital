@@ -1,4 +1,5 @@
 config/ai.local.php
+config/database.local.php
 vendor/
 uploads/
 .idea/

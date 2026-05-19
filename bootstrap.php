@@ -17,7 +17,12 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 
 define('APP_ROOT', __DIR__);
-define('URL_ROOT', '/kebana-digital');
+// Automatically detect if running on localhost (local dev) or live production on Hostinger
+if (isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1' || strpos($_SERVER['HTTP_HOST'], '192.168.') === 0)) {
+    define('URL_ROOT', '/kebana-digital');
+} else {
+    define('URL_ROOT', ''); // Production root domain (kebana.digital)
+}
 $base_path = URL_ROOT . '/';
 
 define('LOGO_ICON', URL_ROOT . '/public/assets/img/kebana-logo-icon.png');
