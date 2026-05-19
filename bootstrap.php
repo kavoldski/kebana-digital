@@ -8,6 +8,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Enable secure debug diagnostics on production via query parameter
+if (isset($_GET['debug']) && $_GET['debug'] === 'kebana_debug') {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+}
+
 // Set Timezone to Malaysia
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
