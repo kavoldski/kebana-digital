@@ -75,7 +75,7 @@ if (isset($_POST['add_sub_event'])) {
         if (isset($_FILES['proposal_file']) && $_FILES['proposal_file']['error'] === UPLOAD_ERR_OK) {
             EventsHelper::handleDocumentUpload($new_id, $_FILES['proposal_file'], $current_user_id);
         }
-        header("Location: " . URL_ROOT . "/events/view/$eventId?msg=sub_added");
+        echo '<script>window.location.href = "' . URL_ROOT . '/events/view/' . $eventId . '?msg=sub_added";</script>';
         exit;
     }
 }

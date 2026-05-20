@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             EventsHelper::handleDocumentUpload($event_id, $_FILES['proposal_file'], $current_user_id);
         }
 
-        header("Location: " . URL_ROOT . "/events?msg=created");
+        echo '<script>window.location.href = "' . URL_ROOT . '/events?msg=created";</script>';
         exit;
     } else {
         $message = 'Gagal mendaftar acara. Sila pastikan semua maklumat wajib diisi.';
