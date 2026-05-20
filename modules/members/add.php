@@ -382,7 +382,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Check if name is on the next line
                     if (i + 1 < lines.length) {
                         const nextLine = lines[i+1].trim();
-                        if (nextLine.length >= 2 && !/IC|NO|TEL|PHONE|JANTINA|GENDER|KAMPUNG|KAWASAN|ALAMAT|VILLAGE|STATUS/i.test(nextLine)) {
+                        // Anchor label checks to avoid matching sub-parts of values
+                        if (nextLine.length >= 2 && !/^(?:IC|NO|TEL|PHONE|JANTINA|GENDER|KAMPUNG|KAWASAN|ALAMAT|VILLAGE|ADDRESS|STATUS)[:\-=\s]*$/i.test(nextLine)) {
                             name = nextLine;
                             break;
                         }
@@ -415,7 +416,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Check if village is on the next line
                     if (i + 1 < lines.length) {
                         const nextLine = lines[i+1].trim();
-                        if (nextLine.length >= 2 && !/IC|NO|TEL|PHONE|JANTINA|GENDER|NAMA|NAME|STATUS/i.test(nextLine)) {
+                        // Anchor label checks to avoid matching sub-parts of values (like KAMPUNG DATA KAKUS)
+                        if (nextLine.length >= 2 && !/^(?:IC|NO|TEL|PHONE|JANTINA|GENDER|NAMA|NAME|STATUS|KAMPUNG|KAWASAN|ALAMAT|VILLAGE|ADDRESS)[:\-=\s]*$/i.test(nextLine)) {
                             village = nextLine;
                             break;
                         }
