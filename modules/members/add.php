@@ -360,6 +360,9 @@ document.addEventListener('DOMContentLoaded', function() {
             phone = `${phoneMatch[1]}-${phoneMatch[2]}`;
         }
 
+        // Comprehensive regex to match lines containing ONLY standard form label keywords and symbols
+        const labelLineRegex = /^(?:IC|NO|TEL|PHONE|TELEFON|JANTINA|GENDER|NAMA|NAME|STATUS|KAMPUNG|KAWASAN|ALAMAT|VILLAGE|ADDRESS|PENUH|KAD|PENGENALAN|[\/\-=\s:\.])+$/i;
+
         // 3. Robust Name Parsing (allowing optional bullet points/numbers at the start)
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
@@ -382,8 +385,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Check if name is on the next line
                     if (i + 1 < lines.length) {
                         const nextLine = lines[i+1].trim();
-                        // Anchor label checks to avoid matching sub-parts of values
-                        if (nextLine.length >= 2 && !/^(?:IC|NO|TEL|PHONE|JANTINA|GENDER|KAMPUNG|KAWASAN|ALAMAT|VILLAGE|ADDRESS|STATUS)[:\-=\s]*$/i.test(nextLine)) {
+                        // Exclude next line if it consists purely of label keywords or formatting
+                        if (nextLine.length >= 2 && !labelLineRegex.test(nextLine)) {
                             name = nextLine;
                             break;
                         }
@@ -416,8 +419,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Check if village is on the next line
                     if (i + 1 < lines.length) {
                         const nextLine = lines[i+1].trim();
-                        // Anchor label checks to avoid matching sub-parts of values (like KAMPUNG DATA KAKUS)
-                        if (nextLine.length >= 2 && !/^(?:IC|NO|TEL|PHONE|JANTINA|GENDER|NAMA|NAME|STATUS|KAMPUNG|KAWASAN|ALAMAT|VILLAGE|ADDRESS)[:\-=\s]*$/i.test(nextLine)) {
+                        // Exclude next line if it consists purely of label keywords or formatting
+                        if (nextLine.length >= 2 && !labelLineRegex.test(nextLine)) {
                             village = nextLine;
                             break;
                         }

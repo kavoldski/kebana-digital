@@ -176,8 +176,47 @@ $page_title = 'DAFTAR ACARA';
 
             <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3"><?php echo $is_pusat_creator ? 'Muat Naik Guideline (PDF)' : 'Muat Naik Kertas Kerja (PDF/Imej)'; ?></label>
-                <input type="file" name="proposal_file" accept=".pdf,.jpg,.jpeg,.png"
-                       class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all">
+                
+                <div class="space-y-4">
+                    <div class="relative group border-2 border-dashed border-slate-200 hover:border-kebana-blue bg-slate-50/50 p-8 text-center transition-all cursor-pointer rounded overflow-hidden" id="widget_proposal_zone">
+                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-300 group-hover:text-kebana-blue mb-3 block transition-colors" id="widget_proposal_icon"></i>
+                        <input type="file" name="proposal_file" id="widget_proposal_input" accept=".pdf,.jpg,.jpeg,.png" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                        <p id="widget_proposal_label" class="text-xs font-black text-slate-400 uppercase tracking-widest">Klik atau seret fail ke sini</p>
+                        <p class="text-[8px] text-slate-300 font-bold uppercase mt-1 italic">PDF, JPG, JPEG, PNG (Maks: 10MB)</p>
+                    </div>
+                    
+                    <!-- File Preview Container -->
+                    <div id="widget_proposal_preview" class="hidden p-4 bg-slate-50 border border-slate-200 justify-between items-center rounded transition-all">
+                        <div class="flex items-center space-x-4">
+                            <div id="widget_preview_thumbnail" class="w-12 h-12 bg-white flex items-center justify-center text-kebana-blue rounded border border-slate-100 overflow-hidden font-bold shadow-sm">
+                                <!-- Thumbnail generated via JS -->
+                            </div>
+                            <div>
+                                <p id="widget_preview_name" class="text-xs font-black text-slate-800 uppercase italic truncate max-w-[250px] md:max-w-[400px]">file_name.pdf</p>
+                                <p id="widget_preview_size" class="text-[9px] font-bold text-slate-400 uppercase mt-1">1.2 MB</p>
+                            </div>
+                        </div>
+                        <button type="button" id="widget_proposal_clear" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-full transition-all shadow-sm" title="Batal pilihan">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        setupFileInputWidget(
+                            'widget_proposal_input', 
+                            'widget_proposal_zone', 
+                            'widget_proposal_label', 
+                            'widget_proposal_icon', 
+                            'widget_proposal_preview', 
+                            'widget_preview_thumbnail', 
+                            'widget_preview_name', 
+                            'widget_preview_size', 
+                            'widget_proposal_clear'
+                        );
+                    });
+                </script>
             </div>
 
             <div>

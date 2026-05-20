@@ -82,13 +82,30 @@ $page_title = 'MUAT NAIK FAIL';
     <div class="bg-white p-12 border border-slate-100 shadow-xl">
         <form method="POST" enctype="multipart/form-data" class="space-y-12">
             <!-- File Input -->
-            <div class="relative group">
+            <div class="space-y-4">
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Pilih Fail Untuk Diarkibkan</label>
-                <div id="drop-zone" class="border-4 border-dashed border-slate-100 p-12 text-center group-hover:border-kebana-blue/30 transition-all cursor-pointer relative">
+                
+                <div class="relative group border-4 border-dashed border-slate-100 p-12 text-center hover:border-kebana-blue/30 transition-all cursor-pointer relative overflow-hidden" id="drop-zone">
                     <i id="upload-icon" class="fa-solid fa-cloud-arrow-up text-6xl text-slate-100 group-hover:text-kebana-blue/20 mb-6 block transition-colors"></i>
                     <input type="file" name="doc_file" id="doc_file" required class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
                     <p id="file-label" class="text-xs font-black text-slate-400 uppercase tracking-widest">Klik atau seret fail ke sini</p>
                     <p class="text-[8px] text-slate-300 font-bold uppercase mt-2 italic">PDF, JPG, PNG, DOCX, XLSX (Maks: 10MB)</p>
+                </div>
+                
+                <!-- File Preview Container -->
+                <div id="widget_doc_preview" class="hidden p-6 bg-slate-50 border border-slate-100 justify-between items-center transition-all">
+                    <div class="flex items-center space-x-4">
+                        <div id="widget_doc_thumbnail" class="w-16 h-16 bg-white flex items-center justify-center text-kebana-blue rounded border border-slate-200 overflow-hidden font-bold shadow-sm">
+                            <!-- Thumbnail generated via JS -->
+                        </div>
+                        <div>
+                            <p id="widget_doc_name" class="text-sm font-black text-slate-800 uppercase italic truncate max-w-[250px] md:max-w-[450px]">file_name.pdf</p>
+                            <p id="widget_doc_size" class="text-[10px] font-bold text-slate-400 uppercase mt-1">1.2 MB</p>
+                        </div>
+                    </div>
+                    <button type="button" id="widget_doc_clear" class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-full transition-all shadow-sm" title="Batal pilihan">
+                        <i class="fa-solid fa-trash-can text-lg"></i>
+                    </button>
                 </div>
             </div>
 
@@ -121,31 +138,18 @@ $page_title = 'MUAT NAIK FAIL';
 </div>
 
 <script>
-document.getElementById('doc_file').addEventListener('change', function(e) {
-    const fileLabel = document.getElementById('file-label');
-    const uploadIcon = document.getElementById('upload-icon');
-    const dropZone = document.getElementById('drop-zone');
-    
-    if (this.files && this.files[0]) {
-        const fileName = this.files[0].name;
-        fileLabel.textContent = "FAIL DIPILIH: " + fileName;
-        fileLabel.classList.remove('text-slate-400');
-        fileLabel.classList.add('text-kebana-blue', 'font-black');
-        
-        uploadIcon.classList.remove('text-slate-100');
-        uploadIcon.classList.add('text-kebana-blue', 'opacity-50');
-        
-        dropZone.classList.add('border-kebana-blue', 'bg-slate-50');
-    } else {
-        fileLabel.textContent = "Klik atau seret fail ke sini";
-        fileLabel.classList.add('text-slate-400');
-        fileLabel.classList.remove('text-kebana-blue', 'font-black');
-        
-        uploadIcon.classList.add('text-slate-100');
-        uploadIcon.classList.remove('text-kebana-blue', 'opacity-50');
-        
-        dropZone.classList.remove('border-kebana-blue', 'bg-slate-50');
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    setupFileInputWidget(
+        'doc_file', 
+        'drop-zone', 
+        'file-label', 
+        'upload-icon', 
+        'widget_doc_preview', 
+        'widget_doc_thumbnail', 
+        'widget_doc_name', 
+        'widget_doc_size', 
+        'widget_doc_clear'
+    );
 });
 </script>
 

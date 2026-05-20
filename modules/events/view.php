@@ -24,6 +24,27 @@ if (isset($_GET['action'])) {
         $success = EventsHelper::approveEvent($eventId);
     } elseif ($action === 'reject' && hasRole([1, 11, 888])) {
         $success = EventsHelper::rejectEvent($eventId);
+    } elseif ($action === 'delete_document' && hasRole([1, 4, 33, 888])) {
+        $docId = isset($_GET['doc_id']) ? (int)$_GET['doc_id'] : 0;
+        if ($docId > 0) {
+            $db = \App\Core\Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT e.status FROM tbl_document d JOIN tbl_event e ON d.event_id = e.event_id WHERE d.doc_id = ? AND d.event_id = ?");
+            $stmt->bind_param("ii", $docId, $eventId);
+            $stmt->execute();
+            $res = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            
+            if ($res) {
+                $check_status = strtoupper($res['status'] ?? 'DRAFT');
+                // Only allow deletion in Draft / Pending Branch Approval states, or if super admin/president
+                if ($check_status === 'DRAFT' || $check_status === 'PENDING BRANCH APPROVAL' || hasRole([1, 888])) {
+                    if (\App\Helpers\DocumentsHelper::deleteDocument($docId)) {
+                        header("Location: " . URL_ROOT . "/events/view/$eventId?msg=doc_deleted");
+                        exit;
+                    }
+                }
+            }
+        }
     }
     
     if ($success) {
@@ -85,6 +106,31 @@ $level_class = ($level === 'MASTER') ? 'bg-kebana-blue text-white' : 'bg-slate-2
 
 $page_title = 'PERINCIAN ACARA';
 ?>
+
+<?php 
+$msg = $_GET['msg'] ?? '';
+$msg_text = '';
+$msg_class = '';
+if ($msg === 'success') {
+    $msg_text = 'Tindakan berjaya dilaksanakan.';
+    $msg_class = 'bg-green-50 text-green-700 border-l-4 border-green-600';
+} elseif ($msg === 'updated') {
+    $msg_text = 'Keterangan acara berjaya dikemaskini.';
+    $msg_class = 'bg-green-50 text-green-700 border-l-4 border-green-600';
+} elseif ($msg === 'sub_added') {
+    $msg_text = 'Sub-acara berjaya didaftarkan.';
+    $msg_class = 'bg-green-50 text-green-700 border-l-4 border-green-600';
+} elseif ($msg === 'doc_deleted') {
+    $msg_text = 'Dokumen berjaya dipadam sepenuhnya dari server.';
+    $msg_class = 'bg-red-50 text-red-700 border-l-4 border-red-600';
+}
+
+if ($msg_text): 
+?>
+<div class="p-6 <?php echo $msg_class; ?> font-bold text-xs uppercase tracking-widest animate-pulse">
+    <?php echo $msg_text; ?>
+</div>
+<?php endif; ?>
 
 <div class="space-y-12">
     <!-- Header Hero -->
@@ -372,9 +418,23 @@ $page_title = 'PERINCIAN ACARA';
                                     </p>
                                 </div>
                             </div>
-                            <a href="<?= URL_ROOT ?>/<?php echo $doc['file_path']; ?>" target="_blank" class="text-kebana-blue opacity-0 group-hover:opacity-100 transition-opacity">
-                                <i class="fa-solid fa-download"></i>
-                            </a>
+                            <div class="flex items-center space-x-4 opacity-60 group-hover:opacity-100 transition-all">
+                                <a href="<?= URL_ROOT ?>/<?php echo $doc['file_path']; ?>" target="_blank" class="text-kebana-blue hover:text-kebana-accent transition-colors" title="Muat Turun / Lihat">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
+                                <?php 
+                                // Enable deletion if event is in draft/mutable states or user is super admin/presiden
+                                $can_delete_doc = hasRole([1, 4, 33, 888]) && ($check_status === 'DRAFT' || $check_status === 'PENDING BRANCH APPROVAL' || hasRole([1, 888]));
+                                if ($can_delete_doc): 
+                                ?>
+                                <a href="?id=<?php echo $eventId; ?>&action=delete_document&doc_id=<?php echo $doc['doc_id']; ?>" 
+                                   onclick="return confirm('Adakah anda pasti mahu memadamkan dokumen ini? Fail akan dipadam sepenuhnya.');" 
+                                   class="text-red-500 hover:text-red-700 transition-colors ml-1" 
+                                   title="Padam Dokumen">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -522,8 +582,47 @@ $page_title = 'PERINCIAN ACARA';
 
             <div>
                 <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Kertas Kerja (PDF/Imej)</label>
-                <input type="file" name="proposal_file" accept=".pdf,.jpg,.jpeg,.png"
-                       class="w-full px-5 py-3 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-[10px] font-bold transition-all">
+                
+                <div class="space-y-4">
+                    <div class="relative group border border-dashed border-slate-200 hover:border-kebana-blue bg-slate-50/50 p-6 text-center transition-all cursor-pointer rounded overflow-hidden" id="widget_sub_proposal_zone">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-300 group-hover:text-kebana-blue mb-2 block transition-colors" id="widget_sub_proposal_icon"></i>
+                        <input type="file" name="proposal_file" id="widget_sub_proposal_input" accept=".pdf,.jpg,.jpeg,.png" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                        <p id="widget_sub_proposal_label" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Klik atau seret fail ke sini</p>
+                        <p class="text-[8px] text-slate-300 font-bold uppercase mt-0.5 italic">PDF, JPG, JPEG, PNG (Maks: 10MB)</p>
+                    </div>
+                    
+                    <!-- File Preview Container -->
+                    <div id="widget_sub_proposal_preview" class="hidden p-3 bg-slate-50 border border-slate-200 justify-between items-center rounded transition-all">
+                        <div class="flex items-center space-x-3">
+                            <div id="widget_sub_preview_thumbnail" class="w-10 h-10 bg-white flex items-center justify-center text-kebana-blue rounded border border-slate-100 overflow-hidden font-bold shadow-sm">
+                                <!-- Thumbnail generated via JS -->
+                            </div>
+                            <div>
+                                <p id="widget_sub_preview_name" class="text-[11px] font-black text-slate-800 uppercase italic truncate max-w-[180px] md:max-w-[280px]">file_name.pdf</p>
+                                <p id="widget_sub_preview_size" class="text-[8px] font-bold text-slate-400 uppercase mt-0.5">1.2 MB</p>
+                            </div>
+                        </div>
+                        <button type="button" id="widget_sub_proposal_clear" class="w-7 h-7 flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-full transition-all shadow-sm" title="Batal pilihan">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        setupFileInputWidget(
+                            'widget_sub_proposal_input', 
+                            'widget_sub_proposal_zone', 
+                            'widget_sub_proposal_label', 
+                            'widget_sub_proposal_icon', 
+                            'widget_sub_proposal_preview', 
+                            'widget_sub_preview_thumbnail', 
+                            'widget_sub_preview_name', 
+                            'widget_sub_preview_size', 
+                            'widget_sub_proposal_clear'
+                        );
+                    });
+                </script>
             </div>
 
             <div>

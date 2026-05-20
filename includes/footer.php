@@ -330,6 +330,82 @@
 
             attachLiveSearch();
         });
+
+        // Global Premium File Input Staging Widget
+        window.setupFileInputWidget = function(inputId, zoneId, labelId, iconId, previewId, thumbnailId, nameId, sizeId, clearId) {
+            const input = document.getElementById(inputId);
+            const zone = document.getElementById(zoneId);
+            const label = document.getElementById(labelId);
+            const icon = document.getElementById(iconId);
+            const preview = document.getElementById(previewId);
+            const thumbnail = document.getElementById(thumbnailId);
+            const nameSpan = document.getElementById(nameId);
+            const sizeSpan = document.getElementById(sizeId);
+            const clearBtn = document.getElementById(clearId);
+            
+            if (!input || !zone) return;
+
+            // Handle Drag & Drop styles
+            const addActiveStyles = () => {
+                zone.classList.add('border-kebana-blue', 'bg-slate-100/50');
+                if (icon) icon.classList.add('text-kebana-blue');
+            };
+            const removeActiveStyles = () => {
+                zone.classList.remove('border-kebana-blue', 'bg-slate-100/50');
+                if (icon) icon.classList.remove('text-kebana-blue');
+            };
+
+            input.addEventListener('dragenter', addActiveStyles);
+            input.addEventListener('dragover', addActiveStyles);
+            input.addEventListener('dragleave', removeActiveStyles);
+            input.addEventListener('drop', removeActiveStyles);
+
+            input.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+                    
+                    // Populate details
+                    if (nameSpan) nameSpan.textContent = file.name;
+                    if (sizeSpan) sizeSpan.textContent = `${sizeInMB} MB`;
+                    
+                    // Set thumbnail preview
+                    if (thumbnail) {
+                        const ext = file.name.split('.').pop().toLowerCase();
+                        if (['jpg', 'jpeg', 'png'].includes(ext)) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                thumbnail.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover rounded">`;
+                            }
+                            reader.readAsDataURL(file);
+                        } else if (ext === 'pdf') {
+                            thumbnail.innerHTML = '<i class="fa-solid fa-file-pdf text-red-500 text-2xl"></i>';
+                        } else {
+                            thumbnail.innerHTML = '<i class="fa-solid fa-file text-slate-400 text-2xl"></i>';
+                        }
+                    }
+                    
+                    // Show preview box, hide dropzone
+                    zone.classList.add('hidden');
+                    if (preview) {
+                        preview.classList.remove('hidden');
+                        preview.classList.add('flex');
+                    }
+                }
+            });
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    input.value = ''; // Reset file input
+                    zone.classList.remove('hidden');
+                    if (preview) {
+                        preview.classList.add('hidden');
+                        preview.classList.remove('flex');
+                    }
+                });
+            }
+        };
     </script>
 </body>
 </html>
