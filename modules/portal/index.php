@@ -14,7 +14,104 @@ $isLoggedIn = isset($_SESSION['user_id']);
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Persatuan Kenyah Badeng Sarawak (KEBANA)</title>
+
+    <!-- =====================================================
+         PRIMARY SEO TAGS
+         ===================================================== -->
+    <title>KEBANA — Portal Rasmi Persatuan Kenyah Badeng Sarawak</title>
+    <meta name="description" content="Portal rasmi Persatuan Kenyah Badeng Sarawak (KEBANA). Semak hebahan terkini, notis penting, dan perkembangan aktiviti persatuan untuk seluruh ahli.">
+    <meta name="keywords" content="KEBANA, Persatuan Kenyah Badeng Sarawak, Kenyah Badeng, persatuan Sarawak, komuniti Badeng, KEBANA Digital">
+    <meta name="author" content="Persatuan Kenyah Badeng Sarawak (KEBANA)">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="ms">
+
+    <!-- Canonical URL: prevents duplicate content penalties -->
+    <link rel="canonical" href="https://kebana.digital/">
+
+    <!-- hreflang: targeting Malay language / Malaysian audience -->
+    <link rel="alternate" hreflang="ms" href="https://kebana.digital/">
+    <link rel="alternate" hreflang="x-default" href="https://kebana.digital/">
+
+    <!-- =====================================================
+         OPEN GRAPH — Facebook, WhatsApp, Telegram sharing
+         ===================================================== -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KEBANA Digital">
+    <meta property="og:title" content="KEBANA — Portal Rasmi Persatuan Kenyah Badeng Sarawak">
+    <meta property="og:description" content="Portal rasmi KEBANA. Semak hebahan terkini, notis penting, dan perkembangan aktiviti persatuan Kenyah Badeng Sarawak.">
+    <meta property="og:url" content="https://kebana.digital/">
+    <meta property="og:image" content="https://kebana.digital/public/assets/img/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="KEBANA — Persatuan Kenyah Badeng Sarawak">
+    <meta property="og:locale" content="ms_MY">
+
+    <!-- =====================================================
+         TWITTER / X CARD
+         ===================================================== -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="KEBANA — Portal Rasmi Persatuan Kenyah Badeng Sarawak">
+    <meta name="twitter:description" content="Portal rasmi KEBANA. Semak hebahan terkini, notis penting, dan perkembangan aktiviti persatuan.">
+    <meta name="twitter:image" content="https://kebana.digital/public/assets/img/og-image.png">
+    <meta name="twitter:image:alt" content="KEBANA — Persatuan Kenyah Badeng Sarawak">
+
+    <!-- =====================================================
+         SCHEMA.ORG — Structured Data (JSON-LD)
+         Helps Google show rich results & Knowledge Panel
+         ===================================================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "NGO",
+      "name": "Persatuan Kenyah Badeng Sarawak (KEBANA)",
+      "alternateName": "KEBANA",
+      "url": "https://kebana.digital",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://kebana.digital/public/assets/img/kebana-logo-icon.png",
+        "width": 512,
+        "height": 512
+      },
+      "image": "https://kebana.digital/public/assets/img/og-image.png",
+      "description": "Pertubuhan masyarakat Kenyah Badeng Sarawak yang berfokus kepada pemeliharaan budaya, perpaduan komuniti, dan pembangunan ahli.",
+      "inLanguage": "ms",
+      "foundingLocation": {
+        "@type": "Place",
+        "name": "Sarawak, Malaysia"
+      },
+      "areaServed": {
+        "@type": "State",
+        "name": "Sarawak",
+        "containedInPlace": {
+          "@type": "Country",
+          "name": "Malaysia"
+        }
+      },
+      "sameAs": [
+        "https://kebana.digital"
+      ]
+    }
+    </script>
+
+    <!-- =====================================================
+         FAVICON & ICONS
+         ===================================================== -->
+    <link rel="icon" type="image/png" href="<?php echo URL_ROOT; ?>/public/assets/img/kebana-logo-icon.png">
+    <link rel="apple-touch-icon" href="<?php echo URL_ROOT; ?>/public/assets/img/kebana-logo-icon.png">
+
+    <!-- =====================================================
+         PERFORMANCE: Preconnect to external resources
+         Reduces DNS lookup time for Google Fonts & CDNs
+         ===================================================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+
+    <!-- =====================================================
+         STYLES & SCRIPTS
+         ===================================================== -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

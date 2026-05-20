@@ -1,0 +1,46 @@
+# ============================================================
+# robots.txt — kebana.digital
+# Controls which pages search engines can crawl & index.
+# Only the public portal ( / ) should be indexed.
+# ============================================================
+
+User-agent: *
+
+# ---- Allow the public portal ----
+Allow: /$
+Allow: /public/
+
+# ---- Block all authenticated/private routes ----
+Disallow: /dashboard
+Disallow: /login
+Disallow: /authenticate
+Disallow: /sign_up
+Disallow: /register
+Disallow: /members
+Disallow: /events
+Disallow: /finance
+Disallow: /documents
+Disallow: /chat
+Disallow: /audit
+Disallow: /users
+Disallow: /notifications
+Disallow: /announcements
+Disallow: /cawangan
+
+# ---- Block sensitive server-side directories ----
+Disallow: /vendor/
+Disallow: /config/
+Disallow: /app/
+Disallow: /includes/
+Disallow: /src/
+Disallow: /modules/
+Disallow: /uploads/
+Disallow: /sql_main/
+Disallow: /sql_updates/
+
+# ---- Block debug/scratch files ----
+Disallow: /scratch/
+Disallow: /test_
+
+# ---- Sitemap location ----
+Sitemap: https://kebana.digital/sitemap.xml

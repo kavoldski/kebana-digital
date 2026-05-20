@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    sitemap.xml — kebana.digital
+    Submit this URL to Google Search Console:
+    https://search.google.com/search-console
+
+    Only the public portal is listed — all other routes require login.
+    Update <lastmod> whenever you make significant content changes.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+    <url>
+        <loc>https://kebana.digital/</loc>
+        <lastmod>2026-05-21</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+        <!-- Malay language targeting -->
+        <xhtml:link rel="alternate" hreflang="ms" href="https://kebana.digital/"/>
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://kebana.digital/"/>
+    </url>
+
+</urlset>
