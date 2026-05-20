@@ -360,42 +360,50 @@ document.addEventListener('DOMContentLoaded', function() {
             phone = `${phoneMatch[1]}-${phoneMatch[2]}`;
         }
 
-        // 3. Line-by-line parsing for Nama and Kampung/Kawasan
+        // 3. Robust Name Parsing (allowing optional bullet points/numbers at the start)
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-
-            // Nama Penuh
-            if (!name) {
-                const nameMatch = line.match(/(?:nama|nama penuh|name)\s*[:\-=\s]\s*(.+)/i);
-                if (nameMatch) {
-                    name = nameMatch[1].trim();
-                } else if (line.toUpperCase().startsWith('NAMA:') || line.toUpperCase().startsWith('NAMA PENUH:')) {
-                    name = line.substring(line.indexOf(':') + 1).trim();
-                }
-            }
-
-            // Kampung / Kawasan
-            if (!village) {
-                const villageMatch = line.match(/(?:kawasan|kampung|alamat|village|address)\s*[:\-=\s]\s*(.+)/i);
-                if (villageMatch) {
-                    village = villageMatch[1].trim();
-                } else if (line.toUpperCase().startsWith('KAMPUNG:') || line.toUpperCase().startsWith('KAWASAN:')) {
-                    village = line.substring(line.indexOf(':') + 1).trim();
+            const upperLine = line.toUpperCase();
+            
+            if (/^\s*[^a-zA-Z0-9]*(?:NAMA|NAMA PENUH|NAME)\b/i.test(upperLine)) {
+                let potentialName = line.replace(/^\s*[^a-zA-Z0-9]*(?:NAMA PENUH|NAMA|NAME)\s*[:\-=\s]*/i, '').trim();
+                
+                if (potentialName.length >= 3) {
+                    name = potentialName;
+                    break;
+                } else {
+                    // Check if name is on the next line
+                    if (i + 1 < lines.length) {
+                        const nextLine = lines[i+1].trim();
+                        if (nextLine.length >= 2 && !/^(?:IC|NO|TEL|PHONE|JANTINA|GENDER|KAMPUNG|KAWASAN|ALAMAT|VILLAGE|STATUS)/i.test(nextLine)) {
+                            name = nextLine;
+                            break;
+                        }
+                    }
                 }
             }
         }
 
-        // Fallback: search neighbor lines
+        // 4. Robust Kampung / Kawasan Parsing
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            if (!name && /(?:nama|nama penuh|name)\b/i.test(line) && !/[:\-=\s]\s*.{3,}/i.test(line)) {
-                if (i + 1 < lines.length && !/(?:ic|no|tel|phone|jantina|gender)/i.test(lines[i+1])) {
-                    name = lines[i+1];
-                }
-            }
-            if (!village && /(?:kawasan|kampung|alamat|village)\b/i.test(line) && !/[:\-=\s]\s*.{3,}/i.test(line)) {
-                if (i + 1 < lines.length && !/(?:ic|no|tel|phone|jantina|gender)/i.test(lines[i+1])) {
-                    village = lines[i+1];
+            const upperLine = line.toUpperCase();
+            
+            if (/^\s*[^a-zA-Z0-9]*(?:KAWASAN|KAMPUNG|ALAMAT|VILLAGE|ADDRESS)\b/i.test(upperLine)) {
+                let potentialVillage = line.replace(/^\s*[^a-zA-Z0-9]*(?:KAWASAN|KAMPUNG|ALAMAT|VILLAGE|ADDRESS)\s*[:\-=\s]*/i, '').trim();
+                
+                if (potentialVillage.length >= 3) {
+                    village = potentialVillage;
+                    break;
+                } else {
+                    // Check if village is on the next line
+                    if (i + 1 < lines.length) {
+                        const nextLine = lines[i+1].trim();
+                        if (nextLine.length >= 2 && !/^(?:IC|NO|TEL|PHONE|JANTINA|GENDER|NAMA|NAME|STATUS)/i.test(nextLine)) {
+                            village = nextLine;
+                            break;
+                        }
+                    }
                 }
             }
         }
