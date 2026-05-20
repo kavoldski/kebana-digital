@@ -365,8 +365,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const line = lines[i];
             const upperLine = line.toUpperCase();
             
-            if (/^\s*[^a-zA-Z0-9]*(?:NAMA|NAMA PENUH|NAME)\b/i.test(upperLine)) {
-                let potentialName = line.replace(/^\s*[^a-zA-Z0-9]*(?:NAMA PENUH|NAMA|NAME)\s*[:\-=\s]*/i, '').trim();
+            if (/NAMA|NAME/i.test(upperLine)) {
+                // Strip labels sequentially to be completely bulletproof
+                let potentialName = line;
+                potentialName = potentialName.replace(/NAMA PENUH/i, '');
+                potentialName = potentialName.replace(/NAMA/i, '');
+                potentialName = potentialName.replace(/NAME/i, '');
+                potentialName = potentialName.replace(/^[^a-zA-Z0-9]*/, ''); // remove leading symbols
+                potentialName = potentialName.replace(/^[:\-=\s]*/, '');     // remove leading separators
+                potentialName = potentialName.trim();
                 
                 if (potentialName.length >= 3) {
                     name = potentialName;
@@ -375,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Check if name is on the next line
                     if (i + 1 < lines.length) {
                         const nextLine = lines[i+1].trim();
-                        if (nextLine.length >= 2 && !/^(?:IC|NO|TEL|PHONE|JANTINA|GENDER|KAMPUNG|KAWASAN|ALAMAT|VILLAGE|STATUS)/i.test(nextLine)) {
+                        if (nextLine.length >= 2 && !/IC|NO|TEL|PHONE|JANTINA|GENDER|KAMPUNG|KAWASAN|ALAMAT|VILLAGE|STATUS/i.test(nextLine)) {
                             name = nextLine;
                             break;
                         }
@@ -389,8 +396,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const line = lines[i];
             const upperLine = line.toUpperCase();
             
-            if (/^\s*[^a-zA-Z0-9]*(?:KAWASAN|KAMPUNG|ALAMAT|VILLAGE|ADDRESS)\b/i.test(upperLine)) {
-                let potentialVillage = line.replace(/^\s*[^a-zA-Z0-9]*(?:KAWASAN|KAMPUNG|ALAMAT|VILLAGE|ADDRESS)\s*[:\-=\s]*/i, '').trim();
+            if (/KAWASAN|KAMPUNG|ALAMAT|VILLAGE|ADDRESS/i.test(upperLine)) {
+                // Strip labels sequentially to be completely bulletproof
+                let potentialVillage = line;
+                potentialVillage = potentialVillage.replace(/KAWASAN/i, '');
+                potentialVillage = potentialVillage.replace(/KAMPUNG/i, '');
+                potentialVillage = potentialVillage.replace(/ALAMAT/i, '');
+                potentialVillage = potentialVillage.replace(/VILLAGE/i, '');
+                potentialVillage = potentialVillage.replace(/ADDRESS/i, '');
+                potentialVillage = potentialVillage.replace(/^[^a-zA-Z0-9]*/, '');
+                potentialVillage = potentialVillage.replace(/^[:\-=\s]*/, '');
+                potentialVillage = potentialVillage.trim();
                 
                 if (potentialVillage.length >= 3) {
                     village = potentialVillage;
@@ -399,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Check if village is on the next line
                     if (i + 1 < lines.length) {
                         const nextLine = lines[i+1].trim();
-                        if (nextLine.length >= 2 && !/^(?:IC|NO|TEL|PHONE|JANTINA|GENDER|NAMA|NAME|STATUS)/i.test(nextLine)) {
+                        if (nextLine.length >= 2 && !/IC|NO|TEL|PHONE|JANTINA|GENDER|NAMA|NAME|STATUS/i.test(nextLine)) {
                             village = nextLine;
                             break;
                         }
