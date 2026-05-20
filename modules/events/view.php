@@ -39,7 +39,7 @@ if (isset($_GET['action'])) {
                 // Only allow deletion in Draft / Pending Branch Approval states, or if super admin/president
                 if ($check_status === 'DRAFT' || $check_status === 'PENDING BRANCH APPROVAL' || hasRole([1, 888])) {
                     if (\App\Helpers\DocumentsHelper::deleteDocument($docId)) {
-                        header("Location: " . URL_ROOT . "/events/view/$eventId?msg=doc_deleted");
+                        echo '<script>window.location.href = "' . URL_ROOT . '/events/view/' . $eventId . '?msg=doc_deleted";</script>';
                         exit;
                     }
                 }
@@ -48,7 +48,7 @@ if (isset($_GET['action'])) {
     }
     
     if ($success) {
-        header("Location: " . URL_ROOT . "/events/view/$eventId?msg=success");
+        echo '<script>window.location.href = "' . URL_ROOT . '/events/view/' . $eventId . '?msg=success";</script>';
         exit;
     }
 }
@@ -629,9 +629,109 @@ if ($msg_text):
                           placeholder="Ringkasan objektif program..."></textarea>
             </div>
 
+            <!-- Action selection cards -->
+            <div class="space-y-3 pt-4 border-t border-slate-100">
+                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Tindakan Pendaftaran <span class="text-red-500">*</span></label>
+                
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Option 1: Draft -->
+                    <label for="sub_submission_draft" class="relative block bg-slate-50 border border-slate-200 p-4 cursor-pointer transition-all hover:bg-slate-50/80 rounded group" id="sub_card_draft">
+                        <input type="radio" name="submission_type" id="sub_submission_draft" value="draft" checked class="sr-only" onchange="updateSubSubmissionTypeSelection()">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-kebana-blue transition-colors shadow-sm" id="sub_icon_container_draft">
+                                <i class="fa-solid fa-file-signature text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[11px] font-black text-slate-800 uppercase tracking-wide">Simpan Sebagai Draf</p>
+                                <p class="text-[8px] text-slate-400 font-bold uppercase leading-tight mt-0.5">
+                                    Simpan sebagai draf di cawangan anda. Anda boleh mengemaskini butiran sebelum dihantar.
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Checkmark Indicator -->
+                        <div class="absolute top-3 right-3 w-4 h-4 bg-kebana-blue text-white rounded-full flex items-center justify-center opacity-0 transition-opacity" id="sub_check_draft">
+                            <i class="fa-solid fa-check text-[8px]"></i>
+                        </div>
+                    </label>
+
+                    <!-- Option 2: Submit Directly -->
+                    <label for="sub_submission_submit" class="relative block bg-slate-50 border border-slate-200 p-4 cursor-pointer transition-all hover:bg-slate-50/80 rounded group" id="sub_card_submit">
+                        <input type="radio" name="submission_type" id="sub_submission_submit" value="submit" class="sr-only" onchange="updateSubSubmissionTypeSelection()">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-kebana-blue transition-colors shadow-sm" id="sub_icon_container_submit">
+                                <i class="fa-solid fa-paper-plane text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[11px] font-black text-slate-800 uppercase tracking-wide">Hantar Terus ke Pengerusi</p>
+                                <p class="text-[8px] text-slate-400 font-bold uppercase leading-tight mt-0.5">
+                                    Daftar dan hantar terus untuk kelulusan Pengerusi Cawangan.
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Checkmark Indicator -->
+                        <div class="absolute top-3 right-3 w-4 h-4 bg-kebana-blue text-white rounded-full flex items-center justify-center opacity-0 transition-opacity" id="sub_check_submit">
+                            <i class="fa-solid fa-check text-[8px]"></i>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <script>
+            function updateSubSubmissionTypeSelection() {
+                const draftRadio = document.getElementById('sub_submission_draft');
+                const submitRadio = document.getElementById('sub_submission_submit');
+                
+                const cardDraft = document.getElementById('sub_card_draft');
+                const cardSubmit = document.getElementById('sub_card_submit');
+                
+                const checkDraft = document.getElementById('sub_check_draft');
+                const checkSubmit = document.getElementById('sub_check_submit');
+                
+                const iconDraft = document.getElementById('sub_icon_container_draft');
+                const iconSubmit = document.getElementById('sub_icon_container_submit');
+                
+                if (draftRadio.checked) {
+                    // Highlight draft card
+                    cardDraft.classList.remove('border-slate-200', 'bg-slate-50');
+                    cardDraft.classList.add('border-kebana-blue', 'bg-white', 'shadow-md');
+                    checkDraft.classList.remove('opacity-0');
+                    checkDraft.classList.add('opacity-100');
+                    iconDraft.classList.add('text-kebana-blue', 'border-kebana-blue/20');
+                    
+                    // De-highlight submit card
+                    cardSubmit.classList.add('border-slate-200', 'bg-slate-50');
+                    cardSubmit.classList.remove('border-kebana-blue', 'bg-white', 'shadow-md');
+                    checkSubmit.classList.add('opacity-0');
+                    checkSubmit.classList.remove('opacity-100');
+                    iconSubmit.classList.remove('text-kebana-blue', 'border-kebana-blue/20');
+                } else if (submitRadio.checked) {
+                    // Highlight submit card
+                    cardSubmit.classList.remove('border-slate-200', 'bg-slate-50');
+                    cardSubmit.classList.add('border-kebana-blue', 'bg-white', 'shadow-md');
+                    checkSubmit.classList.remove('opacity-0');
+                    checkSubmit.classList.add('opacity-100');
+                    iconSubmit.classList.add('text-kebana-blue', 'border-kebana-blue/20');
+                    
+                    // De-highlight draft card
+                    cardDraft.classList.add('border-slate-200', 'bg-slate-50');
+                    cardDraft.classList.remove('border-kebana-blue', 'bg-white', 'shadow-md');
+                    checkDraft.classList.add('opacity-0');
+                    checkDraft.classList.remove('opacity-100');
+                    iconDraft.classList.remove('text-kebana-blue', 'border-kebana-blue/20');
+                }
+            }
+
+            // Initialize on load or dynamic changes
+            document.addEventListener('DOMContentLoaded', function() {
+                updateSubSubmissionTypeSelection();
+            });
+            // Also run it immediately in case DOMContentLoaded already fired
+            updateSubSubmissionTypeSelection();
+            </script>
+
             <div class="pt-6">
                 <button type="submit" class="w-full bg-kebana-blue text-white py-4 text-[11px] font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl">
-                    DAFTAR SUB-ACARA SEKARANG
+                    DAFTAR & PROSES SUB-ACARA
                 </button>
             </div>
         </form>

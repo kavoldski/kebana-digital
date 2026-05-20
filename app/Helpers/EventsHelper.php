@@ -154,12 +154,21 @@ class EventsHelper {
         $kawasan = $data['kawasan'] ?? '';
         $objective = $data['objective'] ?? '';
         $budget = !empty($data['budget_est']) ? (float)$data['budget_est'] : null;
-        $status = 'Draft';
-        $approval_status = 'Pending Submission';
+        
+        $submission_type = $data['submission_type'] ?? 'draft';
 
         if ($isPusatCreator) {
             $assigned_cawangan_id = !empty($data['assigned_cawangan_id']) ? (int)$data['assigned_cawangan_id'] : null;
             $level = 'MASTER';
+            
+            if ($submission_type === 'submit') {
+                $status = 'Submitted';
+                $approval_status = 'Pending President';
+            } else {
+                $status = 'Draft';
+                $approval_status = 'Pending Submission';
+            }
+            
             $stmt = $db->prepare("
                 INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, kawasan, objective, budget_est, created_by, status, approval_status, cawangan_id, event_level)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -172,6 +181,12 @@ class EventsHelper {
 
                 if ($success) {
                     \App\Helpers\AuditHelper::log($userId, "Aktiviti Master dicipta: $title", 'EVENTS', "Venue: $venue");
+                    
+                    if ($submission_type === 'submit') {
+                        \App\Helpers\AuditHelper::log($userId, "Aktiviti dihantar untuk kelulusan: $title", 'EVENTS', "ID: $insert_id");
+                        NotificationHelper::notifyRoles([1, 888], 'event_submission', 'Permohonan Kelulusan Aktiviti Master', "Aktiviti Master \"$title\" memerlukan kelulusan Presiden.", "events/view/$insert_id");
+                    }
+                    
                     // Notify: SU Cawangan (33), Pengerusi Cawangan (11) (President only on Submit)
                     NotificationHelper::notifyRoles([33, 11], 'master_event_created', 'Aktiviti Master Baru Dicipta', "Aktiviti Master \"$title\" telah dicipta oleh HQ. Sila rujuk guideline yang disertakan.", "events/view/$insert_id");
                     NotificationHelper::notifyRoles([888, 4], 'event_created', 'Aktiviti Baru Dicipta (HQ)', "Aktiviti \"$title\" telah dicipta oleh HQ.", "events/view/$insert_id");
@@ -182,6 +197,15 @@ class EventsHelper {
         } else {
             $parent_master_id = !empty($data['parent_master_event_id']) ? (int)$data['parent_master_event_id'] : null;
             $level = 'SUB';
+            
+            if ($submission_type === 'submit') {
+                $status = 'Pending Branch Approval';
+                $approval_status = 'Pending Branch Approval';
+            } else {
+                $status = 'Draft';
+                $approval_status = 'Pending Submission';
+            }
+            
             $stmt = $db->prepare("
                 INSERT INTO tbl_event (event_title, event_date, event_end_date, venue, kawasan, objective, budget_est, created_by, status, approval_status, cawangan_id, event_level, parent_event_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -194,6 +218,13 @@ class EventsHelper {
 
                 if ($success) {
                     \App\Helpers\AuditHelper::log($userId, "Aktiviti Sub dicipta: $title", 'EVENTS', "Venue: $venue");
+                    
+                    if ($submission_type === 'submit') {
+                        \App\Helpers\AuditHelper::log($userId, "Kertas kerja dihantar ke Cawangan: $title", 'EVENTS', "ID: $insert_id");
+                        // Notify Pengerusi Cawangan (11)
+                        NotificationHelper::notifyRoles([11], 'branch_approval_required', 'Pengesahan Kertas Kerja Diperlukan', "SU Cawangan telah menghantar Kertas Kerja \"$title\" untuk tujuan pengesahan anda.", "events/view/$insert_id");
+                    }
+                    
                     // For sub-events, initially it's a draft.
                     NotificationHelper::notifyRoles([888, 4], 'event_created', 'Aktiviti Baru Dicipta (Cawangan)', "Aktiviti \"$title\" telah dicipta oleh cawangan.", "events/view/$insert_id");
                 }
