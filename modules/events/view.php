@@ -117,9 +117,6 @@ if ($msg === 'success') {
 } elseif ($msg === 'updated') {
     $msg_text = 'Keterangan acara berjaya dikemaskini.';
     $msg_class = 'bg-green-50 text-green-700 border-l-4 border-green-600';
-} elseif ($msg === 'sub_added') {
-    $msg_text = 'Sub-acara berjaya didaftarkan.';
-    $msg_class = 'bg-green-50 text-green-700 border-l-4 border-green-600';
 } elseif ($msg === 'doc_deleted') {
     $msg_text = 'Dokumen berjaya dipadam sepenuhnya dari server.';
     $msg_class = 'bg-red-50 text-red-700 border-l-4 border-red-600';
@@ -772,3 +769,127 @@ document.getElementById('viewSubEventOverlay')?.addEventListener('click', closeV
         </div>
     </div>
 </div>
+
+<?php if (isset($_GET['msg']) && $_GET['msg'] === 'sub_added'): ?>
+<!-- Premium Success Pop-out Modal (Glassmorphism + SVG Stroke Draw Tick Animation) -->
+<div id="successModalOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] opacity-0 pointer-events-none transition-all duration-500 ease-out flex items-center justify-center p-4">
+    <div id="successCard" class="bg-white/95 backdrop-blur-md max-w-sm w-full p-8 md:p-10 shadow-2xl border-t-8 border-green-500 text-center transform scale-95 opacity-0 transition-all duration-500 ease-out space-y-6">
+        <!-- SVG Traced Checkmark Drawing Animation -->
+        <div class="flex justify-center">
+            <div class="checkmark-wrapper">
+                <svg class="checkmark-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="space-y-2">
+            <h3 class="text-3xl font-black text-kebana-blue tracking-tighter uppercase italic leading-none">
+                Berjaya!
+            </h3>
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] block">
+                Sub-Acara Berjaya Ditambah
+            </p>
+        </div>
+        
+        <div class="text-xs font-medium text-slate-500 leading-relaxed uppercase tracking-wider bg-slate-50/50 p-4 border border-slate-100">
+            Kertas kerja & perincian sub-acara telah selamat didaftarkan ke dalam sistem.
+        </div>
+        
+        <div>
+            <button id="successModalCloseBtn" class="w-full bg-green-600 text-white py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-green-700 hover:shadow-green-200/50 hover:shadow-xl transition-all active:scale-95 duration-150">
+                TERUSKAN
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* CSS Keyframes for Real-time SVG Draw Animation */
+.checkmark-wrapper {
+    width: 80px;
+    height: 80px;
+    position: relative;
+}
+.checkmark-svg {
+    width: 80px;
+    height: 80px;
+    display: block;
+}
+.checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 4;
+    stroke-miterlimit: 10;
+    stroke: #16a34a; /* green-600 */
+    fill: none;
+    animation: stroke-draw-circle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+.checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke: #16a34a; /* green-600 */
+    fill: none;
+    animation: stroke-draw-check 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.55s forwards;
+}
+
+@keyframes stroke-draw-circle {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+@keyframes stroke-draw-check {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const overlay = document.getElementById('successModalOverlay');
+    const card = document.getElementById('successCard');
+    const closeBtn = document.getElementById('successModalCloseBtn');
+    
+    // Smooth intro sequence after small render delay
+    setTimeout(() => {
+        if (overlay && card) {
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            overlay.classList.add('opacity-100');
+            
+            card.classList.remove('scale-95', 'opacity-0');
+            card.classList.add('scale-100', 'opacity-100');
+        }
+    }, 150);
+    
+    function dismissSuccessModal() {
+        if (!overlay || !card) return;
+        
+        // Outro transitions
+        overlay.classList.remove('opacity-100');
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        
+        card.classList.remove('scale-100', 'opacity-100');
+        card.classList.add('scale-95', 'opacity-0');
+        
+        // Clean URL parameter without reloading
+        setTimeout(() => {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('msg');
+            window.history.replaceState({}, '', url);
+        }, 500);
+    }
+    
+    closeBtn?.addEventListener('click', dismissSuccessModal);
+    overlay?.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            dismissSuccessModal();
+        }
+    });
+});
+</script>
+<?php endif; ?>
