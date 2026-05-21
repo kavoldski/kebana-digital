@@ -376,8 +376,12 @@ $og_image = !empty($images) ? URL_ROOT . '/' . $images[0]['image_path'] : URL_RO
             thumbs.forEach((thumb, index) => {
                 if (index === currentSlide) {
                     thumb.classList.add('active');
-                    // Scroll thumbnail smoothly into view if needed
-                    thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    // Scroll thumbnail smoothly inside its container without shifting the page vertically
+                    const container = document.getElementById('thumbnailContainer');
+                    if (container) {
+                        const scrollPos = thumb.offsetLeft - (container.clientWidth / 2) + (thumb.clientWidth / 2);
+                        container.scrollTo({ left: scrollPos, behavior: 'smooth' });
+                    }
                 } else {
                     thumb.classList.remove('active');
                 }
