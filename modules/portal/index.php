@@ -7,7 +7,11 @@
 use App\Helpers\AnnouncementHelper;
 
 $announcements = AnnouncementHelper::getAllAnnouncements('Active');
-$isLoggedIn = isset($_SESSION['user_id']);
+$isLoggedIn    = isset($_SESSION['user_id']);
+
+// Efficiently load first image for every announcement (single query)
+$ann_ids    = array_column($announcements, 'announcement_id');
+$coverMap   = AnnouncementHelper::getCoverImageMap($ann_ids);
 ?>
 <!doctype html>
 <html lang="ms" class="h-full bg-white">
@@ -57,7 +61,6 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
     <!-- =====================================================
          SCHEMA.ORG — Structured Data (JSON-LD)
-         Helps Google show rich results & Knowledge Panel
          ===================================================== -->
     <script type="application/ld+json">
     {
@@ -101,7 +104,6 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
     <!-- =====================================================
          PERFORMANCE: Preconnect to external resources
-         Reduces DNS lookup time for Google Fonts & CDNs
          ===================================================== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -129,17 +131,22 @@ $isLoggedIn = isset($_SESSION['user_id']);
                         }
                     },
                     animation: {
-                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
-                        'blur-in': 'blurIn 1s ease-out forwards',
+                        'fade-in-up': 'fadeInUp 0.7s ease-out forwards',
+                        'blur-in':    'blurIn 1s ease-out forwards',
+                        'shimmer':    'shimmer 2s linear infinite',
                     },
                     keyframes: {
                         fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '0%':   { opacity: '0', transform: 'translateY(28px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
                         },
                         blurIn: {
-                            '0%': { filter: 'blur(10px)', opacity: '0' },
+                            '0%':   { filter: 'blur(10px)', opacity: '0' },
                             '100%': { filter: 'blur(0)', opacity: '1' },
+                        },
+                        shimmer: {
+                            '0%':   { backgroundPosition: '-400px 0' },
+                            '100%': { backgroundPosition: '400px 0' },
                         }
                     }
                 }
@@ -148,31 +155,65 @@ $isLoggedIn = isset($_SESSION['user_id']);
     </script>
     <style>
         .glass-nav {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
         }
-        .hero-gradient {
-            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.8)), url('<?php echo URL_ROOT; ?>/public/assets/img/portal-hero.png');
-            background-size: cover;
-            background-position: center;
+        /* Card cover image zoom */
+        .ann-card-cover {
+            overflow: hidden;
         }
-        .text-glow {
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        .ann-card-cover img {
+            transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .card-hover {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        .ann-card:hover .ann-card-cover img {
+            transform: scale(1.07);
         }
-        .card-hover:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px -15px rgba(43, 48, 139, 0.15);
+        /* Gradient overlay on cover image */
+        .ann-card-cover::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom,
+                rgba(15,23,42,0) 40%,
+                rgba(15,23,42,0.55) 100%);
+            pointer-events: none;
+        }
+        /* Staggered card entrance */
+        .ann-card {
+            opacity: 0;
+            animation: fadeInUp 0.7s ease-out forwards;
+        }
+        /* Card hover lift */
+        .ann-card {
+            transition: box-shadow 0.4s cubic-bezier(0.4,0,0.2,1),
+                        transform 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+        .ann-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 48px -12px rgba(43,48,139,0.18);
+        }
+        /* Placeholder shimmer */
+        .cover-placeholder {
+            background: linear-gradient(90deg,
+                #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 800px 100%;
+            animation: shimmer 2s linear infinite;
+        }
+        /* Badge pulse dot */
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity:1; }
+            50%      { opacity:.4; }
         }
     </style>
 </head>
 <body class="min-h-full flex flex-col font-sans antialiased text-slate-900">
 
     <!-- Header / Nav -->
-    <nav class="sticky top-0 z-50 glass-nav border-b border-white/10">
+    <nav class="sticky top-0 z-50 glass-nav border-b border-slate-200/50 shadow-sm">
         <div class="max-w-7xl mx-auto px-6 h-20 lg:h-24 flex items-center justify-between">
             <div class="flex items-center space-x-3 lg:space-x-4">
                 <div class="p-1.5 lg:p-2 bg-white rounded-xl shadow-sm">
@@ -199,14 +240,14 @@ $isLoggedIn = isset($_SESSION['user_id']);
         <div class="max-w-7xl mx-auto px-6">
             
             <!-- Page Title -->
-            <div class="mb-16 lg:mb-24 space-y-4 animate-fade-in-up">
-                <div class="inline-flex items-center space-x-3 px-4 py-2 bg-kebana-blue/5 rounded-full">
-                    <span class="w-2 h-2 bg-kebana-gold rounded-full animate-pulse"></span>
+            <div class="mb-16 lg:mb-20 space-y-4" style="opacity:0;animation:fadeInUp 0.8s ease-out 0.1s forwards">
+                <div class="inline-flex items-center space-x-3 px-4 py-2 bg-kebana-blue/5 rounded-full border border-kebana-blue/10">
+                    <span class="w-2 h-2 bg-kebana-gold rounded-full pulse-dot"></span>
                     <span class="text-kebana-blue text-[10px] font-black uppercase tracking-[0.3em]">Hab Informasi Terkini</span>
                 </div>
                 <h1 class="text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase leading-none">
                     Dinding <br/>
-                    <span class="text-kebana-blue">Maklumat & Hebahan.</span>
+                    <span class="text-kebana-blue">Maklumat &amp; Hebahan.</span>
                 </h1>
                 <p class="text-base lg:text-lg text-slate-500 font-medium leading-relaxed max-w-2xl">
                     Pusat informasi bersepadu KEBANA untuk segala hebahan rasmi, notis penting, dan perkembangan aktiviti terkini buat seluruh ahli.
@@ -223,53 +264,72 @@ $isLoggedIn = isset($_SESSION['user_id']);
                     <p class="text-slate-400 text-sm mt-4 font-medium">Sila semak semula sebentar lagi untuk hebahan terbaru.</p>
                 </div>
             <?php else: ?>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 animate-fade-in-up [animation-delay:200ms]">
-                    <?php foreach ($announcements as $ann): ?>
-                        <a href="<?php echo URL_ROOT; ?>/portal/view/<?php echo $ann['announcement_id']; ?>" class="card-hover group bg-white p-10 lg:p-12 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col h-full relative overflow-hidden block hover:no-underline">
-                            <div class="absolute top-0 right-0 w-40 h-40 bg-kebana-blue/5 rounded-bl-[6rem] -mr-12 -mt-12 transition-all duration-500 group-hover:bg-kebana-gold/10"></div>
-                            
-                            <!-- Card Header -->
-                            <div class="mb-10 flex justify-between items-center relative z-10">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-slate-50 text-kebana-blue flex items-center justify-center rounded-xl font-black text-xs">
-                                        <i class="fa-regular fa-calendar"></i>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+                    <?php foreach ($announcements as $i => $ann):
+                        $coverId   = $ann['announcement_id'];
+                        $coverPath = $coverMap[$coverId] ?? null;
+                        $delay     = 0.15 + ($i * 0.08);
+                    ?>
+                        <a href="<?php echo URL_ROOT; ?>/portal/view/<?php echo $ann['announcement_id']; ?>"
+                           class="ann-card group bg-white rounded-[2rem] border border-slate-100 shadow-sm flex flex-col overflow-hidden relative hover:no-underline block"
+                           style="animation-delay: <?php echo $delay; ?>s">
+
+                            <!-- Cover Photo -->
+                            <div class="ann-card-cover relative w-full h-52 bg-slate-100 flex-shrink-0">
+                                <?php if ($coverPath): ?>
+                                    <img src="<?php echo URL_ROOT . '/' . $coverPath; ?>"
+                                         alt="<?php echo htmlspecialchars($ann['title']); ?>"
+                                         class="w-full h-full object-cover">
+                                <?php else: ?>
+                                    <!-- Elegant placeholder when no image -->
+                                    <div class="cover-placeholder w-full h-full flex items-center justify-center">
+                                        <div class="text-center opacity-30">
+                                            <i class="fa-solid fa-bullhorn text-4xl text-slate-400 mb-2 block"></i>
+                                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Tiada Gambar</span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block animate-none">Tarikh Hebahan</span>
-                                        <span class="text-[11px] font-black text-slate-900 uppercase tracking-tighter block"><?php echo date('d M Y', strtotime($ann['created_at'])); ?></span>
-                                    </div>
+                                <?php endif; ?>
+
+                                <!-- Date badge overlaid on cover -->
+                                <div class="absolute top-4 left-4 z-10 flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm border border-white/50">
+                                    <i class="fa-regular fa-calendar text-kebana-blue text-[9px]"></i>
+                                    <span class="text-[9px] font-black text-slate-800 uppercase tracking-wider"><?php echo date('d M Y', strtotime($ann['created_at'])); ?></span>
                                 </div>
-                                <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-200 group-hover:text-kebana-gold group-hover:border-kebana-gold/30 transition-all">
-                                    <i class="fa-solid fa-bookmark text-sm"></i>
+
+                                <!-- Arrow icon badge (top-right) -->
+                                <div class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm border border-white/50 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:bg-kebana-blue group-hover:border-transparent">
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500 group-hover:text-white transition-colors duration-300"></i>
                                 </div>
                             </div>
 
                             <!-- Card Body -->
-                            <div class="relative z-10 flex-1">
-                                <h3 class="text-2xl font-black text-slate-900 tracking-tight uppercase mb-8 leading-tight group-hover:text-kebana-blue transition-colors duration-300">
+                            <div class="flex flex-col flex-1 p-7 lg:p-8 space-y-4">
+                                <h3 class="text-xl font-black text-slate-900 tracking-tight uppercase leading-tight group-hover:text-kebana-blue transition-colors duration-300 line-clamp-2">
                                     <?php echo htmlspecialchars($ann['title']); ?>
                                 </h3>
                                 
-                                <p class="text-sm font-medium text-slate-500 leading-relaxed mb-12 line-clamp-6">
-                                    <?php echo nl2br(htmlspecialchars($ann['content'])); ?>
+                                <p class="text-sm font-medium text-slate-500 leading-relaxed line-clamp-3 flex-1">
+                                    <?php echo htmlspecialchars($ann['content']); ?>
                                 </p>
-                            </div>
-                            
-                            <!-- Card Footer -->
-                            <div class="pt-10 border-t border-slate-50 mt-auto flex items-center justify-between relative z-10">
-                                <div>
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Diterbitkan Oleh</span>
-                                    <div class="flex items-center space-x-2">
-                                        <div class="w-6 h-6 bg-kebana-blue text-white rounded-full flex items-center justify-center text-[10px] font-black">
-                                            <?php echo strtoupper(substr($ann['creator_name'], 0, 1)); ?>
+
+                                <!-- Card Footer -->
+                                <div class="pt-5 border-t border-slate-50 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2.5">
+                                        <div class="w-7 h-7 bg-kebana-blue text-white rounded-full flex items-center justify-center text-[11px] font-black shadow-sm shadow-kebana-blue/20">
+                                            <?php echo strtoupper(substr($ann['creator_name'] ?? 'K', 0, 1)); ?>
                                         </div>
-                                        <p class="text-[11px] font-black text-kebana-blue uppercase tracking-wider"><?php echo htmlspecialchars($ann['creator_name']); ?></p>
+                                        <div>
+                                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest block">Diterbitkan oleh</span>
+                                            <span class="text-[11px] font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($ann['creator_name'] ?? 'KEBANA'); ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-1.5 text-[9px] font-black text-slate-300 uppercase tracking-wider group-hover:text-kebana-blue transition-colors duration-300">
+                                        <span>Baca</span>
+                                        <i class="fa-solid fa-arrow-right text-[8px] transition-transform duration-300 group-hover:translate-x-1"></i>
                                     </div>
                                 </div>
-                                <div class="w-12 h-12 bg-slate-50 text-slate-300 group-hover:bg-kebana-blue group-hover:text-white flex items-center justify-center rounded-2xl shadow-sm transition-all duration-300 transform group-hover:translate-x-1">
-                                    <i class="fa-solid fa-arrow-right-long"></i>
-                                </div>
                             </div>
+
                         </a>
                     <?php endforeach; ?>
                 </div>
@@ -293,7 +353,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
             <div class="flex flex-wrap justify-center gap-8 lg:gap-16 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
                 <a href="#" class="hover:text-kebana-blue transition-colors">Dasar Privasi</a>
-                <a href="#" class="hover:text-kebana-blue transition-colors">Terma & Syarat</a>
+                <a href="#" class="hover:text-kebana-blue transition-colors">Terma &amp; Syarat</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Bantuan</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Hubungi Kami</a>
             </div>
@@ -306,3 +366,4 @@ $isLoggedIn = isset($_SESSION['user_id']);
 
 </body>
 </html>
+

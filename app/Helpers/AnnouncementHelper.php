@@ -40,6 +40,40 @@ class AnnouncementHelper {
     }
 
     /**
+     * Fetch the first (cover) image path for each announcement in a single query.
+     * Returns an associative array: [announcement_id => image_path]
+     */
+    public static function getCoverImageMap(array $announcementIds): array {
+        if (empty($announcementIds)) {
+            return [];
+        }
+        $db = Database::getInstance()->getConnection();
+        $placeholders = implode(',', array_fill(0, count($announcementIds), '?'));
+        $types = str_repeat('i', count($announcementIds));
+
+        $stmt = $db->prepare(
+            "SELECT announcement_id, image_path
+             FROM tbl_announcement_image
+             WHERE announcement_id IN ($placeholders)
+             ORDER BY image_id ASC"
+        );
+        $map = [];
+        if ($stmt) {
+            $stmt->bind_param($types, ...$announcementIds);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                // Only keep the FIRST image per announcement
+                if (!isset($map[$row['announcement_id']])) {
+                    $map[$row['announcement_id']] = $row['image_path'];
+                }
+            }
+            $stmt->close();
+        }
+        return $map;
+    }
+
+    /**
      * Get a single announcement by ID
      */
     public static function getAnnouncementById($id) {
