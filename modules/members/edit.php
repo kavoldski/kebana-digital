@@ -98,10 +98,14 @@ $page_title = 'KEMASKINI AHLI';
                     <!-- Gender -->
                     <div>
                         <label for="gender" class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">JANTINA</label>
+                        <?php 
+                        // Normalize gender lookup (handles empty/null fields using IC fallback)
+                        $gender_val = MembersHelper::getGenderLabel($member);
+                        ?>
                         <select id="gender" name="gender" required 
                                 class="w-full px-6 py-5 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none appearance-none">
-                            <option value="Lelaki" <?php echo $member['gender'] === 'Lelaki' ? 'selected' : ''; ?>>LELAKI</option>
-                            <option value="Wanita" <?php echo ($member['gender'] === 'Wanita' || $member['gender'] === 'Perempuan') ? 'selected' : ''; ?>>WANITA</option>
+                            <option value="Lelaki" <?php echo strcasecmp($gender_val, 'Lelaki') === 0 ? 'selected' : ''; ?>>LELAKI</option>
+                            <option value="Wanita" <?php echo (strcasecmp($gender_val, 'Wanita') === 0 || strcasecmp($gender_val, 'Perempuan') === 0) ? 'selected' : ''; ?>>WANITA</option>
                         </select>
                     </div>
 

@@ -133,12 +133,79 @@ $page_title = 'PROFIL AHLI';
                 <p class="text-[9px] text-red-600/70 font-bold uppercase leading-relaxed tracking-tight">
                     Tindakan ini akan memadam rekod ahli secara kekal dari pangkalan data sistem.
                 </p>
-                <a href="<?= URL_ROOT ?>/members?delete=<?php echo $member['member_id']; ?>" class="block w-full py-4 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest text-center hover:bg-red-700 transition-all shadow-lg shadow-red-600/20">
+                <a href="<?= URL_ROOT ?>/members?delete=<?php echo $member['member_id']; ?>" onclick="openDeleteModal(event)" class="block w-full py-4 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest text-center hover:bg-red-700 transition-all shadow-lg shadow-red-600/20">
                     PADAM REKOD AHLI
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Premium Delete Confirmation Modal -->
+<div id="deleteModalOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] opacity-0 pointer-events-none transition-all duration-300 ease-out flex items-center justify-center p-4">
+    <div id="deleteCard" class="bg-white/95 backdrop-blur-md max-w-md w-full p-8 shadow-2xl border-t-8 border-red-600 transform scale-95 opacity-0 transition-all duration-300 ease-out space-y-6">
+        
+        <div class="flex items-center gap-4 text-left">
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-600 shrink-0">
+                <i class="fa-solid fa-trash-can text-xl"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-black text-kebana-blue tracking-tighter uppercase italic leading-none">
+                    Padam Rekod Ahli
+                </h3>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                    Tindakan ini tidak boleh diundur balik
+                </p>
+            </div>
+        </div>
+
+        <div class="text-xs text-slate-600 leading-relaxed uppercase tracking-wider bg-slate-50/50 p-4 border border-slate-100 text-left">
+            Adakah anda pasti mahu memadam profil ahli: <strong class="text-kebana-blue font-black"><?php echo htmlspecialchars($member['full_name']); ?></strong>?
+        </div>
+
+        <div class="flex gap-3">
+            <button type="button" onclick="closeDeleteModal()" class="w-1/2 bg-slate-100 text-slate-500 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-200 hover:text-slate-700 transition-all text-center">
+                BATAL
+            </button>
+            <a href="<?= URL_ROOT ?>/members?delete=<?php echo $member['member_id']; ?>" class="w-1/2 bg-red-600 text-white py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-700 hover:shadow-red-200/50 hover:shadow-xl transition-all text-center flex items-center justify-center">
+                PADAM
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function openDeleteModal(e) {
+    if (e) e.preventDefault();
+    const overlay = document.getElementById('deleteModalOverlay');
+    const card = document.getElementById('deleteCard');
+    
+    overlay.classList.remove('opacity-0', 'pointer-events-none');
+    overlay.classList.add('opacity-100');
+    
+    card.classList.remove('scale-95', 'opacity-0');
+    card.classList.add('scale-100', 'opacity-100');
+}
+
+function closeDeleteModal() {
+    const overlay = document.getElementById('deleteModalOverlay');
+    const card = document.getElementById('deleteCard');
+    
+    overlay.classList.remove('opacity-100');
+    overlay.classList.add('opacity-0', 'pointer-events-none');
+    
+    card.classList.remove('scale-100', 'opacity-100');
+    card.classList.add('scale-95', 'opacity-0');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteOverlay = document.getElementById('deleteModalOverlay');
+    deleteOverlay?.addEventListener('click', function(e) {
+        if (e.target === deleteOverlay) {
+            closeDeleteModal();
+        }
+    });
+});
+</script>
 
 <?php require_once APP_ROOT . '/includes/footer.php'; ?>
