@@ -162,6 +162,7 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     ['link' => 'announcements', 'icon' => 'fa-bullhorn', 'label' => 'Pengurusan Hebahan', 'visible' => in_array($current_role, [888, 1, 4])],
                     ['link' => 'users', 'icon' => 'fa-user-gear', 'label' => 'Pengurusan Pengguna', 'visible' => ($current_role === 888)],
                     ['link' => 'cawangan', 'icon' => 'fa-building-shield', 'label' => 'Pengurusan Cawangan', 'visible' => ($current_role === 888)],
+                    ['link' => 'audit', 'icon' => 'fa-shield-halved', 'label' => 'Log Audit Sistem', 'visible' => in_array($current_role, [888, 1, 4, 6])],
                     ['link' => 'chat', 'icon' => 'fa-comments', 'label' => 'Pusat Komunikasi', 'visible' => true, 'badge' => $unreadChatCount],
                 ];
 

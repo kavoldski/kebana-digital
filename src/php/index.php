@@ -11,6 +11,7 @@ use App\Helpers\MembersHelper;
 use App\Helpers\FinanceHelper;
 use App\Helpers\DashboardHelper;
 use App\Helpers\AuditHelper;
+use App\Helpers\NotificationHelper;
 
 $db = Database::getInstance()->getConnection();
 $username = $_SESSION['username'] ?? 'User';
@@ -38,7 +39,9 @@ try {
 
     $pending_approvals = DashboardHelper::getPendingApprovalsCount($current_role, $current_cawangan_id);
     $branch_finance = in_array($current_role, [888, 1, 2, 3]) ? FinanceHelper::getBranchTotals() : [];
-    $recent_activities = AuditHelper::getRecentLogs(5);
+    $pending_actions = DashboardHelper::getPendingActionsForUser($current_role, $current_cawangan_id, 4);
+    $unread_notifications = NotificationHelper::getUnread($current_user_id);
+    $unread_count = count($unread_notifications);
 
     // Participation Rate
     $participation_rate = $total_members > 0 ? round(($active_members / $total_members) * 100, 1) : 0;
@@ -309,41 +312,106 @@ try {
 
         <!-- Sidebar -->
         <div class="space-y-10">
-            <div class="bg-white border-t-8 border-kebana-yellow shadow-sm p-10">
-                <h3 class="text-[10px] font-black text-kebana-blue uppercase tracking-[0.2em] mb-10 pb-4 border-b border-slate-50 flex items-center justify-between">
-                    Log Aktiviti
-                    <i class="fa-solid fa-list-check opacity-20"></i>
-                </h3>
-                <div class="space-y-10">
-                    <?php if (empty($recent_activities)): ?>
-                        <p class="text-[10px] text-slate-300 font-bold uppercase tracking-widest text-center py-10">Tiada aktiviti terbaru.</p>
-                    <?php else: ?>
-                        <?php foreach ($recent_activities as $log): 
-                            $icon = 'fa-circle-dot';
-                            $color = 'text-slate-400';
-                            if ($log['module'] == 'AUTH') { $icon = 'fa-shield-keyhole'; $color = 'text-amber-500'; }
-                            if ($log['module'] == 'CHAT') { $icon = 'fa-comments'; $color = 'text-kebana-blue'; }
-                            if ($log['module'] == 'MEMBERS') { $icon = 'fa-user-check'; $color = 'text-purple-500'; }
-                            if ($log['module'] == 'EVENTS') { $icon = 'fa-calendar-star'; $color = 'text-blue-500'; }
-                            if ($log['module'] == 'FINANCE') { $icon = 'fa-money-bill-transfer'; $color = 'text-green-600'; }
-                        ?>
-                        <div class="relative pl-8 border-l-2 border-slate-50">
-                            <div class="absolute -left-[6px] top-0 w-3 h-3 bg-white border-2 border-slate-200 ring-4 ring-white"></div>
-                            <p class="text-[10px] font-black <?php echo $color; ?> uppercase italic flex items-center">
-                                <i class="fa-solid <?php echo $icon; ?> mr-2"></i>
-                                <?php echo DashboardHelper::formatRelativeTime($log['created_at']); ?>
-                            </p>
-                            <p class="text-sm text-slate-700 mt-3 font-bold">
-                                <?php echo htmlspecialchars($log['username'] ?? 'SYSTEM'); ?>: 
-                                <?php echo htmlspecialchars($log['action']); ?>
-                            </p>
+
+            <!-- Tindakan & Pemberitahuan Panel -->
+            <div class="bg-white border-t-8 border-kebana-yellow shadow-sm overflow-hidden">
+                <!-- Header -->
+                <div class="px-8 pt-8 pb-5 flex items-center justify-between border-b border-slate-50">
+                    <div>
+                        <h3 class="text-[10px] font-black text-kebana-blue uppercase tracking-[0.2em]">Tindakan & Pemberitahuan</h3>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Item yang memerlukan perhatian anda</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <?php if ($unread_count > 0): ?>
+                        <span class="inline-flex items-center justify-center h-6 px-2 bg-red-500 text-white text-[9px] font-black rounded-full animate-pulse"><?php echo $unread_count; ?></span>
+                        <?php endif; ?>
+                        <i class="fa-solid fa-bell text-slate-200 text-lg"></i>
+                    </div>
+                </div>
+
+                <!-- Pending Actions Section -->
+                <?php if (!empty($pending_actions)): ?>
+                <div class="px-4 pt-5 pb-2">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] px-2 mb-3">Tindakan Diperlukan</p>
+                    <div class="space-y-1">
+                    <?php foreach ($pending_actions as $action): ?>
+                    <a href="<?php echo $action['url']; ?>" class="group flex items-center gap-4 p-3 rounded-none hover:bg-slate-50 transition-colors border-l-2 border-transparent hover:border-kebana-blue">
+                        <div class="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-slate-50 group-hover:bg-kebana-blue/5 transition-colors">
+                            <i class="fa-solid <?php echo $action['icon']; ?> <?php echo $action['color']; ?> text-sm"></i>
                         </div>
-                        <?php endforeach; ?>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[11px] font-black text-slate-700 uppercase truncate leading-tight"><?php echo $action['title']; ?></p>
+                            <p class="text-[9px] text-slate-400 font-bold mt-0.5 truncate"><?php echo $action['subtitle']; ?></p>
+                        </div>
+                        <span class="flex-shrink-0 px-2 py-0.5 text-[8px] font-black uppercase tracking-wider <?php echo $action['badge_color']; ?>"><?php echo $action['badge']; ?></span>
+                    </a>
+                    <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php else: ?>
+                <div class="px-8 py-8 text-center">
+                    <div class="w-12 h-12 bg-green-50 flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-circle-check text-green-500 text-xl"></i>
+                    </div>
+                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Tiada Tindakan Tertunda</p>
+                    <p class="text-[9px] text-slate-200 font-medium mt-1">Semua selesai!</p>
+                </div>
+                <?php endif; ?>
+
+                <!-- Divider -->
+                <div class="mx-6 my-3 border-t border-dashed border-slate-100"></div>
+
+                <!-- Unread Notifications Section -->
+                <div class="px-4 pb-4">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] px-2 mb-3">Notifikasi Terkini</p>
+                    <?php if (empty($unread_notifications)): ?>
+                    <div class="px-2 py-5 text-center">
+                        <i class="fa-regular fa-bell-slash text-slate-200 text-2xl mb-2 block"></i>
+                        <p class="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Tiada notifikasi baharu</p>
+                    </div>
+                    <?php else: ?>
+                    <div class="space-y-1">
+                    <?php foreach (array_slice($unread_notifications, 0, 3) as $notif):
+                        $notif_icons = [
+                            'event'   => ['icon' => 'fa-calendar-star',     'color' => 'text-blue-500'],
+                            'finance' => ['icon' => 'fa-money-bill-transfer','color' => 'text-green-600'],
+                            'member'  => ['icon' => 'fa-user-check',         'color' => 'text-purple-500'],
+                            'system'  => ['icon' => 'fa-gear',               'color' => 'text-slate-400'],
+                            'chat'    => ['icon' => 'fa-comments',           'color' => 'text-kebana-blue'],
+                        ];
+                        $ni = $notif_icons[$notif['type']] ?? ['icon' => 'fa-circle-dot', 'color' => 'text-slate-400'];
+                    ?>
+                    <a href="<?php echo $notif['action_url'] ? htmlspecialchars($notif['action_url']) : URL_ROOT . '/notifications'; ?>" 
+                       class="group flex items-start gap-3 p-3 bg-blue-50/50 hover:bg-slate-50 transition-colors border-l-2 border-blue-200">
+                        <div class="w-7 h-7 flex-shrink-0 flex items-center justify-center mt-0.5">
+                            <i class="fa-solid <?php echo $ni['icon']; ?> <?php echo $ni['color']; ?> text-sm"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[10px] font-black text-slate-700 uppercase leading-tight truncate"><?php echo htmlspecialchars($notif['title']); ?></p>
+                            <p class="text-[9px] text-slate-400 font-medium mt-0.5 line-clamp-1"><?php echo htmlspecialchars($notif['message']); ?></p>
+                            <p class="text-[8px] text-blue-400 font-black uppercase mt-1"><?php echo DashboardHelper::formatRelativeTime($notif['created_at']); ?></p>
+                        </div>
+                    </a>
+                    <?php endforeach; ?>
+                    </div>
                     <?php endif; ?>
                 </div>
-                <?php if (in_array($current_role, [888, 1, 4, 6])): ?>
-                <a href="<?= URL_ROOT ?>/audit" class="block w-full mt-12 py-4 text-[10px] font-black text-slate-400 border border-slate-100 uppercase tracking-widest hover:bg-slate-50 hover:text-kebana-blue transition-all text-center">Lihat Semua Aktiviti</a>
-                <?php endif; ?>
+
+                <!-- Footer Links -->
+                <div class="border-t border-slate-50 grid grid-cols-2">
+                    <a href="<?= URL_ROOT ?>/notifications" class="py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 hover:text-kebana-blue transition-all text-center border-r border-slate-50">
+                        <i class="fa-regular fa-bell mr-1"></i> Notifikasi
+                    </a>
+                    <?php if (in_array($current_role, [888, 1, 2, 3, 4, 5, 6])): ?>
+                    <a href="<?= URL_ROOT ?>/events" class="py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 hover:text-kebana-blue transition-all text-center">
+                        <i class="fa-regular fa-calendar mr-1"></i> Semua Aktiviti
+                    </a>
+                    <?php else: ?>
+                    <a href="<?= URL_ROOT ?>/finance" class="py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 hover:text-kebana-blue transition-all text-center">
+                        <i class="fa-regular fa-wallet mr-1"></i> Kewangan
+                    </a>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <div class="bg-kebana-dark p-10 text-white shadow-2xl relative overflow-hidden group">

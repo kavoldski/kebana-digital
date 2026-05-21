@@ -253,6 +253,154 @@ class DashboardHelper {
         return round($totalScore, 1);
     }
 
+    /**
+     * Get pending actionable items for a user, role-aware.
+     * Returns an array of items: [title, subtitle, url, icon, color, time]
+     */
+    public static function getPendingActionsForUser($role, $cawanganId = null, $limit = 4) {
+        $db = Database::getInstance()->getConnection();
+        $items = [];
+        $pusat_roles = [888, 1, 2, 3, 4, 5, 6, 7];
+        $is_pusat = in_array($role, $pusat_roles);
+
+        // --- EVENTS: Pending approvals ---
+        if (in_array($role, [888, 1, 2, 3])) {
+            // Pusat senior: events submitted for HQ approval
+            $sql = "SELECT e.event_id, e.event_title, e.event_date, c.cawangan_name
+                    FROM tbl_event e
+                    LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
+                    WHERE e.status = 'Submitted'
+                    ORDER BY e.created_at DESC LIMIT " . (int)$limit;
+            $res = $db->query($sql);
+            if ($res) {
+                while ($row = $res->fetch_assoc()) {
+                    $items[] = [
+                        'title'    => htmlspecialchars($row['event_title']),
+                        'subtitle' => 'Menunggu kelulusan' . ($row['cawangan_name'] ? ' • ' . htmlspecialchars($row['cawangan_name']) : ''),
+                        'url'      => URL_ROOT . '/events/view/' . $row['event_id'],
+                        'icon'     => 'fa-file-signature',
+                        'color'    => 'text-amber-500',
+                        'badge_color' => 'bg-amber-100 text-amber-700',
+                        'badge'    => 'Lulus',
+                        'time'     => $row['event_date'],
+                    ];
+                }
+            }
+        } elseif ($role == 11) {
+            // Pengerusi Cawangan: events pending branch approval
+            $sql = "SELECT e.event_id, e.event_title, e.event_date
+                    FROM tbl_event e
+                    LEFT JOIN tbl_event p ON e.parent_event_id = p.event_id
+                    WHERE e.status = 'Pending Branch Approval'
+                    AND (e.cawangan_id = ? OR p.cawangan_id = ?)
+                    ORDER BY e.created_at DESC LIMIT " . (int)$limit;
+            $stmt = $db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param("ii", $cawanganId, $cawanganId);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                while ($row = $res->fetch_assoc()) {
+                    $items[] = [
+                        'title'       => htmlspecialchars($row['event_title']),
+                        'subtitle'    => 'Menunggu pengesahan cawangan anda',
+                        'url'         => URL_ROOT . '/events/view/' . $row['event_id'],
+                        'icon'        => 'fa-calendar-check',
+                        'color'       => 'text-kebana-blue',
+                        'badge_color' => 'bg-blue-100 text-blue-700',
+                        'badge'       => 'Sahkan',
+                        'time'        => $row['event_date'],
+                    ];
+                }
+                $stmt->close();
+            }
+        } elseif (in_array($role, [22, 33, 44])) {
+            // Other Cawangan roles: upcoming events for their branch
+            $sql = "SELECT e.event_id, e.event_title, e.event_date
+                    FROM tbl_event e
+                    WHERE e.cawangan_id = ? AND e.event_date >= CURDATE() AND e.status = 'Approved'
+                    ORDER BY e.event_date ASC LIMIT " . (int)$limit;
+            $stmt = $db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param("i", $cawanganId);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                while ($row = $res->fetch_assoc()) {
+                    $items[] = [
+                        'title'       => htmlspecialchars($row['event_title']),
+                        'subtitle'    => 'Aktiviti akan datang cawangan',
+                        'url'         => URL_ROOT . '/events/view/' . $row['event_id'],
+                        'icon'        => 'fa-calendar-star',
+                        'color'       => 'text-blue-500',
+                        'badge_color' => 'bg-slate-100 text-slate-500',
+                        'badge'       => date('d M', strtotime($row['event_date'])),
+                        'time'        => $row['event_date'],
+                    ];
+                }
+                $stmt->close();
+            }
+        }
+
+        // --- FINANCE: Pending entries for Bendahari roles ---
+        if (in_array($role, [55, 66])) {
+            $sql = "SELECT t.trans_id, t.category, t.amount, t.trans_type, t.trans_date
+                    FROM tbl_transaction t
+                    JOIN tbl_user u ON t.recorded_by = u.user_id
+                    WHERE u.cawangan_id = ?
+                    ORDER BY t.trans_id DESC LIMIT " . (int)$limit;
+            $stmt = $db->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param("i", $cawanganId);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                while ($row = $res->fetch_assoc()) {
+                    $isIncome = ($row['trans_type'] === 'Income');
+                    $items[] = [
+                        'title'       => htmlspecialchars($row['category']),
+                        'subtitle'    => ($isIncome ? '+' : '-') . ' RM ' . number_format($row['amount'], 2),
+                        'url'         => URL_ROOT . '/finance',
+                        'icon'        => $isIncome ? 'fa-circle-arrow-up' : 'fa-circle-arrow-down',
+                        'color'       => $isIncome ? 'text-green-600' : 'text-red-500',
+                        'badge_color' => $isIncome ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700',
+                        'badge'       => $isIncome ? 'Masuk' : 'Keluar',
+                        'time'        => $row['trans_date'],
+                    ];
+                }
+                $stmt->close();
+            }
+        }
+
+        // --- DOCUMENTS: Pending for Pusat Setiausaha / Bendahari ---
+        if (in_array($role, [4, 5, 6, 7])) {
+            $sql = "SELECT d.doc_id, d.doc_name, d.uploaded_at, e.event_title
+                    FROM tbl_document d
+                    JOIN tbl_event e ON d.event_id = e.event_id
+                    WHERE d.status = 'Pending' AND e.status = 'Submitted'
+                    ORDER BY d.uploaded_at DESC LIMIT " . (int)$limit;
+            $res = $db->query($sql);
+            if ($res) {
+                while ($row = $res->fetch_assoc()) {
+                    $items[] = [
+                        'title'       => htmlspecialchars($row['doc_name']),
+                        'subtitle'    => 'Fail untuk: ' . htmlspecialchars($row['event_title']),
+                        'url'         => URL_ROOT . '/documents',
+                        'icon'        => 'fa-file-circle-check',
+                        'color'       => 'text-purple-600',
+                        'badge_color' => 'bg-purple-100 text-purple-700',
+                        'badge'       => 'Semak',
+                        'time'        => $row['uploaded_at'],
+                    ];
+                }
+            }
+        }
+
+        // Sort by time desc and cap
+        usort($items, function($a, $b) {
+            return strtotime($b['time']) - strtotime($a['time']);
+        });
+
+        return array_slice($items, 0, $limit);
+    }
+
     public static function formatRelativeTime($datetime) {
         if (!$datetime) return 'Tiada data masa';
         $ts = strtotime($datetime);
