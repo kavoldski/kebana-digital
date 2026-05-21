@@ -220,6 +220,12 @@ if ($msg_text):
                 <a href="<?= URL_ROOT ?>/events/attendance?event_id=<?php echo $eventId; ?>" class="bg-slate-800 text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-black transition-all text-center shadow-xl">
                     PENGURUSAN KEHADIRAN
                 </a>
+
+                <?php if (hasRole([888, 1, 2, 3, 6, 7, 55, 66])): ?>
+                <a href="<?= URL_ROOT ?>/finance/event/<?php echo $eventId; ?>" class="bg-emerald-600 text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-emerald-700 transition-all text-center shadow-xl">
+                    PENGGUNAAN KEWANGAN
+                </a>
+                <?php endif; ?>
                 <div class="grid grid-cols-2 gap-3">
                     <a href="<?= URL_ROOT ?>/events" class="bg-slate-100 text-slate-600 px-6 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all text-center">
                         KEMBALI

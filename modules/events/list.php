@@ -295,6 +295,14 @@ $page_title = 'PENGURUSAN ACARA';
                                         Gantt Chart
                                     </a>
                                     <?php endif; ?>
+
+                                    <?php if (hasRole([888, 1, 2, 3, 6, 7, 55, 66])): ?>
+                                    <a href="<?= URL_ROOT ?>/finance/event/<?php echo $event['event_id']; ?>" 
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-emerald-600 hover:bg-emerald-700 uppercase tracking-widest transition-all shadow-sm">
+                                        <i class="fa-solid fa-wallet text-xs"></i>
+                                        Kewangan
+                                    </a>
+                                    <?php endif; ?>
                                     
                                     <?php if ($status === 'Draft'): ?>
                                         <?php if ($level === 'MASTER' && hasRole([888, 1, 4, 33])): ?>
@@ -407,6 +415,14 @@ $page_title = 'PENGURUSAN ACARA';
                                         <i class="fa-solid fa-users-check"></i>
                                         Kehadiran
                                     </a>
+
+                                    <?php if (hasRole([888, 1, 2, 3, 6, 7, 55, 66])): ?>
+                                    <a href="<?= URL_ROOT ?>/finance/event/<?php echo $sub['event_id']; ?>" 
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-emerald-600 bg-emerald-50 hover:bg-emerald-100 uppercase tracking-widest transition-all">
+                                        <i class="fa-solid fa-wallet text-xs"></i>
+                                        Kewangan
+                                    </a>
+                                    <?php endif; ?>
                                     <?php if ($s_status === 'Draft' && hasRole(33)): ?>
                                     <a href="?action=submit_to_branch&event_id=<?php echo $sub['event_id']; ?>" 
                                        class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all">
