@@ -38,6 +38,20 @@ if (isset($_GET['action']) && isset($_GET['event_id'])) {
     $message_type = $success ? 'success' : 'error';
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_master_id'])) {
+    $event_id = (int)$_POST['delete_master_id'];
+    $sub_action = $_POST['sub_action'] ?? 'keep';
+    $selected_subs = isset($_POST['selected_subs']) && is_array($_POST['selected_subs']) ? $_POST['selected_subs'] : [];
+    
+    if (EventsHelper::deleteMasterEventWithOptions($event_id, $sub_action, $selected_subs)) {
+        $message = 'Acara Utama dan sub-acara pilihan telah berjaya dipadam.';
+        $message_type = 'success';
+    } else {
+        $message = 'Gagal memadam Acara Utama.';
+        $message_type = 'error';
+    }
+}
+
 if (isset($_GET['delete'])) {
     $event_id = (int)$_GET['delete'];
     if (EventsHelper::deleteEvent($event_id)) {
@@ -298,12 +312,20 @@ $page_title = 'PENGURUSAN ACARA';
                                     </a>
                                     <?php endif; ?>
 
-                                    <a href="?delete=<?php echo $event['event_id']; ?>" 
-                                       onclick="return confirm('Adakah anda pasti mahu memadam acara ini?');"
-                                       class="inline-flex items-center justify-center w-9 h-9 text-slate-300 hover:text-red-600 hover:bg-red-50 border border-slate-100 transition-all"
-                                       title="Padam">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </a>
+                                     <?php 
+                                     $sub_events_json = json_encode(array_map(function($sub) {
+                                         return [
+                                             'id' => $sub['event_id'],
+                                             'title' => $sub['event_title']
+                                         ];
+                                     }, $event['sub_events'] ?? []));
+                                     ?>
+                                     <button type="button" 
+                                        onclick='triggerDeleteMaster(<?php echo $event['event_id']; ?>, <?php echo json_encode($event['event_title']); ?>, <?php echo htmlspecialchars($sub_events_json, ENT_QUOTES, 'UTF-8'); ?>)'
+                                        class="inline-flex items-center justify-center w-9 h-9 text-slate-300 hover:text-red-600 hover:bg-red-50 border border-slate-100 transition-all"
+                                        title="Padam">
+                                         <i class="fa-solid fa-trash-can"></i>
+                                     </button>
                                 </div>
                             </td>
                         </tr>
@@ -513,6 +535,167 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?php endif; ?>
+
+<!-- Premium Delete Confirmation Modal -->
+<div id="deleteModalOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] opacity-0 pointer-events-none transition-all duration-300 ease-out flex items-center justify-center p-4">
+    <div id="deleteCard" class="bg-white/95 backdrop-blur-md max-w-md w-full p-8 shadow-2xl border-t-8 border-red-600 transform scale-95 opacity-0 transition-all duration-300 ease-out space-y-6">
+        
+        <div class="flex items-center gap-4 text-left">
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-600 shrink-0">
+                <i class="fa-solid fa-trash-can text-xl"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-black text-kebana-blue tracking-tighter uppercase italic leading-none">
+                    Padam Acara
+                </h3>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                    Tindakan ini tidak boleh diundur balik
+                </p>
+            </div>
+        </div>
+
+        <form id="deleteForm" method="POST" action="" class="space-y-6 text-left">
+            <input type="hidden" name="delete_master_id" id="deleteMasterIdInput" value="">
+            
+            <div class="text-xs text-slate-600 leading-relaxed uppercase tracking-wider bg-slate-50/50 p-4 border border-slate-100">
+                Adakah anda pasti mahu memadam acara: <strong id="deleteEventTitleDisplay" class="text-kebana-blue font-black"></strong>?
+            </div>
+
+            <!-- Sub-Events Deletion Options (Only shown if event has sub-events) -->
+            <div id="subEventsOptionsArea" class="hidden space-y-4">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">
+                    PILIHAN PADAM SUB-ACARA (<span id="subEventsCountDisplay">0</span> DIJUMPAI)
+                </p>
+                
+                <div class="space-y-3">
+                    <label class="flex items-start gap-3 p-3 border border-slate-100 bg-white hover:border-slate-300 cursor-pointer transition-all">
+                        <input type="radio" name="sub_action" value="keep" checked class="mt-0.5 accent-kebana-blue" onchange="toggleSelectiveList(false)">
+                        <div>
+                            <p class="text-[11px] font-black text-slate-700 uppercase tracking-tight">Kekalkan Semua Sub-Acara</p>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase">Sub-Acara akan kekal sebagai acara bebas (tiada parent)</p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 border border-slate-100 bg-white hover:border-slate-300 cursor-pointer transition-all">
+                        <input type="radio" name="sub_action" value="all" class="mt-0.5 accent-kebana-blue" onchange="toggleSelectiveList(false)">
+                        <div>
+                            <p class="text-[11px] font-black text-slate-700 uppercase tracking-tight">Padam Semua Sub-Acara</p>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase">Padam acara utama berserta kesemua sub-acara sekaligus</p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-start gap-3 p-3 border border-slate-100 bg-white hover:border-slate-300 cursor-pointer transition-all">
+                        <input type="radio" name="sub_action" value="selective" class="mt-0.5 accent-kebana-blue" onchange="toggleSelectiveList(true)">
+                        <div>
+                            <p class="text-[11px] font-black text-slate-700 uppercase tracking-tight">Pilih Sub-Acara Untuk Dipadam</p>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase">Pilih secara manual sub-acara mana yang ingin dipadam</p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Selective Checklist (Hidden by default) -->
+                <div id="selectiveSubEventsList" class="hidden border border-slate-200/60 bg-slate-50 p-4 max-h-[150px] overflow-y-auto space-y-2">
+                    <!-- Dynamic Checklist Inserted Here by JS -->
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="button" onclick="closeDeleteModal()" class="w-1/2 bg-slate-100 text-slate-500 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-200 hover:text-slate-700 transition-all text-center">
+                    BATAL
+                </button>
+                <button type="submit" class="w-1/2 bg-red-600 text-white py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-700 hover:shadow-red-200/50 hover:shadow-xl transition-all text-center">
+                    PADAM
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function triggerDeleteMaster(eventId, eventTitle, subEvents) {
+    const overlay = document.getElementById('deleteModalOverlay');
+    const card = document.getElementById('deleteCard');
+    const masterIdInput = document.getElementById('deleteMasterIdInput');
+    const titleDisplay = document.getElementById('deleteEventTitleDisplay');
+    const subOptionsArea = document.getElementById('subEventsOptionsArea');
+    const subCountDisplay = document.getElementById('subEventsCountDisplay');
+    const selectiveList = document.getElementById('selectiveSubEventsList');
+    
+    // Set basic info
+    masterIdInput.value = eventId;
+    titleDisplay.textContent = eventTitle;
+    
+    // Reset inputs
+    document.querySelector('input[name="sub_action"][value="keep"]').checked = true;
+    selectiveList.classList.add('hidden');
+    selectiveList.innerHTML = '';
+    
+    if (subEvents && subEvents.length > 0) {
+        // Show Sub-Events options
+        subOptionsArea.classList.remove('hidden');
+        subCountDisplay.textContent = subEvents.length;
+        
+        // Build the selective list checkbox markup
+        subEvents.forEach(sub => {
+            const label = document.createElement('label');
+            label.className = 'flex items-center gap-3 p-2 bg-white border border-slate-100 hover:border-slate-300 cursor-pointer transition-all';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = 'selected_subs[]';
+            checkbox.value = sub.id;
+            checkbox.className = 'accent-red-600 rounded';
+            
+            const textDiv = document.createElement('div');
+            textDiv.className = 'text-[10px] font-black text-slate-600 uppercase tracking-tight';
+            textDiv.textContent = sub.title;
+            
+            label.appendChild(checkbox);
+            label.appendChild(textDiv);
+            selectiveList.appendChild(label);
+        });
+    } else {
+        // Hide Sub-Events options
+        subOptionsArea.classList.add('hidden');
+    }
+    
+    // Show Modal
+    overlay.classList.remove('opacity-0', 'pointer-events-none');
+    overlay.classList.add('opacity-100');
+    
+    card.classList.remove('scale-95', 'opacity-0');
+    card.classList.add('scale-100', 'opacity-100');
+}
+
+function closeDeleteModal() {
+    const overlay = document.getElementById('deleteModalOverlay');
+    const card = document.getElementById('deleteCard');
+    
+    overlay.classList.remove('opacity-100');
+    overlay.classList.add('opacity-0', 'pointer-events-none');
+    
+    card.classList.remove('scale-100', 'opacity-100');
+    card.classList.add('scale-95', 'opacity-0');
+}
+
+function toggleSelectiveList(show) {
+    const selectiveList = document.getElementById('selectiveSubEventsList');
+    if (show) {
+        selectiveList.classList.remove('hidden');
+    } else {
+        selectiveList.classList.add('hidden');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteOverlay = document.getElementById('deleteModalOverlay');
+    deleteOverlay?.addEventListener('click', function(e) {
+        if (e.target === deleteOverlay) {
+            closeDeleteModal();
+        }
+    });
+});
+</script>
 
 <?php require_once APP_ROOT . '/includes/footer.php'; ?>
 

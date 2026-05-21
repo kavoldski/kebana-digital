@@ -501,6 +501,41 @@ class EventsHelper {
         return $success;
     }
 
+    public static function deleteMasterEventWithOptions($masterId, $subEventAction, $selectedSubIds = []) {
+        $db = Database::getInstance()->getConnection();
+
+        // 1. Handle Sub-Events depending on selected action
+        if ($subEventAction === 'all') {
+            $stmt = $db->prepare("DELETE FROM tbl_event WHERE parent_event_id = ?");
+            if ($stmt) {
+                $stmt->bind_param("i", $masterId);
+                $stmt->execute();
+                $stmt->close();
+            }
+        } elseif ($subEventAction === 'selective' && !empty($selectedSubIds)) {
+            // Filter and sanitize list of IDs to integers
+            $selectedSubIds = array_map('intval', $selectedSubIds);
+            
+            // Build safe parameterized IN query
+            $placeholders = implode(',', array_fill(0, count($selectedSubIds), '?'));
+            $types = 'i' . str_repeat('i', count($selectedSubIds));
+            
+            $sql = "DELETE FROM tbl_event WHERE parent_event_id = ? AND event_id IN ($placeholders)";
+            $stmt = $db->prepare($sql);
+            if ($stmt) {
+                $bindParams = array_merge([$masterId], $selectedSubIds);
+                $stmt->bind_param($types, ...$bindParams);
+                $stmt->execute();
+                $stmt->close();
+            }
+        }
+        // If action is 'keep', database will automatically nullify the foreign keys on delete
+
+        // 2. Delete the master event itself
+        return self::deleteEvent($masterId);
+    }
+
+
     /**
      * Fetch sub-events for a given master event.
      */
