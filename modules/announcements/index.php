@@ -16,19 +16,29 @@ if (!in_array($current_role, [888, 1, 4])) {
 }
 
 $message = $_GET['msg'] ?? '';
+$page_title = 'PENGURUSAN HEBAHAN';
 
 // Handle delete
 if (isset($_GET['delete_id'])) {
     $delete_id = (int)$_GET['delete_id'];
-    if (AnnouncementHelper::deleteAnnouncement($delete_id, $current_user_id)) {
-        echo '<script>window.location.href = "' . URL_ROOT . '/announcements?msg=deleted";</script>';
-        exit;
+    try {
+        if (AnnouncementHelper::deleteAnnouncement($delete_id, $current_user_id)) {
+            echo '<script>window.location.href = "' . URL_ROOT . '/announcements?msg=deleted";</script>';
+            exit;
+        } else {
+            $message = 'delete_failed';
+        }
+    } catch (\Throwable $e) {
+        $message = 'delete_failed';
     }
 }
 
-$announcements = AnnouncementHelper::getAllAnnouncements();
-
-$page_title = 'PENGURUSAN HEBAHAN';
+try {
+    $announcements = AnnouncementHelper::getAllAnnouncements();
+} catch (\Throwable $e) {
+    $announcements = [];
+    $message = 'db_error';
+}
 ?>
 
 <div class="max-w-7xl mx-auto space-y-12 pb-24">
@@ -50,6 +60,14 @@ $page_title = 'PENGURUSAN HEBAHAN';
     <?php elseif ($message === 'deleted'): ?>
     <div class="p-6 bg-red-50 text-red-700 border-l-4 border-red-600 font-bold text-xs uppercase tracking-widest animate-fade-in">
         Hebahan telah dipadam.
+    </div>
+    <?php elseif ($message === 'delete_failed'): ?>
+    <div class="p-6 bg-red-50 text-red-700 border-l-4 border-red-600 font-bold text-xs uppercase tracking-widest animate-fade-in">
+        Gagal memadam hebahan. Sila cuba lagi atau hubungi pentadbir sistem.
+    </div>
+    <?php elseif ($message === 'db_error'): ?>
+    <div class="p-6 bg-amber-50 text-amber-700 border-l-4 border-amber-500 font-bold text-xs uppercase tracking-widest animate-fade-in">
+        Ralat sambungan pangkalan data. Sila muat semula halaman atau hubungi pentadbir sistem.
     </div>
     <?php endif; ?>
 

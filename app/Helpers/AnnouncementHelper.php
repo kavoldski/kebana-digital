@@ -109,21 +109,27 @@ class AnnouncementHelper {
     }
 
     /**
-     * Delete an announcement and its physical image attachments
+     * Delete an announcement and its physical image attachments.
+     * File-system failures during image cleanup are non-fatal so the
+     * DB record is always removed on success.
      */
     public static function deleteAnnouncement($id, $userId) {
         $db = Database::getInstance()->getConnection();
-        
+
         $ann = self::getAnnouncementById($id);
         if (!$ann) return false;
 
-        // Delete physical files for images associated with this announcement
-        $images = self::getAnnouncementImages($id);
-        foreach ($images as $img) {
-            $fullPath = APP_ROOT . '/' . $img['image_path'];
-            if (file_exists($fullPath)) {
-                @unlink($fullPath);
+        // Best-effort deletion of physical image files — errors are swallowed
+        try {
+            $images = self::getAnnouncementImages($id);
+            foreach ($images as $img) {
+                $fullPath = APP_ROOT . '/' . $img['image_path'];
+                if (file_exists($fullPath)) {
+                    @unlink($fullPath);
+                }
             }
+        } catch (\Throwable $e) {
+            // Non-fatal: continue to DB delete even if file cleanup fails
         }
 
         $stmt = $db->prepare("DELETE FROM tbl_announcement WHERE announcement_id = ?");
@@ -131,7 +137,7 @@ class AnnouncementHelper {
             $stmt->bind_param("i", $id);
             $success = $stmt->execute();
             $stmt->close();
-            
+
             if ($success) {
                 AuditHelper::log($userId, 'Hebahan dipadam: ' . $ann['title'], 'ANNOUNCEMENT', 'ID: ' . $id);
             }
@@ -160,95 +166,133 @@ class AnnouncementHelper {
     }
 
     /**
-     * Helper to compress images based on type before saving (GD backend)
+     * Helper to compress images based on type before saving (GD backend).
+     * Falls back to move_uploaded_file() if GD is unavailable or the
+     * specific MIME handler is not compiled in (e.g. WebP on some hosts).
      */
     public static function compressAndSaveImage($source, $destination, $quality = 80) {
-        $info = getimagesize($source);
+        $info = @getimagesize($source);
         if ($info === false) {
+            // Cannot read image info — fall back to raw move
             return move_uploaded_file($source, $destination);
         }
-        
+
         $mime = $info['mime'];
-        switch ($mime) {
-            case 'image/jpeg':
-            case 'image/jpg':
-                $image = @imagecreatefromjpeg($source);
-                if ($image) {
-                    $result = imagejpeg($image, $destination, $quality);
-                    imagedestroy($image);
-                    return $result;
-                }
-                break;
-            case 'image/png':
-                $image = @imagecreatefrompng($source);
-                if ($image) {
-                    imagealphablending($image, false);
-                    imagesavealpha($image, true);
-                    $result = imagepng($image, $destination, 7); // 0-9 scale compression
-                    imagedestroy($image);
-                    return $result;
-                }
-                break;
-            case 'image/gif':
-                $image = @imagecreatefromgif($source);
-                if ($image) {
-                    $result = imagegif($image, $destination);
-                    imagedestroy($image);
-                    return $result;
-                }
-                break;
-            case 'image/webp':
-                $image = @imagecreatefromwebp($source);
-                if ($image) {
-                    $result = imagewebp($image, $destination, $quality);
-                    imagedestroy($image);
-                    return $result;
-                }
-                break;
+        $image = null;
+
+        try {
+            switch ($mime) {
+                case 'image/jpeg':
+                case 'image/jpg':
+                    if (function_exists('imagecreatefromjpeg')) {
+                        $image = @imagecreatefromjpeg($source);
+                        if ($image) {
+                            $result = imagejpeg($image, $destination, $quality);
+                            imagedestroy($image);
+                            return $result;
+                        }
+                    }
+                    break;
+
+                case 'image/png':
+                    if (function_exists('imagecreatefrompng')) {
+                        $image = @imagecreatefrompng($source);
+                        if ($image) {
+                            imagealphablending($image, false);
+                            imagesavealpha($image, true);
+                            $result = imagepng($image, $destination, 7);
+                            imagedestroy($image);
+                            return $result;
+                        }
+                    }
+                    break;
+
+                case 'image/gif':
+                    if (function_exists('imagecreatefromgif')) {
+                        $image = @imagecreatefromgif($source);
+                        if ($image) {
+                            $result = imagegif($image, $destination);
+                            imagedestroy($image);
+                            return $result;
+                        }
+                    }
+                    break;
+
+                case 'image/webp':
+                    if (function_exists('imagecreatefromwebp')) {
+                        $image = @imagecreatefromwebp($source);
+                        if ($image) {
+                            $result = imagewebp($image, $destination, $quality);
+                            imagedestroy($image);
+                            return $result;
+                        }
+                    }
+                    break;
+            }
+        } catch (\Throwable $e) {
+            // GD threw — fall through to move_uploaded_file()
+            if ($image) {
+                @imagedestroy($image);
+            }
         }
+
+        // Fallback: raw copy without compression
         return move_uploaded_file($source, $destination);
     }
 
     /**
-     * Upload up to 5 compressed images and save their paths in the DB
+     * Upload up to 5 compressed images and save their paths in the DB.
+     * Individual image failures are skipped (not fatal) unless the
+     * upload directory is missing/unwritable.
+     *
+     * @return true on full success, string error message on failure.
      */
     public static function uploadAnnouncementImages($announcementId, $files) {
         $db = Database::getInstance()->getConnection();
         $uploadDir = APP_ROOT . '/uploads/announcements/';
+
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+            @mkdir($uploadDir, 0755, true);
         }
 
         // Guard: if directory still doesn't exist after mkdir(), bail early
         if (!is_dir($uploadDir) || !is_writable($uploadDir)) {
-            return false;
+            return 'Direktori muat naik tidak wujud atau tidak boleh ditulis.';
         }
 
         // Check current image count to prevent exceeding 5
         $currentImages = self::getAnnouncementImages($announcementId);
-        $currentCount = count($currentImages);
-        
+        $currentCount  = count($currentImages);
+
         $fileCount = is_array($files['name']) ? count($files['name']) : 0;
         if ($currentCount + $fileCount > 5) {
-            return false;
+            return 'Jumlah gambar melebihi had maksimum 5.';
         }
 
         $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        
+
         for ($i = 0; $i < $fileCount; $i++) {
+            // Skip files that did not upload cleanly
             if ($files['error'][$i] !== UPLOAD_ERR_OK) {
                 continue;
             }
-            
+
             $ext = strtolower(pathinfo($files['name'][$i], PATHINFO_EXTENSION));
             if (!in_array($ext, $allowed)) {
-                return false;
+                // Skip disallowed extension instead of aborting the whole batch
+                continue;
             }
-            
-            $newName = 'ann_' . $announcementId . '_' . time() . '_' . mt_rand(1000, 9999) . '.' . $ext;
+
+            $newName    = 'ann_' . $announcementId . '_' . time() . '_' . mt_rand(1000, 9999) . '.' . $ext;
             $targetPath = $uploadDir . $newName;
-            
-            if (self::compressAndSaveImage($files['tmp_name'][$i], $targetPath)) {
+
+            try {
+                $saved = self::compressAndSaveImage($files['tmp_name'][$i], $targetPath);
+            } catch (\Throwable $e) {
+                $saved = false;
+            }
+
+            if ($saved) {
                 $dbPath = 'uploads/announcements/' . $newName;
                 $stmt = $db->prepare("INSERT INTO tbl_announcement_image (announcement_id, image_path) VALUES (?, ?)");
                 if ($stmt) {
@@ -256,10 +300,10 @@ class AnnouncementHelper {
                     $stmt->execute();
                     $stmt->close();
                 }
-            } else {
-                return false;
             }
+            // If a single image fails to save, log and continue — don't abort the batch
         }
+
         return true;
     }
 

@@ -23,32 +23,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > 0) {
         $message = 'Jumlah saiz gambar terlalu besar. Sila muat naik gambar yang lebih kecil (maksimum 10MB setiap satu, 25MB keseluruhannya).';
         $message_type = 'error';
-    } else
-    {
-        $db = App\Core\Database::getInstance()->getConnection();
-        
-        // Start atomic transaction
-        $db->begin_transaction();
-        
-        $ann_id = AnnouncementHelper::addAnnouncement($_POST, $current_user_id);
-        if ($ann_id) {
-            $upload_success = true;
-            if (!empty($_FILES['announcement_images']['name'][0])) {
-                $upload_success = AnnouncementHelper::uploadAnnouncementImages($ann_id, $_FILES['announcement_images']);
-            }
-            
-            if ($upload_success) {
-                $db->commit();
-                echo '<script>window.location.href = "' . URL_ROOT . '/announcements?msg=success";</script>';
-                exit;
+    } else {
+        try {
+            $ann_id = AnnouncementHelper::addAnnouncement($_POST, $current_user_id);
+
+            if ($ann_id) {
+                $upload_error = null;
+
+                if (!empty($_FILES['announcement_images']['name'][0])) {
+                    $upload_result = AnnouncementHelper::uploadAnnouncementImages($ann_id, $_FILES['announcement_images']);
+                    if ($upload_result !== true) {
+                        // uploadAnnouncementImages returns a string message on failure
+                        $upload_error = is_string($upload_result) ? $upload_result
+                            : 'Gagal memuat naik gambar. Sila pastikan format betul (JPG, PNG, WEBP, GIF) dan saiz tidak melebihi 10MB setiap satu.';
+                    }
+                }
+
+                if ($upload_error === null) {
+                    // Full success
+                    echo '<script>window.location.href = "' . URL_ROOT . '/announcements?msg=success";</script>';
+                    exit;
+                } else {
+                    // Announcement created but image upload failed — show error but keep the record
+                    $message = 'Hebahan disimpan, tetapi: ' . $upload_error . ' Anda boleh menambah gambar melalui halaman kemaskini.';
+                    $message_type = 'error';
+                }
             } else {
-                $db->rollback();
-                $message = 'Hebahan disimpan, tetapi gagal memuat naik gambar. Sila pastikan format betul (maksimum 5 gambar, 10MB setiap satu).';
+                $message = 'Gagal menyimpan hebahan. Sila cuba lagi.';
                 $message_type = 'error';
             }
-        } else {
-            $db->rollback();
-            $message = 'Gagal menyimpan hebahan. Sila cuba lagi.';
+        } catch (\Throwable $e) {
+            $message = 'Ralat sistem: ' . htmlspecialchars($e->getMessage()) . '. Sila hubungi pentadbir.';
             $message_type = 'error';
         }
     }

@@ -26,38 +26,40 @@ if (!$announcement) {
 
 $message = '';
 $message_type = '';
+$page_title = 'KEMASKINI HEBAHAN';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $db = App\Core\Database::getInstance()->getConnection();
-    
-    // Start atomic transaction
-    $db->begin_transaction();
-    
-    if (AnnouncementHelper::updateAnnouncement($ann_id, $_POST, $current_user_id)) {
-        $upload_success = true;
-        if (!empty($_FILES['announcement_images']['name'][0])) {
-            $upload_success = AnnouncementHelper::uploadAnnouncementImages($ann_id, $_FILES['announcement_images']);
-        }
-        
-        if ($upload_success) {
-            $db->commit();
-            echo '<script>window.location.href = "' . URL_ROOT . '/announcements?msg=success";</script>';
-            exit;
+    try {
+        if (AnnouncementHelper::updateAnnouncement($ann_id, $_POST, $current_user_id)) {
+            $upload_error = null;
+
+            if (!empty($_FILES['announcement_images']['name'][0])) {
+                $upload_result = AnnouncementHelper::uploadAnnouncementImages($ann_id, $_FILES['announcement_images']);
+                if ($upload_result !== true) {
+                    $upload_error = is_string($upload_result) ? $upload_result
+                        : 'Gagal memuat naik gambar baru. Sila pastikan format betul dan jumlah tidak melebihi 5 gambar.';
+                }
+            }
+
+            if ($upload_error === null) {
+                echo '<script>window.location.href = "' . URL_ROOT . '/announcements?msg=success";</script>';
+                exit;
+            } else {
+                $message = 'Hebahan dikemaskini, tetapi: ' . $upload_error;
+                $message_type = 'error';
+            }
         } else {
-            $db->rollback();
-            $message = 'Hebahan dikemaskini, tetapi gagal memuat naik gambar baru. Sila pastikan format betul dan jumlah tidak melebihi 5 gambar.';
+            $message = 'Gagal mengemaskini hebahan. Sila cuba lagi.';
             $message_type = 'error';
         }
-    } else {
-        $db->rollback();
-        $message = 'Gagal mengemaskini hebahan. Sila cuba lagi.';
+    } catch (\Throwable $e) {
+        $message = 'Ralat sistem: ' . htmlspecialchars($e->getMessage()) . '. Sila hubungi pentadbir.';
         $message_type = 'error';
     }
 }
 
 // Fetch currently attached images
 $existing_images = AnnouncementHelper::getAnnouncementImages($ann_id);
-$page_title = 'KEMASKINI HEBAHAN';
 ?>
 
 <div class="max-w-4xl mx-auto space-y-12 pb-24">
