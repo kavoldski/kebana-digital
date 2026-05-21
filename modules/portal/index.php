@@ -10,8 +10,11 @@ $announcements = AnnouncementHelper::getAllAnnouncements('Active');
 $isLoggedIn    = isset($_SESSION['user_id']);
 
 // Efficiently load first image for every announcement (single query)
-$ann_ids    = array_column($announcements, 'announcement_id');
-$coverMap   = AnnouncementHelper::getCoverImageMap($ann_ids);
+$ann_ids  = array_column($announcements, 'announcement_id');
+$coverMap = [];
+if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
+    $coverMap = AnnouncementHelper::getCoverImageMap($ann_ids);
+}
 ?>
 <!doctype html>
 <html lang="ms" class="h-full bg-white">
