@@ -158,27 +158,28 @@ if ($format === 'csv') {
     fputcsv($output, [$official_title]);
     fputcsv($output, []);
     
-    // Column headers
-    fputcsv($output, ['Tarikh', 'Kategori', 'Projek / Aktiviti', 'Mod Pembayaran', 'Jenis', 'Perekod', 'Amaun (RM)']);
+    // Column headers with split IN/OUT
+    fputcsv($output, ['Tarikh', 'Kategori', 'Projek / Aktiviti', 'Mod Pembayaran', 'Perekod', 'MASUK (RM)', 'KELUAR (RM)']);
     
-    // Data
+    // Data rows
     foreach ($transactions as $t) {
+        $is_income = $t['trans_type'] === 'Income';
         fputcsv($output, [
             date('d/m/Y', strtotime($t['trans_date'])),
             $t['category'],
             $t['event_title'] ?? 'Dana Am Persatuan',
             $t['payment_mode'] ?: 'Cash',
-            $t['trans_type'] === 'Income' ? 'Pendapatan' : 'Perbelanjaan',
             $t['recorder_name'] ?? 'Sistem',
-            $t['trans_type'] === 'Income' ? $t['amount'] : -$t['amount']
+            $is_income ? $t['amount'] : '',
+            !$is_income ? $t['amount'] : ''
         ]);
     }
     
     // Blank & Summary
     fputcsv($output, []);
-    fputcsv($output, ['', '', '', '', '', 'Total Pendapatan', number_format($total_income, 2)]);
-    fputcsv($output, ['', '', '', '', '', 'Total Perbelanjaan', number_format($total_expense, 2)]);
-    fputcsv($output, ['', '', '', '', '', 'Baki Bersih', number_format($total_balance, 2)]);
+    fputcsv($output, ['', '', '', '', 'Total Pendapatan (IN)', number_format($total_income, 2), '']);
+    fputcsv($output, ['', '', '', '', 'Total Perbelanjaan (OUT)', '', number_format($total_expense, 2)]);
+    fputcsv($output, ['', '', '', '', 'Baki Bersih (NET)', number_format($total_balance, 2), '']);
     
     fclose($output);
     exit;
@@ -200,6 +201,9 @@ if ($format === 'csv') {
         <meta charset="utf-8">
         <title>' . htmlspecialchars($official_title) . '</title>
         <style>
+            @page {
+                margin: 45px 45px 180px 45px;
+            }
             body {
                 font-family: Arial, sans-serif;
                 font-size: 10px;
@@ -284,7 +288,6 @@ if ($format === 'csv') {
             }
             .table-container {
                 width: 100%;
-                margin-bottom: 25px;
             }
             table {
                 width: 100%;
@@ -312,17 +315,18 @@ if ($format === 'csv') {
             .text-center {
                 text-align: center;
             }
-            .amount-income {
-                color: #16a34a;
-                font-weight: bold;
-            }
-            .amount-expense {
-                color: #dc2626;
-                font-weight: bold;
+            .totals-container {
+                position: absolute;
+                bottom: -150px;
+                left: 0;
+                right: 0;
+                height: 120px;
+                border-top: 2px solid #003366;
+                padding-top: 15px;
             }
             .footer-info {
                 position: fixed;
-                bottom: 0;
+                bottom: -170px;
                 left: 0;
                 right: 0;
                 height: 20px;
@@ -336,6 +340,7 @@ if ($format === 'csv') {
         </style>
     </head>
     <body>
+        <!-- Header -->
         <table class="header-container">
             <tr>';
             if ($logo_base64 !== '') {
@@ -349,6 +354,7 @@ if ($format === 'csv') {
             </tr>
         </table>
         
+        <!-- Dashboard Widgets -->
         <table class="summary-cards">
             <tr>
                 <td class="summary-card balance">
@@ -366,32 +372,33 @@ if ($format === 'csv') {
             </tr>
         </table>
         
+        <!-- Transaction Ledger Table -->
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
                         <th style="width: 12%">Tarikh</th>
-                        <th style="width: 25%">Kategori</th>
-                        <th style="width: 28%">Projek / Aktiviti</th>
-                        <th style="width: 12%">Mod</th>
-                        <th style="width: 13%" class="text-right">Amaun</th>
+                        <th style="width: 22%">Kategori</th>
+                        <th style="width: 26%">Projek / Aktiviti</th>
+                        <th style="width: 10%">Mod</th>
+                        <th style="width: 15%" class="text-right">MASUK (RM)</th>
+                        <th style="width: 15%" class="text-right">KELUAR (RM)</th>
                     </tr>
                 </thead>
                 <tbody>';
                 if (empty($transactions)) {
-                    $html .= '<tr><td colspan="5" class="text-center" style="padding: 30px; color: #94a3b8; font-weight: bold; text-transform: uppercase; font-size: 8px;">Tiada Rekod Transaksi Ditemui</td></tr>';
+                    $html .= '<tr><td colspan="6" class="text-center" style="padding: 30px; color: #94a3b8; font-weight: bold; text-transform: uppercase; font-size: 8px;">Tiada Rekod Transaksi Ditemui</td></tr>';
                 } else {
                     foreach ($transactions as $t) {
                         $is_income = $t['trans_type'] === 'Income';
                         $html .= '
                         <tr>
                             <td>' . date('d M Y', strtotime($t['trans_date'])) . '</td>
-                            <td style="font-weight: bold; color: #003366;">' . htmlspecialchars(strtoupper($t['category'])) . '</td>
+                            <td style="font-weight: bold; color: #0f172a;">' . htmlspecialchars(strtoupper($t['category'])) . '</td>
                             <td style="color: #64748b; font-style: italic;">' . htmlspecialchars($t['event_title'] ?? 'Dana Am Persatuan') . '</td>
                             <td>' . htmlspecialchars($t['payment_mode'] ?: 'Cash') . '</td>
-                            <td class="text-right ' . ($is_income ? 'amount-income' : 'amount-expense') . '">
-                                ' . ($is_income ? '+' : '-') . ' RM ' . number_format($t['amount'], 2) . '
-                            </td>
+                            <td class="text-right" style="font-weight: bold; color: #0f172a;">' . ($is_income ? 'RM ' . number_format($t['amount'], 2) : '-') . '</td>
+                            <td class="text-right" style="font-weight: bold; color: #0f172a;">' . (!$is_income ? 'RM ' . number_format($t['amount'], 2) : '-') . '</td>
                         </tr>';
                     }
                 }
@@ -400,6 +407,38 @@ if ($format === 'csv') {
             </table>
         </div>
         
+        <!-- Bottom-Aligned Totals Block -->
+        <div class="totals-container">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; vertical-align: top; padding: 0;">
+                        <span style="font-size: 8px; color: #64748b; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Nota / Pengesahan</span>
+                        <p style="font-size: 8px; color: #94a3b8; margin-top: 5px; text-transform: uppercase; line-height: 1.5;">
+                            Laporan kewangan ini dijana secara digital.<br>
+                            Sebarang pindaan mestilah diluluskan oleh Jawatankuasa Pusat Kewangan.
+                        </p>
+                    </td>
+                    <td style="width: 50%; padding: 0; vertical-align: top;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 4px 0; font-size: 9px; color: #64748b; font-weight: bold; text-transform: uppercase;">JUMLAH MASUK (TOTAL IN):</td>
+                                <td style="padding: 4px 0; font-size: 10px; font-weight: bold; color: #0f172a; text-align: right;">RM ' . number_format($total_income, 2) . '</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 4px 0; font-size: 9px; color: #64748b; font-weight: bold; text-transform: uppercase;">JUMLAH KELUAR (TOTAL OUT):</td>
+                                <td style="padding: 4px 0; font-size: 10px; font-weight: bold; color: #0f172a; text-align: right;">RM ' . number_format($total_expense, 2) . '</td>
+                            </tr>
+                            <tr style="border-top: 1px solid #e2e8f0;">
+                                <td style="padding: 6px 0 0 0; font-size: 9px; font-weight: bold; color: #003366; text-transform: uppercase;">BAKI BERSIH (NET BALANCE):</td>
+                                <td style="padding: 6px 0 0 0; font-size: 11px; font-weight: bold; color: #003366; text-align: right;">RM ' . number_format($total_balance, 2) . '</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Page Footer info -->
         <div class="footer-info">
             Dijana secara automatik oleh Kebana Digital pada ' . date('d/m/Y h:i A') . '
         </div>
