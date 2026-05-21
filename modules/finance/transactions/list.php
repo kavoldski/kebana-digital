@@ -88,6 +88,12 @@ $filtered_balance = $filtered_income - $filtered_expense;
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Rekod Terperinci Aliran Masuk dan Keluar Dana.</p>
         </div>
         <div class="flex flex-wrap gap-3">
+            <?php if (hasRole([888, 1, 2, 3, 6, 55])): ?>
+            <button onclick="openReportModal()" class="bg-kebana-blue text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-kebana-accent transition-all shadow-lg inline-flex items-center">
+                <i class="fa-solid fa-file-invoice mr-3 text-base"></i>
+                JANA LAPORAN
+            </button>
+            <?php endif; ?>
             <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-arrow-trend-up mr-3 text-base"></i>
                 REKOD MASUK
@@ -244,5 +250,105 @@ $filtered_balance = $filtered_income - $filtered_expense;
     </div>
     </div>
 </div>
+
+<!-- Report Modal -->
+<?php if (hasRole([888, 1, 2, 3, 6, 55])): ?>
+<div id="reportModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border-t-8 border-kebana-blue shadow-2xl max-w-lg w-full p-8 relative space-y-6">
+        <button onclick="closeReportModal()" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition-colors">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+        <div>
+            <h3 class="text-lg font-black text-kebana-blue uppercase tracking-tight italic">Jana Laporan Kewangan</h3>
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Sila pilih tempoh laporan dan format fail.</p>
+        </div>
+        
+        <form action="<?= URL_ROOT ?>/finance/transactions/generate" method="GET" target="_blank" onsubmit="return validateReportForm()" class="space-y-6">
+            <div class="space-y-2">
+                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Jenis Tempoh (Period Type)</label>
+                <select name="period_type" id="report_period_type" required onchange="handlePeriodChange()"
+                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                    <option value="daily">Harian (Daily)</option>
+                    <option value="monthly" selected>Bulanan (Monthly)</option>
+                    <option value="yearly">Tahunan (Yearly)</option>
+                </select>
+            </div>
+            
+            <div class="space-y-2" id="date_input_container">
+                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest" id="date_input_label">Pilih Bulan & Tahun</label>
+                <div id="dynamic_date_field"></div>
+            </div>
+            
+            <div class="space-y-2">
+                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Format Fail</label>
+                <select name="format" required
+                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                    <option value="pdf">Dokumen PDF (.pdf)</option>
+                    <option value="csv">Excel / CSV (.csv)</option>
+                </select>
+            </div>
+            
+            <div class="pt-4 flex gap-4">
+                <button type="button" onclick="closeReportModal()" class="flex-1 bg-slate-100 text-slate-600 py-4 text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all text-center">
+                    BATAL
+                </button>
+                <button type="submit" class="flex-1 bg-kebana-blue text-white py-4 text-xs font-black uppercase tracking-widest hover:bg-kebana-accent transition-all text-center shadow-lg">
+                    JANA FAIL
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openReportModal() {
+    document.getElementById('reportModal').classList.remove('hidden');
+    handlePeriodChange();
+}
+
+function closeReportModal() {
+    document.getElementById('reportModal').classList.add('hidden');
+}
+
+function handlePeriodChange() {
+    const periodType = document.getElementById('report_period_type').value;
+    const label = document.getElementById('date_input_label');
+    const container = document.getElementById('dynamic_date_field');
+    
+    let html = '';
+    
+    if (periodType === 'daily') {
+        label.innerText = 'Pilih Tarikh (Date)';
+        const today = new Date().toISOString().split('T')[0];
+        html = `<input type="date" name="date_value" value="${today}" required 
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">`;
+    } else if (periodType === 'monthly') {
+        label.innerText = 'Pilih Bulan & Tahun (Month & Year)';
+        const today = new Date();
+        const currentMonth = today.toISOString().substring(0, 7); // YYYY-MM
+        html = `<input type="month" name="date_value" value="${currentMonth}" required 
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">`;
+    } else if (periodType === 'yearly') {
+        label.innerText = 'Pilih Tahun (Year)';
+        const currentYear = new Date().getFullYear();
+        let options = '';
+        for (let y = currentYear; y >= currentYear - 10; y--) {
+            options += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`;
+        }
+        html = `<select name="date_value" required 
+                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                    ${options}
+                </select>`;
+    }
+    
+    container.innerHTML = html;
+}
+
+function validateReportForm() {
+    setTimeout(closeReportModal, 300);
+    return true;
+}
+</script>
+<?php endif; ?>
 
 <?php require_once APP_ROOT . '/includes/footer.php'; ?>
