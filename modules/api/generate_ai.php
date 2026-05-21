@@ -7,6 +7,7 @@
 header('Content-Type: application/json');
 
 // Only allow Setiausaha Pusat, Super Admin, Presiden
+$current_role = (int)($_SESSION['role'] ?? 0);
 if (!in_array($current_role, [888, 1, 4])) {
     http_response_code(430);
     echo json_encode([
