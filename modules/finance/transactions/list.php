@@ -275,7 +275,7 @@ $filtered_balance = $filtered_income - $filtered_expense;
             </div>
             
             <div class="space-y-2" id="date_input_container">
-                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest" id="date_input_label">Pilih Bulan & Tahun</label>
+                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest" id="date_input_label">Pilih Julat Tempoh (Select Period Range)</label>
                 <div id="dynamic_date_field"></div>
             </div>
             
@@ -315,36 +315,90 @@ function handlePeriodChange() {
     const label = document.getElementById('date_input_label');
     const container = document.getElementById('dynamic_date_field');
     
+    label.innerText = 'Pilih Julat Tempoh (Select Period Range)';
     let html = '';
     
     if (periodType === 'daily') {
-        label.innerText = 'Pilih Tarikh (Date)';
         const today = new Date().toISOString().split('T')[0];
-        html = `<input type="date" name="date_value" value="${today}" required 
-                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">`;
+        html = `
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Dari Tarikh</label>
+                <input type="date" name="date_start" id="report_date_start" value="${today}" required 
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+            </div>
+            <div>
+                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Hingga Tarikh</label>
+                <input type="date" name="date_end" id="report_date_end" value="${today}" required 
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+            </div>
+        </div>`;
     } else if (periodType === 'monthly') {
-        label.innerText = 'Pilih Bulan & Tahun (Month & Year)';
         const today = new Date();
         const currentMonth = today.toISOString().substring(0, 7); // YYYY-MM
-        html = `<input type="month" name="date_value" value="${currentMonth}" required 
-                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">`;
+        html = `
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Dari Bulan</label>
+                <input type="month" name="date_start" id="report_date_start" value="${currentMonth}" required 
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+            </div>
+            <div>
+                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Hingga Bulan</label>
+                <input type="month" name="date_end" id="report_date_end" value="${currentMonth}" required 
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+            </div>
+        </div>`;
     } else if (periodType === 'yearly') {
-        label.innerText = 'Pilih Tahun (Year)';
         const currentYear = new Date().getFullYear();
-        let options = '';
+        let startOptions = '';
+        let endOptions = '';
         for (let y = currentYear; y >= currentYear - 10; y--) {
-            options += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`;
+            startOptions += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`;
+            endOptions += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`;
         }
-        html = `<select name="date_value" required 
-                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
-                    ${options}
-                </select>`;
+        html = `
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Dari Tahun</label>
+                <select name="date_start" id="report_date_start" required 
+                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                    ${startOptions}
+                </select>
+            </div>
+            <div>
+                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Hingga Tahun</label>
+                <select name="date_end" id="report_date_end" required 
+                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                    ${endOptions}
+                </select>
+            </div>
+        </div>`;
     }
     
     container.innerHTML = html;
 }
 
 function validateReportForm() {
+    const startVal = document.getElementById('report_date_start').value;
+    const endVal = document.getElementById('report_date_end').value;
+    const periodType = document.getElementById('report_period_type').value;
+
+    if (startVal && endVal) {
+        if (periodType === 'yearly') {
+            if (parseInt(startVal) > parseInt(endVal)) {
+                alert('Tahun mula tidak boleh melebihi tahun tamat.');
+                return false;
+            }
+        } else {
+            if (startVal > endVal) {
+                const term = periodType === 'daily' ? 'Tarikh' : 'Bulan';
+                alert(`${term} mula tidak boleh melebihi ${term.toLowerCase()} tamat.`);
+                return false;
+            }
+        }
+    }
+    
     setTimeout(closeReportModal, 300);
     return true;
 }

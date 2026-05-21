@@ -17,10 +17,20 @@ if (!hasRole([888, 1, 2, 3, 6, 55])) {
 $db = Database::getInstance()->getConnection();
 
 $period_type = $_GET['period_type'] ?? '';
+$date_start = $_GET['date_start'] ?? '';
+$date_end = $_GET['date_end'] ?? '';
 $date_value = $_GET['date_value'] ?? '';
 $format = $_GET['format'] ?? 'pdf';
 
-if (empty($period_type) || empty($date_value)) {
+// Fallback to legacy date_value if start/end parameters are empty
+if (empty($date_start) && !empty($date_value)) {
+    $date_start = $date_value;
+}
+if (empty($date_end) && !empty($date_value)) {
+    $date_end = $date_value;
+}
+
+if (empty($period_type) || empty($date_start) || empty($date_end)) {
     die("Parameter tidak sah.");
 }
 
@@ -50,42 +60,89 @@ $months_ms = [
 ];
 
 if ($period_type === 'daily') {
-    $where .= " AND t.trans_date = ?";
-    $params[] = $date_value;
-    $types .= "s";
+    // Chronological validation
+    if ($date_start > $date_end) {
+        die("Parameter tidak sah: Tarikh mula tidak boleh melebihi tarikh tamat.");
+    }
     
-    $d = date('d', strtotime($date_value));
-    $m = (int)date('m', strtotime($date_value));
-    $y = date('Y', strtotime($date_value));
-    $month_name = $months_ms[$m] ?? strtoupper(date('F', strtotime($date_value)));
+    $where .= " AND t.trans_date BETWEEN ? AND ?";
+    $params[] = $date_start;
+    $params[] = $date_end;
+    $types .= "ss";
     
-    $title_period = "HARIAN ($d $month_name $y)";
-    $file_period = "HARIAN_" . date('Ymd', strtotime($date_value));
+    $d_start = date('d', strtotime($date_start));
+    $m_start = (int)date('m', strtotime($date_start));
+    $y_start = date('Y', strtotime($date_start));
+    $month_start_name = $months_ms[$m_start] ?? strtoupper(date('F', strtotime($date_start)));
+    
+    if ($date_start === $date_end) {
+        $title_period = "HARIAN ($d_start $month_start_name $y_start)";
+        $file_period = "HARIAN_" . date('Ymd', strtotime($date_start));
+    } else {
+        $d_end = date('d', strtotime($date_end));
+        $m_end = (int)date('m', strtotime($date_end));
+        $y_end = date('Y', strtotime($date_end));
+        $month_end_name = $months_ms[$m_end] ?? strtoupper(date('F', strtotime($date_end)));
+        
+        $title_period = "HARIAN ($d_start $month_start_name $y_start - $d_end $month_end_name $y_end)";
+        $file_period = "HARIAN_" . date('Ymd', strtotime($date_start)) . "_TO_" . date('Ymd', strtotime($date_end));
+    }
 } elseif ($period_type === 'monthly') {
-    $parts = explode('-', $date_value); // YYYY-MM
-    if (count($parts) === 2) {
-        $year = (int)$parts[0];
-        $month = (int)$parts[1];
+    if ($date_start > $date_end) {
+        die("Parameter tidak sah: Bulan mula tidak boleh melebihi bulan tamat.");
+    }
+    
+    $parts_start = explode('-', $date_start); // YYYY-MM
+    $parts_end = explode('-', $date_end); // YYYY-MM
+    
+    if (count($parts_start) === 2 && count($parts_end) === 2) {
+        $year_start = (int)$parts_start[0];
+        $month_start = (int)$parts_start[1];
         
-        $where .= " AND YEAR(t.trans_date) = ? AND MONTH(t.trans_date) = ?";
-        $params[] = $year;
-        $params[] = $month;
-        $types .= "ii";
+        $year_end = (int)$parts_end[0];
+        $month_end = (int)$parts_end[1];
         
-        $month_name = $months_ms[$month] ?? strtoupper(date('F', mktime(0, 0, 0, $month, 10)));
-        $title_period = "BULANAN ($month_name $year)";
-        $file_period = "BULANAN_" . $year . sprintf("%02d", $month);
+        $sql_start_date = $date_start . "-01";
+        $sql_end_date = date("Y-m-t", strtotime($date_end . "-01"));
+        
+        $where .= " AND t.trans_date BETWEEN ? AND ?";
+        $params[] = $sql_start_date;
+        $params[] = $sql_end_date;
+        $types .= "ss";
+        
+        $month_start_name = $months_ms[$month_start] ?? strtoupper(date('F', mktime(0, 0, 0, $month_start, 10)));
+        
+        if ($date_start === $date_end) {
+            $title_period = "BULANAN ($month_start_name $year_start)";
+            $file_period = "BULANAN_" . $year_start . sprintf("%02d", $month_start);
+        } else {
+            $month_end_name = $months_ms[$month_end] ?? strtoupper(date('F', mktime(0, 0, 0, $month_end, 10)));
+            $title_period = "BULANAN ($month_start_name $year_start - $month_end_name $year_end)";
+            $file_period = "BULANAN_" . $year_start . sprintf("%02d", $month_start) . "_TO_" . $year_end . sprintf("%02d", $month_end);
+        }
     } else {
         die("Format tarikh bulanan tidak sah.");
     }
 } elseif ($period_type === 'yearly') {
-    $year = (int)$date_value;
-    $where .= " AND YEAR(t.trans_date) = ?";
-    $params[] = $year;
-    $types .= "i";
+    if ((int)$date_start > (int)$date_end) {
+        die("Parameter tidak sah: Tahun mula tidak boleh melebihi tahun tamat.");
+    }
     
-    $title_period = "TAHUNAN ($year)";
-    $file_period = "TAHUNAN_" . $year;
+    $sql_start_date = $date_start . "-01-01";
+    $sql_end_date = $date_end . "-12-31";
+    
+    $where .= " AND t.trans_date BETWEEN ? AND ?";
+    $params[] = $sql_start_date;
+    $params[] = $sql_end_date;
+    $types .= "ss";
+    
+    if ($date_start === $date_end) {
+        $title_period = "TAHUNAN ($date_start)";
+        $file_period = "TAHUNAN_" . $date_start;
+    } else {
+        $title_period = "TAHUNAN ($date_start - $date_end)";
+        $file_period = "TAHUNAN_" . $date_start . "_TO_" . $date_end;
+    }
 } else {
     die("Jenis tempoh tidak sah.");
 }
