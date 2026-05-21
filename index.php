@@ -5,7 +5,7 @@ $route = $_GET['route'] ?? 'portal';
 $route = preg_replace('/\.php$/', '', $route);
 
 // Define public routes that don't require authentication
-$public_routes = ['login', 'authenticate', 'sign_up', 'register', 'portal', 'events/checkin', 'test_user_dashboard'];
+$public_routes = ['login', 'authenticate', 'sign_up', 'register', 'portal', 'events/checkin', 'test_user_dashboard', 'mobile-ocr', 'api/ocr/upload_image'];
 
 $is_public = in_array($route, $public_routes) || preg_match('/^portal\/view\/\d+$/', $route);
 
@@ -49,6 +49,10 @@ $routes = [
     'api/generate_ai' => 'modules/api/generate_ai.php',
     'announcements/delete_image' => 'modules/announcements/delete_image.php',
     'portal' => 'modules/portal/index.php',
+    'mobile-ocr' => 'modules/members/mobile-ocr.php',
+    'api/ocr/generate_session' => 'modules/api/ocr/generate_session.php',
+    'api/ocr/upload_image' => 'modules/api/ocr/upload_image.php',
+    'api/ocr/check_session' => 'modules/api/ocr/check_session.php',
 ];
 
 // Clean up route (remove .php extension if present)

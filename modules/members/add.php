@@ -86,6 +86,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide mt-1 block">Format: JPG, PNG, WEBP (Maksima 5MB)</span>
         </div>
 
+        <!-- Continue on Mobile Button -->
+        <div class="flex justify-center pt-2">
+            <button type="button" id="btn_continue_mobile" class="w-full sm:w-auto px-8 py-4 bg-kebana-blue text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-colors flex items-center justify-center gap-3 shadow-md">
+                <i class="fa-solid fa-mobile-screen-button text-sm"></i>
+                PENGIMBASAN MELALUI TELEFON BIMBIT
+            </button>
+        </div>
+
         <!-- OCR Processing State (Hidden by default) -->
         <div id="ocr_process_state" class="hidden bg-slate-50 p-6 border-l-4 border-kebana-blue space-y-4">
             <div class="flex items-center justify-between">
@@ -201,7 +209,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<!-- CDN for Tesseract.js -->
+<!-- Continue on Mobile QR Modal -->
+<div id="mobile_ocr_modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-[9999] p-4 transition-all duration-300">
+    <div class="bg-white border-t-8 border-kebana-blue shadow-2xl w-full max-w-md p-8 md:p-10 relative space-y-6 text-center transform scale-95 transition-transform duration-300">
+        <div>
+            <h3 class="text-lg font-black text-kebana-blue uppercase tracking-tight italic">SAMBUNG KE TELEFON BIMBIT</h3>
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Imbas kod QR untuk memulakan pengimbasan dokumen.</p>
+        </div>
+        
+        <!-- QR Code Container -->
+        <div class="flex flex-col items-center justify-center space-y-4">
+            <div id="qr_code_container" class="p-4 bg-white border border-slate-100 shadow-inner flex items-center justify-center" style="min-height: 200px; min-width: 200px;">
+                <i class="fa-solid fa-spinner fa-spin text-3xl text-kebana-blue/20"></i>
+            </div>
+            
+            <div class="flex items-center justify-center gap-3 text-kebana-blue font-black text-[10px] uppercase tracking-widest" id="polling_status">
+                <span class="w-2.5 h-2.5 rounded-full bg-kebana-yellow animate-pulse"></span>
+                <span>Menunggu sambungan telefon...</span>
+            </div>
+        </div>
+
+        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tight leading-relaxed text-left max-w-xs mx-auto space-y-1">
+            <p>1. Buka kamera di telefon bimbit anda.</p>
+            <p>2. Imbas kod QR di atas untuk membuka pengimbas.</p>
+            <p>3. Ambil gambar borang dan tekan hantar.</p>
+        </div>
+
+        <button type="button" id="btn_close_mobile_ocr" class="w-full py-4 border-2 border-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
+            BATALKAN SAMBUNGAN
+        </button>
+    </div>
+</div>
+
+<!-- CDN for QRCodeJS and Tesseract.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -212,6 +253,103 @@ document.addEventListener('DOMContentLoaded', function() {
     const ocrPercentageText = document.getElementById('ocr_percentage_text');
     const ocrStatusText = document.getElementById('ocr_status_text');
     const ocrResultAlert = document.getElementById('ocr_result_alert');
+
+    // Continue on Mobile Elements
+    const btnContinueMobile = document.getElementById('btn_continue_mobile');
+    const mobileOcrModal = document.getElementById('mobile_ocr_modal');
+    const btnCloseMobileOcr = document.getElementById('btn_close_mobile_ocr');
+    let pollingInterval = null;
+
+    btnContinueMobile.addEventListener('click', () => {
+        // Open Modal
+        mobileOcrModal.classList.remove('hidden');
+        document.getElementById('qr_code_container').innerHTML = '<i class="fa-solid fa-spinner fa-spin text-3xl text-kebana-blue/20"></i>';
+        
+        // Generate mobile session
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '<?= URL_ROOT ?>/api/ocr/generate_session', true);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        const token = response.token;
+                        document.getElementById('qr_code_container').innerHTML = '';
+                        
+                        // Construct absolute URL (using window.location.origin to handle local network IPs dynamically)
+                        const mobileUrl = window.location.origin + '<?= URL_ROOT ?>/mobile-ocr?token=' + token;
+                        
+                        new QRCode(document.getElementById("qr_code_container"), {
+                            text: mobileUrl,
+                            width: 192,
+                            height: 192,
+                            colorDark : "#0f172a",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.M
+                        });
+                        
+                        startMobilePolling(token);
+                    } else {
+                        alert('Gagal menjana sesi: ' + (response.error || 'Ralat tidak diketahui.'));
+                        closeMobileModal();
+                    }
+                } catch(e) {
+                    alert('Ralat sistem menjana sesi.');
+                    closeMobileModal();
+                }
+            } else {
+                alert('Gagal menghubungi pelayan.');
+                closeMobileModal();
+            }
+        };
+        xhr.send();
+    });
+
+    btnCloseMobileOcr.addEventListener('click', () => {
+        closeMobileModal();
+    });
+
+    function closeMobileModal() {
+        mobileOcrModal.classList.add('hidden');
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+        }
+    }
+
+    function startMobilePolling(token) {
+        const pollingStatus = document.getElementById('polling_status');
+        pollingStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-kebana-yellow animate-pulse"></span><span>Menunggu sambungan telefon...</span>';
+        
+        if (pollingInterval) clearInterval(pollingInterval);
+        
+        pollingInterval = setInterval(() => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '<?= URL_ROOT ?>/api/ocr/check_session?token=' + token, true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        if (data.success) {
+                            if (data.status === 'uploaded') {
+                                clearInterval(pollingInterval);
+                                pollingInterval = null;
+                                pollingStatus.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-sm"></i><span class="text-green-500 font-black">Gambar diterima!</span>';
+                                
+                                setTimeout(() => {
+                                    closeMobileModal();
+                                    processOCR(data.image_data);
+                                }, 1200);
+                            }
+                        }
+                    } catch(e) {
+                        console.error("Error parsing poll response:", e);
+                    }
+                }
+            };
+            xhr.send();
+        }, 2000);
+    }
 
     // Trigger file dialog on dropzone click
     ocrDropzone.addEventListener('click', () => {
