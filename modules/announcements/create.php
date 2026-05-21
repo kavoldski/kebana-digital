@@ -19,31 +19,38 @@ $message = '';
 $message_type = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $db = App\Core\Database::getInstance()->getConnection();
-    
-    // Start atomic transaction
-    $db->begin_transaction();
-    
-    $ann_id = AnnouncementHelper::addAnnouncement($_POST, $current_user_id);
-    if ($ann_id) {
-        $upload_success = true;
-        if (!empty($_FILES['announcement_images']['name'][0])) {
-            $upload_success = AnnouncementHelper::uploadAnnouncementImages($ann_id, $_FILES['announcement_images']);
-        }
+    // Detect silent PHP post_max_size exceeded: PHP drops $_POST & $_FILES entirely
+    if (empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > 0) {
+        $message = 'Jumlah saiz gambar terlalu besar. Sila muat naik gambar yang lebih kecil (maksimum 10MB setiap satu, 25MB keseluruhannya).';
+        $message_type = 'error';
+    } else
+    {
+        $db = App\Core\Database::getInstance()->getConnection();
         
-        if ($upload_success) {
-            $db->commit();
-            echo '<script>window.location.href = "' . URL_ROOT . '/announcements?msg=success";</script>';
-            exit;
+        // Start atomic transaction
+        $db->begin_transaction();
+        
+        $ann_id = AnnouncementHelper::addAnnouncement($_POST, $current_user_id);
+        if ($ann_id) {
+            $upload_success = true;
+            if (!empty($_FILES['announcement_images']['name'][0])) {
+                $upload_success = AnnouncementHelper::uploadAnnouncementImages($ann_id, $_FILES['announcement_images']);
+            }
+            
+            if ($upload_success) {
+                $db->commit();
+                echo '<script>window.location.href = "' . URL_ROOT . '/announcements?msg=success";</script>';
+                exit;
+            } else {
+                $db->rollback();
+                $message = 'Hebahan disimpan, tetapi gagal memuat naik gambar. Sila pastikan format betul (maksimum 5 gambar, 10MB setiap satu).';
+                $message_type = 'error';
+            }
         } else {
             $db->rollback();
-            $message = 'Hebahan disimpan, tetapi gagal memuat naik gambar. Sila pastikan format betul (maksimum 5 gambar).';
+            $message = 'Gagal menyimpan hebahan. Sila cuba lagi.';
             $message_type = 'error';
         }
-    } else {
-        $db->rollback();
-        $message = 'Gagal menyimpan hebahan. Sila cuba lagi.';
-        $message_type = 'error';
     }
 }
 
@@ -231,6 +238,9 @@ document.addEventListener('DOMContentLoaded', function() {
         handleFiles(e.target.files);
     });
 
+    const MAX_FILE_SIZE_MB = 10;
+    const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
     function handleFiles(files) {
         const filesArray = Array.from(files);
         
@@ -242,6 +252,10 @@ document.addEventListener('DOMContentLoaded', function() {
         filesArray.forEach(file => {
             if (!file.type.startsWith('image/')) {
                 alert('Hanya fail gambar dibenarkan.');
+                return;
+            }
+            if (file.size > MAX_FILE_SIZE_BYTES) {
+                alert(`Fail "${file.name}" terlalu besar (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimum ${MAX_FILE_SIZE_MB}MB setiap gambar.`);
                 return;
             }
             selectedFiles.push(file);

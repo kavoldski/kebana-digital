@@ -1,6 +1,12 @@
 Options -Indexes
 
 # ============================================================
+# PHP Upload Limits — Increase to support image uploads in Hebahan
+# ============================================================
+php_value upload_max_filesize 10M
+php_value post_max_size 25M
+
+# ============================================================
 # KEBANA Digital — .htaccess
 # SEO, Performance & Security Configuration
 # ============================================================

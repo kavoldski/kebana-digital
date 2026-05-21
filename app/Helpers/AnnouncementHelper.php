@@ -219,6 +219,11 @@ class AnnouncementHelper {
             mkdir($uploadDir, 0755, true);
         }
 
+        // Guard: if directory still doesn't exist after mkdir(), bail early
+        if (!is_dir($uploadDir) || !is_writable($uploadDir)) {
+            return false;
+        }
+
         // Check current image count to prevent exceeding 5
         $currentImages = self::getAnnouncementImages($announcementId);
         $currentCount = count($currentImages);
