@@ -92,14 +92,19 @@ if (!$event) {
 }
 
 $status = !empty($event['status']) && $event['status'] !== '0' ? $event['status'] : 'Draft';
-$status_class = 'bg-slate-100 text-slate-500';
 
 $check_status = strtoupper($status);
-if ($check_status === 'APPROVED') $status_class = 'bg-green-100 text-green-700';
-elseif ($check_status === 'SUBMITTED') $status_class = 'bg-amber-100 text-amber-700';
-elseif ($check_status === 'REJECTED') $status_class = 'bg-red-100 text-red-700';
-elseif ($check_status === 'PENDING BRANCH APPROVAL') $status_class = 'bg-blue-100 text-blue-700';
-elseif ($check_status === 'BRANCH APPROVED') $status_class = 'bg-emerald-100 text-emerald-700';
+if ($check_status === 'APPROVED' || $check_status === 'BRANCH APPROVED') {
+    $status_class = 'bg-green-100 text-green-700';
+} elseif ($check_status === 'REJECTED') {
+    $status_class = 'bg-red-100 text-red-700';
+} elseif ($check_status === 'PENDING BRANCH APPROVAL' || $check_status === 'SUBMITTED') {
+    $status_class = 'bg-amber-100 text-amber-700';
+} elseif ($check_status === 'DRAFT') {
+    $status_class = 'bg-blue-100 text-blue-700';
+} else {
+    $status_class = 'bg-slate-100 text-slate-500';
+}
 
 $level = $event['event_level'] ?? 'MASTER';
 $level_class = ($level === 'MASTER') ? 'bg-kebana-blue text-white' : 'bg-slate-200 text-slate-600';

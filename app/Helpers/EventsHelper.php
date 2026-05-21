@@ -10,9 +10,21 @@ use App\Core\Database;
 use App\Helpers\NotificationHelper;
 
 class EventsHelper {
-    public static function getAllEvents($viewMode = 'all', $userId = null, $cawanganId = null) {
+    public static function getAllEvents($viewMode = 'all', $userId = null, $cawanganId = null, $sortBy = 'nearest') {
         $db = Database::getInstance()->getConnection();
         $events = [];
+
+        // Define dynamic sorting order
+        $orderClause = "ORDER BY e.event_date DESC"; // Default fallback
+        if ($sortBy === 'nearest') {
+            $orderClause = "ORDER BY CASE WHEN e.event_date IS NULL OR e.event_date = '0000-00-00' THEN 1 ELSE 0 END ASC, ABS(DATEDIFF(COALESCE(e.event_date, CURDATE()), CURDATE())) ASC";
+        } elseif ($sortBy === 'created_desc') {
+            $orderClause = "ORDER BY e.event_id DESC";
+        } elseif ($sortBy === 'event_date_desc') {
+            $orderClause = "ORDER BY CASE WHEN e.event_date IS NULL OR e.event_date = '0000-00-00' THEN 1 ELSE 0 END ASC, e.event_date DESC";
+        } elseif ($sortBy === 'original' && $viewMode === 'all') {
+            $orderClause = "ORDER BY e.cawangan_id ASC, COALESCE(e.event_level, 'MASTER') ASC, e.event_date DESC";
+        }
 
         if ($viewMode === 'all') {
             $sql = "
@@ -23,7 +35,7 @@ class EventsHelper {
                 FROM tbl_event e
                 LEFT JOIN tbl_user u ON e.created_by = u.user_id
                 LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
-                ORDER BY e.cawangan_id ASC, COALESCE(e.event_level, 'MASTER') ASC, e.event_date DESC
+                $orderClause
             ";
             $result = $db->query($sql);
             if ($result) {
@@ -45,7 +57,7 @@ class EventsHelper {
                 LEFT JOIN tbl_user u ON e.created_by = u.user_id
                 LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
                 WHERE e.created_by = ?
-                ORDER BY e.event_date DESC
+                $orderClause
             ");
             if ($stmt) {
                 $stmt->bind_param("i", $userId);
@@ -70,7 +82,7 @@ class EventsHelper {
                 LEFT JOIN tbl_user u ON e.created_by = u.user_id
                 LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
                 WHERE e.cawangan_id = ?
-                ORDER BY e.event_date DESC
+                $orderClause
             ");
             if ($stmt) {
                 $stmt->bind_param("i", $cawanganId);
@@ -86,7 +98,7 @@ class EventsHelper {
 
         if ($viewMode === 'finance_selection') {
             // If no cawanganId provided, return all (Pusat roles)
-            if ($cawanganId === null) return self::getAllEvents('all');
+            if ($cawanganId === null) return self::getAllEvents('all', null, null, $sortBy);
 
             // For cawangan roles: Their own events OR Global Master events
             $stmt = $db->prepare("
@@ -95,7 +107,7 @@ class EventsHelper {
                 LEFT JOIN tbl_cawangan c ON e.cawangan_id = c.cawangan_id
                 WHERE e.cawangan_id = ? 
                    OR (COALESCE(e.event_level, 'MASTER') = 'MASTER' AND e.cawangan_id IS NULL)
-                ORDER BY e.event_date DESC
+                $orderClause
             ");
             if ($stmt) {
                 $stmt->bind_param("i", $cawanganId);

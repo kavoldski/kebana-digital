@@ -73,7 +73,10 @@ if (in_array($current_role, [33, 55, 66])) {
     $view_mode = 'cawangan_only';
 }
 
-$all_events = EventsHelper::getAllEvents($view_mode, $current_user_id, $current_cawangan_id);
+// Get sorting option from GET request, defaulting to 'nearest'
+$sort_by = trim($_GET['sort_by'] ?? 'nearest');
+
+$all_events = EventsHelper::getAllEvents($view_mode, $current_user_id, $current_cawangan_id, $sort_by);
 
 // Search & Filter
 $search = trim($_GET['search'] ?? '');
@@ -172,11 +175,24 @@ $page_title = 'PENGURUSAN ACARA';
                        class="w-full pl-14 pr-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all"
                        placeholder="Cari mengikut tajuk atau lokasi acara...">
             </div>
+            <div class="w-full md:w-72 relative">
+                <i class="fa-solid fa-sort absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                <select name="sort_by" onchange="this.form.submit()" 
+                        class="w-full pl-14 pr-10 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all appearance-none cursor-pointer">
+                    <option value="nearest" <?php echo $sort_by === 'nearest' ? 'selected' : ''; ?>>Tarikh Terdekat</option>
+                    <option value="event_date_desc" <?php echo $sort_by === 'event_date_desc' ? 'selected' : ''; ?>>Tarikh Acara (Terbaharu)</option>
+                    <option value="created_desc" <?php echo $sort_by === 'created_desc' ? 'selected' : ''; ?>>Tarikh Dicipta (Baru)</option>
+                    <?php if ($view_mode === 'all'): ?>
+                    <option value="original" <?php echo $sort_by === 'original' ? 'selected' : ''; ?>>Asal (Cawangan & Tahap)</option>
+                    <?php endif; ?>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+            </div>
             <button type="submit" class="bg-kebana-dark text-white px-10 py-4 text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
                 TAPIS DATA
             </button>
-            <?php if ($search): ?>
-            <a href="<?= URL_ROOT ?>/events" class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center hover:text-red-500">
+            <?php if ($search || $filter_status || $sort_by !== 'nearest'): ?>
+            <a href="<?= URL_ROOT ?>/events" class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center hover:text-red-500 whitespace-nowrap">
                 KOSONGKAN
             </a>
             <?php endif; ?>
@@ -208,14 +224,19 @@ $page_title = 'PENGURUSAN ACARA';
                     <?php else: ?>
                         <?php foreach ($master_events as $event): 
                             $status = !empty($event['status']) && $event['status'] !== '0' ? $event['status'] : 'Draft';
-                            $status_class = 'bg-slate-100 text-slate-400';
                             
                             $check_status = strtoupper($status);
-                            if ($check_status === 'APPROVED') $status_class = 'bg-green-100 text-green-700';
-                            elseif ($check_status === 'SUBMITTED') $status_class = 'bg-amber-100 text-amber-700';
-                            elseif ($check_status === 'REJECTED') $status_class = 'bg-red-100 text-red-700';
-                            elseif ($check_status === 'PENDING BRANCH APPROVAL') $status_class = 'bg-blue-100 text-blue-700';
-                            elseif ($check_status === 'BRANCH APPROVED') $status_class = 'bg-emerald-100 text-emerald-700';
+                            if ($check_status === 'APPROVED' || $check_status === 'BRANCH APPROVED') {
+                                $status_class = 'bg-green-100 text-green-700';
+                            } elseif ($check_status === 'REJECTED') {
+                                $status_class = 'bg-red-100 text-red-700';
+                            } elseif ($check_status === 'PENDING BRANCH APPROVAL' || $check_status === 'SUBMITTED') {
+                                $status_class = 'bg-amber-100 text-amber-700';
+                            } elseif ($check_status === 'DRAFT') {
+                                $status_class = 'bg-blue-100 text-blue-700';
+                            } else {
+                                $status_class = 'bg-slate-100 text-slate-400';
+                            }
                             
                             $level = $event['event_level'] ?? 'MASTER';
                             $is_master = ($level === 'MASTER');
@@ -333,12 +354,19 @@ $page_title = 'PENGURUSAN ACARA';
                         <!-- Sub Events Nested -->
                         <?php foreach ($event['sub_events'] as $sub): 
                              $s_status = !empty($sub['status']) && $sub['status'] !== '0' ? $sub['status'] : 'Draft';
-                             $s_status_class = 'bg-slate-100 text-slate-400';
                              
                              $s_check = strtoupper($s_status);
-                             if ($s_check === 'APPROVED') $s_status_class = 'bg-green-100 text-green-700';
-                             elseif ($s_check === 'SUBMITTED') $s_status_class = 'bg-amber-100 text-amber-700';
-                             elseif ($s_check === 'BRANCH APPROVED') $s_status_class = 'bg-emerald-100 text-emerald-700';
+                             if ($s_check === 'APPROVED' || $s_check === 'BRANCH APPROVED') {
+                                 $s_status_class = 'bg-green-100 text-green-700';
+                             } elseif ($s_check === 'REJECTED') {
+                                 $s_status_class = 'bg-red-100 text-red-700';
+                             } elseif ($s_check === 'PENDING BRANCH APPROVAL' || $s_check === 'SUBMITTED') {
+                                 $s_status_class = 'bg-amber-100 text-amber-700';
+                             } elseif ($s_check === 'DRAFT') {
+                                 $s_status_class = 'bg-blue-100 text-blue-700';
+                             } else {
+                                 $s_status_class = 'bg-slate-100 text-slate-400';
+                             }
                         ?>
                         <tr class="hover:bg-slate-50 transition-colors group bg-slate-50/20">
                             <td class="px-8 py-4 text-center">
@@ -377,7 +405,7 @@ $page_title = 'PENGURUSAN ACARA';
                                     <a href="<?= URL_ROOT ?>/events/attendance?event_id=<?php echo $sub['event_id']; ?>" 
                                        class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-kebana-blue bg-blue-50 hover:bg-blue-100 uppercase tracking-widest transition-all">
                                         <i class="fa-solid fa-users-check"></i>
-                                        Hadir
+                                        Kehadiran
                                     </a>
                                     <?php if ($s_status === 'Draft' && hasRole(33)): ?>
                                     <a href="?action=submit_to_branch&event_id=<?php echo $sub['event_id']; ?>" 
