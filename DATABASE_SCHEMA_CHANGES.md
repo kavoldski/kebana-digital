@@ -76,6 +76,17 @@ The database schema has been completely rewritten to align with the FYP report r
 
 ---
 
+### 6. **tbl_announcement_image** - Announcement Multiple Images
+```sql
+- image_id (INT, PK)
+- announcement_id (INT, FK to tbl_announcement)
+- image_path (VARCHAR 255)
+- created_at (TIMESTAMP)
+```
+**Purpose:** Stores multiple uploaded images (up to 5) for announcements
+
+---
+
 ## Code Updates Completed
 
 ### ✅ **Database Files**

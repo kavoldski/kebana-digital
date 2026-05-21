@@ -7,7 +7,9 @@ $route = preg_replace('/\.php$/', '', $route);
 // Define public routes that don't require authentication
 $public_routes = ['login', 'authenticate', 'sign_up', 'register', 'portal', 'events/checkin', 'test_user_dashboard'];
 
-if (!in_array($route, $public_routes)) {
+$is_public = in_array($route, $public_routes) || preg_match('/^portal\/view\/\d+$/', $route);
+
+if (!$is_public) {
     require_once 'includes/auth.php';
 }
 
@@ -43,6 +45,8 @@ $routes = [
     'announcements' => 'modules/announcements/index.php',
     'announcements/index' => 'modules/announcements/index.php',
     'announcements/create' => 'modules/announcements/create.php',
+    'api/generate_ai' => 'modules/api/generate_ai.php',
+    'announcements/delete_image' => 'modules/announcements/delete_image.php',
     'portal' => 'modules/portal/index.php',
 ];
 
@@ -85,6 +89,12 @@ if (preg_match('/^users\/edit\/(\d+)$/', $route, $matches)) {
 if (preg_match('/^announcements\/edit\/(\d+)$/', $route, $matches)) {
     $_GET['id'] = $matches[1];
     require_once 'modules/announcements/edit.php';
+    exit();
+}
+
+if (preg_match('/^portal\/view\/(\d+)$/', $route, $matches)) {
+    $_GET['id'] = $matches[1];
+    require_once 'modules/portal/view.php';
     exit();
 }
 

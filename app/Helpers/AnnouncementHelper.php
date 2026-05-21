@@ -57,7 +57,7 @@ class AnnouncementHelper {
     }
 
     /**
-     * Add a new announcement
+     * Add a new announcement (returns insert ID on success, false on failure)
      */
     public static function addAnnouncement($data, $userId) {
         $db = Database::getInstance()->getConnection();
@@ -71,12 +71,14 @@ class AnnouncementHelper {
         if ($stmt) {
             $stmt->bind_param("sssis", $title, $content, $status, $userId, $expires_at);
             $success = $stmt->execute();
-            $stmt->close();
             
             if ($success) {
+                $newId = $db->insert_id;
                 AuditHelper::log($userId, 'Hebahan baru ditambah: ' . $title, 'ANNOUNCEMENT');
+                $stmt->close();
+                return $newId;
             }
-            return $success;
+            $stmt->close();
         }
         return false;
     }
@@ -107,13 +109,22 @@ class AnnouncementHelper {
     }
 
     /**
-     * Delete an announcement
+     * Delete an announcement and its physical image attachments
      */
     public static function deleteAnnouncement($id, $userId) {
         $db = Database::getInstance()->getConnection();
         
         $ann = self::getAnnouncementById($id);
         if (!$ann) return false;
+
+        // Delete physical files for images associated with this announcement
+        $images = self::getAnnouncementImages($id);
+        foreach ($images as $img) {
+            $fullPath = APP_ROOT . '/' . $img['image_path'];
+            if (file_exists($fullPath)) {
+                @unlink($fullPath);
+            }
+        }
 
         $stmt = $db->prepare("DELETE FROM tbl_announcement WHERE announcement_id = ?");
         if ($stmt) {
@@ -125,6 +136,154 @@ class AnnouncementHelper {
                 AuditHelper::log($userId, 'Hebahan dipadam: ' . $ann['title'], 'ANNOUNCEMENT', 'ID: ' . $id);
             }
             return $success;
+        }
+        return false;
+    }
+
+    /**
+     * Fetch all image attachments associated with an announcement
+     */
+    public static function getAnnouncementImages($announcementId) {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT * FROM tbl_announcement_image WHERE announcement_id = ? ORDER BY image_id ASC");
+        $images = [];
+        if ($stmt) {
+            $stmt->bind_param("i", $announcementId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $images[] = $row;
+            }
+            $stmt->close();
+        }
+        return $images;
+    }
+
+    /**
+     * Helper to compress images based on type before saving (GD backend)
+     */
+    public static function compressAndSaveImage($source, $destination, $quality = 80) {
+        $info = getimagesize($source);
+        if ($info === false) {
+            return move_uploaded_file($source, $destination);
+        }
+        
+        $mime = $info['mime'];
+        switch ($mime) {
+            case 'image/jpeg':
+            case 'image/jpg':
+                $image = @imagecreatefromjpeg($source);
+                if ($image) {
+                    $result = imagejpeg($image, $destination, $quality);
+                    imagedestroy($image);
+                    return $result;
+                }
+                break;
+            case 'image/png':
+                $image = @imagecreatefrompng($source);
+                if ($image) {
+                    imagealphablending($image, false);
+                    imagesavealpha($image, true);
+                    $result = imagepng($image, $destination, 7); // 0-9 scale compression
+                    imagedestroy($image);
+                    return $result;
+                }
+                break;
+            case 'image/gif':
+                $image = @imagecreatefromgif($source);
+                if ($image) {
+                    $result = imagegif($image, $destination);
+                    imagedestroy($image);
+                    return $result;
+                }
+                break;
+            case 'image/webp':
+                $image = @imagecreatefromwebp($source);
+                if ($image) {
+                    $result = imagewebp($image, $destination, $quality);
+                    imagedestroy($image);
+                    return $result;
+                }
+                break;
+        }
+        return move_uploaded_file($source, $destination);
+    }
+
+    /**
+     * Upload up to 5 compressed images and save their paths in the DB
+     */
+    public static function uploadAnnouncementImages($announcementId, $files) {
+        $db = Database::getInstance()->getConnection();
+        $uploadDir = APP_ROOT . '/uploads/announcements/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        // Check current image count to prevent exceeding 5
+        $currentImages = self::getAnnouncementImages($announcementId);
+        $currentCount = count($currentImages);
+        
+        $fileCount = is_array($files['name']) ? count($files['name']) : 0;
+        if ($currentCount + $fileCount > 5) {
+            return false;
+        }
+
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        
+        for ($i = 0; $i < $fileCount; $i++) {
+            if ($files['error'][$i] !== UPLOAD_ERR_OK) {
+                continue;
+            }
+            
+            $ext = strtolower(pathinfo($files['name'][$i], PATHINFO_EXTENSION));
+            if (!in_array($ext, $allowed)) {
+                return false;
+            }
+            
+            $newName = 'ann_' . $announcementId . '_' . time() . '_' . mt_rand(1000, 9999) . '.' . $ext;
+            $targetPath = $uploadDir . $newName;
+            
+            if (self::compressAndSaveImage($files['tmp_name'][$i], $targetPath)) {
+                $dbPath = 'uploads/announcements/' . $newName;
+                $stmt = $db->prepare("INSERT INTO tbl_announcement_image (announcement_id, image_path) VALUES (?, ?)");
+                if ($stmt) {
+                    $stmt->bind_param("is", $announcementId, $dbPath);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Delete an individual announcement image physically and logically
+     */
+    public static function deleteAnnouncementImage($imageId) {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT * FROM tbl_announcement_image WHERE image_id = ?");
+        if ($stmt) {
+            $stmt->bind_param("i", $imageId);
+            $stmt->execute();
+            $img = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            
+            if ($img) {
+                $fullPath = APP_ROOT . '/' . $img['image_path'];
+                if (file_exists($fullPath)) {
+                    @unlink($fullPath);
+                }
+                
+                $delStmt = $db->prepare("DELETE FROM tbl_announcement_image WHERE image_id = ?");
+                if ($delStmt) {
+                    $delStmt->bind_param("i", $imageId);
+                    $success = $delStmt->execute();
+                    $delStmt->close();
+                    return $success;
+                }
+            }
         }
         return false;
     }

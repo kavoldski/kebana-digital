@@ -225,7 +225,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
             <?php else: ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 animate-fade-in-up [animation-delay:200ms]">
                     <?php foreach ($announcements as $ann): ?>
-                        <div class="card-hover group bg-white p-10 lg:p-12 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col h-full relative overflow-hidden">
+                        <a href="<?php echo URL_ROOT; ?>/portal/view/<?php echo $ann['announcement_id']; ?>" class="card-hover group bg-white p-10 lg:p-12 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col h-full relative overflow-hidden block hover:no-underline">
                             <div class="absolute top-0 right-0 w-40 h-40 bg-kebana-blue/5 rounded-bl-[6rem] -mr-12 -mt-12 transition-all duration-500 group-hover:bg-kebana-gold/10"></div>
                             
                             <!-- Card Header -->
@@ -235,8 +235,8 @@ $isLoggedIn = isset($_SESSION['user_id']);
                                         <i class="fa-regular fa-calendar"></i>
                                     </div>
                                     <div>
-                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Tarikh Hebahan</span>
-                                        <span class="text-[11px] font-black text-slate-900 uppercase tracking-tighter"><?php echo date('d M Y', strtotime($ann['created_at'])); ?></span>
+                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block animate-none">Tarikh Hebahan</span>
+                                        <span class="text-[11px] font-black text-slate-900 uppercase tracking-tighter block"><?php echo date('d M Y', strtotime($ann['created_at'])); ?></span>
                                     </div>
                                 </div>
                                 <div class="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-200 group-hover:text-kebana-gold group-hover:border-kebana-gold/30 transition-all">
@@ -270,7 +270,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                                     <i class="fa-solid fa-arrow-right-long"></i>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
