@@ -9,9 +9,11 @@ RewriteEngine On
 
 # ------------------------------------------------------------
 # 1. HTTPS Enforcement (301 Permanent Redirect)
-# Forces all traffic to use HTTPS (Hostinger provides free SSL)
+# Forces all traffic to use HTTPS in production only.
+# Excluded: localhost / 127.0.0.1 (local XAMPP development)
 # ------------------------------------------------------------
 RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$ [NC]
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
 # ------------------------------------------------------------

@@ -204,7 +204,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewsContainer = document.getElementById('previewsContainer');
     let selectedFiles = [];
 
-    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('click', (e) => {
+        // Only trigger file picker if clicking the dropzone itself, not bubbled events
+        if (e.target === dropzone || e.target.closest('#dropzone') === dropzone) {
+            e.stopPropagation();
+            fileInput.click();
+        }
+    });
 
     dropzone.addEventListener('dragover', (e) => {
         e.preventDefault();
