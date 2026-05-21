@@ -34,6 +34,7 @@ $routes = [
     'finance/transactions/create' => 'modules/finance/transactions/create.php',
     'finance/transactions/edit' => 'modules/finance/transactions/edit.php',
     'finance/transactions/delete' => 'modules/finance/transactions/delete.php',
+    'finance/transactions/generate' => 'modules/finance/transactions/generate.php',
     'finance/budget' => 'modules/finance/budget.php',
     'documents' => 'modules/documents/index.php',
     'documents/upload' => 'modules/documents/upload.php',
