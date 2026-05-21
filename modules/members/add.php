@@ -298,7 +298,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     closeMobileModal();
                 }
             } else {
-                alert('Gagal menghubungi pelayan.');
+                let errorMsg = 'Gagal menghubungi pelayan.';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.error) errorMsg = response.error;
+                } catch(e) {}
+                alert(errorMsg);
                 closeMobileModal();
             }
         };

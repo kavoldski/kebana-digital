@@ -30,6 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 try {
     $db = Database::getInstance()->getConnection();
     
+    // Self-healing: Ensure table exists on production/local database
+    $create_table_sql = "CREATE TABLE IF NOT EXISTS mobile_ocr_sessions (
+        token VARCHAR(64) PRIMARY KEY,
+        status ENUM('pending', 'uploaded', 'completed') DEFAULT 'pending',
+        image_data LONGTEXT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX(created_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+    $db->query($create_table_sql);
+    
     // Generate a secure 64-character token
     $token = bin2hex(random_bytes(32));
     
