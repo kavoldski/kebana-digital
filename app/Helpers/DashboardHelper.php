@@ -84,7 +84,7 @@ class DashboardHelper {
         } elseif ($role === 11) {
             // Pengerusi Cawangan: See items pending branch approval
             $status = 'Pending Branch Approval';
-            $sql = "SELECT COUNT(*) as total FROM tbl_event WHERE status = '$status' AND cawangan_id = " . (int)$cawanganId;
+            $sql = "SELECT COUNT(e.event_id) as total FROM tbl_event e LEFT JOIN tbl_event p ON e.parent_event_id = p.event_id WHERE e.status = '$status' AND (e.cawangan_id = " . (int)$cawanganId . " OR p.cawangan_id = " . (int)$cawanganId . ")";
         } else {
             // Other roles might not have direct approval authority in the dashboard count for now
             // or we show Submitted for Pusat roles 2-7 if needed.

@@ -210,6 +210,20 @@ class EventsHelper {
             $parent_master_id = !empty($data['parent_master_event_id']) ? (int)$data['parent_master_event_id'] : null;
             $level = 'SUB';
             
+            if (empty($cawanganId) && $parent_master_id) {
+                // Inherit from parent
+                $stmt_p = $db->prepare("SELECT cawangan_id FROM tbl_event WHERE event_id = ?");
+                if ($stmt_p) {
+                    $stmt_p->bind_param("i", $parent_master_id);
+                    $stmt_p->execute();
+                    $res_p = $stmt_p->get_result();
+                    if ($row_p = $res_p->fetch_assoc()) {
+                        $cawanganId = $row_p['cawangan_id'];
+                    }
+                    $stmt_p->close();
+                }
+            }
+            
             if ($submission_type === 'submit') {
                 $status = 'Pending Branch Approval';
                 $approval_status = 'Pending Branch Approval';
