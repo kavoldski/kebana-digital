@@ -211,6 +211,18 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
             0%,100% { opacity:1; }
             50%      { opacity:.4; }
         }
+        @keyframes fadeInUp {
+            0%   { opacity: 0; transform: translateY(28px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+            0%   { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+        @keyframes blurIn {
+            0%   { filter: blur(10px); opacity: 0; }
+            100% { filter: blur(0); opacity: 1; }
+        }
     </style>
 </head>
 <body class="min-h-full flex flex-col font-sans antialiased text-slate-900">
