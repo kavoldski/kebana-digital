@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KEBANA Digital Management System - Poster</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700&display=swap');
+
+        /* A1 Landscape Print Size: 841mm x 594mm */
+        :root {
+            --primary: #1E3A8A; /* Deep Blue */
+            --secondary: #3B82F6; /* Light Blue */
+            --accent: #F59E0B; /* Amber/Yellow */
+            --background: #F8FAFC;
+            --text-main: #1E293B;
+            --box-bg: #FFFFFF;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #555;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+        }
+
+        .poster-container {
+            width: 841mm;
+            height: 594mm;
+            background-color: var(--background);
+            background-image: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin: 20px;
+            padding: 20mm;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-rows: 80mm 1fr;
+            gap: 15mm;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Header Section */
+        .header {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-shadow: 0 10px 25px rgba(30, 58, 138, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -10%;
+            width: 40%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.05);
+            transform: rotate(30deg);
+        }
+
+        .header-content {
+            text-align: center;
+            flex-grow: 1;
+            z-index: 1;
+        }
+
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 52px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-subtitle {
+            font-size: 28px;
+            color: #BFDBFE;
+            font-weight: 300;
+            margin: 0;
+        }
+
+        .author-info {
+            z-index: 1;
+            text-align: right;
+            font-size: 20px;
+            font-weight: 600;
+            color: #E0E7FF;
+        }
+
+        .author-info span {
+            display: block;
+            font-size: 16px;
+            font-weight: 400;
+            color: #93C5FD;
+            margin-top: 5px;
+        }
+
+        .unimas-logo-placeholder {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 24px;
+            z-index: 1;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Grid Layout for Content */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15mm;
+            height: 100%;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 15mm;
+        }
+
+        /* Content Boxes */
+        .box {
+            background-color: var(--box-bg);
+            border-radius: 20px;
+            padding: 25px 35px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            border-top: 8px solid var(--secondary);
+            position: relative;
+        }
+        
+        .box.accent {
+            border-top: 8px solid var(--accent);
+        }
+
+        .box.primary {
+            border-top: 8px solid var(--primary);
+        }
+
+        .box-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .box-title i {
+            background: var(--secondary);
+            color: white;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 22px;
+        }
+
+        .box-title.accent-title { color: #D97706; }
+        .box-title.accent-title i { background: var(--accent); }
+
+        .text-content {
+            font-size: 20px;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        .text-content p {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            padding-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* Highlights & Tags */
+        .highlight {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .module-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .module-card h4 {
+            margin: 0 0 10px 0;
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        /* Visuals/Diagram placeholders */
+        .diagram {
+            width: 100%;
+            height: 250px;
+            background: #EFF6FF;
+            border: 2px dashed #93C5FD;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #60A5FA;
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 20px;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .architecture-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            background: #F1F5F9;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .arch-node {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            color: var(--primary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 2px solid #E2E8F0;
+        }
+
+        .arch-arrow {
+            color: #94A3B8;
+            font-size: 30px;
+        }
+
+        /* Print Settings */
+        @media print {
+            body {
+                background: white;
+                margin: 0;
+            }
+            .poster-container {
+                margin: 0;
+                box-shadow: none;
+            }
+        }
+    </style>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="poster-container">
+        
+        <!-- Header -->
+        <header class="header">
+            <div class="unimas-logo-placeholder">UNIMAS</div>
+            <div class="header-content">
+                <h1 class="header-title">Digital Management System for Persatuan Kenyah Badeng Sarawak</h1>
+                <h2 class="header-subtitle">Empowering Rural Communities through Secure & Centralized Digital Transformation</h2>
+            </div>
+            <div class="author-info">
+                Cedric Hilary Samah (86350)
+                <span>Bachelor of Computer Science (Information Systems)<br>Faculty of Computer Science & IT, 2025</span>
+            </div>
+        </header>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            
+            <!-- Column 1 -->
+            <div class="column">
+                <div class="box">
+                    <h3 class="box-title"><i class="fas fa-bullseye"></i> Introduction & Abstract</h3>
+                    <div class="text-content">
+                        <p>The rapid advancement of digital technology creates a divide between urban and rural organizations. <strong>KEBANA</strong> currently relies on manual, paper-based methods and decentralized spreadsheets.</p>
+                        <p>This project develops a <strong>Web-Based Management System</strong> exclusively for the KEBANA committee to establish a <em>Single Source of Truth (SSoT)</em> for membership, event archiving, and automated financial tracking.</p>
+                        <p>Aligned with the <span class="highlight">Sarawak PCDS 2030</span>, this system bridges the developmental gap, ensuring rural organizations participate fully in the digital economy.</p>
+                    </div>
+                </div>
+
+                <div class="box accent">
+                    <h3 class="box-title accent-title"><i class="fas fa-exclamation-triangle"></i> Problem Statement</h3>
+                    <div class="text-content">
+                        <ul>
+                            <li><strong>Geographical Dispersion:</strong> Committee members are scattered across Malaysia, making coordination difficult.</li>
+                            <li><strong>Lack of Centralization:</strong> Reliance on scattered Excel sheets and WhatsApp leads to data duplication, loss of institutional memory, and security risks.</li>
+                            <li><strong>Administrative Inefficiency:</strong> Manual calculations for finances and physical paper tracking consume excessive time and resources.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title"><i class="fas fa-tasks"></i> Objectives</h3>
+                    <div class="text-content">
+                        <ol>
+                            <li><strong>Centralized Database:</strong> Create a searchable, secure membership registry replacing manual records.</li>
+                            <li><strong>Event Management:</strong> Develop a digital repository to create proposals and archive official documents.</li>
+                            <li><strong>Financial Tracking:</strong> Implement a module for automated income/expenditure tracking and monthly report generation.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2 -->
+            <div class="column">
+                <div class="box primary" style="flex-grow: 1;">
+                    <h3 class="box-title"><i class="fas fa-cogs"></i> System Architecture & Core Modules</h3>
+                    <div class="text-content">
+                        <p>The KDMS is an internal backend tool focusing on operational efficiency, high-speed data entry, and role-based security.</p>
+                        
+                        <div class="module-grid">
+                            <div class="module-card">
+                                <h4><i class="fas fa-users" style="color:var(--secondary)"></i> Membership Registry</h4>
+                                <p>Comprehensive CRUD operations. Prevents duplicate ICs and serves as the Single Source of Truth.</p>
+                            </div>
+                            <div class="module-card">
+                                <h4><i class="fas fa-folder-open" style="color:var(--accent)"></i> Event Archiving</h4>
+                                <p>Draft proposals, upload approval letters, and store meeting minutes safely in the cloud.</p>
+                            </div>
+                            <div class="module-card">
+                                <h4><i class="fas fa-chart-line" style="color:var(--secondary)"></i> Financial Ledger</h4>
+                                <p>A "Digital Cashbook" for the Treasurer. Auto-calculates balances and generates PDF statements.</p>
+                            </div>
+                            <div class="module-card">
+                                <h4><i class="fas fa-shield-alt" style="color:var(--accent)"></i> Role-Based Access</h4>
+                                <p>Strict access tiers: Super Admin (President), Secretary (Members/Events), Treasurer (Finances).</p>
+                            </div>
+                        </div>
+
+                        <div class="architecture-flow">
+                            <div class="arch-node">Committee User</div>
+                            <div class="arch-arrow"><i class="fas fa-arrow-right"></i></div>
+                            <div class="arch-node">Django Web Framework<br><span style="font-size:14px; font-weight:normal; color:#64748B;">Bootstrap 5 UI</span></div>
+                            <div class="arch-arrow"><i class="fas fa-arrow-right"></i></div>
+                            <div class="arch-node">MySQL Database<br><span style="font-size:14px; font-weight:normal; color:#64748B;">Cloud PaaS</span></div>
+                        </div>
+
+                        <div class="diagram">
+                            <i class="fas fa-mobile-alt" style="font-size: 40px;"></i>
+                            <p style="margin:0; font-size: 20px;">Mobile-First Minimalist Design</p>
+                            <p style="font-size: 16px; font-weight: 400; color: #475569; text-align: center; padding: 0 20px;">Ensures accessibility for committee members with basic digital literacy using smartphones during village meetings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 3 -->
+            <div class="column">
+                <div class="box">
+                    <h3 class="box-title"><i class="fas fa-code-branch"></i> Methodology</h3>
+                    <div class="text-content">
+                        <p>Developed using the <strong>Agile Software Development Methodology</strong> to accommodate evolving requirements and digital literacy levels.</p>
+                        <ul>
+                            <li><strong>Iterative Feedback Loop:</strong> Sprints allow early demonstrations of modules.</li>
+                            <li><strong>Technology Stack:</strong> Python (Django) for built-in security (XSS, SQLi protection), MySQL for relational data integrity, and Bootstrap 5 for responsiveness.</li>
+                            <li><strong>Testing:</strong> Unit testing for financial logic, UAT for usability validation.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="box accent">
+                    <h3 class="box-title accent-title"><i class="fas fa-lightbulb"></i> Expected Outcomes</h3>
+                    <div class="text-content">
+                        <ul>
+                            <li>Reduction of administrative workload and search time from minutes to seconds.</li>
+                            <li>Preservation of institutional memory against hardware damage or member resignation.</li>
+                            <li>Enhanced transparency with auditable, auto-generated financial reports.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="box primary">
+                    <h3 class="box-title"><i class="fas fa-globe-asia"></i> Significance & Conclusion</h3>
+                    <div class="text-content">
+                        <p>The KEBANA Digital Management System proves that <span class="highlight">Digital Transformation</span> is accessible to rural NGOs. By utilizing a <strong>Low-Cost Sustainability</strong> approach (entry-level PaaS hosting), the system modernizes operations without burdening community funds.</p>
+                        <p>It acts as a practical model for digital inclusivity, bringing Sarawak's rural communities into the data-driven era securely and efficiently.</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+</body>
+</html>
