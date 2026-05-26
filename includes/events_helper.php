@@ -663,9 +663,9 @@ function handleEventDocumentUpload($conn, $event_id, $file_data) {
     }
     
     // Create uploads directory if it doesn't exist
-    $upload_dir = __DIR__ . '/../uploads/events';
+    $upload_dir = UPLOAD_ROOT_PATH . '/events';
     if (!is_dir($upload_dir)) {
-        mkdir($upload_dir, 0755, true);
+        @mkdir($upload_dir, 0755, true);
     }
     
     // Generate unique filename
@@ -781,7 +781,7 @@ function deleteEventDocument($conn, $doc_id) {
     $stmt->close();
     
     // Delete physical file
-    $full_path = __DIR__ . '/../' . $file_path;
+    $full_path = get_absolute_upload_path($file_path);
     if (file_exists($full_path)) {
         @unlink($full_path);
     }
@@ -921,9 +921,9 @@ function uploadGeneralDocument($conn, $event_id, $doc_type, $file_data) {
         return ['status' => false, 'message' => 'File size exceeds 5MB limit'];
     }
 
-    $upload_dir = __DIR__ . '/../uploads/events';
+    $upload_dir = UPLOAD_ROOT_PATH . '/events';
     if (!is_dir($upload_dir)) {
-        if (!mkdir($upload_dir, 0755, true) && !is_dir($upload_dir)) {
+        if (!@mkdir($upload_dir, 0755, true) && !is_dir($upload_dir)) {
             return ['status' => false, 'message' => 'Failed to create upload directory'];
         }
     }

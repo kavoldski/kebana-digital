@@ -285,8 +285,8 @@ class EventsHelper {
         $allowed = ['pdf', 'jpg', 'jpeg', 'png'];
         if (!in_array($ext, $allowed)) return false;
 
-        $uploadDir = APP_ROOT . '/uploads/events/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+        $uploadDir = UPLOAD_ROOT_PATH . '/events/';
+        if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
 
         $newName = 'event_' . $eventId . '_doc_' . time() . '.' . $ext;
         $target = $uploadDir . $newName;

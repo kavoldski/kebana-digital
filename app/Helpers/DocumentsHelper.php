@@ -112,8 +112,8 @@ class DocumentsHelper {
         $allowed = ['pdf', 'jpg', 'jpeg', 'png', 'docx', 'xlsx'];
         if (!in_array($ext, $allowed)) return false;
 
-        $uploadDir = APP_ROOT . '/uploads/archive/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+        $uploadDir = UPLOAD_ROOT_PATH . '/archive/';
+        if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
 
         $newName = 'doc_' . time() . '_' . mt_rand(1000, 9999) . '.' . $ext;
         $target = $uploadDir . $newName;
@@ -162,9 +162,9 @@ class DocumentsHelper {
         $stmt->close();
 
         if ($doc) {
-            $fullPath = APP_ROOT . '/' . $doc['file_path'];
+            $fullPath = get_absolute_upload_path($doc['file_path']);
             if (file_exists($fullPath)) {
-                unlink($fullPath);
+                @unlink($fullPath);
             }
             
             $stmt = $db->prepare("DELETE FROM tbl_document WHERE doc_id = ?");

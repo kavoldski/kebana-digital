@@ -218,8 +218,8 @@ class FinanceHelper {
         $allowed = ['pdf', 'jpg', 'jpeg', 'png'];
         if (!in_array($ext, $allowed)) return null;
 
-        $uploadDir = APP_ROOT . '/uploads/receipts/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+        $uploadDir = UPLOAD_ROOT_PATH . '/receipts/';
+        if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
 
         $newName = 'receipt_' . time() . '_' . uniqid() . '.' . $ext;
         $target = $uploadDir . $newName;

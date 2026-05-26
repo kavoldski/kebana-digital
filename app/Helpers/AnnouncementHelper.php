@@ -157,7 +157,7 @@ class AnnouncementHelper {
         try {
             $images = self::getAnnouncementImages($id);
             foreach ($images as $img) {
-                $fullPath = APP_ROOT . '/' . $img['image_path'];
+                $fullPath = get_absolute_upload_path($img['image_path']);
                 if (file_exists($fullPath)) {
                     @unlink($fullPath);
                 }
@@ -283,7 +283,7 @@ class AnnouncementHelper {
      */
     public static function uploadAnnouncementImages($announcementId, $files) {
         $db = Database::getInstance()->getConnection();
-        $uploadDir = APP_ROOT . '/uploads/announcements/';
+        $uploadDir = UPLOAD_ROOT_PATH . '/announcements/';
 
         if (!is_dir($uploadDir)) {
             @mkdir($uploadDir, 0755, true);
@@ -354,7 +354,7 @@ class AnnouncementHelper {
             $stmt->close();
             
             if ($img) {
-                $fullPath = APP_ROOT . '/' . $img['image_path'];
+                $fullPath = get_absolute_upload_path($img['image_path']);
                 if (file_exists($fullPath)) {
                     @unlink($fullPath);
                 }
