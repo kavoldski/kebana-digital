@@ -8,14 +8,45 @@
 // Safety lock: change to false if you want to restrict public access later
 $isLocked = true;
 
-if ($isLocked) {
-    die("Diagnostics is locked. Edit diagnostics.php and set \$isLocked = false to run it.");
+// Allow bypassing the lock via secret token
+$bypassToken = 'kebana_diag_sec';
+if ($isLocked && (!isset($_GET['token']) || $_GET['token'] !== $bypassToken)) {
+    die("Diagnostics is locked. Edit diagnostics.php and set \$isLocked = false to run it, or access with a secret token.");
 }
 
 require_once 'bootstrap.php';
 use App\Core\Database;
 
 $db = Database::getInstance()->getConnection();
+
+// --- 0. Symlink and open_basedir Diagnoses ---
+$symlinkIssues = [];
+$symlinkPath = APP_ROOT . '/uploads';
+$targetStorage = dirname(APP_ROOT) . '/kebana_uploads';
+
+$symlinkExists = is_link($symlinkPath);
+$symlinkTarget = $symlinkExists ? @readlink($symlinkPath) : 'N/A';
+$symlinkIsDir = is_dir($symlinkPath);
+$openBaseDir = ini_get('open_basedir');
+
+// Run a write test
+$writeTestSuccess = false;
+$writeTestError = '';
+$testFilePath = APP_ROOT . '/uploads/announcements/diag_test_write.txt';
+try {
+    if (!file_exists(dirname($testFilePath))) {
+        @mkdir(dirname($testFilePath), 0755, true);
+    }
+    $written = @file_put_contents($testFilePath, 'KEBANA_DIAG_WRITE_TEST_' . time());
+    if ($written !== false) {
+        $writeTestSuccess = true;
+        @unlink($testFilePath);
+    } else {
+        $writeTestError = 'Failed to write test file (file_put_contents returned false).';
+    }
+} catch (\Throwable $e) {
+    $writeTestError = $e->getMessage();
+}
 
 $uploadDirs = [
     'uploads/' => APP_ROOT . '/uploads/',
@@ -135,6 +166,70 @@ if ($result) {
             <div class="bg-slate-800/60 p-6 rounded-2xl border border-slate-700/30">
                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hos Pelayan (HTTP_HOST)</span>
                 <p class="text-sm font-bold text-slate-200 mt-2"><?= htmlspecialchars($_SERVER['HTTP_HOST'] ?? 'N/A') ?></p>
+            </div>
+        </div>
+
+        <!-- 1.5. Symlink & open_basedir Diagnostics -->
+        <div class="bg-slate-800/80 backdrop-blur border border-slate-700/50 rounded-3xl p-8 shadow-xl space-y-6">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-link text-yellow-400 text-lg"></i>
+                <h2 class="text-lg font-black uppercase">Diagnosis Teknikal Symlink &amp; open_basedir</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                <div class="space-y-4">
+                    <div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Status Pautan Symlink (uploads/)</span>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <?php if ($symlinkExists): ?>
+                                <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 font-bold uppercase rounded">Wujud (Symlink)</span>
+                            <?php else: ?>
+                                <span class="px-2 py-1 bg-amber-500/20 text-amber-400 font-bold uppercase rounded">Bukan Symlink (Folder Fizikal / Tiada)</span>
+                            <?php endif; ?>
+                            
+                            <?php if ($symlinkIsDir): ?>
+                                <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 font-bold uppercase rounded">Menghala ke Direktori</span>
+                            <?php else: ?>
+                                <span class="px-2 py-1 bg-rose-500/20 text-rose-400 font-bold uppercase rounded">Pautan Patah / Rosak</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Sasaran Symlink (Target)</span>
+                        <code class="block bg-slate-900 px-3 py-2 rounded font-mono text-slate-300 mt-1 truncate" title="<?= htmlspecialchars($symlinkTarget) ?>"><?= htmlspecialchars($symlinkTarget) ?></code>
+                    </div>
+                    
+                    <div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Destinasi Penyimpanan Sebenar</span>
+                        <code class="block bg-slate-900 px-3 py-2 rounded font-mono text-slate-300 mt-1 truncate" title="<?= htmlspecialchars($targetStorage) ?>"><?= htmlspecialchars($targetStorage) ?></code>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Tetapan PHP open_basedir (Sekatan Laluan)</span>
+                        <code class="block bg-slate-900 px-3 py-2 rounded font-mono <?= $openBaseDir ? 'text-amber-400' : 'text-slate-400' ?> mt-1 truncate" title="<?= htmlspecialchars($openBaseDir ?: 'Tiada sekatan (None)') ?>">
+                            <?= htmlspecialchars($openBaseDir ?: 'Tiada sekatan (None)') ?>
+                        </code>
+                        <?php if ($openBaseDir): ?>
+                            <p class="text-[10px] text-amber-500/80 italic mt-1">* Nota: open_basedir aktif! PHP disekat dari mengakses fail di luar laluan ini.</p>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Ujian Tulis Fail (Write Test)</span>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <?php if ($writeTestSuccess): ?>
+                                <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 font-bold uppercase rounded">BERJAYA</span>
+                                <span class="text-slate-400">Fail berjaya ditulis ke uploads/announcements</span>
+                            <?php else: ?>
+                                <span class="px-2 py-1 bg-rose-500/20 text-rose-400 font-bold uppercase rounded">GAGAL</span>
+                                <span class="text-rose-400 font-bold">Ralat: <?= htmlspecialchars($writeTestError) ?></span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
