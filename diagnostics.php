@@ -6,7 +6,7 @@
  */
 
 // Safety lock: change to false if you want to restrict public access later
-$isLocked = false;
+$isLocked = true;
 
 if ($isLocked) {
     die("Diagnostics is locked. Edit diagnostics.php and set \$isLocked = false to run it.");
