@@ -41,7 +41,7 @@ if (!$announcement || $announcement['status'] !== 'Active') {
 
 $images = AnnouncementHelper::getAnnouncementImages($ann_id);
 $images = array_values(array_filter($images, function($img) {
-    return file_exists(APP_ROOT . '/' . $img['image_path']);
+    return file_exists(get_absolute_upload_path($img['image_path']));
 }));
 $isLoggedIn = isset($_SESSION['user_id']);
 

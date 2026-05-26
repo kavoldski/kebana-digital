@@ -291,7 +291,7 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
 
                             <!-- Cover Photo -->
                             <div class="ann-card-cover relative w-full h-52 bg-slate-100 flex-shrink-0">
-                                <?php if ($coverPath && file_exists(APP_ROOT . '/' . $coverPath)): ?>
+                                <?php if ($coverPath && file_exists(get_absolute_upload_path($coverPath))): ?>
                                     <img src="<?php echo URL_ROOT . '/' . $coverPath; ?>"
                                          alt="<?php echo htmlspecialchars($ann['title']); ?>"
                                          class="w-full h-full object-cover">
