@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "9a86af98fa017e9b",
+        "id": "2ede908281bfcda2",
         "type": "tabs",
         "children": [
           {
-            "id": "72b2c3b450308f42",
+            "id": "5f0fc6931892f91a",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -19,22 +19,6 @@
               },
               "icon": "lucide-file",
               "title": "KEBANA Digital"
-            }
-          }
-        ]
-      },
-      {
-        "id": "dfe07942f11a1d27",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "e4119897a7a6f9a8",
-            "type": "leaf",
-            "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
             }
           }
         ]
@@ -90,7 +74,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -199,7 +184,7 @@
       "bases:Create new base": false
     }
   },
-  "active": "72b2c3b450308f42",
+  "active": "fdbb42d8e9433aab",
   "lastOpenFiles": [
     "KEBANA Digital.md"
   ]
