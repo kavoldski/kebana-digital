@@ -29,7 +29,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 define('APP_ROOT', __DIR__);
 // Automatically detect if running on localhost (local dev) or live production on Hostinger
 if (isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1' || strpos($_SERVER['HTTP_HOST'], '192.168.') === 0)) {
-    define('URL_ROOT', URL_ROOT);
+    define('URL_ROOT', '/kebana-digital');
 } else {
     define('URL_ROOT', ''); // Production root domain (kebana.digital)
 }
