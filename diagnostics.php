@@ -29,6 +29,33 @@ $symlinkTarget = $symlinkExists ? @readlink($symlinkPath) : 'N/A';
 $symlinkIsDir = is_dir($symlinkPath);
 $openBaseDir = ini_get('open_basedir');
 
+// Test if symlink function is actually allowed/enabled on this server
+$symlinkFunctionExists = function_exists('symlink');
+$symlinkTestSuccess = false;
+$symlinkTestError = '';
+
+if ($symlinkFunctionExists) {
+    $tempSymlink = APP_ROOT . '/diag_test_link';
+    $tempTarget = APP_ROOT . '/diagnostics.php';
+    if (file_exists($tempSymlink) || is_link($tempSymlink)) {
+        @unlink($tempSymlink);
+    }
+    try {
+        $ok = @symlink($tempTarget, $tempSymlink);
+        if ($ok) {
+            $symlinkTestSuccess = true;
+            @unlink($tempSymlink);
+        } else {
+            $err = error_get_last();
+            $symlinkTestError = $err ? $err['message'] : 'symlink() returned false';
+        }
+    } catch (\Throwable $e) {
+        $symlinkTestError = $e->getMessage();
+    }
+} else {
+    $symlinkTestError = 'symlink() function is disabled in php.ini / disable_functions';
+}
+
 // Run a write test
 $writeTestSuccess = false;
 $writeTestError = '';
@@ -226,6 +253,18 @@ if ($result) {
                             <?php else: ?>
                                 <span class="px-2 py-1 bg-rose-500/20 text-rose-400 font-bold uppercase rounded">GAGAL</span>
                                 <span class="text-rose-400 font-bold">Ralat: <?= htmlspecialchars($writeTestError) ?></span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Ujian Fungsi PHP symlink()</span>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <?php if ($symlinkTestSuccess): ?>
+                                <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 font-bold uppercase rounded">FUNGSI AKTIF &amp; BERJAYA</span>
+                            <?php else: ?>
+                                <span class="px-2 py-1 bg-rose-500/20 text-rose-400 font-bold uppercase rounded">GAGAL / DISEKAT</span>
+                                <span class="text-rose-400 font-bold">Ralat: <?= htmlspecialchars($symlinkTestError) ?></span>
                             <?php endif; ?>
                         </div>
                     </div>
