@@ -40,6 +40,9 @@ if (!$announcement || $announcement['status'] !== 'Active') {
 }
 
 $images = AnnouncementHelper::getAnnouncementImages($ann_id);
+$images = array_values(array_filter($images, function($img) {
+    return file_exists(APP_ROOT . '/' . $img['image_path']);
+}));
 $isLoggedIn = isset($_SESSION['user_id']);
 
 // Prepare dynamically generated meta tags for SEO
@@ -251,7 +254,7 @@ $og_image = !empty($images) ? URL_ROOT . '/' . $images[0]['image_path'] : URL_RO
 
                 <!-- Article Description Text -->
                 <div class="prose max-w-none pt-4 border-t border-slate-100">
-                    <p class="text-base sm:text-lg text-slate-600 font-medium leading-relaxed whitespace-pre-wrap selection:bg-kebana-gold selection:text-slate-900"><?php echo htmlspecialchars($announcement['content']); ?></p>
+                    <p class="text-base sm:text-lg text-slate-600 font-medium leading-relaxed whitespace-pre-wrap text-justify selection:bg-kebana-gold selection:text-slate-900"><?php echo htmlspecialchars($announcement['content']); ?></p>
                 </div>
 
             </article>
