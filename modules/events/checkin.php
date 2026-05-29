@@ -37,16 +37,16 @@ $event = EventsHelper::getEventById($event_id);
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col items-center justify-center p-6">
     
-    <div class="w-full max-w-md bg-white shadow-2xl overflow-hidden rounded-none border-t-8 border-kebana-blue">
-        <div class="p-8 text-center border-b border-slate-100">
-            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+    <div class="w-full max-w-md bg-white shadow-2xl overflow-hidden rounded-none border-t-8 border-kebana-blue border border-slate-300">
+        <div class="p-8 text-center border-b border-slate-300">
+            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-200">
                 <i class="fa-solid fa-calendar-check text-2xl text-kebana-blue"></i>
             </div>
-            <h1 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2">REKOD KEHADIRAN DIGITAL</h1>
+            <h1 class="text-xs font-black text-slate-600 uppercase tracking-[0.3em] mb-2">REKOD KEHADIRAN DIGITAL</h1>
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tighter leading-none italic mb-4">
                 <?php echo htmlspecialchars($event['event_title']); ?>
             </h2>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
+            <p class="text-xs font-black text-slate-600 uppercase tracking-widest mt-1">
                 <?php echo date('d F Y', strtotime($event['event_date'])); ?> • <?php echo htmlspecialchars($event['venue']); ?>
             </p>
         </div>
@@ -57,47 +57,47 @@ $event = EventsHelper::getEventById($event_id);
                 <input type="hidden" name="token" value="<?php echo $token; ?>">
                 
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Sila Masukkan No. Kad Pengenalan</label>
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3">Sila Masukkan No. Kad Pengenalan</label>
                     <input type="text" name="ic_number" id="ic_number" required
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-200 focus:border-kebana-blue focus:bg-white outline-none text-lg font-black tracking-widest transition-all text-center"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-350 focus:border-kebana-blue focus:bg-white outline-none text-xl font-black tracking-widest transition-all text-center text-slate-800"
                            placeholder="850101-13-5577">
                 </div>
 
                 <button type="submit" id="submit-btn"
-                        class="w-full bg-kebana-blue text-white py-5 text-xs font-black uppercase tracking-[0.2em] hover:bg-blue-900 transition-all shadow-xl flex items-center justify-center gap-3">
+                        class="w-full bg-kebana-blue text-white py-5 text-sm font-black uppercase tracking-[0.2em] hover:bg-blue-900 transition-all shadow-xl flex items-center justify-center gap-3">
                     SAHKAN KEHADIRAN
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
             
-            <p class="mt-8 text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+            <p class="mt-8 text-center text-xs font-bold text-slate-500 uppercase tracking-widest">
                 © 2026 KEBANA DIGITAL MANAGEMENT
             </p>
         </div>
 
         <!-- Success View (Hidden) -->
         <div class="p-10 text-center hidden" id="success-container">
-            <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
+            <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce border border-green-300">
                 <i class="fa-solid fa-check text-4xl text-green-600"></i>
             </div>
-            <h3 class="text-2xl font-black text-green-700 uppercase tracking-tighter mb-2">KEHADIRAN DISAHKAN!</h3>
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-8">Selamat Datang,</p>
-            <div class="bg-slate-50 p-6 border-b-2 border-green-500 mb-10">
+            <h3 class="text-2xl font-black text-green-800 uppercase tracking-tighter mb-2">KEHADIRAN DISAHKAN!</h3>
+            <p class="text-sm font-bold text-slate-600 uppercase tracking-widest mb-8">Selamat Datang,</p>
+            <div class="bg-green-50 p-6 border-b-4 border-green-600 border-t border-r border-l border-green-200 mb-10">
                 <p id="member-name" class="text-xl font-black text-kebana-blue uppercase italic"></p>
             </div>
-            <button onclick="window.location.reload()" class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-kebana-blue transition-colors">
+            <button onclick="window.location.reload()" class="text-xs font-black text-slate-500 uppercase tracking-[0.2em] hover:text-kebana-blue transition-colors">
                 KEMBALI KE LAMAN UTAMA
             </button>
         </div>
 
         <!-- Error View (Hidden) -->
         <div class="p-10 text-center hidden" id="error-container">
-            <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-8">
-                <i class="fa-solid fa-triangle-exclamation text-4xl text-red-600"></i>
+            <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-300">
+                <i class="fa-solid fa-triangle-exclamation text-4xl text-red-650"></i>
             </div>
-            <h3 class="text-2xl font-black text-red-700 uppercase tracking-tighter mb-4">RALAT REKOD</h3>
-            <p id="error-message" class="text-sm font-bold text-slate-600 mb-10"></p>
-            <button onclick="hideError()" class="w-full bg-slate-800 text-white py-4 text-[10px] font-black uppercase tracking-widest">
+            <h3 class="text-2xl font-black text-red-800 uppercase tracking-tighter mb-4">RALAT REKOD</h3>
+            <p id="error-message" class="text-sm font-bold text-slate-700 mb-10"></p>
+            <button onclick="hideError()" class="w-full bg-slate-800 text-white py-4 text-xs font-black uppercase tracking-widest border border-slate-700">
                 CUBA LAGI
             </button>
         </div>

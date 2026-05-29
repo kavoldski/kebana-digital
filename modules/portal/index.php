@@ -228,21 +228,21 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
 <body class="min-h-full flex flex-col font-sans antialiased text-slate-900">
 
     <!-- Header / Nav -->
-    <nav class="sticky top-0 z-50 glass-nav border-b border-slate-200/50 shadow-sm">
+    <nav class="sticky top-0 z-50 glass-nav border-b border-slate-300 shadow-sm">
         <div class="max-w-7xl mx-auto px-6 h-20 lg:h-24 flex items-center justify-between">
             <div class="flex items-center space-x-3 lg:space-x-4">
-                <div class="p-1.5 lg:p-2 bg-white rounded-xl shadow-sm">
+                <div class="p-1.5 lg:p-2 bg-white rounded-xl shadow-sm border border-slate-300">
                     <img src="<?php echo URL_ROOT; ?>/public/assets/img/kebana-logo-icon.png" alt="Logo" class="h-8 lg:h-10 w-auto">
                 </div>
                 <div class="flex flex-col">
                     <span class="text-xl lg:text-2xl font-black tracking-tighter uppercase text-kebana-blue leading-none">KEBANA<span class="text-kebana-gold">.</span></span>
-                    <span class="text-[8px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Pepo Petobo Udip Badeng</span>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Pepo Petobo Udip Badeng</span>
                 </div>
             </div>
             
             <div class="flex items-center space-x-3 lg:space-x-6">
                 <?php if ($isLoggedIn): ?>
-                    <a href="<?php echo URL_ROOT; ?>/dashboard" class="px-5 lg:px-8 py-2.5 lg:py-3.5 bg-kebana-blue text-white text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl shadow-kebana-blue/20 rounded-full">
+                    <a href="<?php echo URL_ROOT; ?>/dashboard" class="px-5 lg:px-8 py-2.5 lg:py-3.5 bg-kebana-blue text-white text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl shadow-kebana-blue/20 rounded-full">
                         DASHBOARD
                     </a>
                 <?php endif; ?>
@@ -256,27 +256,27 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
             
             <!-- Page Title -->
             <div class="mb-16 lg:mb-20 space-y-4" style="opacity:0;animation:fadeInUp 0.8s ease-out 0.1s forwards">
-                <div class="inline-flex items-center space-x-3 px-4 py-2 bg-kebana-blue/5 rounded-full border border-kebana-blue/10">
-                    <span class="w-2 h-2 bg-kebana-gold rounded-full pulse-dot"></span>
-                    <span class="text-kebana-blue text-[10px] font-black uppercase tracking-[0.3em]">Hab Informasi Terkini</span>
+                <div class="inline-flex items-center space-x-3 px-4 py-2 bg-kebana-blue/5 rounded-full border border-kebana-blue/20">
+                    <span class="w-2.5 h-2.5 bg-kebana-gold rounded-full pulse-dot"></span>
+                    <span class="text-kebana-blue text-xs font-black uppercase tracking-[0.3em]">Hab Informasi Terkini</span>
                 </div>
                 <h1 class="text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase leading-none">
                     Dinding <br/>
                     <span class="text-kebana-blue">Maklumat &amp; Hebahan.</span>
                 </h1>
-                <p class="text-base lg:text-lg text-slate-500 font-medium leading-relaxed max-w-2xl">
+                <p class="text-lg lg:text-xl text-slate-655 font-medium leading-relaxed max-w-2xl">
                     Pusat informasi bersepadu KEBANA untuk segala hebahan rasmi, notis penting, dan perkembangan aktiviti terkini buat seluruh ahli.
                 </p>
             </div>
 
             <!-- The Wall (Announcements) -->
             <?php if (empty($announcements)): ?>
-                <div class="py-40 text-center bg-white border border-dashed border-slate-200 rounded-[3rem] shadow-sm animate-blur-in">
-                    <div class="w-24 h-24 bg-slate-50 shadow-inner flex items-center justify-center rounded-3xl mx-auto mb-10 transform -rotate-6">
-                        <i class="fa-solid fa-bullhorn text-4xl text-slate-200"></i>
+                <div class="py-40 text-center bg-white border border-dashed border-slate-300 rounded-[3rem] shadow-sm animate-blur-in">
+                    <div class="w-24 h-24 bg-slate-50 shadow-inner flex items-center justify-center rounded-3xl mx-auto mb-10 transform -rotate-6 border border-slate-200">
+                        <i class="fa-solid fa-bullhorn text-4xl text-slate-300"></i>
                     </div>
-                    <h3 class="text-xl font-black text-slate-300 uppercase tracking-widest">Dinding ini masih kosong.</h3>
-                    <p class="text-slate-400 text-sm mt-4 font-medium">Sila semak semula sebentar lagi untuk hebahan terbaru.</p>
+                    <h3 class="text-2xl font-black text-slate-500 uppercase tracking-widest">Dinding ini masih kosong.</h3>
+                    <p class="text-slate-600 text-base mt-4 font-bold">Sila semak semula sebentar lagi untuk hebahan terbaru.</p>
                 </div>
             <?php else: ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
@@ -286,7 +286,7 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
                         $delay     = 0.15 + ($i * 0.08);
                     ?>
                         <a href="<?php echo URL_ROOT; ?>/portal/view/<?php echo $ann['announcement_id']; ?>"
-                           class="ann-card group bg-white rounded-[2rem] border border-slate-100 shadow-sm flex flex-col overflow-hidden relative hover:no-underline block"
+                           class="ann-card group bg-white rounded-[2rem] border border-slate-300 shadow-sm flex flex-col overflow-hidden relative hover:no-underline block"
                            style="animation-delay: <?php echo $delay; ?>s">
 
                             <!-- Cover Photo -->
@@ -298,22 +298,22 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
                                 <?php else: ?>
                                     <!-- Elegant placeholder when no image -->
                                     <div class="cover-placeholder w-full h-full flex items-center justify-center">
-                                        <div class="text-center opacity-30">
+                                        <div class="text-center opacity-50">
                                             <i class="fa-solid fa-bullhorn text-4xl text-slate-400 mb-2 block"></i>
-                                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">Tiada Gambar</span>
+                                            <span class="text-xs font-black uppercase tracking-widest text-slate-550">Tiada Gambar</span>
                                         </div>
                                     </div>
                                 <?php endif; ?>
 
                                 <!-- Date badge overlaid on cover -->
-                                <div class="absolute top-4 left-4 z-10 flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm border border-white/50">
-                                    <i class="fa-regular fa-calendar text-kebana-blue text-[9px]"></i>
-                                    <span class="text-[9px] font-black text-slate-800 uppercase tracking-wider"><?php echo date('d M Y', strtotime($ann['created_at'])); ?></span>
+                                <div class="absolute top-4 left-4 z-10 flex items-center space-x-2 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm border border-slate-300">
+                                    <i class="fa-regular fa-calendar text-kebana-blue text-xs"></i>
+                                    <span class="text-xs font-black text-slate-800 uppercase tracking-wider"><?php echo date('d M Y', strtotime($ann['created_at'])); ?></span>
                                 </div>
 
                                 <!-- Arrow icon badge (top-right) -->
-                                <div class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm border border-white/50 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:bg-kebana-blue group-hover:border-transparent">
-                                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500 group-hover:text-white transition-colors duration-300"></i>
+                                <div class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/95 backdrop-blur-sm border border-slate-300 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:bg-kebana-blue group-hover:border-transparent">
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-600 group-hover:text-white transition-colors duration-300"></i>
                                 </div>
                             </div>
 
@@ -323,24 +323,24 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
                                     <?php echo htmlspecialchars($ann['title']); ?>
                                 </h3>
                                 
-                                <p class="text-sm font-medium text-slate-500 leading-relaxed text-justify line-clamp-3 flex-1">
+                                <p class="text-base font-medium text-slate-655 leading-relaxed text-justify line-clamp-3 flex-1">
                                     <?php echo htmlspecialchars($ann['content']); ?>
                                 </p>
 
                                 <!-- Card Footer -->
-                                <div class="pt-5 border-t border-slate-50 flex items-center justify-between">
+                                <div class="pt-5 border-t border-slate-300 flex items-center justify-between">
                                     <div class="flex items-center space-x-2.5">
-                                        <div class="w-7 h-7 bg-kebana-blue text-white rounded-full flex items-center justify-center text-[11px] font-black shadow-sm shadow-kebana-blue/20">
+                                        <div class="w-8 h-8 bg-kebana-blue text-white rounded-full flex items-center justify-center text-xs font-black shadow-sm shadow-kebana-blue/20 border border-slate-300">
                                             <?php echo strtoupper(substr($ann['creator_name'] ?? 'K', 0, 1)); ?>
                                         </div>
                                         <div>
-                                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest block">Diterbitkan oleh</span>
-                                            <span class="text-[11px] font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($ann['creator_name'] ?? 'KEBANA'); ?></span>
+                                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Diterbitkan oleh</span>
+                                            <span class="text-xs font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($ann['creator_name'] ?? 'KEBANA'); ?></span>
                                         </div>
                                     </div>
-                                    <div class="flex items-center space-x-1.5 text-[9px] font-black text-slate-300 uppercase tracking-wider group-hover:text-kebana-blue transition-colors duration-300">
+                                    <div class="flex items-center space-x-1.5 text-xs font-black text-slate-500 uppercase tracking-wider group-hover:text-kebana-blue transition-colors duration-300">
                                         <span>Baca</span>
-                                        <i class="fa-solid fa-arrow-right text-[8px] transition-transform duration-300 group-hover:translate-x-1"></i>
+                                        <i class="fa-solid fa-arrow-right text-[10px] transition-transform duration-300 group-hover:translate-x-1"></i>
                                     </div>
                                 </div>
                             </div>
@@ -354,26 +354,26 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white py-16 border-t border-slate-100">
+    <footer class="bg-white py-16 border-t border-slate-300">
         <div class="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row justify-between items-center gap-12">
             <div class="flex items-center space-x-4">
-                <div class="p-2 bg-slate-50 rounded-xl">
+                <div class="p-2 bg-slate-50 rounded-xl border border-slate-300">
                     <img src="<?php echo URL_ROOT; ?>/public/assets/img/kebana-logo-icon.png" alt="Logo" class="h-6 w-auto grayscale">
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-lg font-black tracking-tighter uppercase text-slate-400">KEBANA<span class="text-kebana-gold">.</span></span>
-                    <span class="text-[8px] font-bold text-slate-300 uppercase tracking-widest">Digital Management System</span>
+                    <span class="text-lg font-black tracking-tighter uppercase text-slate-500">KEBANA<span class="text-kebana-gold">.</span></span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Digital Management System</span>
                 </div>
             </div>
 
-            <div class="flex flex-wrap justify-center gap-8 lg:gap-16 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+            <div class="flex flex-wrap justify-center gap-8 lg:gap-16 text-xs font-black text-slate-500 uppercase tracking-[0.2em]">
                 <a href="#" class="hover:text-kebana-blue transition-colors">Dasar Privasi</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Terma &amp; Syarat</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Bantuan</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Hubungi Kami</a>
             </div>
 
-            <div class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">
                 &copy; <?php echo date('Y'); ?> KEBANA. Hak Cipta Terpelihara.
             </div>
         </div>

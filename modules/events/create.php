@@ -72,31 +72,31 @@ $page_title = 'DAFTAR ACARA';
 
 <div class="max-w-4xl mx-auto space-y-12 pb-24">
     <!-- Top Action Bar -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm border border-slate-300">
         <div>
-            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Daftar Acara Baru</h2>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Sila lengkapkan butiran program di bawah.</p>
+            <h2 class="text-3xl font-black text-kebana-blue uppercase tracking-tight italic">Daftar Acara Baru</h2>
+            <p class="text-xs font-black text-slate-600 uppercase tracking-widest mt-2">Sila lengkapkan butiran program di bawah.</p>
         </div>
-        <a href="<?= URL_ROOT ?>/events" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+        <a href="<?= URL_ROOT ?>/events" class="text-xs font-black text-slate-600 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i>
             KEMBALI
         </a>
     </div>
 
     <?php if ($message): ?>
-    <div class="p-6 <?php echo $message_type === 'success' ? 'bg-green-50 text-green-700 border-l-4 border-green-600' : 'bg-red-50 text-red-700 border-l-4 border-red-600'; ?> font-bold text-xs uppercase tracking-widest animate-pulse">
+    <div class="p-6 <?php echo $message_type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-600' : 'bg-red-50 text-red-800 border-l-4 border-red-600'; ?> font-bold text-sm uppercase tracking-widest animate-pulse">
         <?php echo $message; ?>
     </div>
     <?php endif; ?>
 
-    <div class="bg-white p-12 border border-slate-100 shadow-xl">
+    <div class="bg-white p-12 border border-slate-300 shadow-xl">
         <form method="POST" enctype="multipart/form-data" class="space-y-10">
             <!-- Basic Info -->
             <div class="grid grid-cols-1 gap-10">
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tajuk Acara <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3">Tajuk Acara <span class="text-red-500">*</span></label>
                     <input type="text" name="event_title" required
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
                            placeholder="Cth: Mesyuarat Agung Tahunan 2024">
                 </div>
             </div>
@@ -104,9 +104,9 @@ $page_title = 'DAFTAR ACARA';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <?php if ($is_pusat_creator): ?>
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tugaskan ke Cawangan <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3">Tugaskan ke Cawangan <span class="text-red-500">*</span></label>
                     <select name="assigned_cawangan_id" required
-                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none appearance-none">
+                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none appearance-none">
                         <option value="">-- Pilih Cawangan --</option>
                         <?php foreach ($cawangan_options as $caw): ?>
                         <option value="<?php echo $caw['cawangan_id']; ?>"><?php echo htmlspecialchars($caw['cawangan_name']); ?></option>
@@ -115,9 +115,9 @@ $page_title = 'DAFTAR ACARA';
                 </div>
                 <?php else: ?>
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Pilih Acara Induk (Master) <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3">Pilih Acara Induk (Master) <span class="text-red-500">*</span></label>
                     <select name="parent_master_event_id" required
-                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none appearance-none">
+                            class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all rounded-none appearance-none">
                         <option value="">-- Pilih Acara Master --</option>
                         <?php foreach ($master_event_options as $master): ?>
                         <option value="<?php echo $master['event_id']; ?>" <?php echo ($preselected_parent_id == $master['event_id']) ? 'selected' : ''; ?>>
@@ -129,9 +129,9 @@ $page_title = 'DAFTAR ACARA';
                 <?php endif; ?>
 
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Kawasan / Daerah <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3">Kawasan / Daerah <span class="text-red-500">*</span></label>
                     <input type="text" name="kawasan" required list="kawasan_list"
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
                            placeholder="Cth: Samalaju / Kidurong">
                     <datalist id="kawasan_list">
                         <?php foreach ($suggestions['kawasan'] as $kaw): ?>
@@ -143,9 +143,9 @@ $page_title = 'DAFTAR ACARA';
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Lokasi / Venue <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3">Lokasi / Venue <span class="text-red-500">*</span></label>
                     <input type="text" name="venue" required list="venue_list"
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
                            placeholder="Cth: Dewan Komuniti Bintulu">
                     <datalist id="venue_list">
                         <?php foreach ($suggestions['venues'] as $ven): ?>
@@ -155,46 +155,46 @@ $page_title = 'DAFTAR ACARA';
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Anggaran Bajet (RM)</label>
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3">Anggaran Bajet (RM)</label>
                     <input type="number" step="0.01" name="budget_est"
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
                            placeholder="0.00">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh Mula <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3">Tarikh Mula <span class="text-red-500">*</span></label>
                     <input type="date" name="event_date" required
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh Tamat (Opsional)</label>
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3">Tarikh Tamat (Opsional)</label>
                     <input type="date" name="event_end_date"
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
                 </div>
             </div>
 
             <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3"><?php echo $is_pusat_creator ? 'Muat Naik Guideline (PDF)' : 'Muat Naik Kertas Kerja (PDF/Imej)'; ?></label>
+                <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3"><?php echo $is_pusat_creator ? 'Muat Naik Guideline (PDF)' : 'Muat Naik Kertas Kerja (PDF/Imej)'; ?></label>
                 
                 <div class="space-y-4">
-                    <div class="relative group border-2 border-dashed border-slate-200 hover:border-kebana-blue bg-slate-50/50 p-8 text-center transition-all cursor-pointer rounded overflow-hidden" id="widget_proposal_zone">
-                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-300 group-hover:text-kebana-blue mb-3 block transition-colors" id="widget_proposal_icon"></i>
+                    <div class="relative group border-2 border-dashed border-slate-400 hover:border-kebana-blue bg-slate-50 p-8 text-center transition-all cursor-pointer rounded overflow-hidden" id="widget_proposal_zone">
+                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 group-hover:text-kebana-blue mb-3 block transition-colors" id="widget_proposal_icon"></i>
                         <input type="file" name="proposal_file" id="widget_proposal_input" accept=".pdf,.jpg,.jpeg,.png" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
-                        <p id="widget_proposal_label" class="text-xs font-black text-slate-400 uppercase tracking-widest">Klik atau seret fail ke sini</p>
-                        <p class="text-[8px] text-slate-300 font-bold uppercase mt-1 italic">PDF, JPG, JPEG, PNG (Maks: 10MB)</p>
+                        <p id="widget_proposal_label" class="text-xs font-black text-slate-750 uppercase tracking-widest">Klik atau seret fail ke sini</p>
+                        <p class="text-xs text-slate-600 font-bold uppercase mt-1 italic">PDF, JPG, JPEG, PNG (Maks: 10MB)</p>
                     </div>
                     
                     <!-- File Preview Container -->
-                    <div id="widget_proposal_preview" class="hidden p-4 bg-slate-50 border border-slate-200 justify-between items-center rounded transition-all">
+                    <div id="widget_proposal_preview" class="hidden p-4 bg-slate-50 border border-slate-300 justify-between items-center rounded transition-all">
                         <div class="flex items-center space-x-4">
-                            <div id="widget_preview_thumbnail" class="w-12 h-12 bg-white flex items-center justify-center text-kebana-blue rounded border border-slate-100 overflow-hidden font-bold shadow-sm">
+                            <div id="widget_preview_thumbnail" class="w-12 h-12 bg-white flex items-center justify-center text-kebana-blue rounded border border-slate-300 overflow-hidden font-bold shadow-sm">
                                 <!-- Thumbnail generated via JS -->
                             </div>
                             <div>
-                                <p id="widget_preview_name" class="text-xs font-black text-slate-800 uppercase italic truncate max-w-[250px] md:max-w-[400px]">file_name.pdf</p>
-                                <p id="widget_preview_size" class="text-[9px] font-bold text-slate-400 uppercase mt-1">1.2 MB</p>
+                                <p id="widget_preview_name" class="text-sm font-black text-slate-850 uppercase italic truncate max-w-[250px] md:max-w-[400px]">file_name.pdf</p>
+                                <p id="widget_preview_size" class="text-xs font-bold text-slate-600 uppercase mt-1">1.2 MB</p>
                             </div>
                         </div>
                         <button type="button" id="widget_proposal_clear" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-full transition-all shadow-sm" title="Batal pilihan">
@@ -221,56 +221,56 @@ $page_title = 'DAFTAR ACARA';
             </div>
 
             <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Objektif & Keterangan</label>
+                <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3">Objektif & Keterangan</label>
                 <textarea name="objective" rows="4"
-                          class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
+                          class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
                           placeholder="Sila nyatakan objektif program, kumpulan sasaran, atau keterangan ringkas..."></textarea>
             </div>
 
             <!-- Action selection cards -->
-            <div class="space-y-4 pt-6 border-t border-slate-100">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tindakan Pendaftaran <span class="text-red-500">*</span></label>
+            <div class="space-y-4 pt-6 border-t border-slate-300">
+                <label class="block text-xs font-black text-slate-700 uppercase tracking-widest mb-3">Tindakan Pendaftaran <span class="text-red-500">*</span></label>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Option 1: Draft -->
-                    <label for="submission_draft" class="relative block bg-slate-50 border-2 border-slate-200 p-6 cursor-pointer transition-all hover:bg-slate-50/80 rounded group" id="card_draft">
+                    <label for="submission_draft" class="relative block bg-slate-50 border-2 border-slate-300 p-6 cursor-pointer transition-all hover:bg-slate-50/80 rounded group" id="card_draft">
                         <input type="radio" name="submission_type" id="submission_draft" value="draft" checked class="sr-only" onchange="updateSubmissionTypeSelection()">
                         <div class="flex items-start space-x-4">
-                            <div class="w-10 h-10 bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-kebana-blue transition-colors shadow-sm" id="icon_container_draft">
+                            <div class="w-10 h-10 bg-white border border-slate-300 flex items-center justify-center text-slate-400 group-hover:text-kebana-blue transition-colors shadow-sm" id="icon_container_draft">
                                 <i class="fa-solid fa-file-signature text-lg"></i>
                             </div>
                             <div class="flex-1">
-                                <p class="text-xs font-black text-slate-800 uppercase tracking-wide">Simpan Sebagai Draf</p>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase mt-1 leading-relaxed">
+                                <p class="text-sm font-black text-slate-800 uppercase tracking-wide">Simpan Sebagai Draf</p>
+                                <p class="text-xs text-slate-600 font-bold uppercase mt-1 leading-relaxed">
                                     Simpan program sebagai draf. Butiran dan kertas kerja boleh dikemaskini sebelum dihantar.
                                 </p>
                             </div>
                         </div>
                         <!-- Checkmark Indicator -->
                         <div class="absolute top-4 right-4 w-5 h-5 bg-kebana-blue text-white rounded-full flex items-center justify-center opacity-0 transition-opacity" id="check_draft">
-                            <i class="fa-solid fa-check text-[10px]"></i>
+                            <i class="fa-solid fa-check text-xs"></i>
                         </div>
                     </label>
 
                     <!-- Option 2: Submit Directly -->
-                    <label for="submission_submit" class="relative block bg-slate-50 border-2 border-slate-200 p-6 cursor-pointer transition-all hover:bg-slate-50/80 rounded group" id="card_submit">
+                    <label for="submission_submit" class="relative block bg-slate-50 border-2 border-slate-300 p-6 cursor-pointer transition-all hover:bg-slate-50/80 rounded group" id="card_submit">
                         <input type="radio" name="submission_type" id="submission_submit" value="submit" class="sr-only" onchange="updateSubmissionTypeSelection()">
                         <div class="flex items-start space-x-4">
-                            <div class="w-10 h-10 bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-kebana-blue transition-colors shadow-sm" id="icon_container_submit">
+                            <div class="w-10 h-10 bg-white border border-slate-300 flex items-center justify-center text-slate-400 group-hover:text-kebana-blue transition-colors shadow-sm" id="icon_container_submit">
                                 <i class="fa-solid fa-paper-plane text-lg"></i>
                             </div>
                             <div class="flex-1">
-                                <p class="text-xs font-black text-slate-800 uppercase tracking-wide">
+                                <p class="text-sm font-black text-slate-800 uppercase tracking-wide">
                                     <?php echo $is_pusat_creator ? 'Hantar Terus ke Presiden' : 'Hantar Terus ke Pengerusi'; ?>
                                 </p>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase mt-1 leading-relaxed">
+                                <p class="text-xs text-slate-600 font-bold uppercase mt-1 leading-relaxed">
                                     <?php echo $is_pusat_creator ? 'Daftar dan hantar terus untuk kelulusan Presiden.' : 'Daftar dan hantar terus untuk kelulusan Pengerusi Cawangan.'; ?>
                                 </p>
                             </div>
                         </div>
                         <!-- Checkmark Indicator -->
                         <div class="absolute top-4 right-4 w-5 h-5 bg-kebana-blue text-white rounded-full flex items-center justify-center opacity-0 transition-opacity" id="check_submit">
-                            <i class="fa-solid fa-check text-[10px]"></i>
+                            <i class="fa-solid fa-check text-xs"></i>
                         </div>
                     </label>
                 </div>
@@ -292,28 +292,28 @@ $page_title = 'DAFTAR ACARA';
                 
                 if (draftRadio.checked) {
                     // Highlight draft card
-                    cardDraft.classList.remove('border-slate-200', 'bg-slate-50');
+                    cardDraft.classList.remove('border-slate-300', 'bg-slate-50');
                     cardDraft.classList.add('border-kebana-blue', 'bg-white', 'shadow-md');
                     checkDraft.classList.remove('opacity-0');
                     checkDraft.classList.add('opacity-100');
                     iconDraft.classList.add('text-kebana-blue', 'border-kebana-blue/20');
                     
                     // De-highlight submit card
-                    cardSubmit.classList.add('border-slate-200', 'bg-slate-50');
+                    cardSubmit.classList.add('border-slate-300', 'bg-slate-50');
                     cardSubmit.classList.remove('border-kebana-blue', 'bg-white', 'shadow-md');
                     checkSubmit.classList.add('opacity-0');
                     checkSubmit.classList.remove('opacity-100');
                     iconSubmit.classList.remove('text-kebana-blue', 'border-kebana-blue/20');
                 } else if (submitRadio.checked) {
                     // Highlight submit card
-                    cardSubmit.classList.remove('border-slate-200', 'bg-slate-50');
+                    cardSubmit.classList.remove('border-slate-300', 'bg-slate-50');
                     cardSubmit.classList.add('border-kebana-blue', 'bg-white', 'shadow-md');
                     checkSubmit.classList.remove('opacity-0');
                     checkSubmit.classList.add('opacity-100');
                     iconSubmit.classList.add('text-kebana-blue', 'border-kebana-blue/20');
                     
                     // De-highlight draft card
-                    cardDraft.classList.add('border-slate-200', 'bg-slate-50');
+                    cardDraft.classList.add('border-slate-300', 'bg-slate-50');
                     cardDraft.classList.remove('border-kebana-blue', 'bg-white', 'shadow-md');
                     checkDraft.classList.add('opacity-0');
                     checkDraft.classList.remove('opacity-100');
@@ -330,7 +330,7 @@ $page_title = 'DAFTAR ACARA';
             </script>
 
             <div class="pt-10">
-                <button type="submit" class="w-full bg-kebana-blue text-white py-6 text-xs font-black uppercase tracking-[0.3em] hover:bg-kebana-accent transition-all shadow-2xl">
+                <button type="submit" class="w-full bg-kebana-blue text-white py-6 text-sm font-black uppercase tracking-[0.3em] hover:bg-kebana-accent transition-all shadow-2xl">
                     <?php echo $is_pusat_creator ? 'DAFTAR & PROSES ACARA MASTER' : 'DAFTAR & PROSES ACARA SUB'; ?>
                 </button>
             </div>

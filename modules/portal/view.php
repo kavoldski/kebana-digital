@@ -23,13 +23,13 @@ if (!$announcement || $announcement['status'] !== 'Active') {
         <style>body { font-family: 'Outfit', sans-serif; }</style>
     </head>
     <body class="min-h-full flex items-center justify-center p-6 text-center">
-        <div class="max-w-md w-full bg-white p-12 rounded-[2.5rem] shadow-xl border border-slate-100">
-            <div class="w-20 h-20 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-sm">
+        <div class="max-w-md w-full bg-white p-12 rounded-[2.5rem] shadow-xl border border-slate-300">
+            <div class="w-20 h-20 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-sm border border-red-200">
                 <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
             </div>
             <h1 class="text-2xl font-black text-slate-900 tracking-tight uppercase mb-4">Hebahan Tidak Dijumpai</h1>
-            <p class="text-sm text-slate-500 font-medium mb-8 leading-relaxed">Hebahan yang anda cari tidak wujud atau telah dinyahaktifkan oleh pihak pentadbir.</p>
-            <a href="<?php echo URL_ROOT; ?>/portal" class="inline-block px-8 py-3 bg-[#2B308B] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#3E4ABB] transition-all rounded-full shadow-lg shadow-[#2B308B]/20">
+            <p class="text-base text-slate-655 font-bold mb-8 leading-relaxed">Hebahan yang anda cari tidak wujud atau telah dinyahaktifkan oleh pihak pentadbir.</p>
+            <a href="<?php echo URL_ROOT; ?>/portal" class="inline-block px-8 py-3 bg-[#2B308B] text-white text-xs font-black uppercase tracking-widest hover:bg-[#3E4ABB] transition-all rounded-full shadow-lg shadow-[#2B308B]/20">
                 Kembali ke Portal
             </a>
         </div>
@@ -135,24 +135,24 @@ $og_image = !empty($images) ? URL_ROOT . '/' . $images[0]['image_path'] : URL_RO
 <body class="min-h-full flex flex-col font-sans antialiased text-slate-900">
 
     <!-- Header / Nav -->
-    <nav class="sticky top-0 z-50 glass-nav border-b border-white/10">
+    <nav class="sticky top-0 z-50 glass-nav border-b border-slate-300 shadow-sm">
         <div class="max-w-7xl mx-auto px-6 h-20 lg:h-24 flex items-center justify-between">
             <div class="flex items-center space-x-3 lg:space-x-4">
-                <div class="p-1.5 lg:p-2 bg-white rounded-xl shadow-sm">
+                <div class="p-1.5 lg:p-2 bg-white rounded-xl shadow-sm border border-slate-300">
                     <img src="<?php echo URL_ROOT; ?>/public/assets/img/kebana-logo-icon.png" alt="Logo" class="h-8 lg:h-10 w-auto">
                 </div>
                 <div class="flex flex-col">
                     <span class="text-xl lg:text-2xl font-black tracking-tighter uppercase text-kebana-blue leading-none">KEBANA<span class="text-kebana-gold">.</span></span>
-                    <span class="text-[8px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Popo Petobo Udip Badeng</span>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Popo Petobo Udip Badeng</span>
                 </div>
             </div>
             
             <div class="flex items-center space-x-3 lg:space-x-6">
-                <a href="<?php echo URL_ROOT; ?>/portal" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+                <a href="<?php echo URL_ROOT; ?>/portal" class="text-xs font-black text-slate-600 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
                     <i class="fa-solid fa-arrow-left mr-3"></i> PORTAL
                 </a>
                 <?php if ($isLoggedIn): ?>
-                    <a href="<?php echo URL_ROOT; ?>/dashboard" class="px-5 lg:px-8 py-2.5 lg:py-3.5 bg-kebana-blue text-white text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl shadow-kebana-blue/20 rounded-full">
+                    <a href="<?php echo URL_ROOT; ?>/dashboard" class="px-5 lg:px-8 py-2.5 lg:py-3.5 bg-kebana-blue text-white text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl shadow-kebana-blue/20 rounded-full">
                         DASHBOARD
                     </a>
                 <?php endif; ?>
@@ -166,27 +166,27 @@ $og_image = !empty($images) ? URL_ROOT . '/' . $images[0]['image_path'] : URL_RO
             
             <!-- Breadcrumbs / Back button -->
             <div class="mb-10">
-                <a href="<?php echo URL_ROOT; ?>/portal" class="inline-flex items-center space-x-3 text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest transition-colors group">
-                    <i class="fa-solid fa-arrow-left-long group-hover:-translate-x-1.5 transition-transform"></i>
+                <a href="<?php echo URL_ROOT; ?>/portal" class="inline-flex items-center space-x-3 text-xs font-black text-slate-600 hover:text-kebana-blue uppercase tracking-widest transition-colors group">
+                    <i class="fa-solid fa-arrow-left-long group-hover:-translate-x-1.5 transition-transform text-sm"></i>
                     <span>Kembali ke Dinding Maklumat</span>
                 </a>
             </div>
 
-            <article class="bg-white rounded-[3rem] border border-slate-100 shadow-xl overflow-hidden p-8 sm:p-16 space-y-12">
+            <article class="bg-white rounded-[3rem] border border-slate-300 shadow-xl overflow-hidden p-8 sm:p-16 space-y-12">
                 
                 <!-- Article Header / Metadata -->
                 <div class="space-y-6">
                     <div class="flex flex-wrap items-center gap-6">
-                        <div class="flex items-center space-x-3 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-100">
-                            <i class="fa-regular fa-calendar text-kebana-blue"></i>
-                            <span class="text-[11px] font-black text-slate-900 uppercase tracking-tight"><?php echo date('d F Y', strtotime($announcement['created_at'])); ?></span>
+                        <div class="flex items-center space-x-3 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-300">
+                            <i class="fa-regular fa-calendar text-kebana-blue text-sm"></i>
+                            <span class="text-xs font-black text-slate-900 uppercase tracking-tight"><?php echo date('d F Y', strtotime($announcement['created_at'])); ?></span>
                         </div>
 
-                        <div class="flex items-center space-x-3 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-100">
-                            <div class="w-6 h-6 bg-kebana-blue text-white rounded-full flex items-center justify-center text-[10px] font-black uppercase shadow-sm">
+                        <div class="flex items-center space-x-3 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-300">
+                            <div class="w-8 h-8 bg-kebana-blue text-white rounded-full flex items-center justify-center text-xs font-black uppercase shadow-sm border border-slate-350">
                                 <?php echo strtoupper(substr($announcement['creator_name'], 0, 1)); ?>
                             </div>
-                            <span class="text-[11px] font-black text-kebana-blue uppercase tracking-wider"><?php echo htmlspecialchars($announcement['creator_name']); ?></span>
+                            <span class="text-xs font-black text-kebana-blue uppercase tracking-wider"><?php echo htmlspecialchars($announcement['creator_name']); ?></span>
                         </div>
                     </div>
 
@@ -211,17 +211,17 @@ $og_image = !empty($images) ? URL_ROOT . '/' . $images[0]['image_path'] : URL_RO
                             </div>
 
                             <!-- Image count badge (top left) -->
-                            <div class="absolute top-6 left-6 z-10 flex items-center space-x-2 bg-slate-950/60 backdrop-blur-md px-3.5 py-2 rounded-full shadow-sm border border-white/10">
-                                <i class="fa-solid fa-images text-white text-[10px]"></i>
-                                <span class="text-[9px] font-black text-white uppercase tracking-widest" id="carouselCounter">1 / <?php echo count($images); ?></span>
+                            <div class="absolute top-6 left-6 z-10 flex items-center space-x-2 bg-slate-950/70 backdrop-blur-md px-3.5 py-2 rounded-full shadow-sm border border-white/10">
+                                <i class="fa-solid fa-images text-white text-xs"></i>
+                                <span class="text-xs font-black text-white uppercase tracking-widest" id="carouselCounter">1 / <?php echo count($images); ?></span>
                             </div>
 
                             <!-- Direction controls (Only if more than 1 image) -->
                             <?php if (count($images) > 1): ?>
-                                <button type="button" id="prevBtn" class="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl glass-nav hover:bg-[#2B308B] hover:text-white flex items-center justify-center text-slate-800 transition-all shadow-lg border border-white/20 active:scale-95 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button type="button" id="prevBtn" class="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl glass-nav hover:bg-[#2B308B] hover:text-white flex items-center justify-center text-slate-800 transition-all shadow-lg border border-slate-300 active:scale-95 md:opacity-0 group-hover:opacity-100 transition-opacity">
                                     <i class="fa-solid fa-chevron-left text-lg"></i>
                                 </button>
-                                <button type="button" id="nextBtn" class="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl glass-nav hover:bg-[#2B308B] hover:text-white flex items-center justify-center text-slate-800 transition-all shadow-lg border border-white/20 active:scale-95 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button type="button" id="nextBtn" class="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-2xl glass-nav hover:bg-[#2B308B] hover:text-white flex items-center justify-center text-slate-800 transition-all shadow-lg border border-slate-300 active:scale-95 md:opacity-0 group-hover:opacity-100 transition-opacity">
                                     <i class="fa-solid fa-chevron-right text-lg"></i>
                                 </button>
 
@@ -240,7 +240,7 @@ $og_image = !empty($images) ? URL_ROOT . '/' . $images[0]['image_path'] : URL_RO
                             <div class="flex justify-center gap-3.5 px-2 overflow-x-auto py-2" id="thumbnailContainer">
                                 <?php foreach ($images as $index => $img): ?>
                                     <button type="button" data-thumb-index="<?php echo $index; ?>" 
-                                            class="carousel-thumb relative w-16 h-12 sm:w-20 sm:h-14 rounded-xl overflow-hidden flex-shrink-0 border-2 focus:outline-none">
+                                            class="carousel-thumb relative w-16 h-12 sm:w-20 sm:h-14 rounded-xl overflow-hidden flex-shrink-0 border-2 border-slate-300 focus:outline-none">
                                         <img src="<?php echo URL_ROOT . '/' . $img['image_path']; ?>" 
                                              alt="Thumbnail <?php echo $index + 1; ?>" 
                                              class="w-full h-full object-cover">
@@ -253,8 +253,8 @@ $og_image = !empty($images) ? URL_ROOT . '/' . $images[0]['image_path'] : URL_RO
                 <?php endif; ?>
 
                 <!-- Article Description Text -->
-                <div class="prose max-w-none pt-4 border-t border-slate-100">
-                    <p class="text-base sm:text-lg text-slate-600 font-medium leading-relaxed whitespace-pre-wrap text-justify selection:bg-kebana-gold selection:text-slate-900"><?php echo htmlspecialchars($announcement['content']); ?></p>
+                <div class="prose max-w-none pt-4 border-t border-slate-300">
+                    <p class="text-lg sm:text-xl text-slate-655 font-medium leading-relaxed whitespace-pre-wrap text-justify selection:bg-kebana-gold selection:text-slate-900"><?php echo htmlspecialchars($announcement['content']); ?></p>
                 </div>
 
             </article>
@@ -263,26 +263,26 @@ $og_image = !empty($images) ? URL_ROOT . '/' . $images[0]['image_path'] : URL_RO
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white py-16 border-t border-slate-100 mt-auto">
+    <footer class="bg-white py-16 border-t border-slate-300 mt-auto">
         <div class="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row justify-between items-center gap-12">
             <div class="flex items-center space-x-4">
-                <div class="p-2 bg-slate-50 rounded-xl">
+                <div class="p-2 bg-slate-50 rounded-xl border border-slate-300">
                     <img src="<?php echo URL_ROOT; ?>/public/assets/img/kebana-logo-icon.png" alt="Logo" class="h-6 w-auto grayscale">
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-lg font-black tracking-tighter uppercase text-slate-400">KEBANA<span class="text-kebana-gold">.</span></span>
-                    <span class="text-[8px] font-bold text-slate-300 uppercase tracking-widest">Digital Management System</span>
+                    <span class="text-lg font-black tracking-tighter uppercase text-slate-550">KEBANA<span class="text-kebana-gold">.</span></span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Digital Management System</span>
                 </div>
             </div>
 
-            <div class="flex flex-wrap justify-center gap-8 lg:gap-16 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+            <div class="flex flex-wrap justify-center gap-8 lg:gap-16 text-xs font-black text-slate-500 uppercase tracking-[0.2em]">
                 <a href="#" class="hover:text-kebana-blue transition-colors">Dasar Privasi</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Terma &amp; Syarat</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Bantuan</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Hubungi Kami</a>
             </div>
 
-            <div class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">
                 &copy; <?php echo date('Y'); ?> KEBANA. Hak Cipta Terpelihara.
             </div>
         </div>
@@ -313,7 +313,7 @@ $og_image = !empty($images) ? URL_ROOT . '/' . $images[0]['image_path'] : URL_RO
 
         <!-- Info/Counter -->
         <div class="mt-8 text-center space-y-2 z-[110]">
-            <span id="lightboxCounter" class="inline-block px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-white text-[10px] font-black uppercase tracking-widest">1 / 1</span>
+            <span id="lightboxCounter" class="inline-block px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-white text-xs font-black uppercase tracking-widest">1 / 1</span>
         </div>
     </div>
 

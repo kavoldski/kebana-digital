@@ -128,13 +128,13 @@ $page_title = 'PENGURUSAN ACARA';
 
 <div class="space-y-12">
     <!-- Top Action Bar -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm border border-slate-300">
         <div>
-            <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Senarai Aktiviti & Program</h2>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Kalendar dan Pengurusan Program Organisasi.</p>
+            <h2 class="text-3xl font-black text-kebana-blue uppercase tracking-tight italic">Senarai Aktiviti & Program</h2>
+            <p class="text-xs font-black text-slate-600 uppercase tracking-widest mt-2">Kalendar dan Pengurusan Program Organisasi.</p>
         </div>
         <?php if (hasRole([888, 1, 4, 33])): ?>
-        <a href="<?= URL_ROOT ?>/events/create" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
+        <a href="<?= URL_ROOT ?>/events/create" class="bg-kebana-blue text-white px-10 py-4 text-sm font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
             <i class="fa-solid fa-calendar-plus mr-4 text-lg"></i>
             DAFTAR ACARA BARU
         </a>
@@ -142,43 +142,43 @@ $page_title = 'PENGURUSAN ACARA';
     </div>
 
     <?php if ($message): ?>
-    <div class="p-6 <?php echo $message_type === 'success' ? 'bg-green-50 text-green-700 border-l-4 border-green-600' : 'bg-red-50 text-red-700 border-l-4 border-red-600'; ?> font-bold text-xs uppercase tracking-widest animate-pulse">
+    <div class="p-6 <?php echo $message_type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-600' : 'bg-red-50 text-red-800 border-l-4 border-red-600'; ?> font-bold text-sm uppercase tracking-widest animate-pulse">
         <?php echo $message; ?>
     </div>
     <?php endif; ?>
 
     <!-- KPI Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100 bg-white">
-        <div class="p-8 border-r border-slate-50 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
-            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">JUMLAH ACARA</p>
-            <p class="text-3xl font-black text-kebana-blue mt-2"><?php echo number_format($total_events); ?></p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-300 bg-white">
+        <div class="p-8 border-r border-slate-300 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
+            <p class="text-xs font-black text-slate-500 uppercase tracking-widest">JUMLAH ACARA</p>
+            <p class="text-4xl font-black text-kebana-blue mt-2"><?php echo number_format($total_events); ?></p>
         </div>
-        <div class="p-8 border-r border-slate-50 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
-            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest text-green-600">AKAN DATANG</p>
-            <p class="text-3xl font-black text-green-600 mt-2"><?php echo number_format($upcoming); ?></p>
+        <div class="p-8 border-r border-slate-300 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
+            <p class="text-xs font-black text-green-700 uppercase tracking-widest">AKAN DATANG</p>
+            <p class="text-4xl font-black text-green-600 mt-2"><?php echo number_format($upcoming); ?></p>
         </div>
         <div class="p-8 flex flex-col justify-center hover:bg-slate-50 transition-colors group border-b-4 border-kebana-yellow">
-            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest text-slate-400">ACARA LEPAS</p>
-            <p class="text-3xl font-black text-slate-400 mt-2"><?php echo number_format($past); ?></p>
+            <p class="text-xs font-black text-slate-600 uppercase tracking-widest">ACARA LEPAS</p>
+            <p class="text-4xl font-black text-slate-400 mt-2"><?php echo number_format($past); ?></p>
         </div>
     </div>
 
     <!-- Search & Filter -->
-    <div class="bg-white p-8 border border-slate-100 shadow-sm">
+    <div class="bg-white p-8 border border-slate-300 shadow-sm">
         <form method="GET" class="flex flex-col md:flex-row gap-6">
             <?php if ($filter_status): ?>
             <input type="hidden" name="status" value="<?php echo htmlspecialchars($filter_status); ?>">
             <?php endif; ?>
             <div class="flex-1 relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" 
-                       class="w-full pl-14 pr-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all"
+                       class="w-full pl-14 pr-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all"
                        placeholder="Cari mengikut tajuk atau lokasi acara...">
             </div>
             <div class="w-full md:w-72 relative">
-                <i class="fa-solid fa-sort absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                <i class="fa-solid fa-sort absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 <select name="sort_by" onchange="this.form.submit()" 
-                        class="w-full pl-14 pr-10 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all appearance-none cursor-pointer">
+                        class="w-full pl-14 pr-10 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold uppercase transition-all appearance-none cursor-pointer">
                     <option value="nearest" <?php echo $sort_by === 'nearest' ? 'selected' : ''; ?>>Tarikh Terdekat</option>
                     <option value="event_date_desc" <?php echo $sort_by === 'event_date_desc' ? 'selected' : ''; ?>>Tarikh Acara (Terbaharu)</option>
                     <option value="created_desc" <?php echo $sort_by === 'created_desc' ? 'selected' : ''; ?>>Tarikh Dicipta (Baru)</option>
@@ -186,13 +186,13 @@ $page_title = 'PENGURUSAN ACARA';
                     <option value="original" <?php echo $sort_by === 'original' ? 'selected' : ''; ?>>Asal (Cawangan & Tahap)</option>
                     <?php endif; ?>
                 </select>
-                <i class="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                <i class="fa-solid fa-chevron-down absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
             </div>
-            <button type="submit" class="bg-kebana-dark text-white px-10 py-4 text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
+            <button type="submit" class="bg-kebana-dark text-white px-10 py-4 text-sm font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
                 TAPIS DATA
             </button>
             <?php if ($search || $filter_status || $sort_by !== 'nearest'): ?>
-            <a href="<?= URL_ROOT ?>/events" class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center hover:text-red-500 whitespace-nowrap">
+            <a href="<?= URL_ROOT ?>/events" class="px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest flex items-center hover:text-red-500 whitespace-nowrap">
                 KOSONGKAN
             </a>
             <?php endif; ?>
@@ -202,22 +202,22 @@ $page_title = 'PENGURUSAN ACARA';
     <div id="live-search-results" class="space-y-12">
 
     <!-- Events Table -->
-    <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
+    <div class="bg-white border border-slate-300 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="border-b border-slate-100 bg-slate-50/50">
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Tahap</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Maklumat Acara</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Tarikh & Lokasi</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Tindakan</th>
+                    <tr class="border-b border-slate-300 bg-slate-50/50">
+                        <th class="px-8 py-6 text-xs font-black text-slate-600 uppercase tracking-widest">Tahap</th>
+                        <th class="px-8 py-6 text-xs font-black text-slate-600 uppercase tracking-widest">Maklumat Acara</th>
+                        <th class="px-8 py-6 text-xs font-black text-slate-600 uppercase tracking-widest">Tarikh & Lokasi</th>
+                        <th class="px-8 py-6 text-xs font-black text-slate-600 uppercase tracking-widest">Status</th>
+                        <th class="px-8 py-6 text-xs font-black text-slate-600 uppercase tracking-widest text-right">Tindakan</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-50">
+                <tbody class="divide-y divide-slate-200">
                     <?php if (empty($master_events)): ?>
                     <tr>
-                        <td colspan="5" class="px-8 py-20 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
+                        <td colspan="5" class="px-8 py-20 text-center text-sm font-black text-slate-500 uppercase tracking-[0.3em]">
                             Tiada rekod acara dijumpai.
                         </td>
                     </tr>
@@ -227,39 +227,39 @@ $page_title = 'PENGURUSAN ACARA';
                             
                             $check_status = strtoupper($status);
                             if ($check_status === 'APPROVED' || $check_status === 'BRANCH APPROVED') {
-                                $status_class = 'bg-green-100 text-green-700';
+                                $status_class = 'bg-green-100 text-green-800 border border-green-300';
                             } elseif ($check_status === 'REJECTED') {
-                                $status_class = 'bg-red-100 text-red-700';
+                                $status_class = 'bg-red-100 text-red-800 border border-red-300';
                             } elseif ($check_status === 'PENDING BRANCH APPROVAL' || $check_status === 'SUBMITTED') {
-                                $status_class = 'bg-amber-100 text-amber-700';
+                                $status_class = 'bg-amber-100 text-amber-800 border border-amber-300';
                             } elseif ($check_status === 'DRAFT') {
-                                $status_class = 'bg-blue-100 text-blue-700';
+                                $status_class = 'bg-blue-100 text-blue-850 border border-blue-300';
                             } else {
-                                $status_class = 'bg-slate-100 text-slate-400';
+                                $status_class = 'bg-slate-100 text-slate-700 border border-slate-300';
                             }
                             
                             $level = $event['event_level'] ?? 'MASTER';
                             $is_master = ($level === 'MASTER');
-                            $level_class = $is_master ? 'bg-kebana-blue text-white shadow-lg shadow-kebana-blue/20' : 'bg-slate-200 text-slate-600';
+                            $level_class = $is_master ? 'bg-kebana-blue text-white shadow-lg shadow-kebana-blue/20' : 'bg-slate-200 text-slate-800 border border-slate-350';
                         ?>
                         <!-- Master / Main Row -->
                         <tr class="hover:bg-slate-50/50 transition-colors group <?php echo $is_master ? 'bg-white' : 'bg-slate-50/30'; ?>">
                             <td class="px-8 py-6">
-                                <span class="px-3 py-1 text-[8px] font-black uppercase tracking-widest <?php echo $level_class; ?>">
+                                <span class="px-3 py-1 text-xs font-black uppercase tracking-widest <?php echo $level_class; ?>">
                                     <?php echo $level; ?>
                                 </span>
                             </td>
                             <td class="px-8 py-6">
-                                <p class="text-xs font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($event['event_title']); ?></p>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 italic"><?php echo htmlspecialchars($event['cawangan_name'] ?? 'Pusat'); ?></p>
+                                <p class="text-sm font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($event['event_title']); ?></p>
+                                <p class="text-xs font-bold text-slate-600 uppercase mt-1 italic"><?php echo htmlspecialchars($event['cawangan_name'] ?? 'Pusat'); ?></p>
                             </td>
                             <td class="px-8 py-6">
-                                <p class="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center">
-                                    <i class="fa-solid fa-calendar-day mr-2 text-kebana-blue/30"></i>
+                                <p class="text-xs font-black text-slate-700 uppercase tracking-widest flex items-center">
+                                    <i class="fa-solid fa-calendar-day mr-2 text-kebana-blue/40"></i>
                                     <?php echo (!empty($event['event_date']) && $event['event_date'] !== '0000-00-00') ? date('d M Y', strtotime($event['event_date'])) : 'TBA'; ?>
                                 </p>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 truncate max-w-[200px]">
-                                    <i class="fa-solid fa-location-dot mr-2 text-kebana-blue/30"></i>
+                                <p class="text-xs font-bold text-slate-600 uppercase mt-1 truncate max-w-[200px]">
+                                    <i class="fa-solid fa-location-dot mr-2 text-kebana-blue/40"></i>
                                     <?php 
                                         $loc_display = (!empty($event['venue']) && $event['venue'] !== '0') ? htmlspecialchars($event['venue']) : 'Lokasi TBA';
                                         if (!empty($event['kawasan']) && $loc_display !== 'Lokasi TBA') {
@@ -270,35 +270,35 @@ $page_title = 'PENGURUSAN ACARA';
                                 </p>
                             </td>
                             <td class="px-8 py-6">
-                                <span class="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest <?php echo $status_class; ?>">
+                                <span class="px-3 py-1.5 text-xs font-black uppercase tracking-widest <?php echo $status_class; ?>">
                                     <?php echo $status; ?>
                                 </span>
                             </td>
                             <td class="px-8 py-6 text-right">
                                 <div class="flex justify-end gap-2 flex-wrap">
                                     <a href="<?= URL_ROOT ?>/events/view/<?php echo $event['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-slate-800 hover:bg-black uppercase tracking-widest transition-all shadow-sm">
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-xs font-black text-white bg-slate-800 hover:bg-black uppercase tracking-widest transition-all shadow-sm">
                                         <i class="fa-solid fa-eye text-xs"></i>
                                         Papar
                                     </a>
                                     
                                     <a href="<?= URL_ROOT ?>/events/attendance?event_id=<?php echo $event['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-kebana-blue hover:bg-kebana-accent uppercase tracking-widest transition-all shadow-sm">
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-xs font-black text-white bg-kebana-blue hover:bg-kebana-accent uppercase tracking-widest transition-all shadow-sm">
                                         <i class="fa-solid fa-users-check text-xs"></i>
                                         Kehadiran
                                     </a>
                                        
                                     <?php if ($is_master): ?>
                                     <a href="<?= URL_ROOT ?>/events/gantt?event_id=<?php echo $event['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-purple-600 hover:bg-purple-700 uppercase tracking-widest transition-all shadow-sm">
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-xs font-black text-white bg-purple-600 hover:bg-purple-700 uppercase tracking-widest transition-all shadow-sm">
                                         <i class="fa-solid fa-chart-gantt text-xs"></i>
                                         Gantt Chart
                                     </a>
                                     <?php endif; ?>
-
+ 
                                     <?php if (hasRole([888, 1, 2, 3, 6, 7, 55, 66])): ?>
                                     <a href="<?= URL_ROOT ?>/finance/event/<?php echo $event['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-emerald-600 hover:bg-emerald-700 uppercase tracking-widest transition-all shadow-sm">
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 uppercase tracking-widest transition-all shadow-sm">
                                         <i class="fa-solid fa-wallet text-xs"></i>
                                         Kewangan
                                     </a>
@@ -308,39 +308,39 @@ $page_title = 'PENGURUSAN ACARA';
                                         <?php if ($level === 'MASTER' && hasRole([888, 1, 4, 33])): ?>
                                             <?php if (hasRole(1)): ?>
                                                 <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" 
-                                                   class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-green-600 hover:bg-green-700 uppercase tracking-widest transition-all shadow-sm">
+                                                   class="inline-flex items-center gap-2 px-4 py-2 text-xs font-black text-white bg-green-600 hover:bg-green-700 uppercase tracking-widest transition-all shadow-sm">
                                                     <i class="fa-solid fa-check-double text-xs"></i>
                                                     Lulus Terus
                                                 </a>
                                             <?php else: ?>
                                                 <a href="?action=submit&event_id=<?php echo $event['event_id']; ?>" 
-                                                   class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all shadow-sm">
+                                                   class="inline-flex items-center gap-2 px-4 py-2 text-xs font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all shadow-sm">
                                                     <i class="fa-solid fa-paper-plane text-xs"></i>
                                                     Hantar Ke Presiden
                                                 </a>
                                             <?php endif; ?>
                                         <?php elseif ($level === 'SUB' && hasRole(33)): ?>
                                             <a href="?action=submit_to_branch&event_id=<?php echo $event['event_id']; ?>" 
-                                               class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all shadow-sm">
+                                               class="inline-flex items-center gap-2 px-4 py-2 text-xs font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all shadow-sm">
                                                 <i class="fa-solid fa-paper-plane text-xs"></i>
                                                 Hantar Ke Pengerusi
                                             </a>
                                         <?php endif; ?>
                                     <?php endif; ?>
-
+ 
                                     <?php if ($check_status === 'SUBMITTED' && hasRole([1, 888])): ?>
                                     <a href="?action=approve&event_id=<?php echo $event['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-green-600 hover:bg-green-700 uppercase tracking-widest transition-all shadow-sm">
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-xs font-black text-white bg-green-600 hover:bg-green-700 uppercase tracking-widest transition-all shadow-sm">
                                         <i class="fa-solid fa-check-double text-xs"></i>
                                         Lulus
                                     </a>
                                     <a href="?action=reject&event_id=<?php echo $event['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black text-white bg-red-600 hover:bg-red-700 uppercase tracking-widest transition-all shadow-sm">
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-xs font-black text-white bg-red-600 hover:bg-red-700 uppercase tracking-widest transition-all shadow-sm">
                                         <i class="fa-solid fa-xmark text-xs"></i>
                                         Tolak
                                     </a>
                                     <?php endif; ?>
-
+ 
                                      <?php 
                                      $sub_events_json = json_encode(array_map(function($sub) {
                                          return [
@@ -351,81 +351,81 @@ $page_title = 'PENGURUSAN ACARA';
                                      ?>
                                      <button type="button" 
                                         onclick='triggerDeleteMaster(<?php echo $event['event_id']; ?>, <?php echo json_encode($event['event_title']); ?>, <?php echo htmlspecialchars($sub_events_json, ENT_QUOTES, 'UTF-8'); ?>)'
-                                        class="inline-flex items-center justify-center w-9 h-9 text-slate-300 hover:text-red-600 hover:bg-red-50 border border-slate-100 transition-all"
+                                        class="inline-flex items-center justify-center w-9 h-9 text-slate-500 hover:text-red-650 hover:bg-red-50 border border-slate-300 transition-all"
                                         title="Padam">
                                          <i class="fa-solid fa-trash-can"></i>
                                      </button>
                                 </div>
                             </td>
                         </tr>
-
+ 
                         <!-- Sub Events Nested -->
                         <?php foreach ($event['sub_events'] as $sub): 
                              $s_status = !empty($sub['status']) && $sub['status'] !== '0' ? $sub['status'] : 'Draft';
                              
                              $s_check = strtoupper($s_status);
                              if ($s_check === 'APPROVED' || $s_check === 'BRANCH APPROVED') {
-                                 $s_status_class = 'bg-green-100 text-green-700';
+                                 $s_status_class = 'bg-green-100 text-green-800 border border-green-300';
                              } elseif ($s_check === 'REJECTED') {
-                                 $s_status_class = 'bg-red-100 text-red-700';
+                                 $s_status_class = 'bg-red-100 text-red-800 border border-red-300';
                              } elseif ($s_check === 'PENDING BRANCH APPROVAL' || $s_check === 'SUBMITTED') {
-                                 $s_status_class = 'bg-amber-100 text-amber-700';
+                                 $s_status_class = 'bg-amber-100 text-amber-800 border border-amber-300';
                              } elseif ($s_check === 'DRAFT') {
-                                 $s_status_class = 'bg-blue-100 text-blue-700';
+                                 $s_status_class = 'bg-blue-100 text-blue-850 border border-blue-300';
                              } else {
-                                 $s_status_class = 'bg-slate-100 text-slate-400';
+                                 $s_status_class = 'bg-slate-100 text-slate-700 border border-slate-300';
                              }
                         ?>
                         <tr class="hover:bg-slate-50 transition-colors group bg-slate-50/20">
                             <td class="px-8 py-4 text-center">
                                 <div class="flex items-center justify-center">
-                                    <div class="h-6 w-[2px] bg-slate-200"></div>
-                                    <div class="w-4 h-[2px] bg-slate-200"></div>
-                                    <span class="px-2 py-0.5 text-[7px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 ml-2">
+                                    <div class="h-6 w-[2px] bg-slate-300"></div>
+                                    <div class="w-4 h-[2px] bg-slate-300"></div>
+                                    <span class="px-2 py-0.5 text-xs font-black uppercase tracking-widest bg-slate-100 text-slate-600 border border-slate-300 ml-2">
                                         SUB
                                     </span>
                                 </div>
                             </td>
                             <td class="px-8 py-4 pl-12">
-                                <p class="text-[11px] font-bold text-slate-600 uppercase tracking-tight group-hover:text-kebana-blue transition-colors">
+                                <p class="text-xs font-bold text-slate-700 uppercase tracking-tight group-hover:text-kebana-blue transition-colors">
                                     <?php echo htmlspecialchars($sub['event_title']); ?>
                                 </p>
-                                <p class="text-[8px] font-bold text-slate-300 uppercase mt-0.5"><?php echo htmlspecialchars($sub['cawangan_name'] ?? 'Cawangan'); ?></p>
+                                <p class="text-xs font-bold text-slate-500 uppercase mt-0.5"><?php echo htmlspecialchars($sub['cawangan_name'] ?? 'Cawangan'); ?></p>
                             </td>
                             <td class="px-8 py-4">
-                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                                    <i class="fa-solid fa-calendar-day mr-2 text-slate-200"></i>
+                                <p class="text-xs font-bold text-slate-600 uppercase tracking-widest">
+                                    <i class="fa-solid fa-calendar-day mr-2 text-slate-400"></i>
                                     <?php echo date('d M Y', strtotime($sub['event_date'])); ?>
                                 </p>
                             </td>
                             <td class="px-8 py-4">
-                                <span class="px-2 py-1 text-[8px] font-black uppercase tracking-widest <?php echo $s_status_class; ?>">
+                                <span class="px-2 py-1 text-xs font-black uppercase tracking-widest <?php echo $s_status_class; ?>">
                                     <?php echo $s_status; ?>
                                 </span>
                             </td>
                             <td class="px-8 py-4 text-right">
                                 <div class="flex justify-end gap-2">
                                     <a href="<?= URL_ROOT ?>/events/view/<?php echo $sub['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-slate-600 bg-slate-100 hover:bg-slate-200 uppercase tracking-widest transition-all">
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-black text-slate-700 bg-slate-100 hover:bg-slate-200 uppercase tracking-widest transition-all border border-slate-300">
                                         <i class="fa-solid fa-eye"></i>
                                         Lihat
                                     </a>
                                     <a href="<?= URL_ROOT ?>/events/attendance?event_id=<?php echo $sub['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-kebana-blue bg-blue-50 hover:bg-blue-100 uppercase tracking-widest transition-all">
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-black text-kebana-blue bg-blue-50 hover:bg-blue-100 uppercase tracking-widest transition-all border border-blue-200">
                                         <i class="fa-solid fa-users-check"></i>
                                         Kehadiran
                                     </a>
-
+ 
                                     <?php if (hasRole([888, 1, 2, 3, 6, 7, 55, 66])): ?>
                                     <a href="<?= URL_ROOT ?>/finance/event/<?php echo $sub['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-emerald-600 bg-emerald-50 hover:bg-emerald-100 uppercase tracking-widest transition-all">
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-black text-emerald-600 bg-emerald-50 hover:bg-emerald-100 uppercase tracking-widest transition-all border border-emerald-200">
                                         <i class="fa-solid fa-wallet text-xs"></i>
                                         Kewangan
                                     </a>
                                     <?php endif; ?>
                                     <?php if ($s_status === 'Draft' && hasRole(33)): ?>
                                     <a href="?action=submit_to_branch&event_id=<?php echo $sub['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all">
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-black text-white bg-amber-600 hover:bg-amber-700 uppercase tracking-widest transition-all">
                                         <i class="fa-solid fa-paper-plane"></i>
                                         Hantar Ke Pengerusi
                                     </a>
@@ -433,12 +433,12 @@ $page_title = 'PENGURUSAN ACARA';
                                     
                                     <?php if ($s_check === 'SUBMITTED' && hasRole([1, 888])): ?>
                                     <a href="?action=approve&event_id=<?php echo $sub['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-white bg-green-600 hover:bg-green-700 uppercase tracking-widest transition-all">
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-black text-white bg-green-600 hover:bg-green-700 uppercase tracking-widest transition-all">
                                         <i class="fa-solid fa-check-double text-xs"></i>
                                         Lulus
                                     </a>
                                     <a href="?action=reject&event_id=<?php echo $sub['event_id']; ?>" 
-                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-[9px] font-black text-white bg-red-600 hover:bg-red-700 uppercase tracking-widest transition-all">
+                                       class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-black text-white bg-red-600 hover:bg-red-700 uppercase tracking-widest transition-all">
                                         <i class="fa-solid fa-xmark text-xs"></i>
                                         Tolak
                                     </a>
@@ -447,7 +447,7 @@ $page_title = 'PENGURUSAN ACARA';
                             </td>
                         </tr>
                         <?php endforeach; ?>
-
+ 
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>
@@ -474,17 +474,17 @@ $page_title = 'PENGURUSAN ACARA';
             <h3 class="text-3xl font-black text-kebana-blue tracking-tighter uppercase italic leading-none">
                 Berjaya!
             </h3>
-            <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] block">
+            <p class="text-xs font-black text-slate-600 uppercase tracking-[0.25em] block">
                 Acara Utama Berjaya Didaftarkan
             </p>
         </div>
         
-        <div class="text-xs font-medium text-slate-500 leading-relaxed uppercase tracking-wider bg-slate-50/50 p-4 border border-slate-100">
+        <div class="text-sm font-medium text-slate-700 leading-relaxed uppercase tracking-wider bg-slate-50/50 p-4 border border-slate-300">
             Aktiviti atau program utama baharu telah selamat didaftarkan ke dalam sistem.
         </div>
         
         <div>
-            <button id="successModalCloseBtn" class="w-full bg-green-600 text-white py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-green-700 hover:shadow-green-200/50 hover:shadow-xl transition-all active:scale-95 duration-150">
+            <button id="successModalCloseBtn" class="w-full bg-green-600 text-white py-4 text-sm font-black uppercase tracking-[0.2em] hover:bg-green-700 hover:shadow-green-200/50 hover:shadow-xl transition-all active:scale-95 duration-150">
                 TERUSKAN
             </button>
         </div>
@@ -585,14 +585,14 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="deleteCard" class="bg-white/95 backdrop-blur-md max-w-md w-full p-8 shadow-2xl border-t-8 border-red-600 transform scale-95 opacity-0 transition-all duration-300 ease-out space-y-6">
         
         <div class="flex items-center gap-4 text-left">
-            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-600 shrink-0">
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-650 shrink-0">
                 <i class="fa-solid fa-trash-can text-xl"></i>
             </div>
             <div>
                 <h3 class="text-xl font-black text-kebana-blue tracking-tighter uppercase italic leading-none">
                     Padam Acara
                 </h3>
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                <p class="text-xs font-black text-slate-600 uppercase tracking-widest mt-1">
                     Tindakan ini tidak boleh diundur balik
                 </p>
             </div>
@@ -601,53 +601,53 @@ document.addEventListener('DOMContentLoaded', function() {
         <form id="deleteForm" method="POST" action="" class="space-y-6 text-left">
             <input type="hidden" name="delete_master_id" id="deleteMasterIdInput" value="">
             
-            <div class="text-xs text-slate-600 leading-relaxed uppercase tracking-wider bg-slate-50/50 p-4 border border-slate-100">
+            <div class="text-sm text-slate-700 leading-relaxed uppercase tracking-wider bg-slate-50/50 p-4 border border-slate-300">
                 Adakah anda pasti mahu memadam acara: <strong id="deleteEventTitleDisplay" class="text-kebana-blue font-black"></strong>?
             </div>
 
             <!-- Sub-Events Deletion Options (Only shown if event has sub-events) -->
             <div id="subEventsOptionsArea" class="hidden space-y-4">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">
+                <p class="text-xs font-black text-slate-600 uppercase tracking-widest border-b border-slate-300 pb-2">
                     PILIHAN PADAM SUB-ACARA (<span id="subEventsCountDisplay">0</span> DIJUMPAI)
                 </p>
                 
                 <div class="space-y-3">
-                    <label class="flex items-start gap-3 p-3 border border-slate-100 bg-white hover:border-slate-300 cursor-pointer transition-all">
+                    <label class="flex items-start gap-3 p-3 border border-slate-300 bg-white hover:border-slate-400 cursor-pointer transition-all">
                         <input type="radio" name="sub_action" value="keep" checked class="mt-0.5 accent-kebana-blue" onchange="toggleSelectiveList(false)">
                         <div>
-                            <p class="text-[11px] font-black text-slate-700 uppercase tracking-tight">Kekalkan Semua Sub-Acara</p>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase">Sub-Acara akan kekal sebagai acara bebas (tiada parent)</p>
+                            <p class="text-sm font-black text-slate-800 uppercase tracking-tight">Kekalkan Semua Sub-Acara</p>
+                            <p class="text-xs font-bold text-slate-600 uppercase">Sub-Acara akan kekal sebagai acara bebas (tiada parent)</p>
                         </div>
                     </label>
 
-                    <label class="flex items-start gap-3 p-3 border border-slate-100 bg-white hover:border-slate-300 cursor-pointer transition-all">
+                    <label class="flex items-start gap-3 p-3 border border-slate-300 bg-white hover:border-slate-400 cursor-pointer transition-all">
                         <input type="radio" name="sub_action" value="all" class="mt-0.5 accent-kebana-blue" onchange="toggleSelectiveList(false)">
                         <div>
-                            <p class="text-[11px] font-black text-slate-700 uppercase tracking-tight">Padam Semua Sub-Acara</p>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase">Padam acara utama berserta kesemua sub-acara sekaligus</p>
+                            <p class="text-sm font-black text-slate-800 uppercase tracking-tight">Padam Semua Sub-Acara</p>
+                            <p class="text-xs font-bold text-slate-600 uppercase">Padam acara utama berserta kesemua sub-acara sekaligus</p>
                         </div>
                     </label>
 
-                    <label class="flex items-start gap-3 p-3 border border-slate-100 bg-white hover:border-slate-300 cursor-pointer transition-all">
+                    <label class="flex items-start gap-3 p-3 border border-slate-300 bg-white hover:border-slate-400 cursor-pointer transition-all">
                         <input type="radio" name="sub_action" value="selective" class="mt-0.5 accent-kebana-blue" onchange="toggleSelectiveList(true)">
                         <div>
-                            <p class="text-[11px] font-black text-slate-700 uppercase tracking-tight">Pilih Sub-Acara Untuk Dipadam</p>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase">Pilih secara manual sub-acara mana yang ingin dipadam</p>
+                            <p class="text-sm font-black text-slate-800 uppercase tracking-tight">Pilih Sub-Acara Untuk Dipadam</p>
+                            <p class="text-xs font-bold text-slate-600 uppercase">Pilih secara manual sub-acara mana yang ingin dipadam</p>
                         </div>
                     </label>
                 </div>
 
                 <!-- Selective Checklist (Hidden by default) -->
-                <div id="selectiveSubEventsList" class="hidden border border-slate-200/60 bg-slate-50 p-4 max-h-[150px] overflow-y-auto space-y-2">
+                <div id="selectiveSubEventsList" class="hidden border border-slate-300 bg-slate-50 p-4 max-h-[150px] overflow-y-auto space-y-2">
                     <!-- Dynamic Checklist Inserted Here by JS -->
                 </div>
             </div>
 
             <div class="flex gap-3">
-                <button type="button" onclick="closeDeleteModal()" class="w-1/2 bg-slate-100 text-slate-500 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-200 hover:text-slate-700 transition-all text-center">
+                <button type="button" onclick="closeDeleteModal()" class="w-1/2 bg-slate-100 text-slate-600 py-4 text-sm font-black uppercase tracking-[0.2em] hover:bg-slate-200 hover:text-slate-800 transition-all border border-slate-300 text-center">
                     BATAL
                 </button>
-                <button type="submit" class="w-1/2 bg-red-600 text-white py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-700 hover:shadow-red-200/50 hover:shadow-xl transition-all text-center">
+                <button type="submit" class="w-1/2 bg-red-600 text-white py-4 text-sm font-black uppercase tracking-[0.2em] hover:bg-red-700 hover:shadow-red-200/50 hover:shadow-xl transition-all text-center">
                     PADAM
                 </button>
             </div>
@@ -682,7 +682,7 @@ function triggerDeleteMaster(eventId, eventTitle, subEvents) {
         // Build the selective list checkbox markup
         subEvents.forEach(sub => {
             const label = document.createElement('label');
-            label.className = 'flex items-center gap-3 p-2 bg-white border border-slate-100 hover:border-slate-300 cursor-pointer transition-all';
+            label.className = 'flex items-center gap-3 p-2 bg-white border border-slate-300 hover:border-slate-400 cursor-pointer transition-all';
             
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
@@ -691,7 +691,7 @@ function triggerDeleteMaster(eventId, eventTitle, subEvents) {
             checkbox.className = 'accent-red-600 rounded';
             
             const textDiv = document.createElement('div');
-            textDiv.className = 'text-[10px] font-black text-slate-600 uppercase tracking-tight';
+            textDiv.className = 'text-xs font-black text-slate-700 uppercase tracking-tight';
             textDiv.textContent = sub.title;
             
             label.appendChild(checkbox);

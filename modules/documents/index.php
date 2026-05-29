@@ -72,21 +72,21 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
 
 <div class="space-y-12 pb-24">
     <!-- Top Action Bar -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border border-slate-300 border-t-8 border-t-kebana-blue shadow-sm">
         <div>
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Pusat Arkib Digital</h2>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Pengurusan Dokumen Berpusat dengan Sistem Tagging Automatik.</p>
+            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mt-2">Pengurusan Dokumen Berpusat dengan Sistem Tagging Automatik.</p>
         </div>
         <div class="flex gap-4">
-            <button onclick="toggleAISearch()" class="bg-indigo-600 text-white px-6 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center shadow-lg">
+            <button onclick="toggleAISearch()" class="bg-indigo-600 text-white px-6 py-4 text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center shadow-lg">
                 <i class="fa-solid fa-robot mr-3"></i>
                 AI SEARCH
             </button>
-            <button onclick="toggleManagementView()" class="bg-slate-100 text-slate-600 px-6 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center">
+            <button onclick="toggleManagementView()" class="bg-slate-100 text-slate-650 px-6 py-4 text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center border border-slate-300">
                 <i class="fa-solid fa-chart-pie mr-3"></i>
                 INSIGHTS
             </button>
-            <a href="<?= URL_ROOT ?>/documents/upload" class="bg-kebana-blue text-white px-10 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/documents/upload" class="bg-kebana-blue text-white px-10 py-4 text-sm font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl inline-flex items-center">
                 <i class="fa-solid fa-cloud-arrow-up mr-4 text-lg"></i>
                 MUAT NAIK FAIL
             </a>
@@ -94,23 +94,23 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
     </div>
 
     <!-- KPI Stats Bar -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-0 border border-slate-100 bg-white shadow-sm overflow-hidden">
-        <div class="p-8 border-r border-slate-50 flex flex-col justify-center bg-slate-50/30">
-            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Jumlah Fail</p>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-0 border border-slate-300 bg-white shadow-sm overflow-hidden">
+        <div class="p-8 border-r border-slate-300 flex flex-col justify-center bg-slate-50/30">
+            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Jumlah Fail</p>
             <p class="text-2xl font-black text-kebana-blue"><?php echo number_format($stats['total_files']); ?></p>
         </div>
-        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
-            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Saiz Arkib</p>
+        <div class="p-8 border-r border-slate-300 flex flex-col justify-center">
+            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Saiz Arkib</p>
             <p class="text-2xl font-black text-kebana-blue"><?php echo DocumentsHelper::formatBytes($stats['total_size'] ?? 0); ?></p>
         </div>
-        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
-            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Fail Paling Popular</p>
-            <p class="text-xs font-black text-kebana-blue truncate" title="<?php echo htmlspecialchars($stats['popular_doc'] ?? 'N/A'); ?>">
+        <div class="p-8 border-r border-slate-300 flex flex-col justify-center">
+            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Fail Paling Popular</p>
+            <p class="text-sm font-black text-kebana-blue truncate" title="<?php echo htmlspecialchars($stats['popular_doc'] ?? 'N/A'); ?>">
                 <?php echo htmlspecialchars($stats['popular_doc'] ?? 'N/A'); ?>
             </p>
         </div>
-        <div class="p-8 border-r border-slate-50 flex flex-col justify-center">
-            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Indeks RAG</p>
+        <div class="p-8 border-r border-slate-300 flex flex-col justify-center">
+            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Indeks RAG</p>
             <?php 
                 $db = \App\Core\Database::getInstance()->getConnection();
                 $rag_count = $db->query("SELECT COUNT(DISTINCT doc_id) as count FROM tbl_document_chunks")->fetch_assoc()['count'];
@@ -118,21 +118,21 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
             ?>
             <div class="flex items-center gap-3">
                 <p class="text-2xl font-black text-indigo-600"><?php echo number_format($rag_count); ?></p>
-                <span class="text-[8px] font-bold text-slate-300 uppercase"><?php echo round($rag_pct); ?>% SIAP</span>
+                <span class="text-[10px] font-bold text-slate-500 uppercase"><?php echo round($rag_pct); ?>% SIAP</span>
             </div>
         </div>
         <div class="p-8 flex flex-col justify-center bg-kebana-yellow/5">
             <?php if (in_array($current_role, [888, 4])): ?>
                 <button onclick="reindexAll()" id="reindex-btn" class="w-full text-left group">
-                    <p class="text-[9px] font-black text-kebana-blue/60 uppercase tracking-widest mb-2 group-hover:text-kebana-blue transition-colors">Tindakan Admin</p>
-                    <p class="text-[10px] font-black text-kebana-blue uppercase italic flex items-center">
+                    <p class="text-[10px] font-black text-kebana-blue/70 uppercase tracking-widest mb-2 group-hover:text-kebana-blue transition-colors">Tindakan Admin</p>
+                    <p class="text-xs font-black text-kebana-blue uppercase italic flex items-center">
                         <i class="fa-solid fa-arrows-rotate mr-2 group-hover:rotate-180 transition-all duration-500"></i>
                         KEMASKINI INDEKS
                     </p>
                 </button>
             <?php else: ?>
-                <p class="text-[9px] font-black text-kebana-blue/60 uppercase tracking-widest mb-2">Status Capaian</p>
-                <p class="text-[10px] font-black text-kebana-blue uppercase italic">
+                <p class="text-[10px] font-black text-kebana-blue/70 uppercase tracking-widest mb-2">Status Capaian</p>
+                <p class="text-xs font-black text-kebana-blue uppercase italic">
                     <i class="fa-solid fa-shield-halved mr-2"></i>
                     <?php echo $is_pusat ? 'Akses Global (Pusat)' : 'Akses Cawangan'; ?>
                 </p>
@@ -144,24 +144,24 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
     <div id="ai-search-panel" class="hidden animate-in fade-in slide-in-from-top-4 duration-500">
         <!-- Context Preview Modal (Nested) -->
         <div id="context-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 bg-indigo-950/90 backdrop-blur-xl">
-            <div class="bg-white text-slate-900 w-full max-w-4xl shadow-2xl border-t-8 border-indigo-600 animate-in zoom-in duration-300">
-                <div class="p-8 border-b border-slate-100 flex justify-between items-center">
+            <div class="bg-white text-slate-900 w-full max-w-4xl shadow-2xl border border-slate-300 border-t-8 border-t-indigo-600 animate-in zoom-in duration-300">
+                <div class="p-8 border-b border-slate-300 flex justify-between items-center">
                     <div>
-                        <h4 id="context-title" class="text-sm font-black text-indigo-600 uppercase tracking-widest">Tajuk Dokumen</h4>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase mt-1">Petikan Teks Yang Dijumpai Oleh AI</p>
+                        <h4 id="context-title" class="text-base font-black text-indigo-650 uppercase tracking-widest">Tajuk Dokumen</h4>
+                        <p class="text-xs font-bold text-slate-500 uppercase mt-1">Petikan Teks Yang Dijumpai Oleh AI</p>
                     </div>
-                    <button onclick="closeContextModal()" class="text-slate-300 hover:text-red-500 transition-colors">
-                        <i class="fa-solid fa-xmark text-xl"></i>
+                    <button onclick="closeContextModal()" class="text-slate-500 hover:text-red-500 transition-colors">
+                        <i class="fa-solid fa-xmark text-2xl"></i>
                     </button>
                 </div>
                 <div class="p-12 max-h-[60vh] overflow-y-auto">
-                    <div class="bg-slate-50 p-10 border-l-4 border-indigo-200 italic text-lg leading-relaxed text-slate-700 font-medium" id="context-body">
+                    <div class="bg-slate-50 p-10 border-l-4 border-indigo-300 italic text-xl leading-relaxed text-slate-800 font-medium" id="context-body">
                         <!-- Chunk text here -->
                     </div>
                 </div>
-                <div class="p-8 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rujukan Pintar RAG</span>
-                    <a id="context-link" href="#" target="_blank" class="bg-indigo-600 text-white px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center shadow-lg">
+                <div class="p-8 bg-slate-50 border-t border-slate-300 flex justify-between items-center">
+                    <span class="text-xs font-black text-slate-500 uppercase tracking-widest">Rujukan Pintar RAG</span>
+                    <a id="context-link" href="#" target="_blank" class="bg-indigo-600 text-white px-8 py-3 text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all flex items-center shadow-lg">
                         <i class="fa-solid fa-file-pdf mr-2"></i>
                         BUKA FAIL PENUH
                     </a>
@@ -169,7 +169,7 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
             </div>
         </div>
 
-        <div class="bg-indigo-900 text-white p-12 border-b-8 border-indigo-400 shadow-2xl relative overflow-hidden">
+        <div class="bg-indigo-900 text-white p-12 border-b-8 border-indigo-450 shadow-2xl relative overflow-hidden">
             <!-- Decorative Elements -->
             <div class="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
                 <i class="fa-solid fa-robot text-9xl"></i>
@@ -179,18 +179,18 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                 <div class="flex items-center justify-between mb-8">
                     <div>
                         <h3 class="text-2xl font-black uppercase tracking-tight italic">Carian Pintar AI</h3>
-                        <p class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mt-2">Tanya apa sahaja tentang dokumen dalam arkib anda.</p>
+                        <p class="text-xs font-black text-indigo-200 uppercase tracking-widest mt-2">Tanya apa sahaja tentang dokumen dalam arkib anda.</p>
                     </div>
-                    <button onclick="toggleAISearch()" class="text-indigo-300 hover:text-white transition-colors">
+                    <button onclick="toggleAISearch()" class="text-indigo-200 hover:text-white transition-colors">
                         <i class="fa-solid fa-xmark text-2xl"></i>
                     </button>
                 </div>
 
                 <div class="flex gap-4 mb-8">
                     <input type="text" id="ai-query" placeholder="Cth: Berapakah bajet Festival Belia 2026?" 
-                           class="flex-1 bg-indigo-950/50 border-2 border-indigo-700 p-6 text-sm font-bold placeholder:text-indigo-400 outline-none focus:border-indigo-400 transition-all"
+                           class="flex-1 bg-indigo-950/70 border-2 border-indigo-600 p-6 text-base font-bold placeholder:text-indigo-300 outline-none focus:border-indigo-300 transition-all"
                            onkeypress="if(event.key === 'Enter') performAISearch()">
-                    <button onclick="performAISearch()" id="ai-search-btn" class="bg-indigo-500 hover:bg-indigo-400 px-10 text-xs font-black uppercase tracking-widest transition-all shadow-lg flex items-center">
+                    <button onclick="performAISearch()" id="ai-search-btn" class="bg-indigo-500 hover:bg-indigo-400 px-10 text-sm font-black uppercase tracking-widest transition-all shadow-lg flex items-center">
                         <i class="fa-solid fa-paper-plane mr-3"></i>
                         TANYA
                     </button>
@@ -198,24 +198,24 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
 
                 <!-- AI Response Area -->
                 <div id="ai-response-area" class="hidden space-y-8 animate-in fade-in duration-700">
-                    <div class="bg-white/10 backdrop-blur-md p-8 border border-white/10">
+                    <div class="bg-white/10 backdrop-blur-md p-8 border border-white/20">
                         <div class="flex items-center gap-3 mb-6">
-                            <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-[10px]">
+                            <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-xs">
                                 <i class="fa-solid fa-robot"></i>
                             </div>
-                            <span class="text-[10px] font-black uppercase tracking-widest">Jawapan AI</span>
+                            <span class="text-xs font-black uppercase tracking-widest">Jawapan AI</span>
                         </div>
-                        <div id="ai-answer" class="text-sm leading-relaxed font-medium text-indigo-50 prose prose-invert max-w-none">
+                        <div id="ai-answer" class="text-base leading-relaxed font-medium text-indigo-50 prose prose-invert max-w-none">
                             <!-- Answer will be injected here -->
                         </div>
-                        <div class="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
-                            <span id="ai-time" class="text-[8px] font-black text-indigo-400 uppercase tracking-widest">PROSES: 0ms</span>
-                            <span class="text-[8px] font-black text-indigo-400 uppercase tracking-widest">DIJANAKAN OLEH GEMINI FLASH</span>
+                        <div class="mt-6 pt-6 border-t border-white/10 flex items-center justify-between">
+                            <span id="ai-time" class="text-[10px] font-black text-indigo-300 uppercase tracking-widest">PROSES: 0ms</span>
+                            <span class="text-[10px] font-black text-indigo-300 uppercase tracking-widest">DIJANAKAN OLEH GEMINI FLASH</span>
                         </div>
                     </div>
 
                     <div>
-                        <h4 class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-4">Sumber Rujukan</h4>
+                        <h4 class="text-xs font-black text-indigo-200 uppercase tracking-widest mb-4">Sumber Rujukan</h4>
                         <div id="ai-sources" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <!-- Sources will be injected here -->
                         </div>
@@ -225,11 +225,11 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                 <!-- Loading State -->
                 <div id="ai-loading" class="hidden py-12 text-center">
                     <div class="inline-flex gap-2">
-                        <div class="w-3 h-3 bg-indigo-400 rounded-full animate-bounce"></div>
-                        <div class="w-3 h-3 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                        <div class="w-3 h-3 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                        <div class="w-3 h-3 bg-indigo-300 rounded-full animate-bounce"></div>
+                        <div class="w-3 h-3 bg-indigo-300 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div class="w-3 h-3 bg-indigo-300 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                     </div>
-                    <p class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mt-6 animate-pulse">AI sedang menganalisis dokumen anda...</p>
+                    <p class="text-xs font-black text-indigo-200 uppercase tracking-widest mt-6 animate-pulse">AI sedang menganalisis dokumen anda...</p>
                 </div>
             </div>
         </div>
@@ -237,8 +237,8 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
 
     <!-- Management Insights (Charts) -->
     <div id="management-view" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-top-4 duration-500">
-        <div class="lg:col-span-1 bg-white p-8 border border-slate-100 shadow-sm">
-            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center">
+        <div class="lg:col-span-1 bg-white p-8 border border-slate-350 shadow-sm">
+            <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-6 flex items-center">
                 <i class="fa-solid fa-file-invoice mr-2 text-kebana-blue"></i>
                 Pecahan Jenis Fail
             </h3>
@@ -246,8 +246,8 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                 <canvas id="typeChart"></canvas>
             </div>
         </div>
-        <div class="lg:col-span-2 bg-white p-8 border border-slate-100 shadow-sm">
-            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center">
+        <div class="lg:col-span-2 bg-white p-8 border border-slate-350 shadow-sm">
+            <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-6 flex items-center">
                 <i class="fa-solid fa-chart-line mr-2 text-kebana-blue"></i>
                 Trend Muat Naik (6 Bulan)
             </h3>
@@ -259,11 +259,11 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
 
     <!-- Filter & View Control Bar -->
     <div class="flex flex-col xl:flex-row gap-6">
-        <div class="flex-1 bg-white p-8 border border-slate-100 shadow-sm">
+        <div class="flex-1 bg-white p-8 border border-slate-300 shadow-sm">
             <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
                 <div>
-                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Tapis Tag</label>
-                    <select name="tag" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-[10px] font-bold uppercase transition-all rounded-none appearance-none">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Tapis Tag</label>
+                    <select name="tag" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
                         <option value="">Semua Tag</option>
                         <?php foreach ($all_tags as $tag): ?>
                         <option value="<?php echo htmlspecialchars($tag); ?>" <?php echo $filters['tag'] === $tag ? 'selected' : ''; ?>>
@@ -273,8 +273,8 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Jenis Fail</label>
-                    <select name="ext" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-[10px] font-bold uppercase transition-all rounded-none appearance-none">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Jenis Fail</label>
+                    <select name="ext" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
                         <option value="">Semua Format</option>
                         <option value="pdf" <?php echo $filters['ext'] === 'pdf' ? 'selected' : ''; ?>>PDF Document</option>
                         <option value="docx" <?php echo $filters['ext'] === 'docx' ? 'selected' : ''; ?>>Word Document</option>
@@ -283,8 +283,8 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Susun Ikut</label>
-                    <select name="sort" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-[10px] font-bold uppercase transition-all rounded-none appearance-none">
+                    <label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Susun Ikut</label>
+                    <select name="sort" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
                         <option value="newest" <?php echo $filters['sort'] === 'newest' ? 'selected' : ''; ?>>Terbaru</option>
                         <option value="popular" <?php echo $filters['sort'] === 'popular' ? 'selected' : ''; ?>>Paling Popular</option>
                         <option value="size" <?php echo $filters['sort'] === 'size' ? 'selected' : ''; ?>>Saiz Terbesar</option>
@@ -294,20 +294,20 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                 <div class="flex gap-2">
                     <div class="flex-1">
                         <input type="text" name="search" value="<?php echo htmlspecialchars($filters['search']); ?>" placeholder="Cari fail..."
-                               class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-[10px] font-bold uppercase transition-all">
+                               class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
                     </div>
-                    <button type="submit" class="bg-kebana-dark text-white px-6 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
+                    <button type="submit" class="bg-kebana-dark text-white px-6 py-4 text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-md">
                         CARI
                     </button>
                 </div>
             </form>
         </div>
         
-        <div class="bg-white p-8 border border-slate-100 shadow-sm flex items-center justify-center gap-4">
+        <div class="bg-white p-8 border border-slate-300 shadow-sm flex items-center justify-center gap-4">
             <button onclick="setViewMode('grid')" id="btn-grid" class="w-12 h-12 flex items-center justify-center border-2 border-kebana-blue bg-kebana-blue text-white transition-all">
                 <i class="fa-solid fa-grip"></i>
             </button>
-            <button onclick="setViewMode('list')" id="btn-list" class="w-12 h-12 flex items-center justify-center border-2 border-slate-100 text-slate-300 hover:border-kebana-blue hover:text-kebana-blue transition-all">
+            <button onclick="setViewMode('list')" id="btn-list" class="w-12 h-12 flex items-center justify-center border-2 border-slate-300 text-slate-500 hover:border-kebana-blue hover:text-kebana-blue transition-all">
                 <i class="fa-solid fa-list-ul"></i>
             </button>
         </div>
@@ -317,32 +317,32 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
     <!-- Documents Display -->
     <div id="grid-view" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         <?php if (empty($docs)): ?>
-            <div class="col-span-full py-20 text-center bg-white border border-slate-100">
-                <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Tiada fail dijumpai dalam arkib.</p>
+            <div class="col-span-full py-20 text-center bg-white border border-slate-300">
+                <p class="text-sm font-black text-slate-500 uppercase tracking-[0.2em]">Tiada fail dijumpai dalam arkib.</p>
             </div>
         <?php else: ?>
             <?php foreach ($docs as $d): 
                 $ext = strtolower(pathinfo($d['file_path'], PATHINFO_EXTENSION));
                 $icon = 'fa-file-lines';
-                $icon_color = 'text-slate-400';
-                if ($ext === 'pdf') { $icon = 'fa-file-pdf'; $icon_color = 'text-red-500'; }
-                elseif (in_array($ext, ['jpg', 'jpeg', 'png'])) { $icon = 'fa-file-image'; $icon_color = 'text-blue-500'; }
+                $icon_color = 'text-slate-500';
+                if ($ext === 'pdf') { $icon = 'fa-file-pdf'; $icon_color = 'text-red-600'; }
+                elseif (in_array($ext, ['jpg', 'jpeg', 'png'])) { $icon = 'fa-file-image'; $icon_color = 'text-blue-600'; }
                 elseif ($ext === 'docx') { $icon = 'fa-file-word'; $icon_color = 'text-kebana-blue'; }
                 elseif ($ext === 'xlsx') { $icon = 'fa-file-excel'; $icon_color = 'text-green-600'; }
                 
                 $size_str = isset($d['doc_size']) ? DocumentsHelper::formatBytes($d['doc_size']) : 'N/A';
                 $dl_link = "?track_id=" . $d['doc_id'] . "&file=" . urlencode($d['file_path']);
             ?>
-            <div class="bg-white border border-slate-100 hover:border-kebana-blue transition-all group relative overflow-hidden flex flex-col h-full shadow-sm">
+            <div class="bg-white border border-slate-300 hover:border-kebana-blue transition-all group relative overflow-hidden flex flex-col h-full shadow-sm">
                 <!-- Status Strip -->
                 <div class="h-1 <?php echo $d['status'] === 'Approved' ? 'bg-green-500' : ($d['status'] === 'Rejected' ? 'bg-red-500' : 'bg-kebana-yellow'); ?>"></div>
                 
                 <div class="p-6 flex-1">
                     <div class="flex items-start justify-between mb-4">
-                        <i class="fa-solid <?php echo $icon; ?> <?php echo $icon_color; ?> text-4xl opacity-50 group-hover:opacity-100 transition-opacity"></i>
+                        <i class="fa-solid <?php echo $icon; ?> <?php echo $icon_color; ?> text-4xl opacity-75 group-hover:opacity-100 transition-opacity"></i>
                         <div class="text-right">
-                            <span class="block text-[8px] font-black uppercase tracking-widest text-slate-300"><?php echo strtoupper($ext); ?></span>
-                            <span class="block text-[8px] font-bold text-slate-400 mt-1"><?php echo $size_str; ?></span>
+                            <span class="block text-xs font-black uppercase tracking-widest text-slate-500"><?php echo strtoupper($ext); ?></span>
+                            <span class="block text-[11px] font-bold text-slate-650 mt-1"><?php echo $size_str; ?></span>
                         </div>
                     </div>
                     
@@ -350,37 +350,37 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                         <?php echo htmlspecialchars($d['doc_name']); ?>
                     </h3>
                     
-                    <div class="flex flex-wrap gap-1 mb-4">
+                    <div class="flex flex-wrap gap-1.5 mb-4">
                         <?php 
                         $tags = explode(',', $d['doc_tags'] ?? '');
                         foreach ($tags as $tag): 
                             $trimmed = trim($tag);
                             if ($trimmed):
                         ?>
-                            <span class="px-2 py-0.5 bg-slate-50 text-[8px] font-bold text-slate-400 border border-slate-100 uppercase"><?php echo htmlspecialchars($trimmed); ?></span>
+                            <span class="px-2.5 py-1 bg-slate-50 text-[10px] font-bold text-slate-600 border border-slate-300 uppercase"><?php echo htmlspecialchars($trimmed); ?></span>
                         <?php endif; endforeach; ?>
                     </div>
 
-                    <div class="mt-auto pt-4 border-t border-slate-50 space-y-2">
+                    <div class="mt-auto pt-4 border-t border-slate-200 space-y-2">
                         <div class="flex justify-between items-center">
-                            <p class="text-[8px] font-black text-slate-300 uppercase tracking-tighter">
+                            <p class="text-xs font-black text-slate-500 uppercase tracking-tighter">
                                 <i class="fa-solid fa-download mr-1"></i> <?php echo number_format($d['download_count']); ?>
                             </p>
-                            <p class="text-[8px] font-black text-slate-300 uppercase tracking-tighter">
+                            <p class="text-xs font-black text-slate-500 uppercase tracking-tighter">
                                 <?php echo date('d M Y', strtotime($d['uploaded_at'])); ?>
                             </p>
                         </div>
-                        <p class="text-[8px] font-black text-slate-300 uppercase tracking-tighter">
-                            OLEH: <span class="text-slate-500"><?php echo htmlspecialchars($d['uploader_name'] ?? 'SISTEM'); ?></span>
+                        <p class="text-xs font-black text-slate-500 uppercase tracking-tighter">
+                            OLEH: <span class="text-slate-650 font-bold"><?php echo htmlspecialchars($d['uploader_name'] ?? 'SISTEM'); ?></span>
                         </p>
                     </div>
                 </div>
 
-                <div class="flex border-t border-slate-50">
-                    <a href="<?php echo $dl_link; ?>" target="_blank" class="flex-1 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-kebana-blue hover:text-white transition-all border-r border-slate-50">
+                <div class="flex border-t border-slate-300">
+                    <a href="<?php echo $dl_link; ?>" target="_blank" class="flex-1 py-4 text-center text-xs font-black text-slate-600 uppercase tracking-widest hover:bg-kebana-blue hover:text-white transition-all border-r border-slate-300">
                         <i class="fa-solid fa-eye mr-2"></i> LIHAT
                     </a>
-                    <a href="<?php echo $dl_link; ?>" download class="flex-1 py-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-kebana-yellow hover:text-kebana-blue transition-all">
+                    <a href="<?php echo $dl_link; ?>" download class="flex-1 py-4 text-center text-xs font-black text-slate-600 uppercase tracking-widest hover:bg-kebana-yellow hover:text-kebana-blue transition-all">
                         <i class="fa-solid fa-download mr-2"></i> UNDUH
                     </a>
                 </div>
@@ -390,81 +390,83 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
     </div>
 
     <!-- List View (Table) -->
-    <div id="list-view" class="hidden bg-white border border-slate-100 shadow-sm overflow-hidden">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="border-b border-slate-100 bg-slate-50/50">
-                    <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Fail</th>
-                    <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Tag</th>
-                    <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Info</th>
-                    <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Populariti</th>
-                    <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Tindakan</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-50">
-                <?php if (empty($docs)): ?>
-                    <tr><td colspan="5" class="py-20 text-center text-[10px] font-black text-slate-300 uppercase">Tiada fail dijumpai.</td></tr>
-                <?php else: ?>
-                    <?php foreach ($docs as $d): 
-                        $ext = strtolower(pathinfo($d['file_path'], PATHINFO_EXTENSION));
-                        $icon = 'fa-file-lines';
-                        if ($ext === 'pdf') $icon = 'fa-file-pdf';
-                        elseif (in_array($ext, ['jpg', 'jpeg', 'png'])) $icon = 'fa-file-image';
-                        elseif ($ext === 'docx') $icon = 'fa-file-word';
-                        elseif ($ext === 'xlsx') $icon = 'fa-file-excel';
-                        $dl_link = "?track_id=" . $d['doc_id'] . "&file=" . urlencode($d['file_path']);
-                    ?>
-                    <tr class="hover:bg-slate-50 transition-colors group">
-                        <td class="px-8 py-6">
-                            <div class="flex items-center gap-4">
-                                <i class="fa-solid <?php echo $icon; ?> text-xl text-slate-200 group-hover:text-kebana-blue transition-colors"></i>
-                                <div>
-                                    <p class="text-xs font-black text-kebana-blue uppercase truncate max-w-[300px]" title="<?php echo htmlspecialchars($d['doc_name']); ?>">
-                                        <?php echo htmlspecialchars($d['doc_name']); ?>
-                                    </p>
-                                    <p class="text-[8px] font-bold text-slate-300 uppercase mt-1"><?php echo strtoupper($ext); ?> • <?php echo DocumentsHelper::formatBytes($d['doc_size']); ?></p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-8 py-6">
-                            <div class="flex flex-wrap gap-1">
-                                <?php 
-                                $tags = explode(',', $d['doc_tags'] ?? '');
-                                foreach ($tags as $tag): 
-                                    $trimmed = trim($tag);
-                                    if ($trimmed):
-                                ?>
-                                    <span class="px-2 py-0.5 bg-slate-50 text-[7px] font-bold text-slate-400 border border-slate-100 uppercase"><?php echo htmlspecialchars($trimmed); ?></span>
-                                <?php endif; endforeach; ?>
-                            </div>
-                        </td>
-                        <td class="px-8 py-6">
-                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-tighter"><?php echo date('d M Y', strtotime($d['uploaded_at'])); ?></p>
-                            <p class="text-[7px] font-bold text-slate-300 uppercase mt-0.5">Oleh: <?php echo htmlspecialchars($d['uploader_name'] ?? 'Sistem'); ?></p>
-                        </td>
-                        <td class="px-8 py-6">
-                            <div class="flex items-center gap-2">
-                                <div class="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
-                                    <?php $pct = min(100, ($d['download_count'] / 50) * 100); ?>
-                                    <div class="h-full bg-kebana-yellow transition-all" style="width: <?php echo $pct; ?>%"></div>
-                                </div>
-                                <span class="text-[9px] font-black text-slate-400"><?php echo number_format($d['download_count']); ?></span>
-                            </div>
-                        </td>
-                        <td class="px-8 py-6 text-right space-x-3">
-                            <a href="<?php echo $dl_link; ?>" target="_blank" class="text-[9px] font-black text-slate-400 uppercase hover:text-kebana-blue transition-colors">Lihat</a>
-                            <a href="<?php echo $dl_link; ?>" download class="text-[9px] font-black text-slate-400 uppercase hover:text-kebana-yellow transition-colors">Unduh</a>
-                            <?php if (hasRole([888, 4])): ?>
-                            <a href="?delete_id=<?php echo $d['doc_id']; ?>" onclick="return confirm('Padam fail?')" class="text-red-200 hover:text-red-500 transition-colors">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </a>
-                            <?php endif; ?>
-                        </td>
+    <div id="list-view" class="hidden bg-white border border-slate-300 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b-2 border-slate-300 bg-slate-50">
+                        <th class="px-8 py-6 text-xs font-black text-kebana-blue uppercase tracking-widest">Fail</th>
+                        <th class="px-8 py-6 text-xs font-black text-kebana-blue uppercase tracking-widest">Tag</th>
+                        <th class="px-8 py-6 text-xs font-black text-kebana-blue uppercase tracking-widest">Info</th>
+                        <th class="px-8 py-6 text-xs font-black text-kebana-blue uppercase tracking-widest">Populariti</th>
+                        <th class="px-8 py-6 text-xs font-black text-kebana-blue uppercase tracking-widest text-right">Tindakan</th>
                     </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-slate-300">
+                    <?php if (empty($docs)): ?>
+                        <tr><td colspan="5" class="py-20 text-center text-sm font-black text-slate-500 uppercase tracking-wider">Tiada fail dijumpai.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($docs as $d): 
+                            $ext = strtolower(pathinfo($d['file_path'], PATHINFO_EXTENSION));
+                            $icon = 'fa-file-lines';
+                            if ($ext === 'pdf') $icon = 'fa-file-pdf';
+                            elseif (in_array($ext, ['jpg', 'jpeg', 'png'])) $icon = 'fa-file-image';
+                            elseif ($ext === 'docx') $icon = 'fa-file-word';
+                            elseif ($ext === 'xlsx') $icon = 'fa-file-excel';
+                            $dl_link = "?track_id=" . $d['doc_id'] . "&file=" . urlencode($d['file_path']);
+                        ?>
+                        <tr class="hover:bg-slate-50 transition-colors group">
+                            <td class="px-8 py-6">
+                                <div class="flex items-center gap-4">
+                                    <i class="fa-solid <?php echo $icon; ?> text-2xl text-slate-400 group-hover:text-kebana-blue transition-colors"></i>
+                                    <div>
+                                        <p class="text-sm font-black text-kebana-blue uppercase truncate max-w-[300px]" title="<?php echo htmlspecialchars($d['doc_name']); ?>">
+                                            <?php echo htmlspecialchars($d['doc_name']); ?>
+                                        </p>
+                                        <p class="text-xs font-bold text-slate-500 uppercase mt-1"><?php echo strtoupper($ext); ?> • <?php echo DocumentsHelper::formatBytes($d['doc_size']); ?></p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-8 py-6">
+                                <div class="flex flex-wrap gap-1.5">
+                                    <?php 
+                                    $tags = explode(',', $d['doc_tags'] ?? '');
+                                    foreach ($tags as $tag): 
+                                        $trimmed = trim($tag);
+                                        if ($trimmed):
+                                    ?>
+                                        <span class="px-2.5 py-1 bg-slate-50 text-[10px] font-bold text-slate-600 border border-slate-300 uppercase"><?php echo htmlspecialchars($trimmed); ?></span>
+                                    <?php endif; endforeach; ?>
+                                </div>
+                            </td>
+                            <td class="px-8 py-6">
+                                <p class="text-xs font-black text-slate-655 uppercase tracking-tighter"><?php echo date('d M Y', strtotime($d['uploaded_at'])); ?></p>
+                                <p class="text-[11px] font-bold text-slate-500 uppercase mt-0.5">Oleh: <?php echo htmlspecialchars($d['uploader_name'] ?? 'Sistem'); ?></p>
+                            </td>
+                            <td class="px-8 py-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-300">
+                                        <?php $pct = min(100, ($d['download_count'] / 50) * 100); ?>
+                                        <div class="h-full bg-kebana-yellow transition-all" style="width: <?php echo $pct; ?>%"></div>
+                                    </div>
+                                    <span class="text-xs font-black text-slate-655"><?php echo number_format($d['download_count']); ?></span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-6 text-right space-x-3">
+                                <a href="<?php echo $dl_link; ?>" target="_blank" class="text-xs font-black text-slate-600 uppercase hover:text-kebana-blue transition-colors">Lihat</a>
+                                <a href="<?php echo $dl_link; ?>" download class="text-xs font-black text-slate-600 uppercase hover:text-kebana-yellow transition-colors">Unduh</a>
+                                <?php if (hasRole([888, 4])): ?>
+                                <a href="?delete_id=<?php echo $d['doc_id']; ?>" onclick="return confirm('Padam fail?')" class="text-red-600 hover:text-red-800 transition-colors">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Pagination -->
@@ -476,7 +478,7 @@ $page_title = 'ARKIB FAIL & DOKUMEN';
                 $url = "?page=$i" . ($filters['tag'] ? "&tag=" . urlencode($filters['tag']) : "") . ($filters['search'] ? "&search=" . urlencode($filters['search']) : "");
             ?>
             <a href="<?php echo $url; ?>" 
-               class="w-10 h-10 flex items-center justify-center text-[10px] font-black border <?php echo $active ? 'bg-kebana-blue text-white border-kebana-blue shadow-lg' : 'bg-white text-slate-400 border-slate-100 hover:border-kebana-blue hover:text-kebana-blue'; ?> transition-all">
+               class="w-10 h-10 flex items-center justify-center text-xs font-black border <?php echo $active ? 'bg-kebana-blue text-white border-kebana-blue shadow-lg' : 'bg-white text-slate-500 border-slate-300 hover:border-kebana-blue hover:text-kebana-blue'; ?> transition-all">
                 <?php echo $i; ?>
             </a>
             <?php endfor; ?>
@@ -646,18 +648,18 @@ async function performAISearch() {
                 const fullUrl = `<?= URL_ROOT ?>/${source.file_path}${searchParam}`;
 
                 const card = document.createElement('div');
-                card.className = "bg-white/5 border border-white/10 p-4 hover:bg-white/10 transition-all cursor-pointer group";
+                card.className = "bg-white/10 border border-white/20 p-5 hover:bg-white/15 transition-all cursor-pointer group shadow-md";
                 card.onclick = () => openContextModal(source.doc_name, source.chunk_text, fullUrl);
                 
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-[7px] font-black text-indigo-400 uppercase tracking-widest">Relevansi: ${score}%</span>
-                        <i class="fa-solid fa-file-${ext === 'pdf' ? 'pdf' : 'lines'} text-xs text-indigo-300"></i>
+                        <span class="text-[10px] font-black text-indigo-300 uppercase tracking-widest">Relevansi: ${score}%</span>
+                        <i class="fa-solid fa-file-${ext === 'pdf' ? 'pdf' : 'lines'} text-sm text-indigo-200"></i>
                     </div>
-                    <p class="text-[9px] font-black text-white uppercase truncate mb-2">${source.doc_name}</p>
-                    <p class="text-[8px] text-indigo-200 line-clamp-2 opacity-50 group-hover:opacity-100 transition-opacity italic">"${source.chunk_text.substring(0, 80)}..."</p>
+                    <p class="text-xs font-black text-white uppercase truncate mb-2">${source.doc_name}</p>
+                    <p class="text-[11px] text-indigo-150 line-clamp-2 opacity-75 group-hover:opacity-100 transition-opacity italic">"${source.chunk_text.substring(0, 80)}..."</p>
                     <div class="mt-3 flex gap-2">
-                        <span class="text-[7px] font-black text-indigo-400 uppercase group-hover:text-white transition-colors">Lihat Konteks <i class="fa-solid fa-arrow-right ml-1"></i></span>
+                        <span class="text-[10px] font-black text-indigo-300 uppercase group-hover:text-white transition-colors">Lihat Konteks <i class="fa-solid fa-arrow-right ml-1"></i></span>
                     </div>
                 `;
                 sourcesContainer.appendChild(card);
