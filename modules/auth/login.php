@@ -105,11 +105,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
                 </div>
 
                 <div class="mt-10 border-t border-slate-200 pt-8">
-                    <p class="text-xs font-black uppercase tracking-[0.3em] text-slate-500">Tiada akaun sistem?</p>
-                    <a href="<?php echo URL_ROOT; ?>/sign_up" class="mt-5 inline-flex rounded-full border border-kebana-blue px-6 py-3 text-xs font-black uppercase tracking-[0.3em] text-kebana-blue transition hover:bg-kebana-blue hover:text-white">
-                        Daftar Akaun
-                    </a>
-                    <p class="mt-8 text-xs font-black uppercase tracking-[0.3em] text-slate-400">
+                    <p class="text-xs font-black uppercase tracking-[0.3em] text-slate-400">
                         &copy; <?php echo date('Y'); ?> KEBANA DIGITAL | Versi 1.1.0
                     </p>
                 </div>
