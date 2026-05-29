@@ -136,8 +136,8 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                         <?php echo strtoupper(substr($username, 0, 1)); ?>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-[10px] font-black text-white truncate uppercase tracking-tighter"><?php echo htmlspecialchars($username); ?></p>
-                        <p class="text-[8px] text-slate-500 truncate font-black uppercase tracking-[0.2em]"><?php echo htmlspecialchars((string)$role_name); ?></p>
+                        <p class="text-sm font-black text-white truncate uppercase tracking-tight"><?php echo htmlspecialchars($username); ?></p>
+                        <p class="text-xs text-slate-400 truncate font-black uppercase tracking-widest"><?php echo htmlspecialchars((string)$role_name); ?></p>
                     </div>
                 </div>
             </div>
@@ -145,12 +145,12 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
             <nav class="flex-1 overflow-y-auto py-8 px-4 space-y-1 relative z-10">
                 <!-- Dashboard Link -->
                 <?php $is_dash = ($page_title == 'PAPARAN UTAMA'); ?>
-                <a href="<?php echo $base_path; ?>dashboard" class="group flex items-center px-4 py-3.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all <?php echo $is_dash ? 'bg-kebana-blue text-white shadow-xl shadow-kebana-blue/20' : 'text-slate-400 hover:text-white hover:bg-white/5'; ?>">
-                    <i class="fa-solid fa-layer-group w-8 text-lg <?php echo $is_dash ? 'text-kebana-yellow' : 'text-slate-600 group-hover:text-kebana-yellow'; ?>"></i>
+                <a href="<?php echo $base_path; ?>dashboard" class="group flex items-center px-4 py-3.5 text-sm font-black uppercase tracking-widest transition-all <?php echo $is_dash ? 'bg-kebana-blue text-white shadow-xl shadow-kebana-blue/20' : 'text-slate-500 hover:text-white hover:bg-white/5'; ?>">
+                    <i class="fa-solid fa-layer-group w-8 text-lg <?php echo $is_dash ? 'text-kebana-yellow' : 'text-slate-500 group-hover:text-kebana-yellow'; ?>"></i>
                     <span>Dashboard</span>
                 </a>
 
-                <div class="pt-10 pb-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.4em] px-4">Modul Utama</div>
+                <div class="pt-10 pb-4 text-sm font-black text-slate-500 uppercase tracking-widest px-4">Modul Utama</div>
                 
                 <?php 
                 $unreadChatCount = \App\Helpers\ChatHelper::getTotalUnreadCount($current_user_id);
@@ -170,18 +170,18 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     if (!$item['visible']) continue;
                     $isActive = (stripos($_SERVER['REQUEST_URI'], $item['link']) !== false);
                 ?>
-                <a href="<?php echo $base_path . $item['link']; ?>" class="group flex items-center px-4 py-3.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all <?php echo $isActive ? 'bg-kebana-blue text-white shadow-xl shadow-kebana-blue/10' : 'text-slate-400 hover:text-white hover:bg-white/5'; ?>">
-                    <i class="fa-solid <?php echo $item['icon']; ?> w-8 text-lg <?php echo $isActive ? 'text-kebana-yellow' : 'text-slate-600 group-hover:text-kebana-yellow'; ?>"></i>
+                <a href="<?php echo $base_path . $item['link']; ?>" class="group flex items-center px-4 py-3.5 text-sm font-black uppercase tracking-widest transition-all <?php echo $isActive ? 'bg-kebana-blue text-white shadow-xl shadow-kebana-blue/10' : 'text-slate-500 hover:text-white hover:bg-white/5'; ?>">
+                    <i class="fa-solid <?php echo $item['icon']; ?> w-8 text-lg <?php echo $isActive ? 'text-kebana-yellow' : 'text-slate-500 group-hover:text-kebana-yellow'; ?>"></i>
                     <span class="flex-1"><?php echo $item['label']; ?></span>
                     <?php if (isset($item['badge']) && $item['badge'] > 0): ?>
-                        <span class="bg-red-500 text-white text-[8px] px-2 py-0.5 rounded-full font-black animate-pulse"><?php echo $item['badge']; ?></span>
+                        <span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-black animate-pulse"><?php echo $item['badge']; ?></span>
                     <?php endif; ?>
                 </a>
                 <?php endforeach; ?>
 
-                <div class="pt-10 pb-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.4em] px-4">Sistem</div>
+                <div class="pt-10 pb-4 text-sm font-black text-slate-500 uppercase tracking-widest px-4">Sistem</div>
                 
-                <a href="<?php echo $base_path; ?>logout" class="group flex items-center px-4 py-3.5 text-[10px] font-black uppercase tracking-[0.2em] text-red-400/60 hover:text-red-400 hover:bg-red-500/5 transition-all">
+                <a href="<?php echo $base_path; ?>logout" class="group flex items-center px-4 py-3.5 text-sm font-black uppercase tracking-widest text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-all">
                     <i class="fa-solid fa-power-off w-8 text-lg text-red-500/20 group-hover:text-red-500"></i>
                     <span>Log Keluar</span>
                 </a>
@@ -210,10 +210,10 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     <a href="<?= URL_ROOT ?>/chat" class="relative p-2 text-slate-400 hover:text-kebana-blue transition-colors focus:outline-none">
                         <i class="fa-regular fa-comments text-xl"></i>
                         <?php if (isset($unreadChatCount) && $unreadChatCount > 0): ?>
-                            <span class="absolute top-1.5 right-1.5 h-4 w-4 bg-red-500 ring-2 ring-white rounded-full text-[10px] text-white flex items-center justify-center font-bold animate-bounce"><?php echo $unreadChatCount; ?></span>
+                            <span class="absolute top-1.5 right-1.5 h-4 w-4 bg-red-500 ring-2 ring-white rounded-full text-xs text-white flex items-center justify-center font-bold animate-bounce"><?php echo $unreadChatCount; ?></span>
                         <?php endif; ?>
                     </a>
-                    <div class="hidden sm:flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest space-x-2">
+                    <div class="hidden sm:flex items-center text-sm font-black text-slate-500 uppercase tracking-widest space-x-2">
                         <i class="fa-solid fa-clock text-kebana-blue/30"></i>
                         <span id="realtime-clock"><?php echo date('d F Y • h:i A'); ?></span>
                     </div>
@@ -221,26 +221,26 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     <div class="relative inline-block text-left" id="notificationDropdown">
                         <button id="notificationBtn" class="relative p-2 text-slate-400 hover:text-kebana-blue transition-colors focus:outline-none">
                             <i class="fa-regular fa-bell text-xl"></i>
-                            <span id="notificationBadge" class="absolute top-1.5 right-1.5 hidden h-4 w-4 bg-red-500 ring-2 ring-white rounded-full text-[10px] text-white flex items-center justify-center font-bold">0</span>
+                            <span id="notificationBadge" class="absolute top-1.5 right-1.5 hidden h-4 w-4 bg-red-500 ring-2 ring-white rounded-full text-xs text-white flex items-center justify-center font-bold">0</span>
                         </button>
                         
                         <div id="notificationMenu" class="absolute right-0 mt-3 w-80 origin-top-right bg-white shadow-2xl ring-1 ring-slate-200 focus:outline-none hidden z-50 rounded-none border-t-4 border-kebana-blue">
                             <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                                 <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">Notifications</h3>
                                 <div class="flex items-center space-x-3">
-                                    <button onclick="markAllRead()" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase transition-colors">Mark all read</button>
-                                    <span class="text-slate-200">|</span>
-                                    <button onclick="clearAllNotifications()" class="text-[10px] font-black text-red-400 hover:text-red-600 uppercase transition-colors">Clear All</button>
+                                    <button onclick="markAllRead()" class="text-xs font-black text-slate-500 hover:text-kebana-blue uppercase transition-colors">Mark all read</button>
+                                    <span class="text-slate-300">|</span>
+                                    <button onclick="clearAllNotifications()" class="text-xs font-black text-red-500 hover:text-red-600 uppercase transition-colors">Clear All</button>
                                 </div>
                             </div>
                             <div id="notificationList" class="max-h-96 overflow-y-auto">
                                 <div class="p-8 text-center text-slate-300">
                                     <i class="fa-regular fa-bell-slash text-2xl mb-2 block"></i>
-                                    <p class="text-[10px] font-bold uppercase">Checking for updates...</p>
+                                    <p class="text-sm font-bold uppercase text-slate-500">Checking for updates...</p>
                                 </div>
                             </div>
                             <div class="p-3 border-t border-slate-100 text-center">
-                                <a href="<?= URL_ROOT ?>/notifications" class="text-[10px] font-black text-kebana-blue uppercase tracking-tighter hover:underline">Papar Semua Notifikasi</a>
+                                <a href="<?= URL_ROOT ?>/notifications" class="text-sm font-black text-kebana-blue uppercase tracking-tight hover:underline">Papar Semua Notifikasi</a>
                             </div>
                         </div>
                     </div>
@@ -254,6 +254,6 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-8 border-b-2 border-slate-50">
                         <div>
                             <h1 class="text-4xl font-black text-kebana-blue tracking-tighter uppercase italic"><?php echo htmlspecialchars($page_title ?? ''); ?></h1>
-                            <p class="text-sm text-slate-400 mt-2 font-bold uppercase tracking-tight">Kebana Digital Management System</p>
+                            <p class="text-base text-slate-500 mt-2 font-bold uppercase tracking-tight">Kebana Digital Management System</p>
                         </div>
                     </div>

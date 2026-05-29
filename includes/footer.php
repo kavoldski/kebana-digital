@@ -134,18 +134,18 @@
                     notificationList.innerHTML = notifications.map(notif => `
                         <div class="p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer ${notif.status === 'unread' ? 'bg-blue-50/30' : ''}" onclick="markRead(${notif.notification_id}, '${notif.action_url}')">
                             <div class="flex justify-between items-start mb-1">
-                                <span class="text-[10px] font-black text-kebana-blue uppercase tracking-widest">${notif.type.replace('_', ' ')}</span>
-                                <span class="text-[9px] text-slate-400 font-bold uppercase">${formatTime(notif.created_at)}</span>
+                                <span class="text-xs font-black text-kebana-blue uppercase tracking-widest">${notif.type.replace('_', ' ')}</span>
+                                <span class="text-xs text-slate-500 font-bold uppercase">${formatTime(notif.created_at)}</span>
                             </div>
-                            <h4 class="text-xs font-black text-slate-800 leading-tight">${notif.title}</h4>
-                            <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">${notif.message}</p>
+                            <h4 class="text-sm font-black text-slate-800 leading-tight">${notif.title}</h4>
+                            <p class="text-sm text-slate-600 mt-1 line-clamp-2">${notif.message}</p>
                         </div>
                     `).join('');
                 } else {
                     notificationList.innerHTML = `
                         <div class="p-8 text-center text-slate-300">
                             <i class="fa-regular fa-bell-slash text-2xl mb-2 block"></i>
-                            <p class="text-[10px] font-bold uppercase">No new notifications</p>
+                            <p class="text-sm font-bold uppercase text-slate-500">No new notifications</p>
                         </div>
                     `;
                 }
@@ -207,7 +207,7 @@
                             notificationList.innerHTML = `
                                 <div class="p-8 text-center text-slate-300">
                                     <i class="fa-regular fa-bell-slash text-2xl mb-2 block"></i>
-                                    <p class="text-[10px] font-bold uppercase">Tiada Notifikasi Baru</p>
+                                    <p class="text-sm font-bold uppercase text-slate-500">Tiada Notifikasi Baru</p>
                                 </div>
                             `;
                         }
