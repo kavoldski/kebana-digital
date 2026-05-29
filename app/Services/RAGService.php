@@ -275,7 +275,11 @@ Jawapan:";
             $answer = $decoded['candidates'][0]['content']['parts'][0]['text'] ?? "Tiada jawapan diterima.";
         } else {
             error_log("Google Gemini API Synthesis Error: HTTP $httpCode, Response: $response");
-            $answer = "Ralat menjana jawapan daripada Google Gemini API (HTTP $httpCode).";
+            if ($httpCode === 429 || $httpCode === 423) {
+                $answer = "Maaf, sistem sedang mengalami trafik yang tinggi (Had API dicapai). Sila cuba lagi sebentar lagi.";
+            } else {
+                $answer = "Maaf, perkhidmatan AI tergendala buat sementara waktu (HTTP $httpCode). Sila cuba lagi.";
+            }
         }
 
         return [

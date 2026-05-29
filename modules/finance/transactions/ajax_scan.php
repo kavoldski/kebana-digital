@@ -6,7 +6,7 @@ ob_start();
 require_once __DIR__ . '/../../../bootstrap.php';
 
 use App\Helpers\FinanceHelper;
-use App\Services\OllamaService;
+use App\Services\AIService;
 
 header('Content-Type: application/json');
 
@@ -26,15 +26,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['receipt'])) {
     $receipt_path = FinanceHelper::handleReceiptUpload($_FILES['receipt']);
     
     if ($receipt_path) {
-        $extracted = OllamaService::extractReceiptData($receipt_path);
-        
-        if ($extracted) {
-            $data = json_decode($extracted, true);
+        try {
+            $extracted = AIService::extractReceiptData($receipt_path);
+            
+            if ($extracted) {
+                $data = json_decode($extracted, true);
+                ob_clean();
+                echo json_encode([
+                    'success' => true,
+                    'data' => $data,
+                    'path' => $receipt_path
+                ]);
+                exit;
+            }
+        } catch (Exception $e) {
             ob_clean();
             echo json_encode([
-                'success' => true,
-                'data' => $data,
-                'path' => $receipt_path
+                'success' => false,
+                'message' => $e->getMessage()
             ]);
             exit;
         }
@@ -42,4 +51,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['receipt'])) {
 }
 
 ob_clean();
-echo json_encode(['success' => false, 'message' => 'Scan failed or no data extracted']);
+echo json_encode(['success' => false, 'message' => 'Imbasan gagal atau tiada data yang dapat diekstrak.']);

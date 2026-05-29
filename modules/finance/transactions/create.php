@@ -257,7 +257,7 @@ document.getElementById('receipt-input').addEventListener('change', function(e) 
             statusIcon.classList.replace('fa-spinner', 'fa-check');
             statusIcon.classList.remove('fa-spin');
         } else {
-            statusText.innerText = "Imbasan AI Gagal. Sila Isi Secara Manual.";
+            statusText.innerText = result.message ? result.message : "Imbasan AI Gagal. Sila Isi Secara Manual.";
             statusText.classList.replace('text-kebana-accent', 'text-red-500');
             statusIcon.classList.replace('fa-spinner', 'fa-triangle-exclamation');
             statusIcon.classList.remove('fa-spin');
