@@ -23,7 +23,9 @@
   <!-- Google Fonts Preconnect & Links -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap"
+    rel="stylesheet">
 
   <!-- FontAwesome for Premium Icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -260,7 +262,8 @@
   </style>
 </head>
 
-<body class="relative min-h-screen text-sand font-body bg-obsidian overflow-x-hidden selection:bg-terracotta selection:text-sand">
+<body
+  class="relative min-h-screen text-sand font-body bg-obsidian overflow-x-hidden selection:bg-terracotta selection:text-sand">
 
   <!-- Tactile Grain Overlay -->
   <div class="grain-overlay"></div>
@@ -269,9 +272,10 @@
   <div id="scroll-progress"></div>
 
   <!-- Navigation -->
-  <nav id="mainNavbar" class="fixed top-0 left-0 right-0 z-50 py-6 transition-all duration-500 ease-out border-b border-transparent">
+  <nav id="mainNavbar"
+    class="fixed top-0 left-0 right-0 z-50 py-6 transition-all duration-500 ease-out border-b border-transparent">
     <div class="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-      
+
       <!-- Brand Logo -->
       <a class="flex items-center gap-3 text-2xl font-display group" href="index.html" id="navLogo">
         <i class="fa-solid fa-crown text-straw group-hover:scale-110 transition-transform duration-300"></i>
@@ -293,9 +297,8 @@
         </ul>
 
         <!-- KEBANA portal button - Opens in same tab as requested by user -->
-        <a class="flex items-center gap-2 px-5 py-2.5 font-accent text-xs uppercase tracking-widest text-straw border border-straw/30 bg-straw/5 rounded-full hover:bg-straw/20 hover:border-straw hover:shadow-[0_0_15px_rgba(212,168,83,0.15)] transition-all duration-300" 
-           href="../" 
-           id="kebanaPortalLink">
+        <a class="flex items-center gap-2 px-5 py-2.5 font-accent text-xs uppercase tracking-widest text-straw border border-straw/30 bg-straw/5 rounded-full hover:bg-straw/20 hover:border-straw hover:shadow-[0_0_15px_rgba(212,168,83,0.15)] transition-all duration-300"
+          href="../" id="kebanaPortalLink">
           <i class="fa-solid fa-globe text-[10px]"></i>
           <span>KEBANA.digital</span>
         </a>
@@ -305,17 +308,18 @@
 
   <!-- Header / Asymmetric Split-Screen Hero -->
   <header class="relative min-h-screen flex flex-col lg:flex-row items-stretch" id="home">
-    
+
     <!-- Left Hero Image Panel (60%) -->
     <div class="relative w-full lg:w-3/5 min-h-[50vh] lg:min-h-screen overflow-hidden group">
-      <img src="./assets/images/saung-seling-background-2.jpg" 
-        alt="Sa'ung Seling Cultural Background" 
+      <img src="./assets/images/saung-seling-background-2.jpg" alt="Sa'ung Seling Cultural Background"
         class="absolute inset-0 w-full h-full object-cover object-center scale-100 group-hover:scale-102 transition-transform duration-[6s] cubic-bezier(0.16, 1, 0.3, 1)"
         onerror="this.src='https://images.unsplash.com/photo-1599733589046-9b8308b5b50d?auto=format&fit=crop&q=80&w=1800'">
-      
+
       <!-- Premium radial overlay gradient mimicking spot exhibition lighting -->
-      <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/20 to-obsidian/45 lg:bg-gradient-to-r lg:from-transparent lg:via-obsidian/30 lg:to-obsidian"></div>
-      
+      <div
+        class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/20 to-obsidian/45 lg:bg-gradient-to-r lg:from-transparent lg:via-obsidian/30 lg:to-obsidian">
+      </div>
+
       <!-- Ambient exhibition caption overlay -->
       <div class="absolute bottom-8 left-8 md:bottom-12 md:left-12 flex flex-col gap-1 z-10 animate-fade-in">
         <span class="font-accent text-xs uppercase tracking-widest text-straw-light/80">Photographed Exhibit</span>
@@ -324,17 +328,19 @@
     </div>
 
     <!-- Right Hero Content Panel (40%) -->
-    <div class="w-full lg:w-2/5 bg-obsidian flex flex-col justify-center px-8 md:px-16 py-20 lg:py-24 relative z-10 border-l border-earth-light/20">
-      
+    <div
+      class="w-full lg:w-2/5 bg-obsidian flex flex-col justify-center px-8 md:px-16 py-20 lg:py-24 relative z-10 border-l border-earth-light/20">
+
       <!-- Backlit premium light effect in background -->
       <div class="absolute right-0 top-1/4 w-72 h-72 rounded-full ambient-glow pointer-events-none opacity-50"></div>
-      
+
       <div class="max-w-xl animate-fade-slide-up flex flex-col gap-6">
-        
+
         <!-- Cultural Exhibition Badge -->
         <div class="inline-flex items-center gap-2">
           <span class="h-px w-8 bg-straw"></span>
-          <span class="font-accent text-xs uppercase tracking-widest text-straw font-semibold">Kenyah Badeng Cultural Exhibition</span>
+          <span class="font-accent text-xs uppercase tracking-widest text-straw font-semibold">Kenyah Badeng Cultural
+            Exhibition</span>
         </div>
 
         <!-- Hero Primary Title -->
@@ -351,18 +357,23 @@
 
         <!-- Description -->
         <p class="text-sand-muted leading-relaxed text-sm md:text-base text-justify">
-          Discover the remarkable journey, struggles, and triumphant return of a sacred historical artifact back to the hearts and hands of the Kenyah Badeng community in Sarawak.
+          Discover the remarkable journey, struggles, and triumphant return of a sacred historical artifact back to the
+          hearts and hands of the Kenyah Badeng community in Sarawak.
         </p>
 
         <!-- Exquisite CTA Buttons -->
         <div class="flex flex-col sm:flex-row gap-4 mt-4">
-          <a href="#about" class="group flex items-center justify-center gap-3 px-8 py-4 font-accent text-xs uppercase tracking-widest text-obsidian bg-straw font-semibold hover:bg-straw-light transition-all duration-300 rounded-sm">
-            <span>Explore History</span> 
-            <i class="fa-solid fa-arrow-down text-[10px] group-hover:translate-y-1 transition-transform duration-300"></i>
+          <a href="#about"
+            class="group flex items-center justify-center gap-3 px-8 py-4 font-accent text-xs uppercase tracking-widest text-obsidian bg-straw font-semibold hover:bg-straw-light transition-all duration-300 rounded-sm">
+            <span>Explore History</span>
+            <i
+              class="fa-solid fa-arrow-down text-[10px] group-hover:translate-y-1 transition-transform duration-300"></i>
           </a>
-          <a href="#documentary" class="group flex items-center justify-center gap-3 px-8 py-4 font-accent text-xs uppercase tracking-widest text-sand hover:text-straw-light border border-sand/20 hover:border-straw-light bg-sand/5 hover:bg-straw/5 transition-all duration-300 rounded-sm">
-            <span>Watch Documentary</span> 
-            <i class="fa-solid fa-circle-play text-[10px] text-terracotta group-hover:scale-110 transition-transform duration-300"></i>
+          <a href="#documentary"
+            class="group flex items-center justify-center gap-3 px-8 py-4 font-accent text-xs uppercase tracking-widest text-sand hover:text-straw-light border border-sand/20 hover:border-straw-light bg-sand/5 hover:bg-straw/5 transition-all duration-300 rounded-sm">
+            <span>Watch Documentary</span>
+            <i
+              class="fa-solid fa-circle-play text-[10px] text-terracotta group-hover:scale-110 transition-transform duration-300"></i>
           </a>
         </div>
       </div>
@@ -371,36 +382,41 @@
   </header>
 
   <main>
-    
+
     <!-- Bento Grid Heritage Preview Section -->
     <section id="about" class="relative py-24 md:py-32 px-6 md:px-12 bg-surface/50 overflow-hidden">
-      
+
       <!-- Backlit glow background element -->
-      <div class="absolute left-1/3 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full ambient-glow pointer-events-none opacity-40"></div>
-      
+      <div
+        class="absolute left-1/3 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full ambient-glow pointer-events-none opacity-40">
+      </div>
+
       <div class="max-w-7xl mx-auto">
-        
+
         <!-- Section Header -->
         <div class="text-center max-w-2xl mx-auto mb-16 md:mb-24 reveal-on-scroll">
-          <span class="font-accent text-xs uppercase tracking-widest text-straw font-semibold mb-3 block">Our Heritage Restored</span>
+          <span class="font-accent text-xs uppercase tracking-widest text-straw font-semibold mb-3 block">Our Heritage
+            Restored</span>
           <h2 class="text-4xl md:text-5xl font-display text-sand mb-6">History of the Looted Sunhat</h2>
           <div class="w-12 h-0.5 bg-terracotta mx-auto"></div>
         </div>
 
         <!-- Bento Grid Layout -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-stretch">
-          
+
           <!-- Large Card (Spans 2 rows on desktop) - Main Exhibit Image -->
-          <div class="md:col-span-1 md:row-span-2 group hover-zoom-container glass-panel-elevated rounded-sm overflow-hidden flex flex-col reveal-on-scroll">
+          <div
+            class="md:col-span-1 md:row-span-2 group hover-zoom-container glass-panel-elevated rounded-sm overflow-hidden flex flex-col reveal-on-scroll">
             <div class="relative h-[320px] md:h-[480px] overflow-hidden">
-              <img src="https://ichef.bbci.co.uk/news/1024/cpsprodpb/2e30/live/9d814550-985d-11ef-9260-19e6a950e830.png.webp"
-                alt="Sa'ung Seling Artifact" 
-                class="hover-zoom-img w-full h-full object-cover object-center"
+              <img
+                src="https://ichef.bbci.co.uk/news/1024/cpsprodpb/2e30/live/9d814550-985d-11ef-9260-19e6a950e830.png.webp"
+                alt="Sa'ung Seling Artifact" class="hover-zoom-img w-full h-full object-cover object-center"
                 loading="lazy">
               <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/10 to-transparent"></div>
-              
+
               <!-- Curator Rarity Tag -->
-              <span class="absolute top-4 left-4 px-3 py-1 bg-terracotta/90 backdrop-blur-md text-[10px] font-accent uppercase tracking-widest text-sand rounded-full">
+              <span
+                class="absolute top-4 left-4 px-3 py-1 bg-terracotta/90 backdrop-blur-md text-[10px] font-accent uppercase tracking-widest text-sand rounded-full">
                 Artifact Exhibit
               </span>
             </div>
@@ -409,25 +425,34 @@
                 <h3 class="font-display text-2xl text-straw mb-2">The Sa'ung Seling</h3>
                 <p class="text-xs font-accent text-ash uppercase tracking-wider mb-4">Returned Museum Accession</p>
                 <p class="text-sand-muted text-sm leading-relaxed text-justify">
-                  A masterpiece of woven utility and protective symbolism, holding the memory of Kenyah Badeng ancestors.
+                  A masterpiece of woven utility and protective symbolism, holding the memory of Kenyah Badeng
+                  ancestors.
                 </p>
               </div>
             </div>
           </div>
 
           <!-- Medium Card (Spans 2 columns on desktop) - Main Descriptive History -->
-          <div class="md:col-span-2 glass-panel-elevated p-8 md:p-12 rounded-sm flex flex-col justify-between relative overflow-hidden reveal-on-scroll">
-            
+          <div
+            class="md:col-span-2 glass-panel-elevated p-8 md:p-12 rounded-sm flex flex-col justify-between relative overflow-hidden reveal-on-scroll">
+
             <!-- Highlight element inside card -->
             <div class="absolute -right-16 -top-16 w-32 h-32 bg-straw/5 rounded-full blur-2xl"></div>
 
             <div class="max-w-2xl">
-              <span class="font-accent text-[10px] uppercase tracking-widest text-terracotta-light font-bold block mb-4">Historical Narrative</span>
+              <span
+                class="font-accent text-[10px] uppercase tracking-widest text-terracotta-light font-bold block mb-4">Historical
+                Narrative</span>
               <p class="font-display text-2xl md:text-3xl text-sand leading-relaxed mb-6 text-justify">
-                "Originally obtained during a punitive government expedition to Usun Apau in 1895/1896, the Kenyah Badeng sunhat—along with other precious cultural artifacts—was looted and donated to the Sarawak Museum in 1903."
+                "Originally obtained during a punitive government expedition to Usun Apau in 1895/1896, the Kenyah
+                Badeng sunhat—along with other precious cultural artifacts—was looted and donated to the Sarawak Museum
+                in 1903."
               </p>
               <p class="text-sand-muted text-sm md:text-base leading-relaxed text-justify">
-                The Second Rajah Charles Brooke took the sunhat to Gloucestershire in 1905. It was later acquired by the Pitt Rivers Museum in 1923, where it rested until it was rediscovered in 2017. Following rigorous research and international collaboration, this emblem of our cultural identity finally made its historic return.
+                The Second Rajah Charles Brooke took the sunhat to Gloucestershire in 1905. It was later acquired by the
+                Pitt Rivers Museum in 1923, where it rested until it was rediscovered in 2017. Following rigorous
+                research and international collaboration, this emblem of our cultural identity finally made its historic
+                return.
               </p>
             </div>
           </div>
@@ -440,7 +465,8 @@
             <div>
               <span class="text-xs font-accent text-ash uppercase tracking-wider block mb-1">Time Looted</span>
               <h4 class="font-display text-4xl text-sand font-bold mb-2">1895</h4>
-              <p class="text-xs text-sand-muted leading-relaxed">Taken from Usun Apau during the government punitive expedition.</p>
+              <p class="text-xs text-sand-muted leading-relaxed">Taken from Usun Apau during the government punitive
+                expedition.</p>
             </div>
           </div>
 
@@ -452,19 +478,24 @@
             <div>
               <span class="text-xs font-accent text-ash uppercase tracking-wider block mb-1">Preservation</span>
               <h4 class="font-display text-3xl text-sand font-bold mb-2">Oxford</h4>
-              <p class="text-xs text-sand-muted leading-relaxed">Acquired by the Pitt Rivers Museum in 1923, cataloged for 100+ years.</p>
+              <p class="text-xs text-sand-muted leading-relaxed">Acquired by the Pitt Rivers Museum in 1923, cataloged
+                for 100+ years.</p>
             </div>
           </div>
 
           <!-- Wide Card (Spans 2 columns on desktop) - Navigation Link -->
-          <div class="md:col-span-2 bg-gradient-to-r from-earth/50 to-surface-elevated/70 border border-straw/15 p-8 rounded-sm flex flex-col sm:flex-row justify-between items-center gap-6 group hover:border-straw/40 transition-all duration-500 reveal-on-scroll">
+          <div
+            class="md:col-span-2 bg-gradient-to-r from-earth/50 to-surface-elevated/70 border border-straw/15 p-8 rounded-sm flex flex-col sm:flex-row justify-between items-center gap-6 group hover:border-straw/40 transition-all duration-500 reveal-on-scroll">
             <div class="text-center sm:text-start">
               <h4 class="font-display text-2xl text-straw mb-1">Explore the Repatriation Chronicles</h4>
-              <p class="text-xs text-sand-muted">Discover the detailed timeline, academics, and collaborative return archives.</p>
+              <p class="text-xs text-sand-muted">Discover the detailed timeline, academics, and collaborative return
+                archives.</p>
             </div>
-            <a href="history.html" class="flex items-center gap-3 px-6 py-3 font-accent text-xs uppercase tracking-widest text-obsidian bg-straw font-semibold group-hover:bg-straw-light transition-all duration-300 rounded-sm shrink-0">
+            <a href="history.html"
+              class="flex items-center gap-3 px-6 py-3 font-accent text-xs uppercase tracking-widest text-obsidian bg-straw font-semibold group-hover:bg-straw-light transition-all duration-300 rounded-sm shrink-0">
               <span>Read Full Story</span>
-              <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform duration-300"></i>
+              <i
+                class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform duration-300"></i>
             </a>
           </div>
 
@@ -474,27 +505,34 @@
     </section>
 
     <!-- Documentary Section (Cinematic Screen Theme) -->
-    <section id="documentary" class="relative py-24 md:py-32 px-6 md:px-12 bg-obsidian overflow-hidden border-t border-earth-light/20">
-      
+    <section id="documentary"
+      class="relative py-24 md:py-32 px-6 md:px-12 bg-obsidian overflow-hidden border-t border-earth-light/20">
+
       <!-- Spot lighting element behind video -->
-      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-earth-light/15 via-transparent to-transparent opacity-60"></div>
-      
+      <div
+        class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-earth-light/15 via-transparent to-transparent opacity-60">
+      </div>
+
       <div class="max-w-5xl mx-auto relative z-10">
-        
+
         <!-- Section Header -->
         <div class="text-center max-w-2xl mx-auto mb-16 reveal-on-scroll">
-          <span class="font-accent text-xs uppercase tracking-widest text-terracotta font-semibold mb-3 block">Cinematic Journey</span>
+          <span class="font-accent text-xs uppercase tracking-widest text-terracotta font-semibold mb-3 block">Cinematic
+            Journey</span>
           <h2 class="text-4xl md:text-5xl font-display text-sand mb-4">The Return of Sa'ung Seling</h2>
           <p class="text-sand-muted text-sm md:text-base mt-3 leading-relaxed">
-            Watch the touching documentary of the symbolic return of the Badeng Sunhat, tracing the steps from Oxford to the homeland of the Kenyah Badeng community in Sarawak.
+            Watch the touching documentary of the symbolic return of the Badeng Sunhat, tracing the steps from Oxford to
+            the homeland of the Kenyah Badeng community in Sarawak.
           </p>
         </div>
 
         <!-- Video Exhibition frame -->
-        <div class="reveal-on-scroll shadow-[0_30px_100px_rgba(0,0,0,0.9)] rounded-sm overflow-hidden border border-straw/10 bg-surface">
-          
+        <div
+          class="reveal-on-scroll shadow-[0_30px_100px_rgba(0,0,0,0.9)] rounded-sm overflow-hidden border border-straw/10 bg-surface">
+
           <!-- Visual header mimicking premium screen projection border -->
-          <div class="px-6 py-4 bg-surface-elevated border-b border-straw/5 flex items-center justify-between text-xs font-accent text-ash uppercase tracking-wider">
+          <div
+            class="px-6 py-4 bg-surface-elevated border-b border-straw/5 flex items-center justify-between text-xs font-accent text-ash uppercase tracking-wider">
             <div class="flex items-center gap-2">
               <span class="w-2.5 h-2.5 rounded-full bg-terracotta animate-pulse-slow"></span>
               <span>Online Screening Room</span>
@@ -508,8 +546,7 @@
               src="https://www.youtube.com/embed/NErIOtl2a3Y?si=QAGA78zpi1l30pxR"
               title="Sa'ung Seling Return Documentary"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerpolicy="strict-origin-when-cross-origin" 
-              allowfullscreen>
+              referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
             </iframe>
           </div>
         </div>
@@ -518,9 +555,11 @@
         <div class="mt-16 text-center max-w-3xl mx-auto reveal-on-scroll">
           <i class="fa-solid fa-quote-left text-straw/20 text-5xl mb-4 block"></i>
           <p class="font-display text-xl md:text-2xl text-sand-muted italic leading-relaxed">
-            "The repatriated sunhat resides as living evidence of our history, reminding our future generations of the incredible craft, identity, and perseverance of our ancestors."
+            "The repatriated sunhat resides as living evidence of our history, reminding our future generations of the
+            incredible craft, identity, and perseverance of our ancestors."
           </p>
-          <span class="block mt-4 font-accent text-xs uppercase tracking-widest text-straw font-semibold">- KEBANA Cultural Archives</span>
+          <span class="block mt-4 font-accent text-xs uppercase tracking-widest text-straw font-semibold">- KEBANA
+            Cultural Archives</span>
         </div>
 
       </div>
@@ -533,13 +572,13 @@
 
   <!-- Exquisite Museum Footer -->
   <footer class="bg-surface/90 pt-20 pb-12 px-6 md:px-12 border-t border-earth-light/20 relative">
-    
+
     <!-- radial ambient accent -->
     <div class="absolute left-10 bottom-10 w-64 h-64 bg-straw/5 rounded-full blur-3xl pointer-events-none"></div>
 
     <div class="max-w-7xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 pb-16 border-b border-earth-light/20">
-        
+
         <!-- Column 1: Brand details (5 cols) -->
         <div class="md:col-span-5 flex flex-col gap-6">
           <a class="flex items-center gap-3 text-2xl font-display" href="#">
@@ -547,21 +586,20 @@
             <span class="tracking-wide">Sa'ung <span class="text-straw font-semibold font-display">Seling</span></span>
           </a>
           <p class="text-sand-muted text-sm leading-relaxed max-w-sm">
-            Celebrating, preserving, and honoring the rich cultural legacy and triumphant heritage repatriations of the Kenyah Badeng community of Sarawak.
+            Celebrating, preserving, and honoring the rich cultural legacy and triumphant heritage repatriations of the
+            Kenyah Badeng community of Sarawak.
           </p>
-          
+
           <!-- Social Icons -->
           <div class="flex items-center gap-3 mt-2">
-            <a href="https://www.facebook.com/" 
-               class="w-10 h-10 rounded-full flex items-center justify-center text-sm border border-sand/15 text-sand hover:border-straw hover:text-straw hover:bg-straw/5 transition-all duration-300"
-               target="_blank" 
-               aria-label="Facebook">
+            <a href="https://www.facebook.com/"
+              class="w-10 h-10 rounded-full flex items-center justify-center text-sm border border-sand/15 text-sand hover:border-straw hover:text-straw hover:bg-straw/5 transition-all duration-300"
+              target="_blank" aria-label="Facebook">
               <i class="fa-brands fa-facebook-f"></i>
             </a>
-            <a href="https://youtube.com/@kebanamedia?si=41SCCaZ07FU0tfjo" 
-               class="w-10 h-10 rounded-full flex items-center justify-center text-sm border border-sand/15 text-sand hover:border-straw hover:text-straw hover:bg-straw/5 transition-all duration-300"
-               target="_blank" 
-               aria-label="YouTube">
+            <a href="https://youtube.com/@kebanamedia?si=41SCCaZ07FU0tfjo"
+              class="w-10 h-10 rounded-full flex items-center justify-center text-sm border border-sand/15 text-sand hover:border-straw hover:text-straw hover:bg-straw/5 transition-all duration-300"
+              target="_blank" aria-label="YouTube">
               <i class="fa-brands fa-youtube"></i>
             </a>
           </div>
@@ -598,11 +636,13 @@
           <ul class="flex flex-col gap-4 text-sm text-sand-muted">
             <li class="flex items-start gap-3">
               <i class="fa-solid fa-envelope text-terracotta mt-1"></i>
-              <span>Email: <a href="mailto:kebana.media@gmail.com" class="hover:text-straw transition-colors duration-300">kebana.media@gmail.com</a></span>
+              <span>Email: <a href="mailto:kebana.media@gmail.com"
+                  class="hover:text-straw transition-colors duration-300">kebana.media@gmail.com</a></span>
             </li>
             <li class="flex items-start gap-3">
               <i class="fa-solid fa-phone text-terracotta mt-1"></i>
-              <span>Phone: <a href="tel:+60183743375" class="hover:text-straw transition-colors duration-300">(+60) 18 - 374 3375</a></span>
+              <span>Phone: <a href="tel:+60183743375" class="hover:text-straw transition-colors duration-300">(+60) 18 -
+                  374 3375</a></span>
             </li>
             <li class="flex items-start gap-3">
               <i class="fa-solid fa-location-dot text-terracotta mt-1"></i>

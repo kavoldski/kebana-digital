@@ -23,7 +23,9 @@
   <!-- Google Fonts Preconnect & Links -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap"
+    rel="stylesheet">
 
   <!-- FontAwesome for Premium Icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -260,7 +262,8 @@
   </style>
 </head>
 
-<body class="relative min-h-screen text-sand font-body bg-obsidian overflow-x-hidden selection:bg-terracotta selection:text-sand">
+<body
+  class="relative min-h-screen text-sand font-body bg-obsidian overflow-x-hidden selection:bg-terracotta selection:text-sand">
 
   <!-- Tactile Grain Overlay -->
   <div class="grain-overlay"></div>
@@ -269,9 +272,10 @@
   <div id="scroll-progress"></div>
 
   <!-- Navigation -->
-  <nav id="mainNavbar" class="fixed top-0 left-0 right-0 z-50 py-6 transition-all duration-500 ease-out border-b border-transparent navbar-scrolled">
+  <nav id="mainNavbar"
+    class="fixed top-0 left-0 right-0 z-50 py-6 transition-all duration-500 ease-out border-b border-transparent navbar-scrolled">
     <div class="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-      
+
       <!-- Brand Logo -->
       <a class="flex items-center gap-3 text-2xl font-display group" href="index.html">
         <i class="fa-solid fa-crown text-straw group-hover:scale-110 transition-transform duration-300"></i>
@@ -288,14 +292,14 @@
             <a class="hover:text-straw transition-colors duration-300" href="history.html">History</a>
           </li>
           <li>
-            <a class="hover:text-straw text-straw transition-colors duration-300 font-medium" href="gallery.html">Exhibition Gallery</a>
+            <a class="hover:text-straw text-straw transition-colors duration-300 font-medium"
+              href="gallery.html">Exhibition Gallery</a>
           </li>
         </ul>
 
         <!-- KEBANA portal button - Opens in same tab as requested by user -->
-        <a class="flex items-center gap-2 px-5 py-2.5 font-accent text-xs uppercase tracking-widest text-straw border border-straw/30 bg-straw/5 rounded-full hover:bg-straw/20 hover:border-straw hover:shadow-[0_0_15px_rgba(212,168,83,0.15)] transition-all duration-300" 
-           href="../" 
-           id="kebanaPortalLink">
+        <a class="flex items-center gap-2 px-5 py-2.5 font-accent text-xs uppercase tracking-widest text-straw border border-straw/30 bg-straw/5 rounded-full hover:bg-straw/20 hover:border-straw hover:shadow-[0_0_15px_rgba(212,168,83,0.15)] transition-all duration-300"
+          href="../" id="kebanaPortalLink">
           <i class="fa-solid fa-globe text-[10px]"></i>
           <span>KEBANA.digital</span>
         </a>
@@ -305,11 +309,10 @@
 
   <!-- Page Header (Short Hero - 40vh) -->
   <header class="relative min-h-[40vh] flex items-center justify-center pt-24 pb-12 overflow-hidden">
-    <img src="./assets/images/saung-seling-background-4.jpg" 
-         alt="Visual Homecoming Archive" 
-         class="absolute inset-0 w-full h-full object-cover object-center"
-         onerror="this.src='https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&q=80&w=1800'">
-    
+    <img src="./assets/images/saung-seling-background-4.jpg" alt="Visual Homecoming Archive"
+      class="absolute inset-0 w-full h-full object-cover object-center"
+      onerror="this.src='https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&q=80&w=1800'">
+
     <!-- Heavy cinematic linear overlay -->
     <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/75 to-obsidian/45"></div>
 
@@ -321,30 +324,35 @@
         <span class="text-sand-muted">Exhibition Gallery</span>
       </nav>
 
-      <span class="font-accent text-xs uppercase tracking-widest text-straw-light/80 block mb-2 font-medium">Immersive Visual Repository</span>
+      <span class="font-accent text-xs uppercase tracking-widest text-straw-light/80 block mb-2 font-medium">Immersive
+        Visual Repository</span>
       <h1 class="text-4xl md:text-5xl font-display text-sand leading-tight">
         The Homecoming <br>
         <span class="text-straw font-display">Visual Exhibition</span>
       </h1>
       <p class="text-sand-muted text-sm mt-3 leading-relaxed max-w-xl mx-auto">
-        Explore high-resolution cultural captures, historical exchanges, and the physical beauty of the repatriated Kenyah Badeng Sunhat.
+        Explore high-resolution cultural captures, historical exchanges, and the physical beauty of the repatriated
+        Kenyah Badeng Sunhat.
       </p>
     </div>
   </header>
 
   <main class="py-24 px-6 md:px-12 bg-obsidian relative">
-    
+
     <!-- Ambiance backlighting -->
     <div class="absolute left-1/3 top-1/4 w-96 h-96 rounded-full ambient-glow pointer-events-none opacity-45"></div>
     <div class="absolute right-1/4 bottom-1/4 w-80 h-80 rounded-full ambient-glow pointer-events-none opacity-30"></div>
 
     <div class="max-w-7xl mx-auto">
-      
+
       <!-- Exhibition Filter & Info Label -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-earth-light/25 pb-6 mb-16 reveal-on-scroll">
+      <div
+        class="flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-earth-light/25 pb-6 mb-16 reveal-on-scroll">
         <div class="text-center sm:text-start">
-          <span class="font-accent text-xs uppercase tracking-widest text-straw font-semibold block mb-1">Decolonized Legacy</span>
-          <span class="text-sand-muted text-xs">Click on any artifact or snapshot to enter full-screen visual exhibition room.</span>
+          <span class="font-accent text-xs uppercase tracking-widest text-straw font-semibold block mb-1">Decolonized
+            Legacy</span>
+          <span class="text-sand-muted text-xs">Click on any artifact or snapshot to enter full-screen visual exhibition
+            room.</span>
         </div>
         <div class="flex items-center gap-2 text-xs font-accent uppercase tracking-widest text-ash">
           <i class="fa-solid fa-layer-group text-terracotta"></i>
@@ -354,146 +362,168 @@
 
       <!-- Exquisite Gallery Masonry/Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-        
+
         <!-- Exhibit 1: Rattan Woven Art -->
-        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll" 
-             onclick="openLightbox('./assets/images/saung-seling-background.jpg', 'Rattan Woven Art', 'A detailed macro focus on the intricate rattan patterns and traditional alignment woven into the Sa\'ung Seling background fibers.')">
+        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll"
+          onclick="openLightbox('./assets/images/saung-seling-background.jpg', 'Rattan Woven Art', 'A detailed macro focus on the intricate rattan patterns and traditional alignment woven into the Sa\'ung Seling background fibers.')">
           <div class="relative h-[240px] md:h-[280px] overflow-hidden rounded-sm bg-surface mb-4">
-            <img src="./assets/images/saung-seling-background.jpg" 
-                 alt="Rattan Woven Art" 
-                 class="hover-zoom-img w-full h-full object-cover object-center"
-                 loading="lazy">
-            <div class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <img src="./assets/images/saung-seling-background.jpg" alt="Rattan Woven Art"
+              class="hover-zoom-img w-full h-full object-cover object-center" loading="lazy">
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <i class="fa-solid fa-expand text-straw text-2xl animate-pulse-slow"></i>
             </div>
           </div>
-          <span class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Visual Study</span>
-          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Rattan Woven Base</h3>
-          <p class="text-xs text-sand-muted leading-relaxed">Detailed look at raw natural rattan fibers defining the structural boundary.</p>
+          <span class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Visual
+            Study</span>
+          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Rattan Woven Base
+          </h3>
+          <p class="text-xs text-sand-muted leading-relaxed">Detailed look at raw natural rattan fibers defining the
+            structural boundary.</p>
         </div>
 
         <!-- Exhibit 2: Repatriated Masterpiece -->
-        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll" 
-             onclick="openLightbox('https://ichef.bbci.co.uk/news/1024/cpsprodpb/2e30/live/9d814550-985d-11ef-9260-19e6a950e830.png.webp', 'The Returned Sa\'ung Seling Sunhat', 'The primary repatriated masterpiece returned by Oxford\'s Pitt Rivers Museum back to the Kenyah Badeng community, currently held in custody at the Sarawak Museum.')">
+        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll"
+          onclick="openLightbox('https://ichef.bbci.co.uk/news/1024/cpsprodpb/2e30/live/9d814550-985d-11ef-9260-19e6a950e830.png.webp', 'The Returned Sa\'ung Seling Sunhat', 'The primary repatriated masterpiece returned by Oxford\'s Pitt Rivers Museum back to the Kenyah Badeng community, currently held in custody at the Sarawak Museum.')">
           <div class="relative h-[240px] md:h-[280px] overflow-hidden rounded-sm bg-surface mb-4">
-            <img src="https://ichef.bbci.co.uk/news/1024/cpsprodpb/2e30/live/9d814550-985d-11ef-9260-19e6a950e830.png.webp" 
-                 alt="Returned Sa'ung Seling Sunhat" 
-                 class="hover-zoom-img w-full h-full object-cover object-center"
-                 loading="lazy">
-            <div class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <img
+              src="https://ichef.bbci.co.uk/news/1024/cpsprodpb/2e30/live/9d814550-985d-11ef-9260-19e6a950e830.png.webp"
+              alt="Returned Sa'ung Seling Sunhat" class="hover-zoom-img w-full h-full object-cover object-center"
+              loading="lazy">
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <i class="fa-solid fa-expand text-straw text-2xl animate-pulse-slow"></i>
             </div>
           </div>
-          <span class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Decolonized Masterpiece</span>
-          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Returned Sa'ung Seling</h3>
-          <p class="text-xs text-sand-muted leading-relaxed">The returned sacred crown with authentic dyes and protective geometric spirals.</p>
+          <span
+            class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Decolonized
+            Masterpiece</span>
+          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Returned Sa'ung
+            Seling</h3>
+          <p class="text-xs text-sand-muted leading-relaxed">The returned sacred crown with authentic dyes and
+            protective geometric spirals.</p>
         </div>
 
         <!-- Exhibit 3: Historical Community Highlands -->
-        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll" 
-             onclick="openLightbox('./assets/images/saung-seling-background-3.jpg', 'Historical Badeng Landscape', 'Visual depiction representing the rugged mountain boundaries and highland plateau of Usun Apau, the ancestral homeland of Kenyah Badeng.')">
+        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll"
+          onclick="openLightbox('./assets/images/saung-seling-background-3.jpg', 'Historical Badeng Landscape', 'Visual depiction representing the rugged mountain boundaries and highland plateau of Usun Apau, the ancestral homeland of Kenyah Badeng.')">
           <div class="relative h-[240px] md:h-[280px] overflow-hidden rounded-sm bg-surface mb-4">
-            <img src="./assets/images/saung-seling-background-3.jpg" 
-                 alt="Historical Badeng Landscape" 
-                 class="hover-zoom-img w-full h-full object-cover object-center"
-                 loading="lazy">
-            <div class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <img src="./assets/images/saung-seling-background-3.jpg" alt="Historical Badeng Landscape"
+              class="hover-zoom-img w-full h-full object-cover object-center" loading="lazy">
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <i class="fa-solid fa-expand text-straw text-2xl animate-pulse-slow"></i>
             </div>
           </div>
-          <span class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Ancestral Domain</span>
-          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Usun Apau Plateau</h3>
-          <p class="text-xs text-sand-muted leading-relaxed">The majestic ancestral highland environment from where the artifacts were looted in 1895.</p>
+          <span
+            class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Ancestral
+            Domain</span>
+          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Usun Apau Plateau
+          </h3>
+          <p class="text-xs text-sand-muted leading-relaxed">The majestic ancestral highland environment from where the
+            artifacts were looted in 1895.</p>
         </div>
 
         <!-- Exhibit 4: Presentation of the Badeng Sunhat -->
-        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll" 
-             onclick="openLightbox('./assets/images/historical-image-2.jpg', 'Valerie Mashman Presentation', 'Datin Dr. Valerie Mashman sharing the research details, historical document entries, and catalog codes with Sarawak Museum attendees.')">
+        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll"
+          onclick="openLightbox('./assets/images/historical-image-2.jpg', 'Valerie Mashman Presentation', 'Datin Dr. Valerie Mashman sharing the research details, historical document entries, and catalog codes with Sarawak Museum attendees.')">
           <div class="relative h-[240px] md:h-[280px] overflow-hidden rounded-sm bg-surface mb-4">
-            <img src="./assets/images/historical-image-2.jpg" 
-                 alt="Valerie Mashman Presentation" 
-                 class="hover-zoom-img w-full h-full object-cover object-center"
-                 loading="lazy"
-                 onerror="this.src='https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=800'">
-            <div class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <img src="./assets/images/historical-image-2.jpg" alt="Valerie Mashman Presentation"
+              class="hover-zoom-img w-full h-full object-cover object-center" loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&q=80&w=800'">
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <i class="fa-solid fa-expand text-straw text-2xl animate-pulse-slow"></i>
             </div>
           </div>
-          <span class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Homecoming Ceremony</span>
-          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Exhibition Presentation</h3>
-          <p class="text-xs text-sand-muted leading-relaxed">Sharing historical documents proving the sunhat's removal in 1895.</p>
+          <span
+            class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Homecoming
+            Ceremony</span>
+          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Exhibition
+            Presentation</h3>
+          <p class="text-xs text-sand-muted leading-relaxed">Sharing historical documents proving the sunhat's removal
+            in 1895.</p>
         </div>
 
         <!-- Exhibit 5: Decolonization Handover -->
-        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll" 
-             onclick="openLightbox('./assets/images/historical-image-1.jpg', 'Symbolic Handover Ceremony', 'Dr. Laura van Broekhoven hands over the sunhat custody back to KEBANA President Hilary Samah Tet in front of state observers.')">
+        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll"
+          onclick="openLightbox('./assets/images/historical-image-1.jpg', 'Symbolic Handover Ceremony', 'Dr. Laura van Broekhoven hands over the sunhat custody back to KEBANA President Hilary Samah Tet in front of state observers.')">
           <div class="relative h-[240px] md:h-[280px] overflow-hidden rounded-sm bg-surface mb-4">
-            <img src="./assets/images/historical-image-1.jpg" 
-                 alt="Symbolic Handover Ceremony" 
-                 class="hover-zoom-img w-full h-full object-cover object-center"
-                 loading="lazy"
-                 onerror="this.src='https://images.unsplash.com/photo-1455849318743-b2233052fcff?auto=format&fit=crop&q=80&w=800'">
-            <div class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <img src="./assets/images/historical-image-1.jpg" alt="Symbolic Handover Ceremony"
+              class="hover-zoom-img w-full h-full object-cover object-center" loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1455849318743-b2233052fcff?auto=format&fit=crop&q=80&w=800'">
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <i class="fa-solid fa-expand text-straw text-2xl animate-pulse-slow"></i>
             </div>
           </div>
-          <span class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Repatriation Action</span>
-          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Symbolic Exchange</h3>
-          <p class="text-xs text-sand-muted leading-relaxed">Laura van Broekhoven returns custody back to the Kenyah Badeng community.</p>
+          <span
+            class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Repatriation
+            Action</span>
+          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Symbolic Exchange
+          </h3>
+          <p class="text-xs text-sand-muted leading-relaxed">Laura van Broekhoven returns custody back to the Kenyah
+            Badeng community.</p>
         </div>
 
         <!-- Exhibit 6: Signing & Witnessing Ceremony -->
-        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll" 
-             onclick="openLightbox('./assets/images/historical-image-3.jpg', 'Signing and Witnessing', 'YB Datuk Sebastian Ting and Datu Sherrina observing KEBANA President Hilary Samah Tet as he officially signs the repatriation documents.')">
+        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll"
+          onclick="openLightbox('./assets/images/historical-image-3.jpg', 'Signing and Witnessing', 'YB Datuk Sebastian Ting and Datu Sherrina observing KEBANA President Hilary Samah Tet as he officially signs the repatriation documents.')">
           <div class="relative h-[240px] md:h-[280px] overflow-hidden rounded-sm bg-surface mb-4">
-            <img src="./assets/images/historical-image-3.jpg" 
-                 alt="Signing and Witnessing" 
-                 class="hover-zoom-img w-full h-full object-cover object-center"
-                 loading="lazy"
-                 onerror="this.src='https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=800'">
-            <div class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <img src="./assets/images/historical-image-3.jpg" alt="Signing and Witnessing"
+              class="hover-zoom-img w-full h-full object-cover object-center" loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=800'">
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <i class="fa-solid fa-expand text-straw text-2xl animate-pulse-slow"></i>
             </div>
           </div>
-          <span class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Official Records</span>
-          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Signing Homecoming</h3>
-          <p class="text-xs text-sand-muted leading-relaxed">State dignitaries and community representatives witnessing the return agreement.</p>
+          <span
+            class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Official
+            Records</span>
+          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Signing Homecoming
+          </h3>
+          <p class="text-xs text-sand-muted leading-relaxed">State dignitaries and community representatives witnessing
+            the return agreement.</p>
         </div>
 
         <!-- Exhibit 7: Cultural Collaboration Valerie & Hilary -->
-        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll" 
-             onclick="openLightbox('./assets/images/historical-image-4.jpg', 'Cultural Collaborations', 'Dr. Valerie Mashman and KEBANA President Hilary Samah Tet standing together in front of the homecoming banner.')">
+        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll"
+          onclick="openLightbox('./assets/images/historical-image-4.jpg', 'Cultural Collaborations', 'Dr. Valerie Mashman and KEBANA President Hilary Samah Tet standing together in front of the homecoming banner.')">
           <div class="relative h-[240px] md:h-[280px] overflow-hidden rounded-sm bg-surface mb-4">
-            <img src="./assets/images/historical-image-4.jpg" 
-                 alt="Cultural Collaborations" 
-                 class="hover-zoom-img w-full h-full object-cover object-center"
-                 loading="lazy"
-                 onerror="this.src='https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?auto=format&fit=crop&q=80&w=800'">
-            <div class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <img src="./assets/images/historical-image-4.jpg" alt="Cultural Collaborations"
+              class="hover-zoom-img w-full h-full object-cover object-center" loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?auto=format&fit=crop&q=80&w=800'">
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <i class="fa-solid fa-expand text-straw text-2xl animate-pulse-slow"></i>
             </div>
           </div>
-          <span class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Partnership</span>
-          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Shared Commitment</h3>
-          <p class="text-xs text-sand-muted leading-relaxed">Valerie Mashman and Hilary Samah Tet collaborating on indigenous protection narratives.</p>
+          <span
+            class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Partnership</span>
+          <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Shared Commitment
+          </h3>
+          <p class="text-xs text-sand-muted leading-relaxed">Valerie Mashman and Hilary Samah Tet collaborating on
+            indigenous protection narratives.</p>
         </div>
 
         <!-- Exhibit 8: Rattan Rims Detail -->
-        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll" 
-             onclick="openLightbox('./assets/images/saung-seling-background-4.jpg', 'Terracotta Rattan Rims', 'Detailed perspective showing the heavy terracotta colored rattan alignment bordering the circular rim of the sunhat, representing sunhat protective bounds.')">
+        <div class="group glass-panel-elevated p-4 rounded-sm hover-zoom-container cursor-pointer reveal-on-scroll"
+          onclick="openLightbox('./assets/images/saung-seling-background-4.jpg', 'Terracotta Rattan Rims', 'Detailed perspective showing the heavy terracotta colored rattan alignment bordering the circular rim of the sunhat, representing sunhat protective bounds.')">
           <div class="relative h-[240px] md:h-[280px] overflow-hidden rounded-sm bg-surface mb-4">
-            <img src="./assets/images/saung-seling-background-4.jpg" 
-                 alt="Terracotta Rattan Rims" 
-                 class="hover-zoom-img w-full h-full object-cover object-center"
-                 loading="lazy"
-                 onerror="this.src='https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&q=80&w=800'">
-            <div class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <img src="./assets/images/saung-seling-background-4.jpg" alt="Terracotta Rattan Rims"
+              class="hover-zoom-img w-full h-full object-cover object-center" loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&q=80&w=800'">
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-obsidian/75 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <i class="fa-solid fa-expand text-straw text-2xl animate-pulse-slow"></i>
             </div>
           </div>
-          <span class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Visual Study</span>
+          <span class="font-accent text-[9px] uppercase tracking-widest text-terracotta font-semibold block mb-1">Visual
+            Study</span>
           <h3 class="font-display text-lg text-sand group-hover:text-straw transition-colors mb-1">Terracotta Rims</h3>
-          <p class="text-xs text-sand-muted leading-relaxed">Detailed look at the terracotta-dyed rattan bounds framing the protective borders.</p>
+          <p class="text-xs text-sand-muted leading-relaxed">Detailed look at the terracotta-dyed rattan bounds framing
+            the protective borders.</p>
         </div>
 
       </div>
@@ -502,32 +532,33 @@
   </main>
 
   <!-- IMMERSIVE FULL-SCREEN LIGHTBOX MODAL -->
-  <div id="exhibitionLightbox" 
-       class="fixed inset-0 z-[100] bg-obsidian/95 backdrop-blur-2xl flex flex-col justify-center items-center p-6 md:p-12 opacity-0 pointer-events-none transition-opacity duration-500 ease-out">
-    
+  <div id="exhibitionLightbox"
+    class="fixed inset-0 z-[100] bg-obsidian/95 backdrop-blur-2xl flex flex-col justify-center items-center p-6 md:p-12 opacity-0 pointer-events-none transition-opacity duration-500 ease-out">
+
     <!-- Close Button -->
-    <button onclick="closeLightbox()" 
-            class="absolute top-6 right-6 md:top-8 md:right-8 w-12 h-12 rounded-full border border-sand/15 hover:border-straw hover:text-straw hover:bg-straw/5 flex items-center justify-center text-lg transition-all duration-300 cursor-pointer"
-            aria-label="Close Lightbox">
+    <button onclick="closeLightbox()"
+      class="absolute top-6 right-6 md:top-8 md:right-8 w-12 h-12 rounded-full border border-sand/15 hover:border-straw hover:text-straw hover:bg-straw/5 flex items-center justify-center text-lg transition-all duration-300 cursor-pointer"
+      aria-label="Close Lightbox">
       <i class="fa-solid fa-xmark"></i>
     </button>
 
     <!-- Lightbox Main Frame -->
     <div class="max-w-4xl w-full flex flex-col items-center gap-6 md:gap-8">
-      
+
       <!-- Image Wrapper -->
-      <div class="relative w-full max-h-[60vh] flex justify-center overflow-hidden border border-straw/10 bg-surface rounded-sm">
-        <img id="lightboxImage" 
-             src="" 
-             alt="Exhibition High-Res" 
-             class="max-w-full max-h-[60vh] object-contain object-center scale-95 transition-transform duration-500 ease-out">
+      <div
+        class="relative w-full max-h-[60vh] flex justify-center overflow-hidden border border-straw/10 bg-surface rounded-sm">
+        <img id="lightboxImage" src="" alt="Exhibition High-Res"
+          class="max-w-full max-h-[60vh] object-contain object-center scale-95 transition-transform duration-500 ease-out">
       </div>
 
       <!-- Metadata Frame -->
       <div class="text-center max-w-2xl">
-        <span class="font-accent text-xs uppercase tracking-widest text-straw font-semibold block mb-2">Exhibition Showcase</span>
+        <span class="font-accent text-xs uppercase tracking-widest text-straw font-semibold block mb-2">Exhibition
+          Showcase</span>
         <h2 id="lightboxTitle" class="font-display text-2xl md:text-3xl text-sand mb-3">Exhibit Title</h2>
-        <p id="lightboxDesc" class="text-sand-muted text-xs md:text-sm leading-relaxed">Detailed exhibit metadata description text.</p>
+        <p id="lightboxDesc" class="text-sand-muted text-xs md:text-sm leading-relaxed">Detailed exhibit metadata
+          description text.</p>
       </div>
 
     </div>
@@ -538,13 +569,13 @@
 
   <!-- Exquisite Museum Footer -->
   <footer class="bg-surface/90 pt-20 pb-12 px-6 md:px-12 border-t border-earth-light/20 relative">
-    
+
     <!-- radial ambient accent -->
     <div class="absolute left-10 bottom-10 w-64 h-64 bg-straw/5 rounded-full blur-3xl pointer-events-none"></div>
 
     <div class="max-w-7xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 pb-16 border-b border-earth-light/20">
-        
+
         <!-- Column 1: Brand details (5 cols) -->
         <div class="md:col-span-5 flex flex-col gap-6">
           <a class="flex items-center gap-3 text-2xl font-display" href="#">
@@ -552,21 +583,20 @@
             <span class="tracking-wide">Sa'ung <span class="text-straw font-semibold font-display">Seling</span></span>
           </a>
           <p class="text-sand-muted text-sm leading-relaxed max-w-sm">
-            Celebrating, preserving, and honoring the rich cultural legacy and triumphant heritage repatriations of the Kenyah Badeng community of Sarawak.
+            Celebrating, preserving, and honoring the rich cultural legacy and triumphant heritage repatriations of the
+            Kenyah Badeng community of Sarawak.
           </p>
-          
+
           <!-- Social Icons -->
           <div class="flex items-center gap-3 mt-2">
-            <a href="https://www.facebook.com/" 
-               class="w-10 h-10 rounded-full flex items-center justify-center text-sm border border-sand/15 text-sand hover:border-straw hover:text-straw hover:bg-straw/5 transition-all duration-300"
-               target="_blank" 
-               aria-label="Facebook">
+            <a href="https://www.facebook.com/"
+              class="w-10 h-10 rounded-full flex items-center justify-center text-sm border border-sand/15 text-sand hover:border-straw hover:text-straw hover:bg-straw/5 transition-all duration-300"
+              target="_blank" aria-label="Facebook">
               <i class="fa-brands fa-facebook-f"></i>
             </a>
-            <a href="https://youtube.com/@kebanamedia?si=41SCCaZ07FU0tfjo" 
-               class="w-10 h-10 rounded-full flex items-center justify-center text-sm border border-sand/15 text-sand hover:border-straw hover:text-straw hover:bg-straw/5 transition-all duration-300"
-               target="_blank" 
-               aria-label="YouTube">
+            <a href="https://youtube.com/@kebanamedia?si=41SCCaZ07FU0tfjo"
+              class="w-10 h-10 rounded-full flex items-center justify-center text-sm border border-sand/15 text-sand hover:border-straw hover:text-straw hover:bg-straw/5 transition-all duration-300"
+              target="_blank" aria-label="YouTube">
               <i class="fa-brands fa-youtube"></i>
             </a>
           </div>
@@ -603,11 +633,13 @@
           <ul class="flex flex-col gap-4 text-sm text-sand-muted">
             <li class="flex items-start gap-3">
               <i class="fa-solid fa-envelope text-terracotta mt-1"></i>
-              <span>Email: <a href="mailto:kebana.media@gmail.com" class="hover:text-straw transition-colors duration-300">kebana.media@gmail.com</a></span>
+              <span>Email: <a href="mailto:kebana.media@gmail.com"
+                  class="hover:text-straw transition-colors duration-300">kebana.media@gmail.com</a></span>
             </li>
             <li class="flex items-start gap-3">
               <i class="fa-solid fa-phone text-terracotta mt-1"></i>
-              <span>Phone: <a href="tel:+60183743375" class="hover:text-straw transition-colors duration-300">(+60) 18 - 374 3375</a></span>
+              <span>Phone: <a href="tel:+60183743375" class="hover:text-straw transition-colors duration-300">(+60) 18 -
+                  374 3375</a></span>
             </li>
             <li class="flex items-start gap-3">
               <i class="fa-solid fa-location-dot text-terracotta mt-1"></i>
@@ -642,10 +674,10 @@
       lightboxImage.src = imgSrc;
       lightboxTitle.textContent = titleText;
       lightboxDesc.textContent = descText;
-      
+
       lightbox.classList.remove('pointer-events-none');
       lightbox.classList.add('opacity-100');
-      
+
       // Animate scale in slightly after visibility triggers
       setTimeout(() => {
         lightboxImage.classList.remove('scale-95');
@@ -657,9 +689,9 @@
       if (!lightbox || !lightboxImage) return;
       lightboxImage.classList.remove('scale-100');
       lightboxImage.classList.add('scale-95');
-      
+
       lightbox.classList.remove('opacity-100');
-      
+
       // Wait for animation to finish before blocking interaction
       setTimeout(() => {
         lightbox.classList.add('pointer-events-none');
