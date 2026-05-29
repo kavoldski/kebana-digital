@@ -75,21 +75,21 @@ $page_title = 'PENGURUSAN KEWANGAN';
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Ringkasan Kewangan</h2>
             <p class="text-sm font-black text-slate-600 uppercase tracking-widest mt-2">Pemantauan Aliran Tunai dan Perbelanjaan Persatuan.</p>
         </div>
-        <div class="flex flex-wrap gap-3">
-            <a href="<?= URL_ROOT ?>/finance/transactions/list" class="bg-white text-kebana-blue border-2 border-kebana-blue px-7 py-4 text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
+        <div class="flex flex-wrap md:flex-nowrap gap-2 lg:gap-3">
+            <a href="<?= URL_ROOT ?>/finance/transactions/list" class="bg-white text-kebana-blue border-2 border-kebana-blue px-4 lg:px-6 py-4 text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center whitespace-nowrap shrink-0">
                 <i class="fa-solid fa-list-check mr-3"></i>
                 LIHAT SEMUA
             </a>
 
-            <a href="<?= URL_ROOT ?>/finance/budget" class="bg-white text-kebana-blue border-2 border-slate-300 px-7 py-4 text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/budget" class="bg-white text-kebana-blue border-2 border-slate-300 px-4 lg:px-6 py-4 text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center whitespace-nowrap shrink-0">
                 <i class="fa-solid fa-chart-bar mr-3"></i>
                 ANALISIS BAJET
             </a>
-            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-sm font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Income" class="bg-green-600 text-white px-4 lg:px-6 py-4 text-sm font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center whitespace-nowrap shrink-0">
                 <i class="fa-solid fa-arrow-trend-up mr-3 text-base"></i>
                 REKOD MASUK
             </a>
-            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-8 py-4 text-sm font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-4 lg:px-6 py-4 text-sm font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center whitespace-nowrap shrink-0">
                 <i class="fa-solid fa-arrow-trend-down mr-3 text-base"></i>
                 REKOD KELUAR
             </a>
