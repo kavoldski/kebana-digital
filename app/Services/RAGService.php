@@ -26,7 +26,7 @@ class RAGService {
 
         if (!$doc) return false;
 
-        $fullPath = APP_ROOT . '/' . $doc['file_path'];
+        $fullPath = get_absolute_upload_path($doc['file_path']);
         
         // 1. Extract Text
         $text = TextExtractorService::extractText($fullPath);
@@ -99,8 +99,8 @@ class RAGService {
             $chunkVector = unserialize($row['embedding']);
             $similarity = EmbeddingService::cosineSimilarity($queryVector, $chunkVector);
             
-            // Raise threshold to 0.50 to filter out noise
-            if ($similarity > 0.50) {
+            // Lower threshold to 0.40 to capture matches that might have slightly lower similarity but high keyword overlap
+            if ($similarity > 0.40) {
                 // Apply lexical keyword boost
                 $boost = 0.0;
                 if (!empty($keywords)) {
@@ -232,19 +232,40 @@ Jawapan:";
             ]
         ];
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifySsl);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifySsl ? 2 : 0);
+        $maxRetries = 4;
+        $retryDelay = 1;
+        $response = null;
+        $httpCode = 0;
+        $error = '';
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifySsl);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifySsl ? 2 : 0);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            if ($httpCode === 200) {
+                break;
+            }
+
+            if (($httpCode === 429 || $httpCode === 503) && $attempt < $maxRetries) {
+                error_log("Google Gemini API HTTP $httpCode on synthesis attempt $attempt. Retrying in {$retryDelay}s...");
+                sleep($retryDelay);
+                $retryDelay *= 2;
+                continue;
+            }
+
+            break;
+        }
 
         $answer = "Ralat semasa menjana jawapan.";
         if ($error) {

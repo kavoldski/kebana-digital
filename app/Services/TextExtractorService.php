@@ -31,6 +31,11 @@ class TextExtractorService {
                 return self::extractFromDocx($filePath);
             case 'txt':
                 return file_get_contents($filePath);
+            case 'jpg':
+            case 'jpeg':
+                return self::extractUsingGemini($filePath, 'image/jpeg');
+            case 'png':
+                return self::extractUsingGemini($filePath, 'image/png');
             default:
                 return "";
         }
@@ -43,9 +48,114 @@ class TextExtractorService {
         try {
             $parser = new Parser();
             $pdf = $parser->parseFile($filePath);
-            return $pdf->getText();
+            $text = $pdf->getText();
+            
+            // If text is empty, it's likely a scanned PDF. Trigger Gemini OCR.
+            if (empty(trim($text))) {
+                error_log("PDF Extraction: Native text extraction is empty. Falling back to Gemini OCR for: " . $filePath);
+                return self::extractUsingGemini($filePath, 'application/pdf');
+            }
+            
+            return $text;
         } catch (Exception $e) {
-            error_log("PDF Extraction Error: " . $e->getMessage());
+            error_log("PDF Extraction Error: " . $e->getMessage() . ". Falling back to Gemini OCR.");
+            return self::extractUsingGemini($filePath, 'application/pdf');
+        }
+    }
+
+    /**
+     * Extract text using Gemini API's multimodal capabilities (OCR).
+     */
+    private static function extractUsingGemini($filePath, $mimeType) {
+        if (!file_exists($filePath)) {
+            return "";
+        }
+
+        // Load API key and config
+        if (!defined('APP_ROOT')) {
+            define('APP_ROOT', dirname(__DIR__, 2));
+        }
+        $configPath = APP_ROOT . '/config/ai.php';
+        if (!file_exists($configPath)) {
+            error_log("Gemini OCR Error: config/ai.php not found");
+            return "";
+        }
+        $config = require $configPath;
+        $apiKey = $config['api_key'] ?? '';
+        $model = $config['synthesis_model'] ?? 'gemini-2.5-flash';
+        $verifySsl = $config['verify_ssl'] ?? true;
+
+        if (empty($apiKey)) {
+            error_log("Gemini OCR Error: API Key not configured.");
+            return "";
+        }
+
+        $fileData = base64_encode(file_get_contents($filePath));
+        
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
+
+        $data = [
+            'contents' => [
+                [
+                    'parts' => [
+                        ['text' => "Extract all readable text from this document. Output ONLY the raw extracted text. Maintain paragraphs if possible. Do not add any introduction, explanations, or markdown wrappers. If no text is readable, output nothing."],
+                        [
+                            'inlineData' => [
+                                'mimeType' => $mimeType,
+                                'data' => $fileData
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $maxRetries = 4;
+        $retryDelay = 1;
+        $response = null;
+        $httpCode = 0;
+        $error = '';
+
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifySsl);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifySsl ? 2 : 0);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            if ($httpCode === 200) {
+                break;
+            }
+
+            if (($httpCode === 429 || $httpCode === 503) && $attempt < $maxRetries) {
+                error_log("Google Gemini API HTTP $httpCode on OCR attempt $attempt. Retrying in {$retryDelay}s...");
+                sleep($retryDelay);
+                $retryDelay *= 2;
+                continue;
+            }
+
+            break;
+        }
+
+        if ($error) {
+            error_log("Gemini OCR cURL Error: " . $error);
+            return "";
+        }
+
+        if ($httpCode === 200 && $response) {
+            $decoded = json_decode($response, true);
+            $extractedText = $decoded['candidates'][0]['content']['parts'][0]['text'] ?? "";
+            return trim($extractedText);
+        } else {
+            error_log("Gemini OCR API Error: HTTP $httpCode, Response: $response");
             return "";
         }
     }

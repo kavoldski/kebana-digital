@@ -14,7 +14,7 @@ class OllamaService {
      * @return string|null JSON string of extracted data or null on failure.
      */
     public static function extractReceiptData($filePath) {
-        $fullPath = APP_ROOT . '/' . $filePath;
+        $fullPath = get_absolute_upload_path($filePath);
         
         if (!file_exists($fullPath)) {
             return null;

@@ -407,8 +407,9 @@ if ($msg_text):
                             
                             // Mocking file size for now since we don't store it in DB
                             $fileSize = '---';
-                            if (file_exists(APP_ROOT . '/' . $doc['file_path'])) {
-                                $bytes = filesize(APP_ROOT . '/' . $doc['file_path']);
+                            $fullPath = get_absolute_upload_path($doc['file_path']);
+                            if (file_exists($fullPath)) {
+                                $bytes = filesize($fullPath);
                                 if ($bytes >= 1048576) $fileSize = number_format($bytes / 1048576, 1) . ' MB';
                                 elseif ($bytes >= 1024) $fileSize = number_format($bytes / 1024, 0) . ' KB';
                                 else $fileSize = $bytes . ' B';
