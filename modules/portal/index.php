@@ -366,14 +366,14 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
                 </div>
             </div>
 
-            <div class="flex flex-wrap justify-center gap-8 lg:gap-16 text-xs font-black text-slate-500 uppercase tracking-[0.2em]">
+            <div class="flex flex-wrap justify-center gap-x-6 md:gap-x-8 lg:gap-x-10 gap-y-2 text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-[0.12em]">
                 <a href="#" class="hover:text-kebana-blue transition-colors">Dasar Privasi</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Terma &amp; Syarat</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Bantuan</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Hubungi Kami</a>
             </div>
 
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <div class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center lg:text-right">
                 &copy; <?php echo date('Y'); ?> KEBANA. Hak Cipta Terpelihara.
             </div>
         </div>
