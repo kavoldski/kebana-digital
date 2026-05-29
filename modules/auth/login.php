@@ -52,22 +52,22 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
                         <div class="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-kebana-blue/5 p-2.5">
                             <img src="<?php echo LOGO_ICON; ?>" alt="KEBANA Logo" class="h-full w-full object-contain">
                         </div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.45em] text-kebana-blue/60">Kebana Digital</p>
-                        <h1 class="mt-4 text-4xl font-black uppercase tracking-[-0.06em] text-kebana-blue sm:text-5xl">Log Masuk</h1>
-                        <p class="mt-4 max-w-sm text-sm font-medium leading-6 text-slate-500">
+                        <p class="text-xs font-black uppercase tracking-[0.45em] text-kebana-blue/80">Kebana Digital</p>
+                        <h1 class="mt-4 text-4xl font-black uppercase tracking-[-0.04em] text-kebana-blue sm:text-5xl">Log Masuk</h1>
+                        <p class="mt-4 max-w-sm text-sm font-medium leading-6 text-slate-600">
                             Akses pusat pengurusan ahli, acara, kewangan, dan dokumen dalam satu ruang kerja yang lebih kemas.
                         </p>
                     </div>
 
                     <?php if (isset($_GET['error'])): ?>
-                        <div class="mb-8 border border-red-200 bg-red-50 px-4 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-red-700">
+                        <div class="mb-8 border border-red-200 bg-red-50 px-4 py-4 text-xs font-black uppercase tracking-[0.18em] text-red-700">
                             Ralat: <?php echo htmlspecialchars($_GET['error']); ?>
                         </div>
                     <?php endif; ?>
 
                     <form action="<?php echo URL_ROOT; ?>/authenticate" method="POST" class="space-y-6">
                         <div>
-                            <label for="username" class="mb-3 block text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">ID Pengguna</label>
+                            <label for="username" class="mb-3 block text-xs font-black uppercase tracking-[0.3em] text-slate-500">ID Pengguna</label>
                             <input
                                 type="text"
                                 id="username"
@@ -79,7 +79,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
                         </div>
 
                         <div>
-                            <label for="password" class="mb-3 block text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Kata Laluan</label>
+                            <label for="password" class="mb-3 block text-xs font-black uppercase tracking-[0.3em] text-slate-500">Kata Laluan</label>
                             <input
                                 type="password"
                                 id="password"
@@ -90,7 +90,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
                             >
                         </div>
 
-                        <div class="flex flex-col gap-4 text-[10px] font-black uppercase tracking-[0.22em] text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex flex-col gap-4 text-xs font-black uppercase tracking-[0.22em] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
                             <label class="flex cursor-pointer items-center gap-3">
                                 <input type="checkbox" name="remember" class="h-4 w-4 rounded border-slate-300 text-kebana-blue focus:ring-kebana-blue">
                                 <span>Ingat sesi saya</span>
@@ -98,18 +98,18 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
                             <a href="#" class="text-kebana-blue transition hover:text-kebana-accent">Lupa kata laluan?</a>
                         </div>
 
-                        <button type="submit" class="w-full rounded-2xl bg-kebana-blue px-6 py-4 text-xs font-black uppercase tracking-[0.35em] text-white shadow-[0_16px_40px_rgba(0,51,102,0.28)] transition hover:bg-kebana-accent">
+                        <button type="submit" class="w-full rounded-2xl bg-kebana-blue px-6 py-4 text-sm font-black uppercase tracking-[0.35em] text-white shadow-[0_16px_40px_rgba(0,51,102,0.28)] transition hover:bg-kebana-accent">
                             Masuk Sekarang
                         </button>
                     </form>
                 </div>
 
-                <div class="mt-10 border-t border-slate-100 pt-8">
-                    <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Tiada akaun sistem?</p>
-                    <a href="<?php echo URL_ROOT; ?>/sign_up" class="mt-5 inline-flex rounded-full border border-kebana-blue px-6 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-kebana-blue transition hover:bg-kebana-blue hover:text-white">
+                <div class="mt-10 border-t border-slate-200 pt-8">
+                    <p class="text-xs font-black uppercase tracking-[0.3em] text-slate-500">Tiada akaun sistem?</p>
+                    <a href="<?php echo URL_ROOT; ?>/sign_up" class="mt-5 inline-flex rounded-full border border-kebana-blue px-6 py-3 text-xs font-black uppercase tracking-[0.3em] text-kebana-blue transition hover:bg-kebana-blue hover:text-white">
                         Daftar Akaun
                     </a>
-                    <p class="mt-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300">
+                    <p class="mt-8 text-xs font-black uppercase tracking-[0.3em] text-slate-400">
                         &copy; <?php echo date('Y'); ?> KEBANA DIGITAL | Versi 1.1.0
                     </p>
                 </div>

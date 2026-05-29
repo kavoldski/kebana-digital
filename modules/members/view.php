@@ -32,14 +32,14 @@ $page_title = 'PROFIL AHLI';
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
         <div>
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic"><?php echo htmlspecialchars($member['full_name']); ?></h2>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">ID AHLI: #<?php echo str_pad($member['member_id'], 4, '0', STR_PAD_LEFT); ?></p>
+            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mt-2">ID AHLI: #<?php echo str_pad($member['member_id'], 4, '0', STR_PAD_LEFT); ?></p>
         </div>
         <div class="flex gap-4">
-            <a href="<?= URL_ROOT ?>/members" class="bg-slate-100 text-slate-600 px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center">
+            <a href="<?= URL_ROOT ?>/members" class="bg-slate-100 text-slate-700 px-8 py-4 text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center">
                 <i class="fa-solid fa-arrow-left mr-3"></i>
                 SENARAI
             </a>
-            <a href="<?= URL_ROOT ?>/members/edit/<?php echo $member['member_id']; ?>" class="bg-kebana-blue text-white px-8 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-xl flex items-center">
+            <a href="<?= URL_ROOT ?>/members/edit/<?php echo $member['member_id']; ?>" class="bg-kebana-blue text-white px-8 py-4 text-xs font-black uppercase tracking-widest hover:bg-kebana-accent transition-all shadow-xl flex items-center">
                 <i class="fa-solid fa-pen-to-square mr-3"></i>
                 KEMASKINI
             </a>
@@ -49,91 +49,91 @@ $page_title = 'PROFIL AHLI';
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
         <!-- Main Info -->
         <div class="lg:col-span-2 space-y-12">
-            <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
-                <div class="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                    <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">Maklumat Peribadi</h3>
+            <div class="bg-white border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-10 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+                    <h3 class="text-sm font-black text-kebana-blue uppercase tracking-widest">Maklumat Peribadi</h3>
                     <i class="fa-solid fa-id-card text-kebana-blue opacity-20"></i>
                 </div>
                 <div class="p-10 space-y-10">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div>
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Nama Penuh</p>
-                            <p class="text-sm font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($member['full_name']); ?></p>
+                            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Nama Penuh</p>
+                            <p class="text-base font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($member['full_name']); ?></p>
                         </div>
                         <div>
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Jantina</p>
-                            <p class="text-sm font-black text-kebana-blue uppercase"><?php echo htmlspecialchars(MembersHelper::getGenderLabel($member)); ?></p>
+                            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Jantina</p>
+                            <p class="text-base font-black text-kebana-blue uppercase"><?php echo htmlspecialchars(MembersHelper::getGenderLabel($member)); ?></p>
                         </div>
                         <div>
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">No. Kad Pengenalan</p>
-                            <p class="text-sm font-black text-kebana-blue"><?php echo htmlspecialchars($member['ic_number']); ?></p>
+                            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">No. Kad Pengenalan</p>
+                            <p class="text-base font-black text-kebana-blue"><?php echo htmlspecialchars($member['ic_number']); ?></p>
                         </div>
                         <div>
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">No. Telefon</p>
-                            <p class="text-sm font-black text-kebana-blue"><?php echo htmlspecialchars($member['phone_no'] ?? 'TIADA TALIAN'); ?></p>
+                            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">No. Telefon</p>
+                            <p class="text-base font-black text-kebana-blue"><?php echo htmlspecialchars($member['phone_no'] ?? 'TIADA TALIAN'); ?></p>
                         </div>
                         <div>
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Kawasan / Kampung</p>
-                            <p class="text-sm font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($member['village']); ?></p>
+                            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Kawasan / Kampung</p>
+                            <p class="text-base font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($member['village']); ?></p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Activity / History placeholder -->
-            <div class="bg-white border border-slate-100 shadow-sm overflow-hidden opacity-50">
-                <div class="p-10 border-b border-slate-50 flex items-center justify-between">
-                    <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">Rekod Aktiviti & Kehadiran</h3>
-                    <span class="text-[9px] font-black bg-slate-100 text-slate-400 px-3 py-1 uppercase tracking-widest">Akan Datang</span>
+            <div class="bg-white border border-slate-200 shadow-sm overflow-hidden opacity-50">
+                <div class="p-10 border-b border-slate-200 flex items-center justify-between">
+                    <h3 class="text-sm font-black text-kebana-blue uppercase tracking-widest">Rekod Aktiviti & Kehadiran</h3>
+                    <span class="text-xs font-black bg-slate-100 text-slate-500 px-3 py-1 uppercase tracking-widest">Akan Datang</span>
                 </div>
                 <div class="p-20 text-center">
-                    <i class="fa-solid fa-calendar-lines-pen text-5xl text-slate-100 mb-6 block"></i>
-                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Tiada Rekod Aktiviti Dijumpai</p>
+                    <i class="fa-solid fa-calendar-lines-pen text-5xl text-slate-200 mb-6 block"></i>
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Tiada Rekod Aktiviti Dijumpai</p>
                 </div>
             </div>
         </div>
 
         <!-- Sidebar Info -->
         <div class="space-y-12">
-            <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
-                <div class="p-8 border-b border-slate-50 bg-slate-50/50">
-                    <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">Status Ahli</h3>
+            <div class="bg-white border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-8 border-b border-slate-200 bg-slate-50/50">
+                    <h3 class="text-sm font-black text-kebana-blue uppercase tracking-widest">Status Ahli</h3>
                 </div>
                 <div class="p-8 space-y-8">
                     <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Semasa</span>
+                        <span class="text-xs font-black text-slate-500 uppercase tracking-widest">Status Semasa</span>
                         <?php 
                         $status_class = 'bg-amber-500 text-white shadow-lg shadow-amber-500/20';
                         if (strtolower($member['status']) === 'active') $status_class = 'bg-green-600 text-white shadow-lg shadow-green-600/20';
                         elseif (strtolower($member['status']) === 'inactive') $status_class = 'bg-slate-400 text-white shadow-lg shadow-slate-400/20';
                         ?>
-                        <span class="px-4 py-1.5 text-[9px] font-black uppercase tracking-widest <?php echo $status_class; ?>">
+                        <span class="px-4 py-1.5 text-xs font-black uppercase tracking-widest <?php echo $status_class; ?>">
                             <?php echo htmlspecialchars($member['status']); ?>
                         </span>
                     </div>
-                    <div class="pt-8 border-t border-slate-50 space-y-6">
+                    <div class="pt-8 border-t border-slate-200 space-y-6">
                         <div>
-                            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-2">Tarikh Didaftarkan</p>
-                            <p class="text-[11px] font-black text-kebana-blue"><?php echo date('d F Y', strtotime($member['created_at'])); ?></p>
+                            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Tarikh Didaftarkan</p>
+                            <p class="text-sm font-black text-kebana-blue"><?php echo date('d F Y', strtotime($member['created_at'])); ?></p>
                         </div>
                         <div>
-                            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-2">Kemaskini Terakhir</p>
-                            <p class="text-[11px] font-black text-kebana-blue"><?php echo date('d F Y, H:i', strtotime($member['updated_at'])); ?></p>
+                            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Kemaskini Terakhir</p>
+                            <p class="text-sm font-black text-kebana-blue"><?php echo date('d F Y, H:i', strtotime($member['updated_at'])); ?></p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Danger Zone -->
-            <div class="bg-red-50 border border-red-100 p-8 space-y-6">
-                <h3 class="text-[10px] font-black text-red-800 uppercase tracking-widest flex items-center">
+            <div class="bg-red-50 border border-red-200 p-8 space-y-6">
+                <h3 class="text-xs font-black text-red-800 uppercase tracking-widest flex items-center">
                     <i class="fa-solid fa-triangle-exclamation mr-3 text-red-600"></i>
                     Zon Berisiko
                 </h3>
-                <p class="text-[9px] text-red-600/70 font-bold uppercase leading-relaxed tracking-tight">
+                <p class="text-xs text-red-700/80 font-bold uppercase leading-relaxed tracking-tight">
                     Tindakan ini akan memadam rekod ahli secara kekal dari pangkalan data sistem.
                 </p>
-                <a href="<?= URL_ROOT ?>/members?delete=<?php echo $member['member_id']; ?>" onclick="openDeleteModal(event)" class="block w-full py-4 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest text-center hover:bg-red-700 transition-all shadow-lg shadow-red-600/20">
+                <a href="<?= URL_ROOT ?>/members?delete=<?php echo $member['member_id']; ?>" onclick="openDeleteModal(event)" class="block w-full py-4 bg-red-600 text-white text-xs font-black uppercase tracking-widest text-center hover:bg-red-700 transition-all shadow-lg shadow-red-600/20">
                     PADAM REKOD AHLI
                 </a>
             </div>
@@ -153,21 +153,21 @@ $page_title = 'PROFIL AHLI';
                 <h3 class="text-xl font-black text-kebana-blue tracking-tighter uppercase italic leading-none">
                     Padam Rekod Ahli
                 </h3>
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                <p class="text-xs font-black text-slate-500 uppercase tracking-widest mt-1">
                     Tindakan ini tidak boleh diundur balik
                 </p>
             </div>
         </div>
 
-        <div class="text-xs text-slate-600 leading-relaxed uppercase tracking-wider bg-slate-50/50 p-4 border border-slate-100 text-left">
+        <div class="text-sm text-slate-700 leading-relaxed uppercase tracking-wider bg-slate-50/50 p-4 border border-slate-200 text-left">
             Adakah anda pasti mahu memadam profil ahli: <strong class="text-kebana-blue font-black"><?php echo htmlspecialchars($member['full_name']); ?></strong>?
         </div>
 
         <div class="flex gap-3">
-            <button type="button" onclick="closeDeleteModal()" class="w-1/2 bg-slate-100 text-slate-500 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-200 hover:text-slate-700 transition-all text-center">
+            <button type="button" onclick="closeDeleteModal()" class="w-1/2 bg-slate-100 text-slate-600 py-4 text-sm font-black uppercase tracking-[0.2em] hover:bg-slate-200 hover:text-slate-700 transition-all text-center">
                 BATAL
             </button>
-            <a href="<?= URL_ROOT ?>/members?delete=<?php echo $member['member_id']; ?>" class="w-1/2 bg-red-600 text-white py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-red-700 hover:shadow-red-200/50 hover:shadow-xl transition-all text-center flex items-center justify-center">
+            <a href="<?= URL_ROOT ?>/members?delete=<?php echo $member['member_id']; ?>" class="w-1/2 bg-red-600 text-white py-4 text-sm font-black uppercase tracking-[0.2em] hover:bg-red-700 hover:shadow-red-200/50 hover:shadow-xl transition-all text-center flex items-center justify-center">
                 PADAM
             </a>
         </div>

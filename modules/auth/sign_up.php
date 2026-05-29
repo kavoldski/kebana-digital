@@ -64,15 +64,15 @@ if ($table_check && $table_check->num_rows > 0) {
             <section class="relative flex flex-col justify-between bg-white px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12">
                 <div>
                     <div class="mb-10">
-                        <p class="text-[10px] font-black uppercase tracking-[0.45em] text-kebana-blue/60">Kebana Digital</p>
-                        <h1 class="mt-4 text-4xl font-black uppercase tracking-[-0.06em] text-kebana-blue sm:text-5xl">Daftar Akaun</h1>
-                        <p class="mt-4 max-w-xl text-sm font-medium leading-6 text-slate-500">
+                        <p class="text-xs font-black uppercase tracking-[0.45em] text-kebana-blue/80">Kebana Digital</p>
+                        <h1 class="mt-4 text-4xl font-black uppercase tracking-[-0.04em] text-kebana-blue sm:text-5xl">Daftar Akaun</h1>
+                        <p class="mt-4 max-w-xl text-sm font-medium leading-6 text-slate-600">
                             Cipta akaun baharu untuk mengurus ahli, acara, kewangan, dan dokumen dalam ruang kerja yang seragam.
                         </p>
                     </div>
 
                     <?php if (isset($_GET['error'])): ?>
-                        <div class="mb-8 border border-red-200 bg-red-50 px-4 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-red-700">
+                        <div class="mb-8 border border-red-200 bg-red-50 px-4 py-4 text-xs font-black uppercase tracking-[0.18em] text-red-700">
                             Ralat: <?php echo htmlspecialchars($_GET['error']); ?>
                         </div>
                     <?php endif; ?>
@@ -80,7 +80,7 @@ if ($table_check && $table_check->num_rows > 0) {
                     <form action="<?php echo URL_ROOT; ?>/register" method="POST" class="space-y-8">
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div>
-                                <label for="username" class="mb-3 block text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">ID Pengguna</label>
+                                <label for="username" class="mb-3 block text-xs font-black uppercase tracking-[0.3em] text-slate-500">ID Pengguna</label>
                                 <input
                                     type="text"
                                     id="username"
@@ -92,7 +92,7 @@ if ($table_check && $table_check->num_rows > 0) {
                             </div>
 
                             <div>
-                                <label for="email" class="mb-3 block text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Alamat Emel</label>
+                                <label for="email" class="mb-3 block text-xs font-black uppercase tracking-[0.3em] text-slate-500">Alamat Emel</label>
                                 <input
                                     type="email"
                                     id="email"
@@ -104,7 +104,7 @@ if ($table_check && $table_check->num_rows > 0) {
                             </div>
 
                             <div>
-                                <label for="password" class="mb-3 block text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Kata Laluan</label>
+                                <label for="password" class="mb-3 block text-xs font-black uppercase tracking-[0.3em] text-slate-500">Kata Laluan</label>
                                 <input
                                     type="password"
                                     id="password"
@@ -116,7 +116,7 @@ if ($table_check && $table_check->num_rows > 0) {
                             </div>
 
                             <div>
-                                <label for="confirm_password" class="mb-3 block text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Sahkan Kata Laluan</label>
+                                <label for="confirm_password" class="mb-3 block text-xs font-black uppercase tracking-[0.3em] text-slate-500">Sahkan Kata Laluan</label>
                                 <input
                                     type="password"
                                     id="confirm_password"
@@ -128,7 +128,7 @@ if ($table_check && $table_check->num_rows > 0) {
                             </div>
 
                             <div>
-                                <label for="role" class="mb-3 block text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Peranan Sistem</label>
+                                <label for="role" class="mb-3 block text-xs font-black uppercase tracking-[0.3em] text-slate-500">Peranan Sistem</label>
                                 <select
                                     id="role"
                                     name="role"
@@ -158,7 +158,7 @@ if ($table_check && $table_check->num_rows > 0) {
                             </div>
 
                             <div>
-                                <label for="cawangan_id" class="mb-3 block text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Cawangan</label>
+                                <label for="cawangan_id" class="mb-3 block text-xs font-black uppercase tracking-[0.3em] text-slate-500">Cawangan</label>
                                 <select
                                     id="cawangan_id"
                                     name="cawangan_id"
@@ -177,24 +177,24 @@ if ($table_check && $table_check->num_rows > 0) {
                         <div class="rounded-3xl border border-slate-200 bg-slate-50/80 px-5 py-5">
                             <label class="flex cursor-pointer items-start gap-4">
                                 <input type="checkbox" name="terms" required class="mt-1 h-4 w-4 rounded border-slate-300 text-kebana-blue focus:ring-kebana-blue">
-                                <span class="text-[10px] font-black uppercase leading-relaxed tracking-[0.22em] text-slate-500">
+                                <span class="text-xs font-black uppercase leading-relaxed tracking-[0.22em] text-slate-600">
                                     Saya bersetuju dengan terma dan syarat serta dasar privasi KEBANA DIGITAL.
                                 </span>
                             </label>
                         </div>
 
-                        <button type="submit" class="w-full rounded-2xl bg-kebana-blue px-6 py-4 text-xs font-black uppercase tracking-[0.35em] text-white shadow-[0_16px_40px_rgba(0,51,102,0.28)] transition hover:bg-kebana-accent">
+                        <button type="submit" class="w-full rounded-2xl bg-kebana-blue px-6 py-4 text-sm font-black uppercase tracking-[0.35em] text-white shadow-[0_16px_40px_rgba(0,51,102,0.28)] transition hover:bg-kebana-accent">
                             Daftar Sekarang
                         </button>
                     </form>
                 </div>
 
-                <div class="mt-10 border-t border-slate-100 pt-8">
-                    <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Sudah mempunyai akaun?</p>
-                    <a href="<?php echo URL_ROOT; ?>/login" class="mt-5 inline-flex rounded-full border border-kebana-blue px-6 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-kebana-blue transition hover:bg-kebana-blue hover:text-white">
+                <div class="mt-10 border-t border-slate-200 pt-8">
+                    <p class="text-xs font-black uppercase tracking-[0.3em] text-slate-500">Sudah mempunyai akaun?</p>
+                    <a href="<?php echo URL_ROOT; ?>/login" class="mt-5 inline-flex rounded-full border border-kebana-blue px-6 py-3 text-xs font-black uppercase tracking-[0.3em] text-kebana-blue transition hover:bg-kebana-blue hover:text-white">
                         Log Masuk
                     </a>
-                    <p class="mt-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-300">
+                    <p class="mt-8 text-xs font-black uppercase tracking-[0.3em] text-slate-400">
                         &copy; <?php echo date('Y'); ?> KEBANA DIGITAL | Versi 1.1.0
                     </p>
                 </div>
