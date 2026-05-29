@@ -241,6 +241,10 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
             </div>
             
             <div class="flex items-center space-x-3 lg:space-x-6">
+                <a href="<?php echo URL_ROOT; ?>/saung-seling/" class="px-5 lg:px-6 py-2.5 lg:py-3.5 border border-kebana-blue/30 text-kebana-blue text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-blue/5 hover:border-kebana-blue transition-all rounded-full flex items-center gap-2">
+                    <i class="fa-solid fa-crown text-[10px]"></i>
+                    <span>Exhibition</span>
+                </a>
                 <?php if ($isLoggedIn): ?>
                     <a href="<?php echo URL_ROOT; ?>/dashboard" class="px-5 lg:px-8 py-2.5 lg:py-3.5 bg-kebana-blue text-white text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl shadow-kebana-blue/20 rounded-full">
                         DASHBOARD
