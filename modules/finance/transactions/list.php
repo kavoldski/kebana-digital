@@ -85,20 +85,20 @@ $filtered_balance = $filtered_income - $filtered_expense;
     <!-- Top Action Bar -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
         <div>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Rekod Terperinci Aliran Masuk dan Keluar Dana.</p>
+            <p class="text-sm font-black text-slate-600 uppercase tracking-widest mt-2">Rekod Terperinci Aliran Masuk dan Keluar Dana.</p>
         </div>
         <div class="flex flex-wrap gap-3">
             <?php if (hasRole([888, 1, 2, 3, 6, 55])): ?>
-            <button onclick="openReportModal()" class="bg-kebana-blue text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-kebana-accent transition-all shadow-lg inline-flex items-center">
+            <button onclick="openReportModal()" class="bg-kebana-blue text-white px-8 py-4 text-sm font-black uppercase tracking-[0.15em] hover:bg-kebana-accent transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-file-invoice mr-3 text-base"></i>
                 JANA LAPORAN
             </button>
             <?php endif; ?>
-            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-sm font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-arrow-trend-up mr-3 text-base"></i>
                 REKOD MASUK
             </a>
-            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-8 py-4 text-sm font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-arrow-trend-down mr-3 text-base"></i>
                 REKOD KELUAR
             </a>
@@ -106,36 +106,36 @@ $filtered_balance = $filtered_income - $filtered_expense;
     </div>
 
     <!-- Filter Bar -->
-    <div class="bg-white p-8 border border-slate-100 shadow-sm">
+    <div class="bg-white p-8 border border-slate-300 shadow-sm">
         <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
             <div>
-                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Dari Tarikh</label>
+                <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Dari Tarikh</label>
                 <input type="date" name="from" value="<?php echo htmlspecialchars($from_date); ?>" 
-                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all">
             </div>
             <div>
-                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Hingga Tarikh</label>
+                <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Hingga Tarikh</label>
                 <input type="date" name="to" value="<?php echo htmlspecialchars($to_date); ?>" 
-                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all">
             </div>
             <div>
-                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Jenis</label>
-                <select name="type" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Jenis</label>
+                <select name="type" class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all rounded-none appearance-none">
                     <option value="">Semua</option>
                     <option value="Income" <?php echo $type_filter === 'Income' ? 'selected' : ''; ?>>Pendapatan</option>
                     <option value="Expense" <?php echo $type_filter === 'Expense' ? 'selected' : ''; ?>>Perbelanjaan</option>
                 </select>
             </div>
             <div class="md:col-span-2">
-                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Carian Kata Kunci</label>
+                <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Carian Kata Kunci</label>
                 <div class="flex gap-2">
                     <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Cari kategori, projek atau butiran..."
-                           class="flex-1 px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
-                    <button type="submit" class="bg-kebana-dark text-white px-8 py-4 text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
+                           class="flex-1 px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all">
+                    <button type="submit" class="bg-kebana-dark text-white px-8 py-4 text-base font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg">
                         CARI
                     </button>
                     <?php if ($search || $from_date || $to_date || $type_filter): ?>
-                    <a href="<?= URL_ROOT ?>/finance/transactions" class="px-4 py-4 text-[10px] font-black text-slate-400 uppercase flex items-center hover:text-red-500">KOSONGKAN</a>
+                    <a href="<?= URL_ROOT ?>/finance/transactions" class="px-4 py-4 text-sm font-black text-slate-500 uppercase flex items-center hover:text-red-500">KOSONGKAN</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -145,39 +145,39 @@ $filtered_balance = $filtered_income - $filtered_expense;
     <div id="live-search-results" class="space-y-12">
 
     <!-- Filtered Summary -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100 bg-white shadow-sm">
-        <div class="p-8 border-r border-slate-50">
-            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Baki Dalam Tempoh</p>
-            <p class="text-2xl font-black text-kebana-blue mt-2">RM <?php echo number_format($filtered_balance, 2); ?></p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-300 bg-white shadow-sm">
+        <div class="p-8 border-r border-slate-300">
+            <p class="text-sm font-black text-slate-600 uppercase tracking-widest">Baki Dalam Tempoh</p>
+            <p class="text-3xl font-black text-kebana-blue mt-2">RM <?php echo number_format($filtered_balance, 2); ?></p>
         </div>
-        <div class="p-8 border-r border-slate-50">
-            <p class="text-[9px] font-black text-green-600/50 uppercase tracking-widest text-green-600">Total Pendapatan</p>
-            <p class="text-2xl font-black text-green-600 mt-2">RM <?php echo number_format($filtered_income, 2); ?></p>
+        <div class="p-8 border-r border-slate-300">
+            <p class="text-sm font-black text-green-700 uppercase tracking-widest">Total Pendapatan</p>
+            <p class="text-3xl font-black text-green-600 mt-2">RM <?php echo number_format($filtered_income, 2); ?></p>
         </div>
         <div class="p-8 border-b-4 border-kebana-yellow">
-            <p class="text-[9px] font-black text-red-600/50 uppercase tracking-widest text-red-600">Total Perbelanjaan</p>
-            <p class="text-2xl font-black text-red-600 mt-2">RM <?php echo number_format($filtered_expense, 2); ?></p>
+            <p class="text-sm font-black text-red-700 uppercase tracking-widest">Total Perbelanjaan</p>
+            <p class="text-3xl font-black text-red-600 mt-2">RM <?php echo number_format($filtered_expense, 2); ?></p>
         </div>
     </div>
 
     <!-- Table -->
-    <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
+    <div class="bg-white border border-slate-300 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="border-b border-slate-100 bg-slate-50/50">
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Tarikh</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Kategori & Projek</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest">Mod</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Resit</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Amaun</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Tindakan</th>
+                    <tr class="border-b border-slate-300 bg-slate-100">
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest">Tarikh</th>
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest">Kategori & Projek</th>
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest">Mod</th>
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest text-center">Resit</th>
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest text-right">Amaun</th>
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest text-right">Tindakan</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-50">
+                <tbody class="divide-y divide-slate-200">
                     <?php if (empty($transactions)): ?>
                     <tr>
-                        <td colspan="6" class="px-8 py-20 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
+                        <td colspan="6" class="px-8 py-20 text-center text-sm font-black text-slate-500 uppercase tracking-[0.3em]">
                             Tiada rekod transaksi dijumpai.
                         </td>
                     </tr>
@@ -196,14 +196,14 @@ $filtered_balance = $filtered_income - $filtered_expense;
                         ?>
                         <tr class="hover:bg-slate-50/50 transition-colors group">
                             <td class="px-8 py-6">
-                                <p class="text-xs font-black text-slate-400 uppercase"><?php echo date('d M Y', strtotime($t['trans_date'])); ?></p>
+                                <p class="text-sm font-black text-slate-600 uppercase"><?php echo date('d M Y', strtotime($t['trans_date'])); ?></p>
                             </td>
                             <td class="px-8 py-6">
-                                <p class="text-xs font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($t['category']); ?></p>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 italic"><?php echo htmlspecialchars($t['event_title'] ?? 'Dana Am Persatuan'); ?></p>
+                                <p class="text-base font-black text-kebana-blue uppercase tracking-tight"><?php echo htmlspecialchars($t['category']); ?></p>
+                                <p class="text-xs font-bold text-slate-600 uppercase mt-1 italic"><?php echo htmlspecialchars($t['event_title'] ?? 'Dana Am Persatuan'); ?></p>
                             </td>
                             <td class="px-8 py-6">
-                                <span class="px-3 py-1 text-[8px] font-black uppercase tracking-widest bg-slate-100 text-slate-500">
+                                <span class="px-3 py-1 text-xs font-black uppercase tracking-widest bg-slate-200 text-slate-700">
                                     <?php echo (!empty($t['payment_mode']) && $t['payment_mode'] !== '0') ? htmlspecialchars($t['payment_mode']) : 'Cash'; ?>
                                 </span>
                             </td>
@@ -213,30 +213,30 @@ $filtered_balance = $filtered_income - $filtered_expense;
                                     <i class="fa-solid fa-file-invoice-dollar text-lg"></i>
                                 </a>
                                 <?php else: ?>
-                                <span class="text-slate-200 text-[10px] uppercase font-black tracking-tighter">N/A</span>
+                                <span class="text-slate-400 text-xs uppercase font-black tracking-tighter">N/A</span>
                                 <?php endif; ?>
                             </td>
                             <td class="px-8 py-6 text-right">
-                                <p class="text-sm font-black <?php echo $is_income ? 'text-green-600' : 'text-red-600'; ?>">
+                                <p class="text-base font-black <?php echo $is_income ? 'text-green-600' : 'text-red-750'; ?>">
                                     <?php echo $is_income ? '+' : '-'; ?> RM <?php echo number_format($t['amount'], 2); ?>
                                 </p>
-                                <p class="text-[8px] font-bold text-slate-300 uppercase mt-1">Oleh: <?php echo htmlspecialchars($t['recorder_name'] ?? 'Sistem'); ?></p>
+                                <p class="text-xs font-bold text-slate-500 uppercase mt-1">Oleh: <?php echo htmlspecialchars($t['recorder_name'] ?? 'Sistem'); ?></p>
                             </td>
                             <td class="px-8 py-6 text-right">
                                 <div class="flex justify-end gap-2">
                                     <?php if ($can_edit_delete): ?>
                                         <a href="<?= URL_ROOT ?>/finance/transactions/edit?id=<?php echo $t['trans_id']; ?>" 
-                                           class="p-2 text-slate-300 hover:text-kebana-blue transition-colors" title="Kemaskini">
-                                            <i class="fa-solid fa-pen-to-square"></i>
+                                           class="p-2 text-slate-400 hover:text-kebana-blue transition-colors" title="Kemaskini">
+                                            <i class="fa-solid fa-pen-to-square text-lg"></i>
                                         </a>
                                         <a href="<?= URL_ROOT ?>/finance/transactions/delete?id=<?php echo $t['trans_id']; ?>" 
                                            onclick="return confirm('Adakah anda pasti mahu memadam transaksi ini?')"
-                                           class="p-2 text-slate-300 hover:text-red-600 transition-colors" title="Padam">
-                                            <i class="fa-solid fa-trash-can"></i>
+                                           class="p-2 text-slate-400 hover:text-red-600 transition-colors" title="Padam">
+                                            <i class="fa-solid fa-trash-can text-lg"></i>
                                         </a>
                                     <?php else: ?>
-                                        <span class="p-2 text-slate-200 cursor-not-allowed" title="Direkod oleh Ibu Pejabat Pusat">
-                                            <i class="fa-solid fa-lock"></i>
+                                        <span class="p-2 text-slate-300 cursor-not-allowed" title="Direkod oleh Ibu Pejabat Pusat">
+                                            <i class="fa-solid fa-lock text-lg"></i>
                                         </span>
                                     <?php endif; ?>
                                 </div>
@@ -260,14 +260,14 @@ $filtered_balance = $filtered_income - $filtered_expense;
         </button>
         <div>
             <h3 class="text-lg font-black text-kebana-blue uppercase tracking-tight italic">Jana Laporan Kewangan</h3>
-            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Sila pilih tempoh laporan dan format fail.</p>
+            <p class="text-sm font-black text-slate-650 uppercase tracking-widest mt-1">Sila pilih tempoh laporan dan format fail.</p>
         </div>
         
         <form action="<?= URL_ROOT ?>/finance/transactions/generate" method="GET" target="_blank" onsubmit="return validateReportForm()" class="space-y-6">
             <div class="space-y-2">
-                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Jenis Tempoh (Period Type)</label>
+                <label class="text-sm font-black text-slate-600 uppercase tracking-widest">Jenis Tempoh (Period Type)</label>
                 <select name="period_type" id="report_period_type" required onchange="handlePeriodChange()"
-                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all">
                     <option value="daily">Harian (Daily)</option>
                     <option value="monthly" selected>Bulanan (Monthly)</option>
                     <option value="yearly">Tahunan (Yearly)</option>
@@ -275,24 +275,24 @@ $filtered_balance = $filtered_income - $filtered_expense;
             </div>
             
             <div class="space-y-2" id="date_input_container">
-                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest" id="date_input_label">Pilih Julat Tempoh (Select Period Range)</label>
+                <label class="text-sm font-black text-slate-600 uppercase tracking-widest" id="date_input_label">Pilih Julat Tempoh (Select Period Range)</label>
                 <div id="dynamic_date_field"></div>
             </div>
             
             <div class="space-y-2">
-                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Format Fail</label>
+                <label class="text-sm font-black text-slate-600 uppercase tracking-widest">Format Fail</label>
                 <select name="format" required
-                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all">
                     <option value="pdf">Dokumen PDF (.pdf)</option>
                     <option value="csv">Excel / CSV (.csv)</option>
                 </select>
             </div>
             
             <div class="pt-4 flex gap-4">
-                <button type="button" onclick="closeReportModal()" class="flex-1 bg-slate-100 text-slate-600 py-4 text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all text-center">
+                <button type="button" onclick="closeReportModal()" class="flex-1 bg-slate-100 text-slate-600 py-4 text-base font-black uppercase tracking-widest hover:bg-slate-200 transition-all text-center">
                     BATAL
                 </button>
-                <button type="submit" class="flex-1 bg-kebana-blue text-white py-4 text-xs font-black uppercase tracking-widest hover:bg-kebana-accent transition-all text-center shadow-lg">
+                <button type="submit" class="flex-1 bg-kebana-blue text-white py-4 text-base font-black uppercase tracking-widest hover:bg-kebana-accent transition-all text-center shadow-lg">
                     JANA FAIL
                 </button>
             </div>
@@ -323,14 +323,14 @@ function handlePeriodChange() {
         html = `
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Dari Tarikh</label>
+                <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-1">Dari Tarikh</label>
                 <input type="date" name="date_start" id="report_date_start" value="${today}" required 
-                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all">
             </div>
             <div>
-                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Hingga Tarikh</label>
+                <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-1">Hingga Tarikh</label>
                 <input type="date" name="date_end" id="report_date_end" value="${today}" required 
-                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all">
             </div>
         </div>`;
     } else if (periodType === 'monthly') {
@@ -339,14 +339,14 @@ function handlePeriodChange() {
         html = `
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Dari Bulan</label>
+                <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-1">Dari Bulan</label>
                 <input type="month" name="date_start" id="report_date_start" value="${currentMonth}" required 
-                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all">
             </div>
             <div>
-                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Hingga Bulan</label>
+                <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-1">Hingga Bulan</label>
                 <input type="month" name="date_end" id="report_date_end" value="${currentMonth}" required 
-                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all">
+                       class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all">
             </div>
         </div>`;
     } else if (periodType === 'yearly') {
@@ -360,16 +360,16 @@ function handlePeriodChange() {
         html = `
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Dari Tahun</label>
+                <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-1">Dari Tahun</label>
                 <select name="date_start" id="report_date_start" required 
-                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all rounded-none appearance-none">
                     ${startOptions}
                 </select>
             </div>
             <div>
-                <label class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Hingga Tahun</label>
+                <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-1">Hingga Tahun</label>
                 <select name="date_end" id="report_date_end" required 
-                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold uppercase transition-all rounded-none appearance-none">
+                        class="w-full px-5 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold uppercase transition-all rounded-none appearance-none">
                     ${endOptions}
                 </select>
             </div>

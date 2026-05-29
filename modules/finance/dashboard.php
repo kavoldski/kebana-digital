@@ -73,22 +73,23 @@ $page_title = 'PENGURUSAN KEWANGAN';
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 border-t-8 border-kebana-blue shadow-sm">
         <div>
             <h2 class="text-2xl font-black text-kebana-blue uppercase tracking-tight italic">Ringkasan Kewangan</h2>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Pemantauan Aliran Tunai dan Perbelanjaan Persatuan.</p>
+            <p class="text-sm font-black text-slate-600 uppercase tracking-widest mt-2">Pemantauan Aliran Tunai dan Perbelanjaan Persatuan.</p>
         </div>
         <div class="flex flex-wrap gap-3">
-            <a href="<?= URL_ROOT ?>/finance/transactions/list" class="bg-white text-kebana-blue border-2 border-kebana-blue px-7 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/list" class="bg-white text-kebana-blue border-2 border-kebana-blue px-7 py-4 text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
                 <i class="fa-solid fa-list-check mr-3"></i>
                 LIHAT SEMUA
             </a>
-            <a href="<?= URL_ROOT ?>/finance/budget" class="bg-white text-kebana-blue border-2 border-slate-200 px-7 py-4 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
+
+            <a href="<?= URL_ROOT ?>/finance/budget" class="bg-white text-kebana-blue border-2 border-slate-300 px-7 py-4 text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center">
                 <i class="fa-solid fa-chart-bar mr-3"></i>
                 ANALISIS BAJET
             </a>
-            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Income" class="bg-green-600 text-white px-8 py-4 text-sm font-black uppercase tracking-[0.15em] hover:bg-green-700 transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-arrow-trend-up mr-3 text-base"></i>
                 REKOD MASUK
             </a>
-            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/create?type=Expense" class="bg-red-600 text-white px-8 py-4 text-sm font-black uppercase tracking-[0.15em] hover:bg-red-700 transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-arrow-trend-down mr-3 text-base"></i>
                 REKOD KELUAR
             </a>
@@ -96,33 +97,33 @@ $page_title = 'PENGURUSAN KEWANGAN';
     </div>
 
     <!-- KPI Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-100 bg-white">
-        <div class="p-10 border-r border-slate-50 flex flex-col justify-center bg-kebana-blue group relative overflow-hidden transition-all duration-500">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-slate-300 bg-white">
+        <div class="p-10 border-r border-slate-300 flex flex-col justify-center bg-kebana-blue group relative overflow-hidden transition-all duration-500">
             <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <p class="text-[10px] font-black text-white/60 uppercase tracking-widest relative z-10">DANA TERSEDIA (NET)</p>
+            <p class="text-sm font-black text-white/90 uppercase tracking-widest relative z-10">DANA TERSEDIA (NET)</p>
             <p class="text-4xl font-black text-white mt-4 relative z-10 tracking-tighter">RM <?php echo number_format($totals['balance'], 2); ?></p>
-            <p class="text-[9px] font-black mt-3 uppercase tracking-widest relative z-10 <?php echo $totals['balance'] >= 0 ? 'text-green-400' : 'text-red-400'; ?>">
+            <p class="text-sm font-black mt-3 uppercase tracking-widest relative z-10 <?php echo $totals['balance'] >= 0 ? 'text-green-300' : 'text-red-300'; ?>">
                 <i class="fa-solid fa-circle-dot mr-1"></i>
                 <?php echo $totals['balance'] >= 0 ? 'Positif' : 'Defisit'; ?>
             </p>
             <i class="fa-solid fa-wallet absolute -right-4 -bottom-4 text-7xl text-white/5 group-hover:text-white/10 group-hover:scale-110 transition-all duration-700"></i>
         </div>
-        <div class="p-10 border-r border-slate-50 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
-            <p class="text-[10px] font-black text-green-600/50 uppercase tracking-widest">JUMLAH PENDAPATAN</p>
+        <div class="p-10 border-r border-slate-300 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
+            <p class="text-sm font-black text-green-700 uppercase tracking-widest">JUMLAH PENDAPATAN</p>
             <p class="text-4xl font-black text-green-600 mt-4">RM <?php echo number_format($totals['income'], 2); ?></p>
             <?php
                 $income_pct = $totals['income'] > 0 && $totals['expense'] > 0 
                     ? round(($totals['income'] / ($totals['income'] + $totals['expense'])) * 100) : 0;
             ?>
-            <div class="mt-4 h-1.5 w-full bg-slate-100">
+            <div class="mt-4 h-1.5 w-full bg-slate-200">
                 <div class="h-full bg-green-500 transition-all duration-1000" style="width:<?php echo $income_pct; ?>%"></div>
             </div>
         </div>
         <div class="p-10 flex flex-col justify-center hover:bg-slate-50 transition-colors group">
-            <p class="text-[10px] font-black text-red-600/50 uppercase tracking-widest">JUMLAH PERBELANJAAN</p>
+            <p class="text-sm font-black text-red-700 uppercase tracking-widest">JUMLAH PERBELANJAAN</p>
             <p class="text-4xl font-black text-red-600 mt-4">RM <?php echo number_format($totals['expense'], 2); ?></p>
             <?php $expense_pct = 100 - $income_pct; ?>
-            <div class="mt-4 h-1.5 w-full bg-slate-100">
+            <div class="mt-4 h-1.5 w-full bg-slate-200">
                 <div class="h-full bg-red-500 transition-all duration-1000" style="width:<?php echo $expense_pct; ?>%"></div>
             </div>
         </div>
@@ -132,23 +133,23 @@ $page_title = 'PENGURUSAN KEWANGAN';
     <?php if (!empty($branchTotals)): ?>
     <div class="space-y-6">
         <div class="flex items-center justify-between">
-            <h2 class="text-xs font-black text-kebana-blue uppercase tracking-[0.3em] flex items-center gap-3">
+            <h2 class="text-base font-black text-kebana-blue uppercase tracking-[0.3em] flex items-center gap-3">
                 <i class="fa-solid fa-building-columns text-kebana-yellow"></i>
                 Pecahan Dana Mengikut Cawangan
             </h2>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <?php foreach ($branchTotals as $bt): ?>
-            <div class="bg-white p-6 border border-slate-100 shadow-sm hover:border-kebana-blue/30 transition-all group">
-                <p class="text-[8px] font-black text-slate-300 uppercase tracking-widest mb-2"><?php echo htmlspecialchars($bt['name']); ?></p>
+            <div class="bg-white p-6 border border-slate-300 shadow-sm hover:border-kebana-blue/30 transition-all group">
+                <p class="text-sm font-black text-slate-600 uppercase tracking-widest mb-2"><?php echo htmlspecialchars($bt['name']); ?></p>
                 <div class="flex items-end justify-between">
-                    <p class="text-lg font-black text-kebana-blue">RM <?php echo number_format($bt['balance'], 2); ?></p>
+                    <p class="text-xl font-black text-kebana-blue">RM <?php echo number_format($bt['balance'], 2); ?></p>
                     <div class="text-right">
-                        <p class="text-[7px] font-bold text-green-500 uppercase">+ RM <?php echo number_format($bt['income'], 2); ?></p>
-                        <p class="text-[7px] font-bold text-red-400 uppercase">- RM <?php echo number_format($bt['expense'], 2); ?></p>
+                        <p class="text-sm font-bold text-green-700 uppercase">+ RM <?php echo number_format($bt['income'], 2); ?></p>
+                        <p class="text-sm font-bold text-red-600 uppercase">- RM <?php echo number_format($bt['expense'], 2); ?></p>
                     </div>
                 </div>
-                <div class="mt-4 h-1 w-full bg-slate-50 rounded-full overflow-hidden">
+                <div class="mt-4 h-1 w-full bg-slate-200 rounded-full overflow-hidden">
                     <?php 
                         $b_pct = ($bt['income'] + $bt['expense'] > 0) ? round(($bt['income'] / ($bt['income'] + $bt['expense'])) * 100) : 0;
                     ?>
@@ -163,14 +164,14 @@ $page_title = 'PENGURUSAN KEWANGAN';
     <!-- ========== CHARTS SECTION ========== -->
     <!-- Year Selector -->
     <div class="flex items-center justify-between">
-        <h2 class="text-xs font-black text-kebana-blue uppercase tracking-[0.3em] flex items-center gap-3">
+        <h2 class="text-base font-black text-kebana-blue uppercase tracking-[0.3em] flex items-center gap-3">
             <i class="fa-solid fa-chart-mixed text-kebana-yellow"></i>
             Analisis Visual — Tahun <?php echo $chart_year; ?>
         </h2>
         <form method="GET" class="flex items-center gap-3">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tahun:</label>
+            <label class="text-sm font-black text-slate-600 uppercase tracking-widest">Tahun:</label>
             <select name="year" onchange="this.form.submit()"
-                    class="px-4 py-2 bg-white border border-slate-200 text-xs font-black text-kebana-blue uppercase outline-none focus:border-kebana-blue rounded-none appearance-none cursor-pointer">
+                    class="px-4 py-2 bg-white border border-slate-300 text-base font-black text-kebana-blue uppercase outline-none focus:border-kebana-blue rounded-none appearance-none cursor-pointer">
                 <?php for ($y = (int)date('Y'); $y >= (int)date('Y') - 4; $y--): ?>
                 <option value="<?php echo $y; ?>" <?php echo $y === $chart_year ? 'selected' : ''; ?>><?php echo $y; ?></option>
                 <?php endfor; ?>
@@ -179,14 +180,14 @@ $page_title = 'PENGURUSAN KEWANGAN';
     </div>
 
     <!-- Chart Row 1: Monthly Cash Flow (full width) -->
-    <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
-        <div class="p-8 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+    <div class="bg-white border border-slate-300 shadow-sm overflow-hidden">
+        <div class="p-8 border-b border-slate-300 bg-slate-50/50 flex items-center justify-between">
             <div>
-                <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">
+                <h3 class="text-base font-black text-kebana-blue uppercase tracking-widest">
                     <i class="fa-solid fa-chart-column mr-2 text-kebana-yellow"></i>
                     Aliran Tunai Bulanan
                 </h3>
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-tighter mt-1">Perbandingan pendapatan vs perbelanjaan setiap bulan</p>
+                <p class="text-sm font-black text-slate-600 uppercase tracking-tighter mt-1">Perbandingan pendapatan vs perbelanjaan setiap bulan</p>
             </div>
         </div>
         <div class="p-8" style="height: 320px;">
@@ -195,15 +196,15 @@ $page_title = 'PENGURUSAN KEWANGAN';
     </div>
 
     <!-- Chart Row 2: Running Balance + Category Donut (side by side) -->
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-0 border border-slate-100 bg-white shadow-sm overflow-hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-0 border border-slate-300 bg-white shadow-sm overflow-hidden">
         <!-- Running Balance (3/5 width) -->
-        <div class="lg:col-span-3 border-r border-slate-100">
-            <div class="p-8 border-b border-slate-50 bg-slate-50/50">
-                <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">
+        <div class="lg:col-span-3 border-r border-slate-300">
+            <div class="p-8 border-b border-slate-300 bg-slate-50/50">
+                <h3 class="text-base font-black text-kebana-blue uppercase tracking-widest">
                     <i class="fa-solid fa-chart-line mr-2 text-green-500"></i>
                     Baki Kumulatif Dana
                 </h3>
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-tighter mt-1">Trend kesihatan kewangan sepanjang tahun</p>
+                <p class="text-sm font-black text-slate-600 uppercase tracking-tighter mt-1">Trend kesihatan kewangan sepanjang tahun</p>
             </div>
             <div class="p-8" style="height: 300px;">
                 <canvas id="balanceChart"></canvas>
@@ -212,16 +213,16 @@ $page_title = 'PENGURUSAN KEWANGAN';
 
         <!-- Category Donut (2/5 width) -->
         <div class="lg:col-span-2">
-            <div class="p-8 border-b border-slate-50 bg-slate-50/50">
-                <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">
+            <div class="p-8 border-b border-slate-300 bg-slate-50/50">
+                <h3 class="text-base font-black text-kebana-blue uppercase tracking-widest">
                     <i class="fa-solid fa-chart-pie mr-2 text-red-500"></i>
                     Pecahan Perbelanjaan
                 </h3>
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-tighter mt-1">Mengikut kategori perbelanjaan</p>
+                <p class="text-sm font-black text-slate-600 uppercase tracking-tighter mt-1">Mengikut kategori perbelanjaan</p>
             </div>
             <div class="p-8 flex items-center justify-center" style="height: 300px;">
                 <?php if (empty($catBreakdown)): ?>
-                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest text-center">Tiada data perbelanjaan</p>
+                <p class="text-sm font-black text-slate-500 uppercase tracking-widest text-center">Tiada data perbelanjaan</p>
                 <?php else: ?>
                 <canvas id="categoryChart"></canvas>
                 <?php endif; ?>
@@ -231,27 +232,27 @@ $page_title = 'PENGURUSAN KEWANGAN';
     <!-- ========== END CHARTS ========== -->
 
     <!-- Recent Transactions Section -->
-    <div class="bg-white border border-slate-100 shadow-sm overflow-hidden">
-        <div class="p-8 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
-            <h3 class="text-xs font-black text-kebana-blue uppercase tracking-widest">Transaksi Terkini</h3>
-            <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter italic">* Menunjukkan 8 rekod pendaftaran terakhir</span>
+    <div class="bg-white border border-slate-300 shadow-sm overflow-hidden">
+        <div class="p-8 border-b border-slate-300 bg-slate-50/50 flex items-center justify-between">
+            <h3 class="text-base font-black text-kebana-blue uppercase tracking-widest">Transaksi Terkini</h3>
+            <span class="text-sm font-black text-slate-600 uppercase tracking-tighter italic">* Menunjukkan 8 rekod pendaftaran terakhir</span>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="border-b border-slate-100">
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-300 uppercase tracking-widest">Tarikh</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-300 uppercase tracking-widest">Kategori & Projek</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-300 uppercase tracking-widest">Mod</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-300 uppercase tracking-widest text-center">Resit</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-300 uppercase tracking-widest">Amaun</th>
-                        <th class="px-8 py-6 text-[9px] font-black text-slate-300 uppercase tracking-widest text-right">Direkod Oleh</th>
+                    <tr class="border-b border-slate-300">
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest">Tarikh</th>
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest">Kategori & Projek</th>
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest">Mod</th>
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest text-center">Resit</th>
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest">Amaun</th>
+                        <th class="px-8 py-6 text-sm font-black text-slate-600 uppercase tracking-widest text-right">Direkod Oleh</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-50">
+                <tbody class="divide-y divide-slate-200">
                     <?php if (empty($recent)): ?>
                     <tr>
-                        <td colspan="6" class="px-8 py-20 text-center text-[10px] font-black text-slate-200 uppercase tracking-[0.3em]">Tiada Transaksi Direkodkan</td>
+                        <td colspan="6" class="px-8 py-20 text-center text-sm font-black text-slate-500 uppercase tracking-[0.3em]">Tiada Transaksi Direkodkan</td>
                     </tr>
                     <?php else: ?>
                         <?php foreach ($recent as $t):
@@ -259,15 +260,15 @@ $page_title = 'PENGURUSAN KEWANGAN';
                         ?>
                         <tr class="hover:bg-slate-50/50 transition-colors group">
                             <td class="px-8 py-6">
-                                <p class="text-xs font-black text-slate-400 uppercase tracking-tighter"><?php echo date('d M', strtotime($t['trans_date'])); ?></p>
-                                <p class="text-[9px] font-bold text-slate-300 uppercase"><?php echo date('Y', strtotime($t['trans_date'])); ?></p>
+                                <p class="text-base font-black text-slate-600 uppercase tracking-tighter"><?php echo date('d M', strtotime($t['trans_date'])); ?></p>
+                                <p class="text-sm font-bold text-slate-500 uppercase"><?php echo date('Y', strtotime($t['trans_date'])); ?></p>
                             </td>
                             <td class="px-8 py-6">
-                                <p class="text-xs font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($t['category']); ?></p>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-1 italic"><?php echo htmlspecialchars($t['event_title'] ?? 'Dana Am Persatuan'); ?></p>
+                                <p class="text-base font-black text-kebana-blue uppercase"><?php echo htmlspecialchars($t['category']); ?></p>
+                                <p class="text-sm font-bold text-slate-600 uppercase mt-1 italic"><?php echo htmlspecialchars($t['event_title'] ?? 'Dana Am Persatuan'); ?></p>
                             </td>
                             <td class="px-8 py-6">
-                                <span class="text-[9px] font-black px-3 py-1 bg-slate-100 text-slate-500 uppercase tracking-widest">
+                                <span class="text-sm font-black px-3 py-1 bg-slate-200 text-slate-700 uppercase tracking-widest">
                                     <?php echo (!empty($t['payment_mode']) && $t['payment_mode'] !== '0') ? htmlspecialchars($t['payment_mode']) : 'Cash'; ?>
                                 </span>
                             </td>
@@ -279,12 +280,12 @@ $page_title = 'PENGURUSAN KEWANGAN';
                                 <?php endif; ?>
                             </td>
                             <td class="px-8 py-6">
-                                <p class="text-sm font-black <?php echo $is_income ? 'text-green-600' : 'text-red-600'; ?>">
+                                <p class="text-base font-black <?php echo $is_income ? 'text-green-600' : 'text-red-600'; ?>">
                                     <?php echo $is_income ? '+' : '-'; ?> RM <?php echo number_format($t['amount'], 2); ?>
                                 </p>
                             </td>
                             <td class="px-8 py-6 text-right">
-                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest"><?php echo htmlspecialchars($t['recorder_name'] ?? 'Sistem'); ?></p>
+                                <p class="text-sm font-black text-slate-600 uppercase tracking-widest"><?php echo htmlspecialchars($t['recorder_name'] ?? 'Sistem'); ?></p>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -292,8 +293,8 @@ $page_title = 'PENGURUSAN KEWANGAN';
                 </tbody>
             </table>
         </div>
-        <div class="p-8 bg-slate-50 border-t border-slate-100 text-center">
-            <a href="<?= URL_ROOT ?>/finance/transactions/list" class="text-[10px] font-black text-kebana-blue uppercase tracking-widest hover:text-kebana-accent transition-colors">
+        <div class="p-8 bg-slate-50 border-t border-slate-300 text-center">
+            <a href="<?= URL_ROOT ?>/finance/transactions/list" class="text-sm font-black text-kebana-blue uppercase tracking-widest hover:text-kebana-accent transition-colors">
                 LIHAT SEMUA TRANSAKSI <i class="fa-solid fa-arrow-right ml-2"></i>
             </a>
         </div>
@@ -305,8 +306,8 @@ $page_title = 'PENGURUSAN KEWANGAN';
 (function () {
     // Shared font & color config
     Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.font.size   = 11;
-    Chart.defaults.color       = '#94a3b8';
+    Chart.defaults.font.size   = 13;
+    Chart.defaults.color       = '#475569'; // Darker gray for better contrast (#94a3b8 is too light)
 
     const kebanaBlue   = '#003366';
     const kebanaAccent = '#004A99';
@@ -348,7 +349,7 @@ $page_title = 'PENGURUSAN KEWANGAN';
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
                     legend: {
-                        labels: { font: { weight: '700', size: 11 }, padding: 20 }
+                        labels: { font: { weight: '700', size: 13 }, padding: 20 }
                     },
                     tooltip: {
                         callbacks: {
@@ -359,7 +360,7 @@ $page_title = 'PENGURUSAN KEWANGAN';
                 scales: {
                     x: { grid: { display: false }, ticks: { font: { weight: '700' } } },
                     y: {
-                        grid: { color: '#f1f5f9' },
+                        grid: { color: '#e2e8f0' }, // Darker grid line for better visibility
                         ticks: {
                             font: { weight: '700' },
                             callback: v => 'RM ' + v.toLocaleString('ms-MY')
@@ -412,7 +413,7 @@ $page_title = 'PENGURUSAN KEWANGAN';
                         ticks: { font: { weight: '700' }, maxTicksLimit: 8 }
                     },
                     y: {
-                        grid: { color: '#f1f5f9' },
+                        grid: { color: '#e2e8f0' },
                         ticks: {
                             font: { weight: '700' },
                             callback: v => 'RM ' + v.toLocaleString('ms-MY')
@@ -450,7 +451,7 @@ $page_title = 'PENGURUSAN KEWANGAN';
                     legend: {
                         position: 'bottom',
                         labels: {
-                            font: { weight: '700', size: 10 },
+                            font: { weight: '700', size: 12 },
                             padding: 12,
                             boxWidth: 12,
                             usePointStyle: true,

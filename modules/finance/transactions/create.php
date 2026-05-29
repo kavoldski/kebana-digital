@@ -54,38 +54,38 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
             <h2 class="text-2xl font-black uppercase tracking-tight italic <?php echo $preselected_type === 'Income' ? 'text-green-700' : 'text-red-700'; ?>">
                 <?php echo $preselected_type === 'Income' ? 'Rekod Wang Masuk (Pendapatan)' : 'Rekod Wang Keluar (Perbelanjaan)'; ?>
             </h2>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Sila isi butiran <?php echo $preselected_type === 'Income' ? 'pendapatan / penerimaan' : 'perbelanjaan / pembayaran'; ?> di bawah.</p>
+            <p class="text-sm font-black text-slate-600 uppercase tracking-widest mt-2">Sila isi butiran <?php echo $preselected_type === 'Income' ? 'pendapatan / penerimaan' : 'perbelanjaan / pembayaran'; ?> di bawah.</p>
         </div>
-        <a href="<?= URL_ROOT ?>/finance" class="text-[10px] font-black text-slate-400 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
+        <a href="<?= URL_ROOT ?>/finance" class="text-sm font-black text-slate-600 hover:text-kebana-blue uppercase tracking-widest flex items-center transition-colors">
             <i class="fa-solid fa-arrow-left mr-3"></i>
             KEMBALI
         </a>
     </div>
 
     <?php if ($message): ?>
-    <div class="p-6 <?php echo $message_type === 'success' ? 'bg-green-50 text-green-700 border-l-4 border-green-600' : 'bg-red-50 text-red-700 border-l-4 border-red-600'; ?> font-bold text-xs uppercase tracking-widest animate-pulse">
+    <div class="p-6 <?php echo $message_type === 'success' ? 'bg-green-50 text-green-700 border-l-4 border-green-600' : 'bg-red-50 text-red-700 border-l-4 border-red-600'; ?> font-bold text-sm uppercase tracking-widest animate-pulse">
         <?php echo $message; ?>
     </div>
     <?php endif; ?>
 
-    <div class="bg-white p-12 border border-slate-100 shadow-xl">
+    <div class="bg-white p-12 border border-slate-300 shadow-xl">
         <form method="POST" enctype="multipart/form-data" class="space-y-12">
             <!-- Type Selector -->
             <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 text-center">Jenis Transaksi</label>
+                <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-6 text-center">Jenis Transaksi</label>
                 <div class="flex gap-6 justify-center">
                         <label class="cursor-pointer group flex-1">
                         <input type="radio" name="trans_type" value="Income" <?php echo $preselected_type === 'Income' ? 'checked' : ''; ?> class="hidden peer">
-                        <div class="p-6 text-center border-2 border-slate-100 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
-                            <i class="fa-solid fa-arrow-trend-up text-2xl text-slate-200 group-hover:text-green-600 peer-checked:text-green-600 mb-3 block"></i>
-                            <span class="text-xs font-black uppercase tracking-widest text-slate-400 peer-checked:text-green-700">Pendapatan (Masuk)</span>
+                        <div class="p-6 text-center border-2 border-slate-300 peer-checked:border-green-600 peer-checked:bg-green-50 transition-all">
+                            <i class="fa-solid fa-arrow-trend-up text-2xl text-slate-300 group-hover:text-green-600 peer-checked:text-green-600 mb-3 block"></i>
+                            <span class="text-sm font-black uppercase tracking-widest text-slate-500 peer-checked:text-green-700">Pendapatan (Masuk)</span>
                         </div>
                     </label>
                     <label class="cursor-pointer group flex-1">
                         <input type="radio" name="trans_type" value="Expense" <?php echo $preselected_type === 'Expense' ? 'checked' : ''; ?> class="hidden peer">
-                        <div class="p-6 text-center border-2 border-slate-100 peer-checked:border-red-600 peer-checked:bg-red-50 transition-all">
-                            <i class="fa-solid fa-arrow-trend-down text-2xl text-slate-200 group-hover:text-red-600 peer-checked:text-red-600 mb-3 block"></i>
-                            <span class="text-xs font-black uppercase tracking-widest text-slate-400 peer-checked:text-red-700">Perbelanjaan</span>
+                        <div class="p-6 text-center border-2 border-slate-300 peer-checked:border-red-600 peer-checked:bg-red-50 transition-all">
+                            <i class="fa-solid fa-arrow-trend-down text-2xl text-slate-300 group-hover:text-red-600 peer-checked:text-red-600 mb-3 block"></i>
+                            <span class="text-sm font-black uppercase tracking-widest text-slate-500 peer-checked:text-red-700">Perbelanjaan</span>
                         </div>
                     </label>
                 </div>
@@ -93,26 +93,26 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Amaun (RM) <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Amaun (RM) <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <span class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 font-bold">RM</span>
+                        <span class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500 font-black text-lg">RM</span>
                         <input type="number" name="amount" id="amount-input" step="0.01" required
-                               class="w-full pl-16 pr-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xl font-black transition-all"
+                               class="w-full pl-16 pr-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-xl font-black transition-all"
                                placeholder="0.00">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tarikh Transaksi <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Tarikh Transaksi <span class="text-red-500">*</span></label>
                     <input type="date" name="trans_date" id="date-input" value="<?php echo date('Y-m-d'); ?>" required
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold transition-all">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 gap-10">
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Kategori <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Kategori <span class="text-red-500">*</span></label>
                     <input type="text" name="category" id="category-input" list="cat-list" required
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all"
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold transition-all"
                            placeholder="Cth: Yuran Ahli, Sewa Dewan, dsb.">
                     <datalist id="cat-list">
                         <?php foreach ($categories as $cat): ?>
@@ -122,14 +122,14 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
 
                     <?php if (!empty($categories)): ?>
                     <div class="mt-4 flex flex-wrap gap-2">
-                        <span class="text-[8px] font-black text-slate-300 uppercase tracking-widest mr-2 self-center">Cadangan:</span>
+                        <span class="text-sm font-black text-slate-500 uppercase tracking-widest mr-2 self-center">Cadangan:</span>
                         <?php 
                         // Show top 6 suggestions as quick tags
                         $display_cats = array_slice($categories, 0, 6);
                         foreach ($display_cats as $cat): 
                         ?>
                         <button type="button" onclick="document.getElementById('category-input').value = '<?php echo addslashes($cat); ?>'"
-                                class="px-3 py-1 bg-slate-50 border border-slate-100 text-[9px] font-black text-slate-400 uppercase tracking-tighter hover:bg-kebana-blue hover:text-white hover:border-kebana-blue transition-all">
+                                class="px-3 py-1 bg-slate-50 border border-slate-300 text-xs font-black text-slate-600 uppercase tracking-tighter hover:bg-kebana-blue hover:text-white hover:border-kebana-blue transition-all">
                             <?php echo htmlspecialchars($cat); ?>
                         </button>
                         <?php endforeach; ?>
@@ -140,8 +140,8 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Pautkan ke Projek (Opsional)</label>
-                    <select name="event_id" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all rounded-none appearance-none">
+                    <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Pautkan ke Projek (Opsional)</label>
+                    <select name="event_id" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold transition-all rounded-none appearance-none">
                         <option value="">-- Dana Am Persatuan --</option>
                         <?php foreach ($events as $ev): ?>
                         <option value="<?php echo $ev['event_id']; ?>"><?php echo htmlspecialchars($ev['event_title']); ?></option>
@@ -149,20 +149,20 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Mod Pembayaran <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Mod Pembayaran <span class="text-red-500">*</span></label>
                     <div class="flex gap-4">
                         <label class="cursor-pointer group flex-1">
                             <input type="radio" name="payment_mode" value="Cash" checked required class="hidden peer">
-                            <div class="p-4 text-center border-2 border-slate-100 peer-checked:border-kebana-blue peer-checked:bg-blue-50 transition-all">
-                                <i class="fa-solid fa-money-bill-wave text-xl text-slate-200 group-hover:text-kebana-blue peer-checked:text-kebana-blue mb-2 block transition-colors"></i>
-                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 peer-checked:text-kebana-blue">Tunai (Cash)</span>
+                            <div class="p-4 text-center border-2 border-slate-300 peer-checked:border-kebana-blue peer-checked:bg-blue-50 transition-all">
+                                <i class="fa-solid fa-money-bill-wave text-xl text-slate-300 group-hover:text-kebana-blue peer-checked:text-kebana-blue mb-2 block transition-colors"></i>
+                                <span class="text-sm font-black uppercase tracking-widest text-slate-500 peer-checked:text-kebana-blue">Tunai (Cash)</span>
                             </div>
                         </label>
                         <label class="cursor-pointer group flex-1">
                             <input type="radio" name="payment_mode" value="Bank" required class="hidden peer">
-                            <div class="p-4 text-center border-2 border-slate-100 peer-checked:border-kebana-blue peer-checked:bg-blue-50 transition-all">
-                                <i class="fa-solid fa-building-columns text-xl text-slate-200 group-hover:text-kebana-blue peer-checked:text-kebana-blue mb-2 block transition-colors"></i>
-                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 peer-checked:text-kebana-blue">Bank / Cek</span>
+                            <div class="p-4 text-center border-2 border-slate-300 peer-checked:border-kebana-blue peer-checked:bg-blue-50 transition-all">
+                                <i class="fa-solid fa-building-columns text-xl text-slate-300 group-hover:text-kebana-blue peer-checked:text-kebana-blue mb-2 block transition-colors"></i>
+                                <span class="text-sm font-black uppercase tracking-widest text-slate-500 peer-checked:text-kebana-blue">Bank / Cek</span>
                             </div>
                         </label>
                     </div>
@@ -171,19 +171,19 @@ $page_title = $preselected_type === 'Income' ? 'REKOD MASUK' : 'REKOD KELUAR';
 
             <div class="grid grid-cols-1 gap-10">
                 <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Muat Naik Resit / Bukti Pembayaran (PDF/Imej)</label>
+                    <label class="block text-sm font-black text-slate-600 uppercase tracking-widest mb-3">Muat Naik Resit / Bukti Pembayaran (PDF/Imej)</label>
                     <input type="file" name="receipt" id="receipt-input" accept=".pdf,.jpg,.jpeg,.png"
-                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-100 focus:border-kebana-blue focus:bg-white outline-none text-xs font-bold transition-all">
+                           class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-300 focus:border-kebana-blue focus:bg-white outline-none text-base font-bold transition-all">
                     <input type="hidden" name="metadata" id="metadata-input">
-                    <p class="mt-2 text-[9px] font-black text-kebana-blue uppercase tracking-widest flex items-center gap-2" id="ai-status">
-                        <i class="fa-solid fa-microchip animate-pulse"></i> 
+                    <p class="mt-2 text-sm font-black text-kebana-blue uppercase tracking-widest flex items-center gap-2" id="ai-status">
+                        <i class="fa-solid fa-microchip animate-pulse text-lg"></i> 
                         <span id="ai-status-text">AI Smart Scan Aktif: Pilih fail untuk mula imbasan.</span>
                     </p>
                 </div>
             </div>
 
             <div class="pt-10">
-                <button type="submit" class="w-full bg-kebana-blue text-white py-6 text-xs font-black uppercase tracking-[0.3em] hover:bg-kebana-accent transition-all shadow-2xl">
+                <button type="submit" class="w-full bg-kebana-blue text-white py-6 text-base font-black uppercase tracking-[0.3em] hover:bg-kebana-accent transition-all shadow-2xl">
                     SIMPAN TRANSAKSI
                 </button>
             </div>
