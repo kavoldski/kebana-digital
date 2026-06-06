@@ -126,6 +126,7 @@ if ($msg === 'success') {
     $msg_text = 'Dokumen berjaya dipadam sepenuhnya dari server.';
     $msg_class = 'bg-red-50 text-red-700 border-l-4 border-red-600';
 }
+?>
 
 <?php if ($msg_text): 
 ?>
