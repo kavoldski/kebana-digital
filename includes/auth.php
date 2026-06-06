@@ -22,7 +22,7 @@ define('INACTIVITY_TIMEOUT_SECONDS', 900); // 15 minutes
 // Validate session variables
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['username']) || !isset($_SESSION['role'])) {
     session_destroy();
-    header('Location: ../../modules/auth/login.php?error=Session expired');
+    header('Location: ' . URL_ROOT . '/login?error=Session expired');
     exit();
 }
 

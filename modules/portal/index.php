@@ -249,6 +249,10 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
                     <a href="<?php echo URL_ROOT; ?>/dashboard" class="px-5 lg:px-8 py-2.5 lg:py-3.5 bg-kebana-blue text-white text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl shadow-kebana-blue/20 rounded-full">
                         DASHBOARD
                     </a>
+                <?php else: ?>
+                    <a href="<?php echo URL_ROOT; ?>/login" class="px-5 lg:px-8 py-2.5 lg:py-3.5 bg-kebana-blue text-white text-xs font-black uppercase tracking-[0.2em] hover:bg-kebana-accent transition-all shadow-xl shadow-kebana-blue/20 rounded-full">
+                        LOG MASUK
+                    </a>
                 <?php endif; ?>
             </div>
         </div>
