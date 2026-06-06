@@ -418,6 +418,7 @@ $page_title = 'ANALISIS BAJET';
                         </tr>
 
                     <?php endforeach; ?>
+                    <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>
             </table>
