@@ -222,7 +222,15 @@ $page_title = 'LAPORAN KEWANGAN ACARA';
             <div class="p-8 flex items-center justify-center" style="height: 280px;">
                 <?php if (!empty($cat_breakdown)): ?>
                 <canvas id="catChart"></canvas>
-                <?php el    <!-- Transaction Log -->
+                <?php else: ?>
+                <p class="text-sm font-black text-slate-400 uppercase tracking-widest text-center">Tiada perbelanjaan direkodkan</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Transaction Log -->
     <div class="bg-white border border-slate-300 shadow-sm overflow-hidden">
         <div class="p-8 border-b border-slate-300 bg-slate-50/50 flex items-center justify-between">
             <h3 class="text-base font-black text-kebana-blue uppercase tracking-widest">
