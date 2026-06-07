@@ -12,6 +12,7 @@
                         &copy; <?php echo date('Y'); ?> KEBANA Digital Management System.
                     </p>
                     <div class="flex space-x-6 text-sm text-slate-500">
+                        <a href="<?php echo URL_ROOT; ?>/manual" class="hover:text-primary-600 transition-colors font-bold text-kebana-blue"><i class="fa-solid fa-book mr-1"></i> User Manual</a>
                         <a href="#" class="hover:text-primary-600 transition-colors">Privacy Policy</a>
                         <a href="#" class="hover:text-primary-600 transition-colors">Terms of Service</a>
                         <span class="text-slate-300">v1.1.0-tailwind</span>

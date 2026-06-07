@@ -164,6 +164,7 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
                     ['link' => 'cawangan', 'icon' => 'fa-building-shield', 'label' => 'Pengurusan Cawangan', 'visible' => ($current_role === 888)],
                     ['link' => 'audit', 'icon' => 'fa-shield-halved', 'label' => 'Log Audit Sistem', 'visible' => in_array($current_role, [888, 1, 4, 6])],
                     ['link' => 'chat', 'icon' => 'fa-comments', 'label' => 'Pusat Komunikasi', 'visible' => true, 'badge' => $unreadChatCount],
+                    ['link' => 'manual', 'icon' => 'fa-book-open-reader', 'label' => 'Manual Pengguna', 'visible' => true],
                 ];
 
                 foreach ($nav_items as $item): 
