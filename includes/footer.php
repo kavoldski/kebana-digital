@@ -407,5 +407,12 @@
             }
         };
     </script>
+    <?php
+    $current_route = $route ?? $_GET['route'] ?? '';
+    $current_route = preg_replace('/\.php$/', '', $current_route);
+    if (isset($_SESSION['user_id']) && $current_route !== 'chat'):
+        require_once APP_ROOT . '/includes/chat_widget.php';
+    endif;
+    ?>
 </body>
 </html>
