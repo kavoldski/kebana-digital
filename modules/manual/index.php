@@ -503,7 +503,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
                 <!-- 3.3 -->
                 <div id="ch3-3" class="space-y-4 pt-4">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        <span class="text-kebana-blue">3.3</span> Identity Card (MyKad) OCR Scanning
+                        <span class="text-kebana-blue">3.3</span> Registration Form OCR Scanning
                     </h2>
                     <p class="text-sm leading-relaxed text-slate-650">
                         KDMS incorporates client-side optical character recognition (OCR) using `Tesseract.js`.
@@ -511,16 +511,16 @@ $isLoggedIn = isset($_SESSION['user_id']);
                     <div class="p-6 bg-slate-50 border-l-4 border-kebana-blue rounded-r-lg space-y-2">
                         <h4 class="text-xs font-black text-kebana-blue uppercase tracking-widest">How it Works</h4>
                         <ol class="text-xs text-slate-600 list-decimal list-inside space-y-1">
-                            <li>Drag and drop a clear picture of the member's MyKad into the upload zone, or click to upload.</li>
+                            <li>Drag and drop a clear picture of the member's registration form/IC into the upload zone, or click to upload.</li>
                             <li>The OCR engine initializes and analyzes the image in-browser (protecting data privacy).</li>
-                            <li>Extracted fields like Name, IC Number, and Date of Birth are automatically populated.</li>
+                            <li>Extracted fields like Name, Email, Phone Number, IC Number, and Date of Birth are automatically populated.</li>
                         </ol>
                     </div>
                     
                     <!-- Screenshot Integration -->
                     <div class="border border-slate-200 p-2 bg-slate-50 rounded-lg shadow-sm">
                         <img src="<?php echo URL_ROOT; ?>/public/assets/img/manual/ocr.png" alt="MyKad OCR Interface Illustration" class="w-full h-auto rounded border border-slate-200">
-                        <p class="text-[10px] text-slate-500 text-center mt-2 uppercase font-bold">Figure 3.1: Client-side MyKad OCR scanning panel</p>
+                        <p class="text-[10px] text-slate-500 text-center mt-2 uppercase font-bold">Figure 3.1: Client-side Registration Form/IC OCR scanning panel</p>
                     </div>
                 </div>
 
