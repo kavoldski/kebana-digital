@@ -375,8 +375,8 @@ if (method_exists(AnnouncementHelper::class, 'getCoverImageMap')) {
             </div>
 
             <div class="flex flex-wrap justify-center gap-x-6 md:gap-x-8 lg:gap-x-10 gap-y-2 text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-[0.12em]">
-                <a href="#" class="hover:text-kebana-blue transition-colors">Dasar Privasi</a>
-                <a href="#" class="hover:text-kebana-blue transition-colors">Terma &amp; Syarat</a>
+                <a href="<?php echo URL_ROOT; ?>/privacy" class="hover:text-kebana-blue transition-colors">Dasar Privasi</a>
+                <a href="<?php echo URL_ROOT; ?>/terms" class="hover:text-kebana-blue transition-colors">Terma &amp; Syarat</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Bantuan</a>
                 <a href="#" class="hover:text-kebana-blue transition-colors">Hubungi Kami</a>
             </div>
