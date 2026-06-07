@@ -592,25 +592,29 @@ $isLoggedIn = isset($_SESSION['user_id']);
                         Event proposals undergo a strict multi-tier review process to ensure budget alignment and executive consent:
                     </p>
                     <div class="p-6 bg-slate-50 border border-slate-200 rounded-lg space-y-4">
-                        <div class="flex flex-col sm:flex-row items-center gap-4 text-xs font-bold text-center">
-                            <div class="bg-amber-100 text-amber-800 border border-amber-305 px-4 py-2 w-full sm:w-1/3 uppercase rounded">
-                                Draft / Dicipta
+                        <div class="flex flex-col sm:flex-row items-center gap-2 text-xs font-bold text-center">
+                            <div class="bg-blue-100 text-blue-800 border border-blue-305 px-3 py-2 w-full sm:w-1/4 uppercase rounded shadow-sm">
+                                Cipta & Agih<br><span class="text-[10px] font-normal">(Setiausaha Pusat)</span>
                             </div>
-                            <div class="text-slate-400 sm:rotate-0 rotate-90">
-                                <i class="fa-solid fa-arrow-right"></i>
+                            <div class="text-slate-400 sm:rotate-0 rotate-90"><i class="fa-solid fa-arrow-right"></i></div>
+                            <div class="bg-indigo-100 text-indigo-800 border border-indigo-305 px-3 py-2 w-full sm:w-1/4 uppercase rounded shadow-sm">
+                                Semakan<br><span class="text-[10px] font-normal">(Presiden)</span>
                             </div>
-                            <div class="bg-indigo-100 text-indigo-800 border border-indigo-305 px-4 py-2 w-full sm:w-1/3 uppercase rounded">
-                                Dihantar Cawangan
+                            <div class="text-slate-400 sm:rotate-0 rotate-90"><i class="fa-solid fa-arrow-right"></i></div>
+                            <div class="flex flex-col gap-2 w-full sm:w-1/4">
+                                <div class="bg-green-100 text-green-800 border border-green-305 px-3 py-1 uppercase rounded shadow-sm">Lulus</div>
+                                <div class="bg-red-100 text-red-800 border border-red-305 px-3 py-1 uppercase rounded shadow-sm">Tolak</div>
                             </div>
-                            <div class="text-slate-400 sm:rotate-0 rotate-90">
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </div>
-                            <div class="bg-green-100 text-green-800 border border-green-305 px-4 py-2 w-full sm:w-1/3 uppercase rounded">
-                                Diluluskan Presiden
+                            <div class="text-slate-400 sm:rotate-0 rotate-90"><i class="fa-solid fa-arrow-right"></i></div>
+                            <div class="bg-amber-100 text-amber-800 border border-amber-305 px-3 py-2 w-full sm:w-1/4 uppercase rounded shadow-sm">
+                                Notifikasi<br><span class="text-[10px] font-normal">(Cawangan)</span>
                             </div>
                         </div>
                         <p class="text-xs text-slate-600 leading-relaxed">
-                            Once created as a <strong>Draft</strong>, the Branch Chairman submits the proposal. It scales to the <strong>Setiausaha Pusat</strong> and <strong>Presiden</strong> dashboards, who review the budgets and either grant final Approval or reject it back to drafts with comments.
+                            <strong>1.</strong> The <strong>Setiausaha Pusat</strong> creates a Master Event and assigns it to a specific Cawangan.<br>
+                            <strong>2.</strong> The proposal is automatically sent to the <strong>Presiden</strong>.<br>
+                            <strong>3.</strong> The <strong>Presiden</strong> reviews the event and either grants <strong>Approval (Lulus)</strong> or <strong>Rejection (Tolak)</strong>.<br>
+                            <strong>4.</strong> Upon the decision, the system directly notifies the respective <strong>Cawangan</strong> (Setiausaha or Pengerusi Cawangan).
                         </p>
                     </div>
                 </div>
