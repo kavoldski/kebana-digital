@@ -34,8 +34,9 @@ try {
     $pending_docs = DashboardHelper::getPendingDocumentsCount($current_role, $current_cawangan_id);
     $total_docs = DashboardHelper::getTotalDocumentsCount();
 
-    $fund_balance = DashboardHelper::getFundBalance();
-    $finance_totals = FinanceHelper::getFinanceTotals();
+    $scope_cawangan = in_array($current_role, $CAWANGAN_ROLES, true) ? $current_cawangan_id : null;
+    $fund_balance = DashboardHelper::getFundBalance($scope_cawangan);
+    $finance_totals = FinanceHelper::getTotals($scope_cawangan);
 
     $pending_approvals = DashboardHelper::getPendingApprovalsCount($current_role, $current_cawangan_id);
     $branch_finance = in_array($current_role, [888, 1, 2, 3]) ? FinanceHelper::getBranchTotals() : [];

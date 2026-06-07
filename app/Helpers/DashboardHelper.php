@@ -100,15 +100,31 @@ class DashboardHelper {
         return (int) $count;
     }
 
-    public static function getFundBalance() {
+    public static function getFundBalance($cawanganId = null) {
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("
+        
+        $sql = "
             SELECT 
-                COALESCE(SUM(CASE WHEN trans_type = 'Income' THEN amount ELSE 0 END), 0) as total_income,
-                COALESCE(SUM(CASE WHEN trans_type = 'Expense' THEN amount ELSE 0 END), 0) as total_expense
-            FROM tbl_transaction
-        ");
+                COALESCE(SUM(CASE WHEN t.trans_type = 'Income' THEN t.amount ELSE 0 END), 0) as total_income,
+                COALESCE(SUM(CASE WHEN t.trans_type = 'Expense' THEN t.amount ELSE 0 END), 0) as total_expense
+            FROM tbl_transaction t
+        ";
+        
+        if ($cawanganId !== null) {
+            $sql .= "
+                LEFT JOIN tbl_event e ON t.event_id = e.event_id
+                LEFT JOIN tbl_user u ON t.recorded_by = u.user_id
+                WHERE COALESCE(e.cawangan_id, u.cawangan_id) = ?
+            ";
+        }
+        
+        $stmt = $db->prepare($sql);
         if (!$stmt) return 0.00;
+        
+        if ($cawanganId !== null) {
+            $stmt->bind_param("i", $cawanganId);
+        }
+        
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
         $stmt->close();

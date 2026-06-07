@@ -11,7 +11,7 @@ use App\Core\Database;
 require_once __DIR__ . '/../../../includes/auth.php';
 require_once __DIR__ . '/../../../includes/dbconnect.php';
 
-if (!hasRole([888, 1, 2, 3, 6, 7, 55, 66])) {
+if (!hasRole([888, 1, 2, 3, 6, 7, 11, 33, 55, 66])) {
     header("Location: " . URL_ROOT . "/finance/transactions/list?msg=denied");
     exit;
 }

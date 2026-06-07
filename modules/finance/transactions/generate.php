@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../../includes/dbconnect.php';
 use App\Core\Database;
 
 // Security check: Only allow high-level roles: Super Admin (888), Presiden (1), Timbalan 1 (2), Timbalan 2 (3), Bendahari Pusat (6), Bendahari Cawangan (55)
-if (!hasRole([888, 1, 2, 3, 6, 55])) {
+if (!hasRole([888, 1, 2, 3, 6, 11, 33, 55])) {
     die("Akses Disekat: Anda tidak mempunyai kebenaran untuk menjana laporan.");
 }
 

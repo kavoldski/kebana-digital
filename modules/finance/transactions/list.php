@@ -10,7 +10,7 @@ use App\Core\Database;
 $page_title = 'SENARAI TRANSAKSI';
 require_once APP_ROOT . '/includes/header.php';
 
-if (!hasRole([888, 1, 2, 3, 6, 7, 55, 66])) {
+if (!hasRole([888, 1, 2, 3, 6, 7, 11, 33, 55, 66])) {
     echo "<div class='p-12 text-center'><h1 class='text-2xl font-black text-red-600 uppercase tracking-widest'>AKSES DISEKAT</h1></div>";
     require_once APP_ROOT . '/includes/footer.php';
     exit;
@@ -88,7 +88,7 @@ $filtered_balance = $filtered_income - $filtered_expense;
             <p class="text-sm font-black text-slate-600 uppercase tracking-widest mt-2">Rekod Terperinci Aliran Masuk dan Keluar Dana.</p>
         </div>
         <div class="flex flex-wrap gap-3">
-            <?php if (hasRole([888, 1, 2, 3, 6, 55])): ?>
+            <?php if (hasRole([888, 1, 2, 3, 6, 11, 33, 55])): ?>
             <button onclick="openReportModal()" class="bg-kebana-blue text-white px-8 py-4 text-sm font-black uppercase tracking-[0.15em] hover:bg-kebana-accent transition-all shadow-lg inline-flex items-center">
                 <i class="fa-solid fa-file-invoice mr-3 text-base"></i>
                 JANA LAPORAN
@@ -252,7 +252,7 @@ $filtered_balance = $filtered_income - $filtered_expense;
 </div>
 
 <!-- Report Modal -->
-<?php if (hasRole([888, 1, 2, 3, 6, 55])): ?>
+<?php if (hasRole([888, 1, 2, 3, 6, 11, 33, 55])): ?>
 <div id="reportModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white border-t-8 border-kebana-blue shadow-2xl max-w-lg w-full p-8 relative space-y-6">
         <button onclick="closeReportModal()" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition-colors">
