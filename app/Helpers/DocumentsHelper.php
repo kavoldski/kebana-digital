@@ -29,7 +29,7 @@ class DocumentsHelper {
             $types .= "sss";
         }
         if (!empty($filters['cawangan_id'])) {
-            $where .= " AND (u.cawangan_id = ? OR e.cawangan_id = ?)";
+            $where .= " AND (u.cawangan_id = ? OR e.cawangan_id = ? OR e.status = 'Approved')";
             $params[] = (int)$filters['cawangan_id'];
             $params[] = (int)$filters['cawangan_id'];
             $types .= "ii";
@@ -82,18 +82,34 @@ class DocumentsHelper {
         $types = "";
 
         if (!empty($filters['tag'])) {
-            $where .= " AND doc_tags LIKE ?";
+            $where .= " AND d.doc_tags LIKE ?";
             $params[] = "%" . $filters['tag'] . "%";
             $types .= "s";
         }
         if (!empty($filters['search'])) {
-            $where .= " AND (doc_name LIKE ? OR doc_tags LIKE ?)";
+            $where .= " AND (d.doc_name LIKE ? OR d.doc_tags LIKE ? OR d.doc_description LIKE ?)";
             $params[] = "%" . $filters['search'] . "%";
             $params[] = "%" . $filters['search'] . "%";
-            $types .= "ss";
+            $params[] = "%" . $filters['search'] . "%";
+            $types .= "sss";
+        }
+        if (!empty($filters['cawangan_id'])) {
+            $where .= " AND (u.cawangan_id = ? OR e.cawangan_id = ? OR e.status = 'Approved')";
+            $params[] = (int)$filters['cawangan_id'];
+            $params[] = (int)$filters['cawangan_id'];
+            $types .= "ii";
+        }
+        if (!empty($filters['ext'])) {
+            $where .= " AND d.file_path LIKE ?";
+            $params[] = "%." . $filters['ext'];
+            $types .= "s";
         }
 
-        $sql = "SELECT COUNT(*) as total FROM tbl_document d WHERE $where";
+        $sql = "SELECT COUNT(*) as total 
+                FROM tbl_document d
+                LEFT JOIN tbl_event e ON d.event_id = e.event_id
+                LEFT JOIN tbl_user u ON d.uploaded_by = u.user_id
+                WHERE $where";
         $stmt = $db->prepare($sql);
         if ($stmt) {
             if (!empty($params)) $stmt->bind_param($types, ...$params);
@@ -180,7 +196,8 @@ class DocumentsHelper {
         $db = Database::getInstance()->getConnection();
         $where = "1=1";
         if ($cawangan_id) {
-            $where = "(u.cawangan_id = $cawangan_id OR e.cawangan_id = $cawangan_id)";
+            $cawangan_id = (int)$cawangan_id;
+            $where = "(u.cawangan_id = $cawangan_id OR e.cawangan_id = $cawangan_id OR e.status = 'Approved')";
         }
 
         $sql = "SELECT 
@@ -200,7 +217,8 @@ class DocumentsHelper {
         $db = Database::getInstance()->getConnection();
         $where = "1=1";
         if ($cawangan_id) {
-            $where = "(u.cawangan_id = $cawangan_id OR e.cawangan_id = $cawangan_id)";
+            $cawangan_id = (int)$cawangan_id;
+            $where = "(u.cawangan_id = $cawangan_id OR e.cawangan_id = $cawangan_id OR e.status = 'Approved')";
         }
 
         $sql = "SELECT 
@@ -227,7 +245,8 @@ class DocumentsHelper {
         $db = Database::getInstance()->getConnection();
         $where = "1=1";
         if ($cawangan_id) {
-            $where = "(u.cawangan_id = $cawangan_id OR e.cawangan_id = $cawangan_id)";
+            $cawangan_id = (int)$cawangan_id;
+            $where = "(u.cawangan_id = $cawangan_id OR e.cawangan_id = $cawangan_id OR e.status = 'Approved')";
         }
 
         $sql = "SELECT 
