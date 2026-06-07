@@ -695,14 +695,25 @@ class EventsHelper {
     public static function checkinByIC($eventId, $icNumber) {
         $db = Database::getInstance()->getConnection();
         
-        // Sanitize IC: Remove dashes/spaces to match DB format
-        $icNumber = preg_replace('/[^0-9]/', '', $icNumber);
+        // Sanitize IC: Remove dashes/spaces to get clean numeric string
+        $icNumberClean = preg_replace('/[^0-9]/', '', $icNumber);
+        
+        // Also generate standard Malaysian dash-formatted version if 12 digits: XXXXXX-XX-XXXX
+        $icNumberFormatted = $icNumberClean;
+        if (strlen($icNumberClean) === 12) {
+            $icNumberFormatted = substr($icNumberClean, 0, 6) . '-' . substr($icNumberClean, 6, 2) . '-' . substr($icNumberClean, 8, 4);
+        }
 
-        // 1. Find member by IC
-        $stmt = $db->prepare("SELECT member_id, full_name FROM tbl_member WHERE ic_number = ? AND status = 'Active'");
+        // 1. Find member by IC, matching both formats and a database-level normalized fallback
+        $stmt = $db->prepare("
+            SELECT member_id, full_name 
+            FROM tbl_member 
+            WHERE (ic_number = ? OR ic_number = ? OR REPLACE(REPLACE(ic_number, '-', ''), ' ', '') = ?) 
+              AND status = 'Active'
+        ");
         if (!$stmt) return ['status' => false, 'message' => 'System error'];
         
-        $stmt->bind_param("s", $icNumber);
+        $stmt->bind_param("sss", $icNumberClean, $icNumberFormatted, $icNumberClean);
         $stmt->execute();
         $res = $stmt->get_result();
         $member = $res->fetch_assoc();
