@@ -106,12 +106,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <!-- OCR Alert Result (Hidden by default) -->
-        <div id="ocr_result_alert" class="hidden p-6 bg-green-50 border-green-600 text-green-800 border-l-4 font-black text-sm uppercase tracking-widest shadow-sm">
+        <div id="ocr_result_alert" class="hidden p-6 border-l-4 font-black text-sm uppercase tracking-widest shadow-sm">
             <div class="flex items-start">
-                <i class="fa-solid fa-circle-check mr-4 text-lg mt-0.5"></i>
+                <i id="ocr_alert_icon" class="fa-solid mr-4 text-lg mt-0.5"></i>
                 <div>
-                    <span>Maklumat berjaya diekstrak secara automatik!</span>
-                    <p class="text-xs font-bold text-green-700 lowercase mt-1 tracking-wide">Sila semak semula semua medan di bawah sebelum menyimpan maklumat.</p>
+                    <span id="ocr_alert_title"></span>
+                    <p id="ocr_alert_desc" class="text-xs font-bold lowercase mt-1 tracking-wide"></p>
                 </div>
             </div>
         </div>
@@ -422,31 +422,81 @@ document.addEventListener('DOMContentLoaded', function() {
             ocrPercentageText.innerText = '100%';
             ocrStatusText.innerText = 'Selesai Imbas!';
             
-            // Auto-populate fields
+            // Auto-populate fields and track missing ones
             const extracted = parseOCRText(text);
-            
+            const missingFields = [];
+
             if (extracted.name) {
                 document.getElementById('full_name').value = extracted.name;
                 highlightField('full_name');
+            } else {
+                missingFields.push('Nama Penuh');
             }
+
             if (extracted.ic) {
                 document.getElementById('ic_number').value = extracted.ic;
                 highlightField('ic_number');
+            } else {
+                missingFields.push('No. Kad Pengenalan');
             }
+
             if (extracted.gender) {
                 document.getElementById('gender').value = extracted.gender;
                 highlightField('gender');
+            } else {
+                missingFields.push('Jantina');
             }
+
             if (extracted.phone) {
                 document.getElementById('phone_no').value = extracted.phone;
                 highlightField('phone_no');
+            } else {
+                missingFields.push('No. Telefon');
             }
+
             if (extracted.village) {
                 document.getElementById('village').value = extracted.village;
                 highlightField('village');
+            } else {
+                missingFields.push('Kawasan / Kampung');
             }
 
-            // Show success alert
+            // Configure alert dynamically based on missing fields
+            const alertIcon = document.getElementById('ocr_alert_icon');
+            const alertTitle = document.getElementById('ocr_alert_title');
+            const alertDesc = document.getElementById('ocr_alert_desc');
+
+            // Reset alert classes
+            ocrResultAlert.classList.remove(
+                'bg-green-50', 'border-green-600', 'text-green-800',
+                'bg-amber-50', 'border-amber-500', 'text-amber-800'
+            );
+            alertIcon.className = 'fa-solid mr-4 text-lg mt-0.5';
+            alertDesc.className = 'text-xs font-bold lowercase mt-1 tracking-wide';
+
+            if (missingFields.length === 0) {
+                // Completely successful extraction
+                ocrResultAlert.classList.add('bg-green-50', 'border-green-600', 'text-green-800');
+                alertIcon.classList.add('fa-circle-check');
+                alertTitle.innerText = 'Maklumat berjaya diekstrak secara automatik!';
+                alertDesc.classList.add('text-green-700');
+                alertDesc.innerText = 'Sila semak semula semua medan di bawah sebelum menyimpan maklumat.';
+            } else {
+                // Partial or failed extraction
+                ocrResultAlert.classList.add('bg-amber-50', 'border-amber-500', 'text-amber-800');
+                alertIcon.classList.add('fa-triangle-exclamation');
+                alertDesc.classList.add('text-amber-700');
+
+                if (missingFields.length === 5) {
+                    alertTitle.innerText = 'Maklumat gagal diekstrak!';
+                    alertDesc.innerText = 'Sila isi semua maklumat di bawah secara manual.';
+                } else {
+                    alertTitle.innerText = 'Maklumat diekstrak (Sebahagian Sahaja)!';
+                    alertDesc.innerText = 'Medan berikut tidak dapat dibaca, sila isi secara manual: ' + missingFields.join(', ') + '.';
+                }
+            }
+
+            // Show alert
             ocrResultAlert.classList.remove('hidden');
             
             // Smooth scroll down to first field
