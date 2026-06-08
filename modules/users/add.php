@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $db = Database::getInstance()->getConnection();
     
     $username = $_POST['username'];
+    $full_name = trim($_POST['full_name'] ?? '');
     $email = $_POST['email'];
     $role = (int)$_POST['role'];
     $cawangan_id = $_POST['cawangan_id'] ?: null;
@@ -26,12 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_hash = password_hash($password, PASSWORD_DEFAULT);
     
     $stmt = $db->prepare("
-        INSERT INTO tbl_user (username, email, role, cawangan_id, password_hash) 
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO tbl_user (username, full_name, email, role, cawangan_id, password_hash) 
+        VALUES (?, ?, ?, ?, ?, ?)
     ");
     
     if ($stmt) {
-        $stmt->bind_param("ssiis", $username, $email, $role, $cawangan_id, $password_hash);
+        $stmt->bind_param("sssiis", $username, $full_name, $email, $role, $cawangan_id, $password_hash);
         
         if ($stmt->execute()) {
             $stmt->close();
@@ -103,6 +104,11 @@ $role_names = [
         <div class="bg-white border-t-8 border-kebana-blue shadow-sm p-10 space-y-10">
             <form action="" method="POST" class="space-y-10">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-2">
+                        <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Nama Penuh (Real Name)</label>
+                        <input type="text" name="full_name" required placeholder="Contoh: Ahmad bin Osman" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-200 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
+                    </div>
+
                     <div class="space-y-2">
                         <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Username</label>
                         <input type="text" name="username" required placeholder="Contoh: ahmad_kebana" class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-200 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">

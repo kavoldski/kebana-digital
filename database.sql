@@ -29,6 +29,7 @@ ON DUPLICATE KEY UPDATE cawangan_name = VALUES(cawangan_name);
 CREATE TABLE IF NOT EXISTS tbl_user (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
+    full_name VARCHAR(150) DEFAULT NULL,
     password_hash VARCHAR(255) NOT NULL,
     role SMALLINT NOT NULL COMMENT '888: Super Admin, 4: Setiausaha Pusat, 33: Setiausaha Cawangan, etc.',
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -150,13 +151,14 @@ CREATE TABLE IF NOT EXISTS tbl_attendance (
 -- =====================================================
 
 -- Insert default Super Admin user (password: Admin@123)
-INSERT INTO tbl_user (username, password_hash, role, email) 
+INSERT INTO tbl_user (username, full_name, password_hash, role, email) 
 VALUES (
     'admin',
+    'Super Admin',
     '$2y$10$8RpLzg4qPp6x7n9mK2Q8d.gY5f6H3j8L4v5w6x7y8z9a0b1c2d3e4f5',
     888,
     'admin@kebana.local'
-) ON DUPLICATE KEY UPDATE role = 888;
+) ON DUPLICATE KEY UPDATE role = 888, full_name = VALUES(full_name);
 
 -- =====================================================
 -- Database Setup Complete

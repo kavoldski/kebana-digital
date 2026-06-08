@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Prepare SQL statement to prevent SQL injection
-        $stmt = $conn->prepare("SELECT user_id, username, email, password_hash, role, cawangan_id FROM tbl_user WHERE username = ?");
+        $stmt = $conn->prepare("SELECT user_id, username, full_name, email, password_hash, role, cawangan_id FROM tbl_user WHERE username = ?");
         
         if (!$stmt) {
             throw new Exception("Database error: " . $conn->error);
@@ -66,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Set session variables
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
+        $_SESSION['full_name'] = !empty($user['full_name']) ? $user['full_name'] : $user['username'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['role'] = isset($user['role']) ? (int)$user['role'] : 0;
         $_SESSION['cawangan_id'] = isset($user['cawangan_id']) && $user['cawangan_id'] !== null ? (int)$user['cawangan_id'] : null;

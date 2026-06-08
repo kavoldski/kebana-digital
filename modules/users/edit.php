@@ -32,6 +32,7 @@ $message_type = '';
 if (isset($_POST['update_info'])) {
     $data = [
         'username' => $_POST['username'],
+        'full_name' => trim($_POST['full_name'] ?? ''),
         'email' => $_POST['email'],
         'role' => (int)$_POST['role'],
         'cawangan_id' => $_POST['cawangan_id'] ?: null
@@ -117,6 +118,11 @@ $role_names = [
             
             <form action="" method="POST" class="space-y-8">
                 <div class="grid grid-cols-1 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Nama Penuh (Real Name)</label>
+                        <input type="text" name="full_name" value="<?php echo htmlspecialchars($user['full_name'] ?? ''); ?>" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-200 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">
+                    </div>
+
                     <div class="space-y-2">
                         <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Username</label>
                         <input type="text" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required class="w-full px-6 py-4 bg-slate-50 border-b-2 border-slate-200 focus:border-kebana-blue focus:bg-white outline-none text-sm font-bold transition-all">

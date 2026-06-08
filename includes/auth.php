@@ -40,6 +40,7 @@ $_SESSION['last_activity'] = time();
 // Store session variables in convenient variables
 $user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
+$full_name = $_SESSION['full_name'] ?? $username;
 $email = $_SESSION['email'] ?? 'User';
 $role = isset($_SESSION['role']) ? (int)$_SESSION['role'] : 0;
 

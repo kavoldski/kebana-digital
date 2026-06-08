@@ -13,6 +13,7 @@ $session_role_raw = $_SESSION['role'] ?? null;
 $current_role = is_numeric($session_role_raw) ? (int)$session_role_raw : 0;
 $current_cawangan_id = isset($_SESSION['cawangan_id']) && $_SESSION['cawangan_id'] !== null && $_SESSION['cawangan_id'] !== '' ? (int)$_SESSION['cawangan_id'] : null;
 $username = $_SESSION['username'] ?? 'User';
+$full_name = $_SESSION['full_name'] ?? $username;
 $current_user_id = $_SESSION['user_id'] ?? 0;
 $page_title = $page_title ?? '';
 
@@ -133,10 +134,10 @@ $role_name = $role_names[$current_role] ?? 'Ahli / Pengguna';
             <div class="p-6 relative z-10 border-b border-white/5 bg-black/20">
                 <div class="flex items-center space-x-4">
                     <div class="w-10 h-10 bg-kebana-yellow text-kebana-blue flex items-center justify-center font-black text-lg">
-                        <?php echo strtoupper(substr($username, 0, 1)); ?>
+                        <?php echo strtoupper(substr($full_name, 0, 1)); ?>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-black text-white truncate uppercase tracking-tight"><?php echo htmlspecialchars($username); ?></p>
+                        <p class="text-sm font-black text-white truncate uppercase tracking-tight"><?php echo htmlspecialchars($full_name); ?></p>
                         <p class="text-xs text-slate-400 truncate font-black uppercase tracking-widest"><?php echo htmlspecialchars((string)$role_name); ?></p>
                     </div>
                 </div>

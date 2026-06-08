@@ -37,7 +37,9 @@ $search = $_GET['search'] ?? '';
 $users = UserHelper::getAllUsers();
 if ($search) {
     $users = array_filter($users, function($u) use ($search) {
-        return stripos($u['username'], $search) !== false || stripos($u['email'], $search) !== false;
+        return stripos($u['username'], $search) !== false || 
+               (isset($u['full_name']) && stripos($u['full_name'], $search) !== false) || 
+               stripos($u['email'], $search) !== false;
     });
 }
 $cawangans = CawanganHelper::getAllCawangan();
@@ -139,8 +141,8 @@ $role_names = [
                             #<?php echo str_pad($u['user_id'], 3, '0', STR_PAD_LEFT); ?>
                         </td>
                         <td class="px-8 py-6">
-                            <p class="text-base font-black text-kebana-blue tracking-tight"><?php echo htmlspecialchars($u['username']); ?></p>
-                            <p class="text-xs text-slate-500 font-bold uppercase mt-1 tracking-widest"><?php echo htmlspecialchars($u['email']); ?></p>
+                            <p class="text-base font-black text-kebana-blue tracking-tight"><?php echo htmlspecialchars(!empty($u['full_name']) ? $u['full_name'] : $u['username']); ?></p>
+                            <p class="text-xs text-slate-500 font-bold uppercase mt-1 tracking-widest"><?php echo htmlspecialchars($u['username'] . ' • ' . $u['email']); ?></p>
                         </td>
                         <td class="px-8 py-6">
                             <?php 

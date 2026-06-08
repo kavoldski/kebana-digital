@@ -61,7 +61,7 @@ class UserHelper {
         
         $stmt = $db->prepare("
             UPDATE tbl_user 
-            SET username = ?, email = ?, role = ?, cawangan_id = ?, updated_at = CURRENT_TIMESTAMP 
+            SET username = ?, full_name = ?, email = ?, role = ?, cawangan_id = ?, updated_at = CURRENT_TIMESTAMP 
             WHERE user_id = ?
         ");
         
@@ -70,11 +70,12 @@ class UserHelper {
         }
 
         $username = $data['username'];
+        $full_name = $data['full_name'];
         $email = $data['email'];
         $role = $data['role'];
         $cawangan_id = $data['cawangan_id'] ?: null;
 
-        $stmt->bind_param("ssiii", $username, $email, $role, $cawangan_id, $user_id);
+        $stmt->bind_param("sssiii", $username, $full_name, $email, $role, $cawangan_id, $user_id);
         
         if ($stmt->execute()) {
             $stmt->close();
